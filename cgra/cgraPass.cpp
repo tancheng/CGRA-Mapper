@@ -48,7 +48,7 @@ namespace {
             {
               CGRANode* fu = cgra->nodes[i][j];
 //              errs()<<"DEBUG cgrapass: dfg node: "<<*(*dfg_node).first<<",["<<i<<"]["<<j<<"]\n";
-              map<CGRANode*, int> temp_path = mapper->calculateCost(cgra, dfg, *dfg_node, fu);
+              map<CGRANode*, int> temp_path = mapper->calculateCost(cgra, dfg, II, *dfg_node, fu);
               if(temp_path.size() != 0)
                 paths.push_back(temp_path);
               else

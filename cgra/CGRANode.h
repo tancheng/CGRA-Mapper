@@ -46,7 +46,7 @@ class CGRANode
     list<CGRANode*> getOutNeighbors();
 
     void constructMRRG(int, int);
-    bool canOccupyFU(int);
+    bool canOccupyFU(int, int);
     bool canOccupyXbar(CGRALink*, int);
     void setOpt(DFG_Node, int, int);
     void configXbar(CGRALink*, int, int);
@@ -55,7 +55,7 @@ class CGRANode
     list<CGRALink*> getAvailableOutLinks(int);
     list<CGRANode*> getAvailableOutNeighbors(int);
     int getAvailableRegisterCount();
-    int getMinIdleCycle(int);
+    int getMinIdleCycle(int, int);
     int getCurrentCtrlMemItems();
 };
 

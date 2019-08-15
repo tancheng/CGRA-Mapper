@@ -88,5 +88,7 @@ CGRALink* CGRA::getLink(CGRANode* n1, CGRANode* n2)
      }
   }
   errs() << "bad quiry for CGRA link\n";
-  assert(0);
+  return NULL;
+//  assert(0);
 }
+

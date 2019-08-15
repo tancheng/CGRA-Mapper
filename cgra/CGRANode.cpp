@@ -63,8 +63,13 @@ void CGRANode::constructMRRG(int CGRANodeCount, int II)
   }
 }
 
-bool CGRANode::canOccupyFU(int cycle) {
-  return !fu_occupied[cycle];
+bool CGRANode::canOccupyFU(int cycle, int II) {
+  for (int c=cycle; c<CycleBoundary; c+=II) {
+    if (fu_occupied[c]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void CGRANode::setOpt(DFG_Node opt, int cycle, int II) {
@@ -126,17 +131,17 @@ list<CGRALink*> CGRANode::getAvailableOutLinks(int cycle)
   return available_out_links;
 }
 
-list<CGRANode*> CGRANode::getAvailableOutNeighbors(int cycle)
-{
-  list<CGRANode*> available_out_neighbors;
-  for(list<CGRALink*>::iterator link=out_links.begin(); link!=out_links.end(); ++link)
-  {
-    CGRANode* neighbor = (*link)->getConnectedNode(this);
-    if(neighbor->canOccupyFU(cycle))
-      available_out_neighbors.push_back(neighbor);
-  }
-  return available_out_neighbors;
-}
+//list<CGRANode*> CGRANode::getAvailableOutNeighbors(int cycle)
+//{
+//  list<CGRANode*> available_out_neighbors;
+//  for(list<CGRALink*>::iterator link=out_links.begin(); link!=out_links.end(); ++link)
+//  {
+//    CGRANode* neighbor = (*link)->getConnectedNode(this);
+//    if(neighbor->canOccupyFU(cycle))
+//      available_out_neighbors.push_back(neighbor);
+//  }
+//  return available_out_neighbors;
+//}
 
 int CGRANode::getAvailableRegisterCount()
 {
@@ -165,10 +170,10 @@ CGRALink* CGRANode::getOutLink(CGRANode* node) {
   assert(0);
 }
 
-int CGRANode::getMinIdleCycle(int t_cycle) {
+int CGRANode::getMinIdleCycle(int t_cycle, int t_II) {
   int tempCycle = t_cycle;
   while (tempCycle < CycleBoundary) {
-    if (canOccupyFU(tempCycle))
+    if (canOccupyFU(tempCycle, t_II))
       return tempCycle;
     ++tempCycle;
   }
