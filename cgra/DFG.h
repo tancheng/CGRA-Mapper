@@ -35,4 +35,5 @@ class DFG {
     void DFS_on_DFG(Node, Node, list<Edge>*, list<Edge>*, list<list<Edge>>*);
     list<list<Edge>> getCycles();
     list<Node> getPredNodes(Node);
+    int getID(Node);
 };

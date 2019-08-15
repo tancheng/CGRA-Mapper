@@ -39,26 +39,37 @@ map<CGRANode*, int> Mapper::dijkstra_search(CGRA* cgra, DFG_Node srcDFGNode, CGR
   map<CGRANode*, CGRANode*> previous;
 //  errs()<<"DEBUG -1, srcDFGNode: "<<*(srcDFGNode.first)<<"; CGRANode: "<<mapping[srcDFGNode]->getID()<<"\n";
   timing[mapping[srcDFGNode]] = mapping_timing[srcDFGNode];
-  for(int i=0; i<cgra->getRows(); ++i)
-  {
-    for(int j=0; j<cgra->getColumns(); ++j)
-    {
+  for(int i=0; i<cgra->getRows(); ++i) {
+    for (int j=0; j<cgra->getColumns(); ++j) {
       CGRANode* node = cgra->nodes[i][j];
       distance[node] = MAX_COST;
       timing[node] = timing[mapping[srcDFGNode]] + 1;
+      // TODO: should also consider the xbar here?
+      if (!cgra->nodes[i][j]->canOccupyFU(timing[node])) {
+        int temp_cycle = timing[node];
+        timing[node] = MAX_COST;
+        while (temp_cycle < MAX_COST) {
+          if (cgra->nodes[i][j]->canOccupyFU(temp_cycle)) {
+            timing[node] = temp_cycle;
+            break;
+          }
+          ++temp_cycle;
+        }
+      }
       previous[node] = NULL;
       search_pool.push_back(cgra->nodes[i][j]);
     }
   }
+//  errs()<<"DEBUG see timing[mapping[srcDFGNode]] + 1: "<<timing[mapping[srcDFGNode]] + 1<<"\n";
+//  errs()<<"DEBUG see mapping_timg[srcDFGNode]]: "<<mapping_timing[srcDFGNode]<<"\n";
+//  errs()<<"DEBUG see srcDFGNode: "<<*srcDFGNode.first<<"\n";
+//  errs()<<"---------\n";
   distance[mapping[srcDFGNode]] = 0;
-  while(search_pool.size()!=0)
-  {
+  while (search_pool.size()!=0) {
     int min_cost = MAX_COST + 1;
     CGRANode* min_node;
-    for(list<CGRANode*>::iterator current_node=search_pool.begin(); current_node!=search_pool.end(); ++current_node)
-    {
-      if(distance[*current_node] < min_cost)
-      {
+    for (list<CGRANode*>::iterator current_node=search_pool.begin(); current_node!=search_pool.end(); ++current_node) {
+      if (distance[*current_node] < min_cost) {
         min_cost = distance[*current_node];
         min_node = *current_node;
       }
@@ -66,36 +77,43 @@ map<CGRANode*, int> Mapper::dijkstra_search(CGRA* cgra, DFG_Node srcDFGNode, CGR
     assert(min_node != NULL);
     search_pool.remove(min_node);
     // found the target point in the shortest path
-    if(min_node == dstCGRANode)
-    {
+    if (min_node == dstCGRANode) {
       // handle the case that the target DFG node wants to map to the same CGRA
       // node as the preDFGNode
-      if(mapping[srcDFGNode] == dstCGRANode)
-      {
-        int minIdleCycle = mapping_timing[srcDFGNode] + 1;
-        while(1)
-        {
-          if(!dstCGRANode->isFUOccupied(minIdleCycle))
-          {
-            timing[dstCGRANode] = minIdleCycle;
-            break;
-          }
-          ++minIdleCycle;
-        }
-      }
+//      if (mapping[srcDFGNode] == dstCGRANode)
+//      {
+//        int minIdleCycle = mapping_timing[srcDFGNode] + 1;
+//        while (1) {
+//          if (dstCGRANode->canOccupyFU(minIdleCycle)) {
+//            timing[dstCGRANode] = minIdleCycle;
+//            break;
+//          }
+//          ++minIdleCycle;
+//        }
+//      }
+//      {
+//        int minIdleCycle = min_node->getMinIdleCycle(timing[min_node]);
+        timing[dstCGRANode] = min_node->getMinIdleCycle(timing[min_node]);
+//        timing[dstCGRANode] = minIdleCycle;
+//        while (1) {
+//          if (dstCGRANode->canOccupyFU(minIdleCycle)) {
+//            timing[dstCGRANode] = minIdleCycle;
+//            break;
+//          }
+//          ++minIdleCycle;
+//        }
+//      }
       break;
     }
 //    errs()<<"DEBUG 2, min_node: "<<min_node->getID()<<"\n";
     list<CGRANode*> current_neighbors = min_node->getOutNeighbors();
-    for(list<CGRANode*>::iterator neighbor=current_neighbors.begin(); neighbor!=current_neighbors.end(); ++neighbor)
-    {
+    for (list<CGRANode*>::iterator neighbor=current_neighbors.begin(); neighbor!=current_neighbors.end(); ++neighbor) {
       int cycle = timing[min_node] + 1;
-      while(1)
-      {
+      while (1) {
         CGRALink* current_link = min_node->getOutLink(*neighbor);
         // TODO: should also consider the cost of the register file
-        if(!current_link->isOccupied(cycle) and !(*neighbor)->isFUOccupied(cycle))
-        {
+        // if(!current_link->isOccupied(cycle) and !(*neighbor)->canOccupyFU(cycle))
+        if (!current_link->isOccupied(cycle) and min_node->canOccupyXbar(current_link, cycle)) {
           // rough estimate the cost based on the suspend cycle
           int cost = distance[min_node] + (cycle - timing[min_node]);
           if(cost < distance[*neighbor])
@@ -124,18 +142,23 @@ map<CGRANode*, int> Mapper::dijkstra_search(CGRA* cgra, DFG_Node srcDFGNode, CGR
       u = previous[u];
     }
   }
+  if(timing[dstCGRANode] > maxMappingCycle) {
+    path.clear();
+    return path;
+  }
+//  errs()<<"DEBUG see the last cycle: "<<timing[dstCGRANode]<<"\n";
   return path;
 }
 
-CGRANode* Mapper::getMappedCGRANode(DFG_Node dfg_node)
-{
-  return mapping[dfg_node];
-}
-
-int Mapper::getMappedCGRANodeTiming(DFG_Node dfg_node)
-{
-  return mapping_timing[dfg_node];
-}
+//CGRANode* Mapper::getMappedCGRANode(DFG_Node dfg_node)
+//{
+//  return mapping[dfg_node];
+//}
+//
+//int Mapper::getMappedCGRANodeTiming(DFG_Node dfg_node)
+//{
+//  return mapping_timing[dfg_node];
+//}
 
 map<CGRANode*, int> Mapper::getPathWithMinCost(list<map<CGRANode*, int>> paths)
 {
@@ -161,38 +184,29 @@ map<CGRANode*, int> Mapper::getPathWithMinCost(list<map<CGRANode*, int>> paths)
 }
 
 // TODO: will grant award for the overuse the same link for the same data delivery
-map<CGRANode*, int> Mapper::calculateCost(CGRA* cgra, DFG* dfg, DFG_Node dfg_node, CGRANode* fu)
-{
+map<CGRANode*, int> Mapper::calculateCost(CGRA* cgra, DFG* dfg, DFG_Node dfg_node, CGRANode* fu) {
   map<CGRANode*, int> path;
   list<DFG_Node> predNodes = dfg->getPredNodes(dfg_node);
   int cost = 0;
-  bool isPredDFGNodeMapped = false;
-  for(list<DFG_Node>::iterator pre=predNodes.begin(); pre!=predNodes.end(); ++pre)
-  {
-    if(mapping.find(*pre) != mapping.end())
-    {
+  bool isAnyPredDFGNodeMapped = false;
+  for(list<DFG_Node>::iterator pre=predNodes.begin(); pre!=predNodes.end(); ++pre) {
+    if(mapping.find(*pre) != mapping.end()) {
       // leverage Dijkstra algorithm to search the shortest path between 
       // the mapped 'CGRANode' of the 'pre' and the target 'fu'
       map<CGRANode*, int> temp_path = dijkstra_search(cgra, *pre, fu);
-      if(temp_path[fu] > cost)
-      {
+      if(temp_path[fu] > cost) {
         cost = temp_path[fu];
         path = temp_path;
       }
-      isPredDFGNodeMapped = true;
+      isAnyPredDFGNodeMapped = true;
     }
   }
-  if(!isPredDFGNodeMapped)
-  {
+  if (!isAnyPredDFGNodeMapped) {
     int cycle = 0;
-    while(cycle < MAX_COST)
-    {
-      for(int i=0; i<cgra->getRows(); ++i)
-      {
-        for(int j=0; j<cgra->getColumns(); ++j)
-        {
-          if(!cgra->nodes[i][j]->isFUOccupied(cycle))
-          {
+    while (cycle < MAX_COST) {
+      for (int i=0; i<cgra->getRows(); ++i) {
+        for (int j=0; j<cgra->getColumns(); ++j) {
+          if (cgra->nodes[i][j]->canOccupyFU(cycle)) {
             path[cgra->nodes[i][j]] = cycle;
             return path;
           }
@@ -209,11 +223,9 @@ map<CGRANode*, int> Mapper::calculateCost(CGRA* cgra, DFG* dfg, DFG_Node dfg_nod
 // the 'path' contains one predecessor can be definitely mapped,
 // but the pathes containing other predecessors have possibility 
 // to fail in mapping.
-bool Mapper::schedule(CGRA* cgra, DFG* dfg, int II, DFG_Node dfg_node, map<CGRANode*, int> path)
-{
+bool Mapper::schedule(CGRA* cgra, DFG* dfg, int II, DFG_Node dfg_node, map<CGRANode*, int> path) {
   map<int, CGRANode*> reorder_path;
-  for(map<CGRANode*, int>::iterator iter=path.begin(); iter!=path.end(); ++iter)
-  {
+  for (map<CGRANode*, int>::iterator iter=path.begin(); iter!=path.end(); ++iter) {
     reorder_path[(*iter).second] = (*iter).first;
   }
   map<int, CGRANode*>::reverse_iterator ri = reorder_path.rbegin();
@@ -226,10 +238,8 @@ bool Mapper::schedule(CGRA* cgra, DFG* dfg, int II, DFG_Node dfg_node, map<CGRAN
 
   CGRANode* onePredCGRANode;
   map<int, CGRANode*>::iterator last_iter;
-  for(map<int, CGRANode*>::iterator iter=reorder_path.begin(); iter!=reorder_path.end(); ++iter)
-  {
-    if(iter != reorder_path.begin())
-    {
+  for (map<int, CGRANode*>::iterator iter=reorder_path.begin(); iter!=reorder_path.end(); ++iter) {
+    if (iter != reorder_path.begin()) {
       CGRALink* l = cgra->getLink((*last_iter).second, (*iter).second);
       l->occupy((*iter).first, II);
     } else {
@@ -240,15 +250,13 @@ bool Mapper::schedule(CGRA* cgra, DFG* dfg, int II, DFG_Node dfg_node, map<CGRAN
   // try to map the path with other predecessors,
   // should consider the timing (two branches should joint at the same time)
   list<DFG_Node> pre_nodes = dfg->getPredNodes(dfg_node);
-  for(list<DFG_Node>::iterator iter=pre_nodes.begin(); iter!=pre_nodes.end(); ++iter)
-  {
+  for (list<DFG_Node>::iterator iter=pre_nodes.begin(); iter!=pre_nodes.end(); ++iter) {
 //    errs()<<"DEBUG in loop of pre_nodes about tryToRoute()\n";
-    if(mapping.find(*iter) != mapping.end() and mapping[(*iter)] != onePredCGRANode)
-    {
+    if (mapping.find(*iter) != mapping.end() and mapping[(*iter)] != onePredCGRANode) {
 //      errs()<<"DEBUG mapped pre DFG node: "<<*((*iter).first)<<"\n";
 //      errs()<<"DEBUG mapped pre CGRA node: "<<mapping[(*iter)]->getID()<<"\n";
 //      errs()<<"DEBUG mapped pre timing: "<<mapping_timing[(*iter)]<<"\n";
-      if(!tryToRoute(cgra, II, *iter, mapping[*iter], fu))
+      if (!tryToRoute(cgra, II, *iter, mapping[*iter], fu))
         return false;
     }
   }
@@ -263,17 +271,55 @@ int Mapper::getMaxMappingCycle()
 void Mapper::showSchedule(CGRA* cgra, DFG* dfg, int II)
 {
   // TODO: display the mapping and routing with timing
-  for(list<DFG_Node>::iterator node=dfg->nodes.begin(); node!=dfg->nodes.end(); ++node)
-  {
-    errs()<<"DFG node ["<<*(*node).first<<"] on CGRA node ["<<mapping[*node]->getID()
-      <<"] on cycle "<<mapping_timing[*node]<<"\n";
+  int cycle = 0;
+  while (cycle <= cgra->getFUCount()) {
+    errs()<<"------------ cycle:"<<cycle<<" -------------\n";
+    for (int i=0; i<cgra->getRows(); ++i) {
+      for (int j=0; j<cgra->getColumns(); ++j) {
+        int occupied = false;
+        DFG_Node dfgNode;
+        for (list<DFG_Node>::iterator dfgNodeItr=dfg->nodes.begin(); dfgNodeItr!=dfg->nodes.end(); ++dfgNodeItr) {
+          if (mapping_timing[*dfgNodeItr] == cycle and mapping[*dfgNodeItr] == cgra->nodes[i][j]) {
+            occupied = true;
+            dfgNode = *dfgNodeItr;
+            break;
+          } else if (mapping[*dfgNodeItr] == cgra->nodes[i][j]) {
+            int temp_cycle = cycle - II;
+            if(temp_cycle == 0 and dfg->getID(*dfgNodeItr) == 1) {
+            }
+            while (temp_cycle >= 0) {
+              if (mapping_timing[*dfgNodeItr] == temp_cycle) {
+                occupied = true;
+                dfgNode = *dfgNodeItr;
+                break;
+              }
+              temp_cycle -= II;
+            }
+          }
+        }
+        if (occupied) {
+          if (dfg->getID(dfgNode) < 10)
+            errs()<<"[  "<<dfg->getID(dfgNode)<<"  ]  ";
+          else
+            errs()<<"[ "<<dfg->getID(dfgNode)<<"  ]  ";
+        } else {
+          errs()<<"[     ]  ";
+        }
+        if (j == cgra->getColumns() - 1)
+          errs()<<"\n";
+//        errs()<<"DFG node ["<<dfg->getID(*dfgNodeItr)<<"] on CGRA node ["<<mapping[*dfgNodeItr]->getID()<<"] on cycle "<<mapping_timing[*node]<<"\n";
+      }
+    }
+    ++cycle;
   }
   errs()<<"II: "<<II<<"\n";
 }
 
-// TODO: assume that the arriving data can stay inside the input buffer
-// TODO: traverse from dst to src
-// TODO: should consider the unmapped predecessors
+// TODO: Assume that the arriving data can stay inside the input buffer.
+// TODO: Should traverse from dst to src?
+// TODO: Should consider the unmapped predecessors.
+// TODO: Should consider the type of CGRA, say, a static in-elastic CGRA should
+//       join at the same successor at exact same cycle without pending.
 bool Mapper::tryToRoute(CGRA* cgra, int II, DFG_Node srcDFGNode, CGRANode* srcCGRANode, CGRANode* dstCGRANode)
 {
   list<CGRANode*> search_pool;
@@ -281,7 +327,6 @@ bool Mapper::tryToRoute(CGRA* cgra, int II, DFG_Node srcDFGNode, CGRANode* srcCG
   map<CGRANode*, int> timing;
   map<CGRANode*, CGRANode*> previous;
   timing[srcCGRANode] = mapping_timing[srcDFGNode];
-//  errs()<<"DEBUG inside tryToRoute() 1\n";
   for(int i=0; i<cgra->getRows(); ++i)
   {
     for(int j=0; j<cgra->getColumns(); ++j)
@@ -289,43 +334,49 @@ bool Mapper::tryToRoute(CGRA* cgra, int II, DFG_Node srcDFGNode, CGRANode* srcCG
       CGRANode* node = cgra->nodes[i][j];
       distance[node] = MAX_COST;
       timing[node] = timing[srcCGRANode] + 1;
+      // TODO: should also consider the xbar here?
+//      if (!cgra->nodes[i][j]->canOccupyFU(timing[node])) {
+//        int temp_cycle = timing[node];
+//        timing[node] = MAX_COST;
+//        while (temp_cycle < MAX_COST) {
+//          if (cgra->nodes[i][j]->canOccupyFU(temp_cycle)) {
+//            timing[node] = temp_cycle;
+//            break;
+//          }
+//          ++temp_cycle;
+//        }
+//      }
       previous[node] = NULL;
       search_pool.push_back(cgra->nodes[i][j]);
     }
   }
   distance[srcCGRANode] = 0;
-  while(search_pool.size()!=0)
-  {
+  while(search_pool.size()!=0) {
     int min_cost = MAX_COST + 1;
     CGRANode* min_node;
-    for(list<CGRANode*>::iterator current_node=search_pool.begin(); current_node!=search_pool.end(); ++current_node)
-    {
-      if(distance[*current_node] < min_cost)
-      {
+    for(list<CGRANode*>::iterator current_node=search_pool.begin(); current_node!=search_pool.end(); ++current_node) {
+      if(distance[*current_node] < min_cost) {
         min_cost = distance[*current_node];
         min_node = *current_node;
       }
     }
     search_pool.remove(min_node);
     // found the target point in the shortest path
-    if(min_node == dstCGRANode)
-    {
+    if(min_node == dstCGRANode) {
+//      timing[dstCGRANode] = min_node->getMinIdleCycle(timing[min_node]);
       break;
     }
     list<CGRANode*> current_neighbors = min_node->getOutNeighbors();
-    for(list<CGRANode*>::iterator neighbor=current_neighbors.begin(); neighbor!=current_neighbors.end(); ++neighbor)
-    {
+    for(list<CGRANode*>::iterator neighbor=current_neighbors.begin(); neighbor!=current_neighbors.end(); ++neighbor) {
       int cycle = timing[min_node] + 1;
-      while(1)
-      {
+      while(1) {
         CGRALink* current_link = min_node->getOutLink(*neighbor);
         // TODO: should also consider the cost of the register file
-        if(!current_link->isOccupied(cycle) and !(*neighbor)->isFUOccupied(cycle))
-        {
+        // if(!current_link->isOccupied(cycle) and !(*neighbor)->canOccupyFU(cycle))
+        if(!current_link->isOccupied(cycle) and min_node->canOccupyXbar(current_link, cycle)) {
           // rough estimate the cost based on the suspend cycle
           int cost = distance[min_node] + (cycle - timing[min_node]);
-          if(cost < distance[*neighbor])
-          {
+          if(cost < distance[*neighbor]) {
             distance[*neighbor] = cost;
             timing[*neighbor] = cycle;
             previous[*neighbor] = min_node;
@@ -339,13 +390,11 @@ bool Mapper::tryToRoute(CGRA* cgra, int II, DFG_Node srcDFGNode, CGRANode* srcCG
     }
   }
 
-  // construct the shortest path for return
+  // Construct the shortest path for routing.
   map<CGRANode*, int> path;
   CGRANode* u = dstCGRANode;
-  if(previous[u] != NULL or u == srcCGRANode)
-  {
-    while(u != NULL)
-    {
+  if(previous[u] != NULL or u == srcCGRANode) {
+    while(u != NULL) {
       path[u] = timing[u];
       u = previous[u];
     }
@@ -353,20 +402,20 @@ bool Mapper::tryToRoute(CGRA* cgra, int II, DFG_Node srcDFGNode, CGRANode* srcCG
     return false;
   }
 
-  // try to route the data flow
-  errs()<<"try to route the dataflow\n";
+  // Not a valid mapping if it exceeds the 'maxMappingCycle'.
+  if(timing[dstCGRANode] > maxMappingCycle) {
+    return false;
+  }
 
+  // try to route the data flow
   map<int, CGRANode*> reorder_path;
-  for(map<CGRANode*, int>::iterator iter=path.begin(); iter!=path.end(); ++iter)
-  {
+  for(map<CGRANode*, int>::iterator iter=path.begin(); iter!=path.end(); ++iter) {
     reorder_path[(*iter).second] = (*iter).first;
   }
 
   map<int, CGRANode*>::iterator last_iter;
-  for(map<int, CGRANode*>::iterator iter=reorder_path.begin(); iter!=reorder_path.end(); ++iter)
-  {
-    if(iter != reorder_path.begin())
-    {
+  for(map<int, CGRANode*>::iterator iter=reorder_path.begin(); iter!=reorder_path.end(); ++iter) {
+    if(iter != reorder_path.begin()) {
       CGRALink* l = cgra->getLink((*last_iter).second, (*iter).second);
       l->occupy((*iter).first, II);
     }

@@ -14,8 +14,8 @@ class Mapper {
     int maxMappingCycle;
     map<DFG_Node, CGRANode*> mapping;
     map<DFG_Node, int> mapping_timing;
-    CGRANode* getMappedCGRANode(DFG_Node);
-    int getMappedCGRANodeTiming(DFG_Node);
+//    CGRANode* getMappedCGRANode(DFG_Node);
+//    int getMappedCGRANodeTiming(DFG_Node);
 
   public:
     Mapper(){}

@@ -62,19 +62,35 @@ void CGRANode::constructMRRG(int CGRANodeCount, int II)
   }
 }
 
-bool CGRANode::isFUOccupied(int cycle)
-{
-  return fu_occupied[cycle];
+bool CGRANode::canOccupyFU(int cycle) {
+  return !fu_occupied[cycle];
 }
 
-void CGRANode::setOpt(DFG_Node opt, int cycle, int II)
-{
-  for(int c=cycle; c<CycleBoundary; c+=II)
-  {
+void CGRANode::setOpt(DFG_Node opt, int cycle, int II) {
+  for (int c=cycle; c<CycleBoundary; c+=II) {
+    assert(!fu_occupied[c]);
     dfg_opt[c].first = opt.first;
     dfg_opt[c].second = opt.second;
     fu_occupied[c] = true;
   }
+}
+
+// TODO: The configuration of xbar is also stored insde the config mem.
+// So we should check whether there is space left in the config mem to hold it.
+bool CGRANode::canOccupyXbar(CGRALink* outLink, int t_cycle)  {
+//  for(int c=cycle; c<CycleBoundary; c+=II)
+//  {
+//    dfg_opt[c].first = opt.first;
+//    dfg_opt[c].second = opt.second;
+//    fu_occupied[c] = true;
+//  }
+
+  return true;
+}
+
+void CGRANode::configXbar(CGRALink*, int, int)
+{
+
 }
 
 void CGRANode::addRegisterValue(float value)
@@ -114,7 +130,7 @@ list<CGRANode*> CGRANode::getAvailableOutNeighbors(int cycle)
   for(list<CGRALink*>::iterator link=out_links.begin(); link!=out_links.end(); ++link)
   {
     CGRANode* neighbor = (*link)->getConnectedNode(this);
-    if(neighbor->isFUOccupied(cycle))
+    if(neighbor->canOccupyFU(cycle))
       available_out_neighbors.push_back(neighbor);
   }
   return available_out_neighbors;
@@ -138,16 +154,21 @@ CGRALink* CGRANode::getInLink(CGRANode* node)
   assert(0);
 }
 
-CGRALink* CGRANode::getOutLink(CGRANode* node)
-{
-  for(list<CGRALink*>::iterator link=out_links.begin(); link!=out_links.end(); ++link)
-  {
-    if((*link)->getDst() == node)
-    {
+CGRALink* CGRANode::getOutLink(CGRANode* node) {
+  for (list<CGRALink*>::iterator link=out_links.begin(); link!=out_links.end(); ++link) {
+    if ((*link)->getDst() == node)
       return *link;
-    }
   }
   // will definitely return one outlink
   assert(0);
 }
 
+int CGRANode::getMinIdleCycle(int t_cycle) {
+  int tempCycle = t_cycle;
+  while (tempCycle < CycleBoundary) {
+    if (canOccupyFU(tempCycle))
+      return tempCycle;
+    ++tempCycle;
+  }
+  return CycleBoundary;
+}

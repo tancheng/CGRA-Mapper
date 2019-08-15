@@ -22,6 +22,7 @@ class CGRANode
     int RegisterCount;
     list<float> registers;
     int CtrlMemSize;
+    int CurrentCtrlItems;
     float* CtrlMem;
     list<CGRALink*> in_links;
     list<CGRALink*> out_links;
@@ -30,6 +31,7 @@ class CGRANode
     int CycleBoundary;
     bool* fu_occupied;
     DFG_Node* dfg_opt;
+    map<CGRALink*,bool*> xbar_occupied;
 
   public:
     CGRANode(int, int, int);
@@ -44,13 +46,16 @@ class CGRANode
     list<CGRANode*> getOutNeighbors();
 
     void constructMRRG(int, int);
-    bool isFUOccupied(int);
+    bool canOccupyFU(int);
+    bool canOccupyXbar(CGRALink*, int);
     void setOpt(DFG_Node, int, int);
+    void configXbar(CGRALink*, int, int);
     void addRegisterValue(float);
     list<CGRALink*> getAvailableInLinks(int);
     list<CGRALink*> getAvailableOutLinks(int);
     list<CGRANode*> getAvailableOutNeighbors(int);
     int getAvailableRegisterCount();
+    int getMinIdleCycle(int);
 };
 
 #endif

@@ -195,3 +195,15 @@ list<DFG::Node> DFG::getPredNodes(Node node)
   return predNodes;
 }
 
+int DFG::getID(Node t_node)
+{
+  int index = 0;
+  for(list<Node>::iterator iter=nodes.begin(); iter!=nodes.end(); ++iter) {
+    if((*iter).first == t_node.first) {
+      return index;
+    }
+    ++index;
+  }
+  return -1;
+}
+
