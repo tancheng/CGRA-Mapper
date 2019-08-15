@@ -9,14 +9,10 @@ namespace {
   public:
     static char ID;
     Mapper* mapper;
-//    int func_times = 0;
     cgraPass() : FunctionPass(ID) {}
    
-    bool runOnFunction(Function &F) override {
-//      if(func_times==1)
-//        return false;
-//      func_times++;
-      DFG* dfg = new DFG(F);
+    bool runOnFunction(Function &m_F) override {
+      DFG* dfg = new DFG(m_F);
       int rows = 4;
       int columns = 4;
       CGRA* cgra = new CGRA(rows, columns);
@@ -32,35 +28,29 @@ namespace {
         II = RecMII;
       
       bool fail = false;
-      while(1)
-      {
+      while (1) {
         int cycle = 0;
-        int optimal_cost = MAX_COST;
-        CGRANode* optimal_fu = NULL;
         mapper->constructMRRG(cgra, II);
         fail = false;
-        for(list<DFG::Node>::iterator dfg_node=dfg->nodes.begin(); dfg_node!=dfg->nodes.end(); ++dfg_node)
-        {
+        for(list<DFG::Node>::iterator dfgNode=dfg->nodes.begin(); 
+            dfgNode!=dfg->nodes.end(); ++dfgNode) {
           list<map<CGRANode*, int>> paths;
-          for(int i=0; i<rows; ++i)
-          {
-            for(int j=0; j<columns; ++j)
-            {
+          for (int i=0; i<rows; ++i) {
+            for (int j=0; j<columns; ++j) {
               CGRANode* fu = cgra->nodes[i][j];
-//              errs()<<"DEBUG cgrapass: dfg node: "<<*(*dfg_node).first<<",["<<i<<"]["<<j<<"]\n";
-              map<CGRANode*, int> temp_path = mapper->calculateCost(cgra, dfg, II, *dfg_node, fu);
-              if(temp_path.size() != 0)
-                paths.push_back(temp_path);
+//              errs()<<"DEBUG cgrapass: dfg node: "<<*(*dfgNode).first<<",["<<i<<"]["<<j<<"]\n";
+              map<CGRANode*, int> tempPath = 
+                mapper->calculateCost(cgra, dfg, II, *dfgNode, fu);
+              if(tempPath.size() != 0)
+                paths.push_back(tempPath);
               else
                 errs()<<"DEBUG no available path?\n";
             }
           }
           // TODO: already found a possible mapping
-          map<CGRANode*, int> optimal_path = mapper->getPathWithMinCost(paths);
-          if(optimal_path.size() != 0)
-          {
-            if(!mapper->schedule(cgra, dfg, II, *dfg_node, optimal_path))
-            {
+          map<CGRANode*, int> optimalPath = mapper->getPathWithMinCost(paths);
+          if (optimalPath.size() != 0) {
+            if (!mapper->schedule(cgra, dfg, II, *dfgNode, optimalPath)) {
               errs()<<"DEBUG fail1 in schedule()\n";
               fail = true;
               break;
@@ -80,6 +70,7 @@ namespace {
       errs() << "==================================\n";
       errs() << "[done]\n";
       errs() << "==================================\n";
+      errs()<<"\u2191 \u2193 \u21e7 \u21e9"<<"\n";
       return false;
     }
   };

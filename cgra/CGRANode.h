@@ -53,7 +53,6 @@ class CGRANode
     void addRegisterValue(float);
     list<CGRALink*> getAvailableInLinks(int);
     list<CGRALink*> getAvailableOutLinks(int);
-    list<CGRANode*> getAvailableOutNeighbors(int);
     int getAvailableRegisterCount();
     int getMinIdleCycle(int, int);
     int getCurrentCtrlMemItems();
