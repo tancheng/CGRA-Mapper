@@ -65,7 +65,7 @@ namespace {
               fail = true;
               break;
             }
-            errs()<<"DEBUG success in schedule()\n";
+//            errs()<<"DEBUG success in schedule()\n";
           } else {
             errs()<<"DEBUG fail2 in schedule()\n";
             fail = true;

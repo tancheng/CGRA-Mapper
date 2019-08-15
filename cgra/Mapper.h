@@ -22,7 +22,7 @@ class Mapper {
     int getResMII(DFG*, CGRA*);
     int getRecMII(DFG*);
     void constructMRRG(CGRA*, int);
-    map<CGRANode*, int> dijkstra_search(CGRA*, DFG_Node, CGRANode*);
+    map<CGRANode*, int> dijkstra_search(CGRA*, DFG*, DFG_Node, CGRANode*);
     map<CGRANode*, int> calculateCost(CGRA*, DFG*, DFG_Node, CGRANode*);
     bool schedule(CGRA*, DFG*, int, DFG_Node, map<CGRANode*, int>);
     int getMaxMappingCycle();

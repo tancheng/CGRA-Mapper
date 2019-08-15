@@ -7,6 +7,7 @@ CGRANode::CGRANode(int ID, int RegisterCount, int CtrlMemSize)
   this->RegisterCount = RegisterCount;
   this->CtrlMemSize = CtrlMemSize;
   CtrlMem = new float[CtrlMemSize];
+  currentCtrlItems = 0;
 }
 
 void CGRANode::setID(int ID)
@@ -72,6 +73,7 @@ void CGRANode::setOpt(DFG_Node opt, int cycle, int II) {
     dfg_opt[c].first = opt.first;
     dfg_opt[c].second = opt.second;
     fu_occupied[c] = true;
+    ++currentCtrlItems;
   }
 }
 
@@ -172,3 +174,8 @@ int CGRANode::getMinIdleCycle(int t_cycle) {
   }
   return CycleBoundary;
 }
+
+int CGRANode::getCurrentCtrlMemItems() {
+  return currentCtrlItems;
+}
+

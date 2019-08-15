@@ -22,7 +22,7 @@ class CGRANode
     int RegisterCount;
     list<float> registers;
     int CtrlMemSize;
-    int CurrentCtrlItems;
+    int currentCtrlItems;
     float* CtrlMem;
     list<CGRALink*> in_links;
     list<CGRALink*> out_links;
@@ -56,6 +56,7 @@ class CGRANode
     list<CGRANode*> getAvailableOutNeighbors(int);
     int getAvailableRegisterCount();
     int getMinIdleCycle(int);
+    int getCurrentCtrlMemItems();
 };
 
 #endif
