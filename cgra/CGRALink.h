@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRALink.h
+ * ======================================================================
+ * CGRA link implementation header file.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #ifndef CGRALink_H
 #define CGRALink_H
 

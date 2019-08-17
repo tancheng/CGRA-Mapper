@@ -1,3 +1,13 @@
+# 
+# ======================================================================
+# CMakeLists.txt
+# ======================================================================
+# CMakeLists for cgra pass.
+# 
+# Author : Cheng Tan
+#  Date : July 16, 2019
+#
+
 add_library(cgraPass MODULE
     # List your source files here.
     cgraPass.cpp

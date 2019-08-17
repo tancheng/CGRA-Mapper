@@ -1,11 +1,24 @@
+/*
+ * ======================================================================
+ * cgraPass.cpp
+ * ======================================================================
+ * CGRA pass implementation.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include <llvm/IR/Function.h>
 #include <llvm/Pass.h>
 #include <stdio.h>
 #include "Mapper.h"
 
 using namespace llvm;
+
 namespace {
+
   struct cgraPass : public FunctionPass {
+
   public:
     static char ID;
     Mapper* mapper;
@@ -32,7 +45,7 @@ namespace {
         int cycle = 0;
         mapper->constructMRRG(cgra, II);
         fail = false;
-        for(list<DFG::Node>::iterator dfgNode=dfg->nodes.begin(); 
+        for (list<DFG::Node>::iterator dfgNode=dfg->nodes.begin(); 
             dfgNode!=dfg->nodes.end(); ++dfgNode) {
           list<map<CGRANode*, int>> paths;
           for (int i=0; i<rows; ++i) {
@@ -70,7 +83,7 @@ namespace {
       errs() << "==================================\n";
       errs() << "[done]\n";
       errs() << "==================================\n";
-      errs()<<"\u2191 \u2193 \u21e7 \u21e9"<<"\n";
+      errs() <<"\u2191 \u2193 \u21e7 \u21e9 \u2192 \u21c4"<<"\n";
       return false;
     }
   };

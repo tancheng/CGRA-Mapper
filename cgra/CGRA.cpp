@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRA.cpp
+ * ======================================================================
+ * CGRA implementation.
+ * 
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include "CGRA.h"
 
 CGRA::CGRA(int rows, int columns)

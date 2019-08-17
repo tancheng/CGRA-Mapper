@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRANode.h
+ * ======================================================================
+ * CGRA tile implementation header file.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #ifndef CGRANode_H
 #define CGRANode_H
 

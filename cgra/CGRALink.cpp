@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRALink.cpp
+ * ======================================================================
+ * CGRA link implementation.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include "CGRALink.h"
 #include <assert.h>
 

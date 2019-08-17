@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * Mapper.cpp
+ * ======================================================================
+ * Mapper implementation.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include "Mapper.h"
 #include <cmath>
 
@@ -243,50 +253,104 @@ int Mapper::getMaxMappingCycle() {
   return maxMappingCycle;
 }
 
-void Mapper::showSchedule(CGRA* cgra, DFG* dfg, int II) {
-  // TODO: display the mapping and routing with timing
+void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II) {
   int cycle = 0;
-  while (cycle <= cgra->getFUCount()) {
+  int displayRows = t_cgra->getRows() * 2 - 1;
+  int displayColumns = t_cgra->getColumns() * 2;
+  string** display = new std::string*[displayRows];
+  for (int i=0; i<displayRows; ++i)
+    display[i] = new std::string[displayColumns];
+  for (int i=0; i<displayRows; ++i) {
+    for (int j=0; j<displayColumns; ++j) {
+      display[i][j] = "     ";
+      if (j == displayColumns - 1)
+        display[i][j] = "\n";
+    }
+  }
+
+  while (cycle <= t_cgra->getFUCount()) {
     errs()<<"------------ cycle:"<<cycle<<" -------------\n";
-    for (int i=0; i<cgra->getRows(); ++i) {
-      for (int j=0; j<cgra->getColumns(); ++j) {
-        int occupied = false;
+    for (int i=0; i<t_cgra->getRows(); ++i) {
+      for (int j=0; j<t_cgra->getColumns(); ++j) {
+        // Display the CGRA node occupancy.
+        bool fu_occupied = false;
         DFG_Node dfgNode;
-        for (list<DFG_Node>::iterator dfgNodeItr=dfg->nodes.begin(); dfgNodeItr!=dfg->nodes.end(); ++dfgNodeItr) {
-          if (mapping_timing[*dfgNodeItr] == cycle and mapping[*dfgNodeItr] == cgra->nodes[i][j]) {
-            occupied = true;
+        for (list<DFG_Node>::iterator dfgNodeItr=t_dfg->nodes.begin(); dfgNodeItr!=t_dfg->nodes.end(); ++dfgNodeItr) {
+          if (mapping_timing[*dfgNodeItr] == cycle and mapping[*dfgNodeItr] == t_cgra->nodes[i][j]) {
+            fu_occupied = true;
             dfgNode = *dfgNodeItr;
             break;
-          } else if (mapping[*dfgNodeItr] == cgra->nodes[i][j]) {
-            int temp_cycle = cycle - II;
-            if(temp_cycle == 0 and dfg->getID(*dfgNodeItr) == 1) {
+          } else if (mapping[*dfgNodeItr] == t_cgra->nodes[i][j]) {
+            int temp_cycle = cycle - t_II;
+            if(temp_cycle == 0 and t_dfg->getID(*dfgNodeItr) == 1) {
             }
             while (temp_cycle >= 0) {
               if (mapping_timing[*dfgNodeItr] == temp_cycle) {
-                occupied = true;
+                fu_occupied = true;
                 dfgNode = *dfgNodeItr;
                 break;
               }
-              temp_cycle -= II;
+              temp_cycle -= t_II;
             }
           }
         }
-        if (occupied) {
-          if (dfg->getID(dfgNode) < 10)
-            errs()<<"[  "<<dfg->getID(dfgNode)<<"  ]  ";
+        string str_fu;
+        if (fu_occupied) {
+          if (t_dfg->getID(dfgNode) < 10)
+            str_fu = "[  " + to_string(t_dfg->getID(dfgNode)) + "  ]";
           else
-            errs()<<"[ "<<dfg->getID(dfgNode)<<"  ]  ";
+            str_fu = "[ " + to_string(t_dfg->getID(dfgNode)) + "  ]";
         } else {
-          errs()<<"[     ]  ";
+          str_fu = "[     ]";
         }
-        if (j == cgra->getColumns() - 1)
-          errs()<<"\n";
-//        errs()<<"DFG node ["<<dfg->getID(*dfgNodeItr)<<"] on CGRA node ["<<mapping[*dfgNodeItr]->getID()<<"] on cycle "<<mapping_timing[*node]<<"\n";
+//        if (j == t_cgra->getColumns() - 1)
+//          str_fu.append("\n");
+        display[i*2][j*2] = str_fu;
+
+        // Display the CGRA link occupancy.
+        // \u2190: left; \u2191: up; \u2192: right; \u2193: down; 
+        // \u21c4: left&right; \u21c5: up&down.
+        string str_link;
+        if (i < t_cgra->getRows() - 1) {
+          CGRALink* ld = t_cgra->getLink(t_cgra->nodes[i][j], t_cgra->nodes[i+1][j]);
+          CGRALink* lu = t_cgra->getLink(t_cgra->nodes[i+1][j], t_cgra->nodes[i][j]);
+          if (ld->isOccupied(cycle) and lu->isOccupied(cycle)) {
+            str_link = "  \u21c5  ";
+          } else if (ld->isOccupied(cycle)) {
+            str_link = "  \u2193  ";
+          } else if (lu->isOccupied(cycle)) {
+            str_link = "  \u2191  ";
+          } else {
+            str_link = "     ";
+          }
+          display[i*2+1][j*2] = str_link;
+        }
+        if (j < t_cgra->getColumns() - 1) {
+          CGRALink* lr = t_cgra->getLink(t_cgra->nodes[i][j], t_cgra->nodes[i][j+1]);
+          CGRALink* ll = t_cgra->getLink(t_cgra->nodes[i][j+1], t_cgra->nodes[i][j]);
+          if (lr->isOccupied(cycle) and ll->isOccupied(cycle)) {
+            str_link = " \u21c4 ";
+          } else if (lr->isOccupied(cycle)) {
+            str_link = " \u2192 ";
+          } else if (ll->isOccupied(cycle)) {
+            str_link = " \u2190 ";
+          } else {
+            str_link = "   ";
+          }
+          display[i*2][j*2+1] = str_link;
+        }
+      }
+    }
+
+    // Display mapping and routing cycle by cycle.
+    for (int i=0; i<displayRows; ++i) {
+      for (int j=0; j<displayColumns; ++j) {
+        errs()<<display[i][j];
       }
     }
     ++cycle;
   }
-  errs()<<"II: "<<II<<"\n";
+  errs()<<"II: "<<t_II<<"\n";
 }
 
 // TODO: Assume that the arriving data can stay inside the input buffer.

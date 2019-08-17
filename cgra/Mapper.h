@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * Mapper.h
+ * ======================================================================
+ * Mapper implementation header file.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Value.h>
 #include "DFG.h"

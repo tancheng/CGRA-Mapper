@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRA.h
+ * ======================================================================
+ * CGRA implementation header file.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include "llvm/Pass.h"
 #include "CGRANode.h"
 #include "CGRALink.h"

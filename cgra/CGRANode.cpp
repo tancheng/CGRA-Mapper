@@ -1,3 +1,13 @@
+/*
+ * ======================================================================
+ * CGRANode.cpp
+ * ======================================================================
+ * CGRA tile implementation.
+ *
+ * Author : Cheng Tan
+ *   Date : July 16, 2019
+ */
+
 #include "CGRANode.h"
 #include <stdio.h>
 
