@@ -13,18 +13,14 @@
 #include "CGRALink.h"
 #include <llvm/Support/raw_ostream.h>
 
-#define REG_COUNT 2
-#define CTRL_MEM_SIZE 20
-
 using namespace llvm;
 
-class CGRA
-{
+class CGRA {
   private:
-    int FUCount;
-    int LinkCount;
-    int rows;
-    int columns;
+    int m_FUCount;
+    int m_LinkCount;
+    int m_rows;
+    int m_columns;
 
   public:
     CGRA(int, int);
@@ -33,7 +29,10 @@ class CGRA
     int getFUCount();
     void getRoutingResource();
     void constructMRRG(int);
-    int getRows(){ return rows; }
-    int getColumns(){ return columns; }
+    int getRows() { return m_rows; }
+    int getColumns() { return m_columns; }
     CGRALink* getLink(CGRANode*, CGRANode*);
+    void setBypassConstraint(int);
+    void setCtrlMemConstraint(int);
+    void setRegConstraint(int);
 };

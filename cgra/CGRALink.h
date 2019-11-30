@@ -15,36 +15,52 @@
 #include <llvm/Support/FileSystem.h>
 
 #include "CGRANode.h"
+#include "DFGNode.h"
 
 using namespace llvm;
+using namespace std;
 
 class CGRANode;
 
 class CGRALink
 {
   private:
-    int ID;
-    CGRANode *src;
-    CGRANode *dst;
+    int m_id;
+    CGRANode *m_src;
+    CGRANode *m_dst;
+    int m_ctrlMemSize;
+    int m_bypassConstraint;
+    int m_currentCtrlMemItems;
 
-    int CycleBoundary;
-    bool* occupied;
+    int m_cycleBoundary;
+    bool* m_occupied;
+    bool* m_bypassed;
+    bool* m_arrived;
+    DFGNode** m_dfgNodes;
+    bool satisfyBypassConstraint(int, int);
 
   public:
-    CGRALink(){}
     CGRALink(int);
     void setID(int);
     int getID();
     CGRANode*  getSrc();
     CGRANode*  getDst();
     void connect(CGRANode*, CGRANode*);
-    void connectSrc(CGRANode*);
-    void connectDst(CGRANode*);
-    CGRANode* getConnectedNode(CGRANode*); 
+    CGRANode* getConnectedNode(CGRANode*);
 
     void constructMRRG(int, int);
+    bool canOccupy(int, int);
     bool isOccupied(int);
-    void occupy(int, int);
+    bool isOccupied(int, int, bool);
+    bool canOccupy(DFGNode*, int, int);
+    void occupy(DFGNode*, int, int, bool, bool);
+    bool isBypass(int);
+    string getDirection(CGRANode*);
+    bool isReused(int);
+    DFGNode* getMappedDFGNode(int);
+    void setCtrlMemConstraint(int);
+    void setBypassConstraint(int);
+    int getBypassConstraint();
 };
 
 #endif

@@ -17,33 +17,59 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/IR/Use.h>
 #include <llvm/Analysis/CFG.h>
+#include <llvm/Analysis/LoopInfo.h>
 #include <list>
+
+#include "DFGNode.h"
+#include "DFGEdge.h"
 
 using namespace llvm;
 using namespace std;
 
 class DFG {
   private:
-    int num;
+    int m_num;
+    list<DFGNode*>* m_orderedNodes;
+    Loop* m_targetLoop;
+
+    //edges of data flow
+    list<DFGEdge*> m_DFGEdges;
+    list<DFGEdge*> m_ctrlEdges;
 
     string changeIns2Str(Instruction* ins);
     //get value's name or inst's content
     StringRef getValueName(Value* v);
+    void DFS_on_DFG(DFGNode*, DFGNode*, list<DFGEdge*>*,
+        list<DFGEdge*>*, list<list<DFGEdge*>*>*);
+    DFGNode* getNode(Value*);
+    bool hasNode(Value*);
+    DFGEdge* getDFGEdge(DFGNode*, DFGNode*);
+    bool hasDFGEdge(DFGNode*, DFGNode*);
+    DFGEdge* getCtrlEdge(DFGNode*, DFGNode*);
+    bool hasCtrlEdge(DFGNode*, DFGNode*);
+    bool shouldIgnore(Instruction*);
+    void tuneForBranch();
+    void tuneForBitcast();
+    void tuneForLoad();
+    void trimForStandalone();
+    void detectMemDataDependency();
+    void eliminateOpcode(string);
+    bool searchDFS(DFGNode*, DFGNode*, list<DFGNode*>*);
+    void connectDFGNodes();
 
   public:
-    DFG(Function&);
-    typedef pair<Value*, StringRef> Node;
-    typedef pair<Node, Node> Edge;
-    list<Edge> inst_edges;
-    //edges of data flow
-    list<Edge> dfg_edges;
+    DFG(Function&, Loop*);
     //initial ordering of insts
-    list<Node> nodes;
+    list<DFGNode*> nodes;
 
-    void construct(Function &F);
+    list<DFGNode*>* getBFSOrderedNodes();
+    list<DFGNode*>* getDFSOrderedNodes();
     int getNodeCount();
-    void DFS_on_DFG(Node, Node, list<Edge>*, list<Edge>*, list<list<Edge>>*);
-    list<list<Edge>> getCycles();
-    list<Node> getPredNodes(Node);
-    int getID(Node);
+    void construct(Function&);
+    list<list<DFGEdge*>*>* getCycles();
+    int getID(DFGNode*);
+    bool isLoad(DFGNode*);
+    bool isStore(DFGNode*);
+    void showOpcodeDistribution();
+    void generateDot(Function&, bool);
 };

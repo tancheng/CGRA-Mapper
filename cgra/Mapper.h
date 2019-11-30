@@ -13,30 +13,36 @@
 #include "DFG.h"
 #include "CGRA.h"
 
-#define MAX_COST 100
-#define DELAY_COST 1
-
 using namespace llvm;
 
 class Mapper {
   private:
-    typedef std::pair<Value*, StringRef> DFG_Node;
-    int maxMappingCycle;
-    map<DFG_Node, CGRANode*> mapping;
-    map<DFG_Node, int> mapping_timing;
-//    CGRANode* getMappedCGRANode(DFG_Node);
-//    int getMappedCGRANodeTiming(DFG_Node);
+//    typedef std::pair<Value*, StringRef> DFGNode;
+//    typedef pair<DFGNode, DFGNode> DFGEdge;
+    int m_maxMappingCycle;
+    map<DFGNode*, CGRANode*> m_mapping;
+    map<DFGNode*, int> m_mappingTiming;
+    map<CGRANode*, int>* dijkstra_search(CGRA*, DFG*, int, DFGNode*,
+        DFGNode*, CGRANode*);
+    int getMaxMappingCycle();
+    bool tryToRoute(CGRA*, DFG*, int, DFGNode*, CGRANode*, CGRANode*, bool, bool);
+    list<DFGNode*>* getMappedDFGNodes(DFG*, CGRANode*);
+    map<int, CGRANode*>* getReorderPath(map<CGRANode*, int>*);
+    bool DFSMap(CGRA*, DFG*, int, list<DFGNode*>*, list<map<CGRANode*, int>*>*, bool);
+    list<map<CGRANode*, int>*>* getOrderedPotentialPaths(CGRA*, DFG*, int,
+        DFGNode*, list<map<CGRANode*, int>*>*);
 
   public:
     Mapper(){}
     int getResMII(DFG*, CGRA*);
     int getRecMII(DFG*);
-    void constructMRRG(CGRA*, int);
-    map<CGRANode*, int> dijkstra_search(CGRA*, DFG*, int, DFG_Node, CGRANode*);
-    map<CGRANode*, int> calculateCost(CGRA*, DFG*, int, DFG_Node, CGRANode*);
-    bool schedule(CGRA*, DFG*, int, DFG_Node, map<CGRANode*, int>);
-    int getMaxMappingCycle();
-    void showSchedule(CGRA*, DFG*, int);
-    map<CGRANode*, int> getPathWithMinCost(list<map<CGRANode*, int>>);
-    bool tryToRoute(CGRA*, int, DFG_Node, CGRANode*, CGRANode*);
+    void constructMRRG(DFG*, CGRA*, int);
+    bool heuristicMap(CGRA*, DFG*, int, bool);
+    bool exhaustiveMap(CGRA*, DFG*, int, bool);
+    map<CGRANode*, int>* calculateCost(CGRA*, DFG*, int, DFGNode*, CGRANode*);
+    map<CGRANode*, int>* getPathWithMinCostAndConstraints(CGRA*, DFG*, int,
+        DFGNode*, list<map<CGRANode*, int>*>*);
+    bool schedule(CGRA*, DFG*, int, DFGNode*, map<CGRANode*, int>*, bool);
+    void showSchedule(CGRA*, DFG*, int, bool);
+    void writeJSON(CGRA*, DFG*, int, bool);
 };

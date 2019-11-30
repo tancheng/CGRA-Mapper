@@ -1,0 +1,13 @@
+/*
+ * ======================================================================
+ * TODO
+ * ======================================================================
+ *
+ * Author : Cheng Tan
+ *   Date : August 27, 2019
+ */
+
+1. Current 'phi' assumes single predecessor, need check true/false for connection.
+2. Should connect 'br' with all 'store' in DFG?
+3. Need to check data dependency in array?
+
