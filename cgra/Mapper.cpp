@@ -367,6 +367,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   // Route the dataflow onto the CGRA links across cycles.
   CGRANode* onePredCGRANode;
+  int onePredCGRANodeTiming;
   map<int, CGRANode*>::iterator previousIter;
   map<int, CGRANode*>::iterator next;
   if (reorderPath->size() > 0) {
@@ -390,6 +391,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
           (*previousIter).first, t_II, isBypass, t_isStaticElasticCGRA);
     } else {
       onePredCGRANode = (*iter).second;
+      onePredCGRANodeTiming = (*iter).first;
     }
     previousIter = iter;
   }
@@ -400,13 +402,18 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   //       joint at the same time or the register file size equals to 1)
   for (DFGNode* node: *t_dfgNode->getPredNodes()) {
     if (m_mapping.find(node) != m_mapping.end()) {
-      if (m_mapping[(node)] != onePredCGRANode) {
-        if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], fu,
-            false, t_isStaticElasticCGRA)){
-          errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
-          return false;
-        }
+      if (m_mapping[(node)] == onePredCGRANode and
+          onePredCGRANode->getMappedDFGNode(onePredCGRANodeTiming)==node) {
+        errs()<<"[CHENG] skip predecessor routing -- dfgNode: "<<node->getID()<<"\n";
+        continue;
       }
+//      if (m_mapping[(node)] != onePredCGRANode) {
+      if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], fu,
+          false, t_isStaticElasticCGRA)){
+        errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
+        return false;
+      }
+//    }
     }
   }
 

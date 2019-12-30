@@ -180,6 +180,7 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II,
     if (!t_isBypass)
       m_arrived[cycle] = true;
   }
+  errs()<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<"t_cycle\n";
   ++m_currentCtrlMemItems;
 }
 

@@ -153,13 +153,19 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
   }
+  for (int cycle=t_cycle; cycle>=0; cycle-=interval) {
+//    assert(!m_fuOccupied[cycle]);
+    m_dfgNodes[cycle] = t_opt;
+    m_fuOccupied[cycle] = true;
+  }
+  errs()<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<"\n";
   ++m_currentCtrlMemItems;
   t_opt->setMapped();
 }
 
 DFGNode* CGRANode::getMappedDFGNode(int t_cycle) {
   if (m_dfgNodes[t_cycle] == NULL) {
-    assert(0);
+//    assert(0);
     return NULL;
   }
   return m_dfgNodes[t_cycle];
