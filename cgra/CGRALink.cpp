@@ -149,7 +149,7 @@ bool CGRALink::isOccupied(int t_cycle, int t_II, bool t_isStaticElasticCGRA) {
   int interval = t_II;
   if (t_isStaticElasticCGRA)
     interval = 1;
-  for (int i=0; i<m_cycleBoundary; i=i+interval) {
+  for (int i=t_cycle; i<m_cycleBoundary; i=i+interval) {
     if (m_occupied[i]) {
       return true;
     }

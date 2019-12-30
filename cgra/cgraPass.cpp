@@ -45,22 +45,22 @@ namespace {
       (*functionWithLoop)["susan_smoothing"] = 0;
 
       // Configuration for static CGRA.
-      int rows = 8;
-      int columns = 8;
-      bool isStaticElasticCGRA = true;
-      bool isTrimmedDemo = true;
-      int ctrlMemConstraint = 1;
-      int bypassConstraint = 3;
-      int regConstraint = 1;
+      // int rows = 8;
+      // int columns = 8;
+      // bool isStaticElasticCGRA = true;
+      // bool isTrimmedDemo = true;
+      // int ctrlMemConstraint = 1;
+      // int bypassConstraint = 3;
+      // int regConstraint = 1;
 
       // Configuration for dynamic CGRA.
-      // int rows = 4;
-      // int columns = 4;
-      // bool isStaticElasticCGRA = false;
-      // bool isTrimmedDemo = true;
-      // int ctrlMemConstraint = 10;
-      // int bypassConstraint = 4;
-      // int regConstraint = 1;
+      int rows = 4;
+      int columns = 4;
+      bool isStaticElasticCGRA = false;
+      bool isTrimmedDemo = true;
+      int ctrlMemConstraint = 100;
+      int bypassConstraint = 4;
+      int regConstraint = 1;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
         errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";
