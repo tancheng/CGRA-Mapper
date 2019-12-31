@@ -28,6 +28,7 @@ class CGRALink
     int m_id;
     CGRANode *m_src;
     CGRANode *m_dst;
+    int m_II;
     int m_ctrlMemSize;
     int m_bypassConstraint;
     int m_currentCtrlMemItems;
@@ -56,6 +57,7 @@ class CGRALink
     void occupy(DFGNode*, int, int, bool, bool);
     bool isBypass(int);
     string getDirection(CGRANode*);
+    int getDirectionID(CGRANode*);
     bool isReused(int);
     DFGNode* getMappedDFGNode(int);
     void setCtrlMemConstraint(int);

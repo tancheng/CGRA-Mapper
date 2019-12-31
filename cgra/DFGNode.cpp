@@ -95,6 +95,41 @@ string DFGNode::getOpcodeName() {
   return m_opcodeName;
 }
 
+string DFGNode::getJSONOpt() {
+  if (isLoad())
+    return "OPT_LD";
+  else if (isStore())
+    return "OPT_STR";
+  else if (isBranch())
+    return "OPT_BRH";
+  else if (isPhi())
+    return "OPT_PHI";
+  else if (isCmp())
+    return "OPT_CMP";
+  else if (isBitcast())
+    return "OPT_NAH";
+  else if (isGetptr())
+    return "OPT_ADD";
+  else if (m_opcodeName.compare("add") == 0)
+    return "OPT_ADD";
+  else if (m_opcodeName.compare("fadd") == 0)
+    return "OPT_ADD";
+  else if (m_opcodeName.compare("sub") == 0)
+    return "OPT_SUB";
+  else if (m_opcodeName.compare("xor") == 0)
+    return "OPT_XOR";
+  else if (m_opcodeName.compare("or") == 0)
+    return "OPT_OR";
+  else if (m_opcodeName.compare("and") == 0)
+    return "OPT_AND";
+  else if (m_opcodeName.compare("mul") == 0)
+    return "OPT_MUL";
+  else if (m_opcodeName.compare("fmul") == 0)
+    return "OPT_MUL";
+
+  return "Unfamiliar: " + m_opcodeName;
+}
+
 list<DFGNode*>* DFGNode::getPredNodes() {
   if (m_predNodes != NULL)
     return m_predNodes;

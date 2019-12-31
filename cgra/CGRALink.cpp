@@ -51,6 +51,7 @@ void CGRALink::setID(int t_id) {
 }
 
 void CGRALink::constructMRRG(int t_CGRANodeCount, int t_II) {
+  m_II = t_II;
   m_cycleBoundary = t_CGRANodeCount*t_II*t_II;
   delete[] m_occupied;
   m_occupied = new bool[m_cycleBoundary];
@@ -185,6 +186,8 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II,
 }
 
 DFGNode* CGRALink::getMappedDFGNode(int t_cycle) {
+  if (t_cycle < 0)
+    return m_dfgNodes[m_II+t_cycle];
   return m_dfgNodes[t_cycle];
 }
 
@@ -197,6 +200,38 @@ CGRANode* CGRALink::getSrc() {
 }
 CGRANode* CGRALink::getDst() {
   return m_dst;
+}
+
+int CGRALink::getDirectionID(CGRANode* t_cgraNode) {
+  if (m_src == t_cgraNode) {
+    if (m_src->getX() > m_dst->getX())
+      // return "W";
+      return 2;
+    else if (m_src->getX() < m_dst->getX())
+      // return "E";
+      return 3;
+    else if (m_src->getY() > m_dst->getY())
+      // return "S";
+      return 1;
+    else if (m_src->getY() < m_dst->getY())
+      // return "N";
+      return 0;
+  } else {
+    assert(m_dst == t_cgraNode);
+    if (m_src->getX() > m_dst->getX())
+      // return "E";
+      return 3;
+    else if (m_src->getX() < m_dst->getX())
+      // return "W";
+      return 2;
+    else if (m_src->getY() > m_dst->getY())
+      // return "N";
+      return 0;
+    else if (m_src->getY() < m_dst->getY())
+      // return "S";
+      return 1;
+  }
+  return -1;
 }
 
 string CGRALink::getDirection(CGRANode* t_cgraNode) {

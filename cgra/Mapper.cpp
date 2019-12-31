@@ -556,14 +556,131 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
 void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA) {
-  if (!t_isStaticElasticCGRA) {
-    // TODO: will support dynamic CGRA JSON output soon.
-    errs()<<"Will support dynamic CGRA JSON output soon.\n";
-    return;
-  }
   ofstream jsonFile;
   jsonFile.open("config.json");
   jsonFile<<"[\n";
+  if (!t_isStaticElasticCGRA) {
+    // TODO: will support dynamic CGRA JSON output soon.
+    errs()<<"Will support dynamic CGRA JSON output soon.\n";
+
+    bool first = true;
+    for (int t=0; t<t_II; ++t) {
+      for (int i=0; i<t_cgra->getRows(); ++i) {
+        for (int j=0; j<t_cgra->getColumns(); ++j) {
+          CGRANode* currentCGRANode = t_cgra->nodes[i][j];
+          DFGNode* targetDFGNode = NULL;
+          for (DFGNode* dfgNode: t_dfg->nodes) {
+            if (m_mapping[dfgNode] == currentCGRANode and
+                currentCGRANode->getMappedDFGNode(t) == dfgNode) {
+              targetDFGNode = dfgNode;
+              break;
+            }
+          }
+          list<CGRALink*>* inLinks = currentCGRANode->getInLinks();
+          list<CGRALink*>* outLinks = currentCGRANode->getOutLinks();
+          bool hasInform = false;
+          if (targetDFGNode != NULL) {
+            hasInform = true;
+          } else {
+            for (CGRALink* il: *inLinks) {
+              if (il->isOccupied(t, t_II, t_isStaticElasticCGRA)) {
+                hasInform = true;
+                break;
+              }
+            }
+            for (CGRALink* ol: *outLinks) {
+              if (ol->isOccupied(t, t_II, t_isStaticElasticCGRA)) {
+                hasInform = true;
+                break;
+              }
+            }
+          }
+          if (!hasInform)
+            continue;
+          if (first)
+            first = false;
+          else
+            jsonFile<<",\n";
+    
+          jsonFile<<"  {\n";
+          jsonFile<<"    \"x\"         : "<<j<<",\n";
+          jsonFile<<"    \"y\"         : "<<i<<",\n";
+          jsonFile<<"    \"cycle\"     : "<<t<<",\n";
+          string targetOpt = "none";
+          string stringDst[8];
+          stringDst[0] = "none";
+          stringDst[1] = "none";
+          stringDst[2] = "none";
+          stringDst[3] = "none";
+          stringDst[4] = "none";
+          stringDst[5] = "none";
+          stringDst[6] = "none";
+          stringDst[7] = "none";
+          int stringDstIndex = 0;
+          // handle function output
+          if (targetDFGNode != NULL) {
+            targetOpt = targetDFGNode->getJSONOpt();
+            // handle funtion unit's outputs for this cycle
+            for (CGRALink* ol: *outLinks) {
+              if (ol->isOccupied(t, t_II, t_isStaticElasticCGRA) and
+                  ol->getMappedDFGNode(t) == targetDFGNode) {
+                // FIXME: should support multiple outputs and distinguish them.
+                stringDst[ol->getDirectionID(currentCGRANode)] = "in_4";
+              }
+            }
+            // handle function unit's inputs for next cycle
+            int out_index = 4;
+            int max_index = 7;
+            DFGNode* nextDFGNode = NULL;
+            for (DFGNode* dfgNode: t_dfg->nodes) {
+              if (m_mapping[dfgNode] == currentCGRANode and
+                  currentCGRANode->getMappedDFGNode(t+1) == dfgNode) {
+                nextDFGNode = dfgNode;
+                break;
+              }
+            }
+            for (CGRALink* il: *inLinks) {
+              if (il->isOccupied(t, t_II, t_isStaticElasticCGRA) and
+                  il->getMappedDFGNode(t) == nextDFGNode) {
+                stringDst[out_index++] = to_string(il->getDirectionID(currentCGRANode));
+                assert(out_index <= max_index+1);
+              }
+            }
+          } else {
+            targetOpt = "none";
+          }
+          jsonFile<<"    \"opt"<<"\"       : \""<<targetOpt<<"\",\n";
+          // handle bypass
+          for (CGRALink* ol: *outLinks) {
+            if (ol->isOccupied(t, t_II, t_isStaticElasticCGRA)) {
+              int outIndex = -1;
+              outIndex = ol->getDirectionID(currentCGRANode);
+              for (CGRALink* il: *inLinks) {
+                for (int t_tmp=t-t_II; t_tmp<t; ++t_tmp) {
+                  if (il->isBypass(t_tmp) and
+                      il->getMappedDFGNode(t_tmp) == ol->getMappedDFGNode(t)) {
+                    stringDst[outIndex] = to_string(il->getDirectionID(currentCGRANode));
+                  }
+                }
+              }
+            }
+          }
+          for (int out_index=0; out_index<8; ++out_index) {  
+            jsonFile<<"    \"out_"<<to_string(out_index)<<"\"     : \""<<stringDst[out_index]<<"\"";
+            if (out_index < 7)
+              jsonFile<<",\n";
+            else
+              jsonFile<<"\n";
+          }
+          jsonFile<<"  }";
+        }
+      }
+    }
+    jsonFile<<"\n]\n";
+    jsonFile.close();
+
+    return;
+  }
   // TODO: should use nop/constant rather than none/self.
   bool first = true;
   for (int i=0; i<t_cgra->getRows(); ++i) {
