@@ -385,10 +385,12 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
       // Distinguish the bypassed and utilized data delivery on xbar.
       bool isBypass = false;
-      if ((*riter).second != (*iter).second)
+      if ((*riter).second != (*iter).second and
+          (*previousIter).first+1 == (*iter).first)
         isBypass = true;
       l->occupy(srcCGRANode->getMappedDFGNode(srcCycle),
-          (*previousIter).first, t_II, isBypass, t_isStaticElasticCGRA);
+                (*previousIter).first, (*iter).first-(*previousIter).first,
+                t_II, isBypass, t_isStaticElasticCGRA);
     } else {
       onePredCGRANode = (*iter).second;
       onePredCGRANodeTiming = (*iter).first;
@@ -564,7 +566,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
     errs()<<"Will support dynamic CGRA JSON output soon.\n";
 
     bool first = true;
-    for (int t=0; t<t_II; ++t) {
+    for (int t=0; t<t_II+1; ++t) {
       for (int i=0; i<t_cgra->getRows(); ++i) {
         for (int j=0; j<t_cgra->getColumns(); ++j) {
           CGRANode* currentCGRANode = t_cgra->nodes[i][j];
@@ -628,27 +630,39 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
                 stringDst[ol->getDirectionID(currentCGRANode)] = "in_4";
               }
             }
-            // handle function unit's inputs for next cycle
-            int out_index = 4;
-            int max_index = 7;
-            DFGNode* nextDFGNode = NULL;
-            for (DFGNode* dfgNode: t_dfg->nodes) {
-              if (m_mapping[dfgNode] == currentCGRANode and
-                  currentCGRANode->getMappedDFGNode(t+1) == dfgNode) {
-                nextDFGNode = dfgNode;
-                break;
-              }
-            }
-            for (CGRALink* il: *inLinks) {
-              if (il->isOccupied(t, t_II, t_isStaticElasticCGRA) and
-                  il->getMappedDFGNode(t) == nextDFGNode) {
-                stringDst[out_index++] = to_string(il->getDirectionID(currentCGRANode));
-                assert(out_index <= max_index+1);
-              }
-            }
+//            for (CGRALink* il: *inLinks) {
+//              if (i==1 and j==1 and il->getMappedDFGNode(t) != NULL)
+//                errs()<<"il->getMappedDFGNode("<<t<<"): "<<il->getMappedDFGNode(t)->getID()<<"; link: "<<il->getDirection(currentCGRANode)<<"; nextDFGNode: "<<nextDFGNode->getID()<<"\n";
+//
+//              if (il->isOccupied(t, t_II, t_isStaticElasticCGRA) and
+//                  il->getMappedDFGNode(t) == nextDFGNode) {
+//                stringDst[out_index++] = to_string(il->getDirectionID(currentCGRANode))+" (never happen?)";
+//                assert(out_index <= max_index+1);
+//              }
+//            }
           } else {
             targetOpt = "none";
           }
+
+          // handle function unit's inputs for next cycle
+          int out_index = 4;
+          int max_index = 7;
+//          DFGNode* nextDFGNode = NULL;
+//          for (DFGNode* dfgNode: t_dfg->nodes) {
+//            if (m_mapping[dfgNode] == currentCGRANode and
+//                currentCGRANode->getMappedDFGNode(t+1) == dfgNode) {
+//              nextDFGNode = dfgNode;
+//              break;
+//            }
+//          }
+          for (int reg_index=0; reg_index<4; ++reg_index) {
+            int direction = currentCGRANode->getRegsAllocation(t)[reg_index];
+            if (direction != -1)
+              stringDst[out_index] = "in_" + to_string(direction);
+            out_index++;
+            assert(out_index <= max_index+1);
+          }
+
           jsonFile<<"    \"opt"<<"\"       : \""<<targetOpt<<"\",\n";
           // handle bypass
           for (CGRALink* ol: *outLinks) {
@@ -657,9 +671,13 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
               outIndex = ol->getDirectionID(currentCGRANode);
               for (CGRALink* il: *inLinks) {
                 for (int t_tmp=t-t_II; t_tmp<t; ++t_tmp) {
-                  if (il->isBypass(t_tmp) and
+                  if (il->isOccupied(t_tmp, t_II, t_isStaticElasticCGRA) and
+                      il->isBypass(t_tmp) and
                       il->getMappedDFGNode(t_tmp) == ol->getMappedDFGNode(t)) {
-                    stringDst[outIndex] = to_string(il->getDirectionID(currentCGRANode));
+                    errs()<<"[cheng] inside roi for CGRA node "<<currentCGRANode->getID()<<"...\n";
+                    if (il->getMappedDFGNode(t_tmp) == NULL)
+                      errs()<<"[cheng] none..."<<il->getMappedDFGNode(t_tmp)<<"\n";
+                    stringDst[outIndex] = "in_"+to_string(il->getDirectionID(currentCGRANode));//+"; t_tmp: "+to_string(t_tmp)+"; dfg node: " + to_string(il->getMappedDFGNode(t_tmp)->getID());
                   }
                 }
               }
@@ -945,10 +963,12 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
     if (iter != reorderPath->begin()) {
       CGRALink* l = t_cgra->getLink((*previousIter).second, (*iter).second);
       bool isBypass = false;
-      if ((*riter).second != (*iter).second)
+      if ((*riter).second != (*iter).second and
+          (*previousIter).first+1 == (*iter).first)
         isBypass = true;
-      l->occupy(t_srcDFGNode, (*previousIter).first, t_II, isBypass,
-          t_isStaticElasticCGRA);
+      l->occupy(t_srcDFGNode, (*previousIter).first,
+                (*iter).first-(*previousIter).first,
+                t_II, isBypass, t_isStaticElasticCGRA);
     }
     previousIter = iter;
   }

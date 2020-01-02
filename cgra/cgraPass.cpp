@@ -60,7 +60,8 @@ namespace {
       bool isTrimmedDemo = true;
       int ctrlMemConstraint = 100;
       int bypassConstraint = 4;
-      int regConstraint = 1;
+      // FIXME: should not change this for now, it is the four directions by default
+      int regConstraint = 4;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
         errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";

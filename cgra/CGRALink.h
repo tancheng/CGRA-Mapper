@@ -54,7 +54,7 @@ class CGRALink
     bool isOccupied(int);
     bool isOccupied(int, int, bool);
     bool canOccupy(DFGNode*, int, int);
-    void occupy(DFGNode*, int, int, bool, bool);
+    void occupy(DFGNode*, int, int, int, bool, bool);
     bool isBypass(int);
     string getDirection(CGRANode*);
     int getDirectionID(CGRANode*);

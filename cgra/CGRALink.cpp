@@ -162,8 +162,8 @@ bool CGRALink::isReused(int t_cycle) {
   return m_occupied[t_cycle];
 }
 
-void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II,
-    bool t_isBypass, bool t_isStaticElasticCGRA) {
+void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
+    int t_II, bool t_isBypass, bool t_isStaticElasticCGRA) {
   int interval = t_II;
   if (t_isStaticElasticCGRA) {
     interval = 1;
@@ -181,13 +181,37 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II,
     if (!t_isBypass)
       m_arrived[cycle] = true;
   }
-  errs()<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<"t_cycle\n";
+  for(int cycle=t_cycle; cycle>=0; cycle-=interval) {
+    m_dfgNodes[cycle] = t_srcDFGNode;
+    m_occupied[cycle] = true;
+    // Only set 'm_bypassed' as true if it is bypassed.
+    // Will never set it back to false.
+    if (t_isBypass)
+      m_bypassed[cycle] = true;
+    // Only set 'm_arrived' as true if it is not bypassed.
+    // Will never set it back to false.
+    if (!t_isBypass)
+      m_arrived[cycle] = true;
+  }
+  if (!t_isBypass) {
+    m_dst->allocateReg(this, t_cycle, duration, interval);
+  }
+
   ++m_currentCtrlMemItems;
+
+  errs()<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<"t_cycle\n";
 }
 
 DFGNode* CGRALink::getMappedDFGNode(int t_cycle) {
-  if (t_cycle < 0)
+  if (t_cycle < 0) {
+    if (m_dfgNodes[m_II+t_cycle] == NULL) {
+      errs()<<"[cheng] 1 no mapped DFG node at cycle "<<t_cycle<<"\n";
+    }
     return m_dfgNodes[m_II+t_cycle];
+  }
+  if (m_dfgNodes[t_cycle] == NULL) {
+    errs()<<"[cheng] 2 no mapped DFG node at cycle "<<t_cycle<<"\n";
+  }
   return m_dfgNodes[t_cycle];
 }
 

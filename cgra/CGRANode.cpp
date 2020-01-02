@@ -30,8 +30,37 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_occupiableOutLinks = NULL;
   m_dfgNodes = new DFGNode*[1];
   m_fuOccupied = new bool[1];
-  m_fuOccupied = new bool[1];
+  m_regs = NULL;
 
+}
+
+// FIXME: should handle the case that the data is maintained in the registers
+//        for multiple cycles.
+void CGRANode::allocateReg(CGRALink* t_link, int t_cycle, int t_duration, int t_II) {
+  bool allocated = false;
+  for (int i=0; i<m_registerCount; ++i) {
+    errs()<<"[cheng] 2 t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_link->getDirection(this)<<"\n";
+    if (m_regs[t_cycle][i] == -1) {
+      for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+        for (int d=0; d<t_duration; ++d) {
+          assert(m_regs[cycle+d][i] == -1);
+          m_regs[cycle+d][i] = t_link->getDirectionID(this);
+        }
+      }
+      for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
+        for (int d=0; d<t_duration; ++d) {
+          m_regs[cycle+d][i] = t_link->getDirectionID(this);
+        }
+      }
+      allocated = true;
+      break;
+    }
+  }
+  assert(allocated);
+}
+
+int* CGRANode::getRegsAllocation(int t_cycle) {
+  return m_regs[t_cycle];
 }
 
 void CGRANode::setCtrlMemConstraint(int t_ctrlMemConstraint) {
@@ -93,6 +122,13 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
     m_dfgNodes[i] = NULL;
     m_fuOccupied[i] = false;
   }
+  m_regs = new int*[m_cycleBoundary];
+  for (int i=0; i<m_cycleBoundary; ++i) {
+    m_regs[i] = new int[m_registerCount];
+    for (int j=0; j<m_registerCount; ++j) {
+      m_regs[i][j] = -1;
+    }
+  }
 }
 
 bool CGRANode::canOccupy(int t_cycle, int t_II) {
@@ -101,6 +137,11 @@ bool CGRANode::canOccupy(int t_cycle, int t_II) {
     return false;
   }
   for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+    if (m_fuOccupied[cycle]) {
+      return false;
+    }
+  }
+  for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
     if (m_fuOccupied[cycle]) {
       return false;
     }
@@ -127,6 +168,11 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
     return false;
   }
   for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+    if (m_fuOccupied[cycle]) {
+      return false;
+    }
+  }
+  for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
     if (m_fuOccupied[cycle]) {
       return false;
     }

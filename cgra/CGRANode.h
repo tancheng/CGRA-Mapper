@@ -51,6 +51,7 @@ class CGRANode {
     map<CGRALink*,bool*> m_xbarOccupied;
     bool m_canStore;
     bool m_canLoad;
+    int** m_regs;
 
   public:
     CGRANode(int, int, int);
@@ -88,6 +89,8 @@ class CGRANode {
     bool canStore();
     bool canLoad();
     DFGNode* getMappedDFGNode(int);
+    void allocateReg(CGRALink*, int, int, int);
+    int* getRegsAllocation(int);
 };
 
 #endif
