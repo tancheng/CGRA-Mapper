@@ -385,11 +385,14 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
       // Distinguish the bypassed and utilized data delivery on xbar.
       bool isBypass = false;
+      int duration = (t_II+((*iter).first-(*previousIter).first)%t_II)%t_II;
       if ((*riter).second != (*iter).second and
           (*previousIter).first+1 == (*iter).first)
         isBypass = true;
+      else
+        duration = (m_mappingTiming[t_dfgNode]-(*previousIter).first)%t_II;
       l->occupy(srcCGRANode->getMappedDFGNode(srcCycle),
-                (*previousIter).first, (*iter).first-(*previousIter).first,
+                (*previousIter).first, duration,
                 t_II, isBypass, t_isStaticElasticCGRA);
     } else {
       onePredCGRANode = (*iter).second;
@@ -411,7 +414,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
       }
 //      if (m_mapping[(node)] != onePredCGRANode) {
       if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], fu,
-          false, t_isStaticElasticCGRA)){
+          m_mappingTiming[t_dfgNode], false, t_isStaticElasticCGRA)){
         errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
         return false;
       }
@@ -423,7 +426,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   for (DFGNode* node: *t_dfgNode->getSuccNodes()) {
     if (m_mapping.find(node) != m_mapping.end()) {
       if (!tryToRoute(t_cgra, t_dfg, t_II, t_dfgNode, fu, m_mapping[node],
-          true, t_isStaticElasticCGRA)) {
+          m_mappingTiming[node], true, t_isStaticElasticCGRA)) {
         errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped succ DFG node: "<<node->getID()<<"; return false\n";
         return false;
       }
@@ -657,8 +660,10 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
 //          }
           for (int reg_index=0; reg_index<4; ++reg_index) {
             int direction = currentCGRANode->getRegsAllocation(t)[reg_index];
-            if (direction != -1)
+            if (direction != -1) {
               stringDst[out_index] = "in_" + to_string(direction);
+//              errs()<<"out_"<<out_index<<": "<<stringDst[out_index]<<"\n";
+            }
             out_index++;
             assert(out_index <= max_index+1);
           }
@@ -863,8 +868,9 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
 // TODO: Should consider the type of CGRA, say, a static in-elastic CGRA should
 //       join at the same successor at exact same cycle without pending.
 bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
-    DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode,
-    CGRANode* t_dstCGRANode, bool t_isBackedge, bool t_isStaticElasticCGRA) {
+    DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode, CGRANode* t_dstCGRANode,
+    int t_dstCycle, bool t_isBackedge, bool t_isStaticElasticCGRA) {
+  errs()<<"[cheng] tryToRoute -- srcDFGNode: "<<t_srcDFGNode->getID()<<" srcCGRANode: "<<t_srcCGRANode->getID()<<" dstCGRANode: "<<t_dstCGRANode->getID()<<"\n";
   list<CGRANode*> searchPool;
   map<CGRANode*, int> distance;
   map<CGRANode*, int> timing;
@@ -944,10 +950,26 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
   }
 
   // Not a valid mapping if it exceeds the 'm_maxMappingCycle'.
-  if(timing[t_dstCGRANode] > m_maxMappingCycle) {
+  if(timing[t_dstCGRANode] > m_maxMappingCycle or
+     timing[t_dstCGRANode] - timing[t_srcCGRANode] > t_II) {
+// or
+//    }
     return false;
   }
 
+//  errs()<<"[CHENG] believes this is correct or wrong... timing[t_dstCGRANode]: "<<timing[t_dstCGRANode]<<" t_dstCycle: "<<t_dstCycle<<"\n";
+
+//  if (timing[t_dstCGRANode] > t_dstCycle) {
+//    if (timing[t_dstCGRANode] > t_dstCycle + t_II) {
+//      for (map<CGRANode*,int>::iterator iter = path.begin();
+//          iter!=path.end(); ++iter) {
+//        errs()<<"[tan] the failed path -- cycle: "<<(*iter).second<<" CGRANode: "<<(*iter).first->getID()<<"\n";
+//      }
+//      return false;
+//    }
+//  }
+
+//  if (timing[t_dstCGRANode]%t_II >= t_dstCycle%t_II)
   // Try to route the data flow.
   map<int, CGRANode*>* reorderPath = getReorderPath(&path);
 //  //Since the cycle on path increases gradually, re-order will not miss anything.
@@ -958,17 +980,30 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   map<int, CGRANode*>::iterator previousIter;
   map<int, CGRANode*>::reverse_iterator riter = reorderPath->rbegin();
+  errs()<<"[cheng] check route size: "<<reorderPath->size()<<"\n";
+  if (reorderPath->size() == 1) {
+    int duration = (t_II+(t_dstCycle-(*riter).first)%t_II)%t_II;
+    errs()<<"[cheng] allocate for local reg maintain... duration="<<duration<<" last cycle: "<<(*riter).first<<"\n";
+    (*riter).second->allocateReg(4, (*riter).first, duration, t_II);
+  }
   for (map<int, CGRANode*>::iterator iter = reorderPath->begin();
       iter!=reorderPath->end(); ++iter) {
     if (iter != reorderPath->begin()) {
       CGRALink* l = t_cgra->getLink((*previousIter).second, (*iter).second);
       bool isBypass = false;
+      int duration = ((*iter).first-(*previousIter).first)%t_II;
       if ((*riter).second != (*iter).second and
           (*previousIter).first+1 == (*iter).first)
         isBypass = true;
+      else {
+        duration = (t_II+(t_dstCycle-(*previousIter).first)%t_II)%t_II;
+        errs()<<"[cheng] reset duration: "<<duration<<" t_dstCycle: "<<t_dstCycle<<" previous: "<<(*previousIter).first<<" II: "<<t_II<<"\n";
+      }
+      if (duration == 0) {
+        duration = t_II;
+      }
       l->occupy(t_srcDFGNode, (*previousIter).first,
-                (*iter).first-(*previousIter).first,
-                t_II, isBypass, t_isStaticElasticCGRA);
+                duration, t_II, isBypass, t_isStaticElasticCGRA);
     }
     previousIter = iter;
   }
@@ -985,10 +1020,12 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
   return true;
 }
 
-bool Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
+int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA) {
   bool fail = false;
   while (1) {
+    errs()<<"----------------------------------------\n";
+    errs()<<"DEBUG start heuristic algorithm with II="<<t_II<<"\n";
     int cycle = 0;
     constructMRRG(t_dfg, t_cgra, t_II);
     fail = false;
@@ -1017,6 +1054,11 @@ bool Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
           if (!schedule(t_cgra, t_dfg, t_II, *dfgNode, optimalPath,
               t_isStaticElasticCGRA)) {
             errs()<<"DEBUG fail1 in schedule() II: "<<t_II<<"\n";
+            for (map<CGRANode*,int>::iterator iter = optimalPath->begin();
+                iter!=optimalPath->end(); ++iter) {
+              errs()<<"[tan] the failed path -- cycle: "<<(*iter).second<<" CGRANode: "<<(*iter).first->getID()<<"\n";
+            }
+
             fail = true;
             break;
           }
@@ -1040,16 +1082,22 @@ bool Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     }
     ++t_II;
   }
-  return !fail;
+  if (!fail)
+    return t_II;
+  else
+    return -1;
 }
 
-bool Mapper::exhaustiveMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
+int Mapper::exhaustiveMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA) {
   list<map<CGRANode*, int>*>* exhaustivePaths = new list<map<CGRANode*, int>*>();
   list<DFGNode*>* mappedDFGNodes = new list<DFGNode*>();
   bool success = DFSMap(t_cgra, t_dfg, t_II, mappedDFGNodes,
       exhaustivePaths, t_isStaticElasticCGRA);
-  return success;
+  if (success)
+    return t_II;
+  else
+    return -1;
 }
 
 bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,

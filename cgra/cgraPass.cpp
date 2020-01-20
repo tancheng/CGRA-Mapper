@@ -105,7 +105,7 @@ namespace {
       if (!isStaticElasticCGRA) {
         errs() << "==================================\n";
         errs() << "[heuristic]\n";
-        success = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+        II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
       }
 
       // Partially exhaustive search to try to map the DFG onto
@@ -114,11 +114,11 @@ namespace {
       if (isStaticElasticCGRA and !success) {
         errs() << "==================================\n";
         errs() << "[exhaustive]\n";
-        success = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
+        II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
       }
 
       // Show the mapping and routing results with JSON output.
-      if (!success)
+      if (II == -1)
         errs() << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA);

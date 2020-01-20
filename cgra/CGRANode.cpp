@@ -30,28 +30,55 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_occupiableOutLinks = NULL;
   m_dfgNodes = new DFGNode*[1];
   m_fuOccupied = new bool[1];
-  m_regs = NULL;
+  m_regs_duration = NULL;
+  m_regs_timing = NULL;
 
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
 //        for multiple cycles.
 void CGRANode::allocateReg(CGRALink* t_link, int t_cycle, int t_duration, int t_II) {
+  int reg_id = t_link->getDirectionID(this);
+  allocateReg(reg_id, t_cycle, t_duration, t_II);
+}
+
+void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II) {
   bool allocated = false;
+//  errs()<<"[cheng] inside allocateReg() t_cycle: "<<t_cycle<<" CGRA node: "<<this->getID()<<"; link: "<<t_link->getDirection(this)<<" duration: "<<t_duration<<" registerCount: "<<m_registerCount<<"\n";
   for (int i=0; i<m_registerCount; ++i) {
-    errs()<<"[cheng] 2 t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_link->getDirection(this)<<"\n";
-    if (m_regs[t_cycle][i] == -1) {
+    bool reg_occupied = false;
+    for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+      for (int d=0; d<t_duration; ++d) {
+        if (cycle+d<m_cycleBoundary and m_regs_duration[cycle+d][i] != -1)
+          reg_occupied = true;
+      }
+    }
+    for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
+      for (int d=0; d<t_duration; ++d) {
+        if (m_regs_duration[cycle+d][i] != -1)
+          reg_occupied = true;
+      }
+    }
+    if (reg_occupied == false) {
+      errs()<<"[cheng] in allocateReg() t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_port_id<<" duration "<<t_duration<<"\n";
       for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+        m_regs_timing[cycle][i] = t_port_id;
+//        if (cycle < 20)
+//          errs()<<"[cheng] see m_regs_timing["<<cycle<<"]["<<i<<"]: "<<m_regs_timing[cycle][i]<<"\n";
         for (int d=0; d<t_duration; ++d) {
-          assert(m_regs[cycle+d][i] == -1);
-          m_regs[cycle+d][i] = t_link->getDirectionID(this);
+          if (cycle+d<m_cycleBoundary) {
+            assert(m_regs_duration[cycle+d][i] == -1);
+            m_regs_duration[cycle+d][i] = t_port_id;
+          }
         }
       }
       for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
+        m_regs_timing[cycle][i] = t_port_id;
         for (int d=0; d<t_duration; ++d) {
-          m_regs[cycle+d][i] = t_link->getDirectionID(this);
+          m_regs_duration[cycle+d][i] = t_port_id;
         }
       }
+//      errs()<<"[cheng] in detail about register alloc -- m_regs[2][0]: "<<m_regs[2][0]<<"; duration: "<<t_duration<<"\n";
       allocated = true;
       break;
     }
@@ -60,7 +87,7 @@ void CGRANode::allocateReg(CGRALink* t_link, int t_cycle, int t_duration, int t_
 }
 
 int* CGRANode::getRegsAllocation(int t_cycle) {
-  return m_regs[t_cycle];
+  return m_regs_timing[t_cycle];
 }
 
 void CGRANode::setCtrlMemConstraint(int t_ctrlMemConstraint) {
@@ -122,11 +149,14 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
     m_dfgNodes[i] = NULL;
     m_fuOccupied[i] = false;
   }
-  m_regs = new int*[m_cycleBoundary];
+  m_regs_duration = new int*[m_cycleBoundary];
+  m_regs_timing = new int*[m_cycleBoundary];
   for (int i=0; i<m_cycleBoundary; ++i) {
-    m_regs[i] = new int[m_registerCount];
+    m_regs_duration[i] = new int[m_registerCount];
+    m_regs_timing[i] = new int[m_registerCount];
     for (int j=0; j<m_registerCount; ++j) {
-      m_regs[i][j] = -1;
+      m_regs_duration[i][j] = -1;
+      m_regs_timing[i][j] = -1;
     }
   }
 }
@@ -204,7 +234,7 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
   }
-  errs()<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<"\n";
+  errs()<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
   ++m_currentCtrlMemItems;
   t_opt->setMapped();
 }
