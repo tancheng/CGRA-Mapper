@@ -1,8 +1,8 @@
 /*
  * ======================================================================
- * cgraPass.cpp
+ * mapperPass.cpp
  * ======================================================================
- * CGRA pass implementation.
+ * Mapper pass implementation.
  *
  * Author : Cheng Tan
  *   Date : July 16, 2019
@@ -21,12 +21,12 @@ namespace {
 
 //  typedef pair<Value*, StringRef> DFGNode;
 //  typedef pair<DFGNode, DFGNode> DFGEdge;
-  struct cgraPass : public FunctionPass {
+  struct mapperPass : public FunctionPass {
 
   public:
     static char ID;
     Mapper* mapper;
-    cgraPass() : FunctionPass(ID) {}
+    mapperPass() : FunctionPass(ID) {}
 
     void getAnalysisUsage(AnalysisUsage &AU) const override {
       AU.addRequired<LoopInfoWrapperPass>();
@@ -87,6 +87,11 @@ namespace {
       errs() << "==================================\n";
       errs() << "[generate dot for DFG]\n";
       dfg->generateDot(t_F, isTrimmedDemo);
+
+      // Generate the DFG dot file.
+      errs() << "==================================\n";
+      errs() << "[generate JSON for DFG]\n";
+      dfg->generateJSON(t_F);
 
       // Initialize the II.
       int ResMII = mapper->getResMII(dfg, cgra);
@@ -166,5 +171,5 @@ namespace {
   };
 }
 
-char cgraPass::ID = 0;
-static RegisterPass<cgraPass> X("cgraPass", "DFG Pass Analyse", false, false);
+char mapperPass::ID = 0;
+static RegisterPass<mapperPass> X("mapperPass", "DFG Pass Analyse", false, false);

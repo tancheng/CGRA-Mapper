@@ -8,6 +8,7 @@
  *   Date : July 16, 2019
  */
 
+#include <fstream>
 #include "DFG.h"
 
 DFG::DFG(Function& t_F, Loop* t_loop) {
@@ -310,6 +311,23 @@ void DFG::connectDFGNodes() {
     DFGNode* right = edge->getDst();
     left->setOutEdge(edge);
     right->setInEdge(edge);
+  }
+}
+
+void DFG::generateJSON(Function &t_F) {
+  ofstream jsonFile;
+  jsonFile.open("dfg.json");
+  jsonFile<<"[\n";
+  for (DFGNode* node: nodes) {
+    jsonFile<<"  {\n";
+    jsonFile<<"    \"fu\"         : \"ALU\",\n";
+    jsonFile<<"    \"id\"         : "<<node->getID()<<",\n";
+    jsonFile<<"    \"opt\"        : "<<node->getJSONOpt()<<",\n";
+    jsonFile<<"    \"in\"         : [";
+    for (DFGNode* predNode: *(node->getPredNodes())) {
+      jsonFile<<predNode->getID()<<",";
+    }
+    jsonFile<<"],\n";
   }
 }
 

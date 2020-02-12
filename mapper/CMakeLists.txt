@@ -2,15 +2,15 @@
 # ======================================================================
 # CMakeLists.txt
 # ======================================================================
-# CMakeLists for cgra pass.
+# CMakeLists for mapper pass.
 #
 # Author : Cheng Tan
 #  Date : July 16, 2019
 #
 
-add_library(cgraPass MODULE
+add_library(mapperPass MODULE
     # List your source files here.
-    cgraPass.cpp
+    mapperPass.cpp
     DFGNode.h
     DFGNode.cpp
     DFGEdge.h
@@ -28,18 +28,18 @@ add_library(cgraPass MODULE
 )
 
 # Use C++11 to compile our pass (i.e., supply -std=c++11).
-target_compile_features(cgraPass PRIVATE cxx_range_for cxx_auto_type)
+target_compile_features(mapperPass PRIVATE cxx_range_for cxx_auto_type)
 
 # LLVM is (typically) built with no C++ RTTI. We need to match that;
 # otherwise, we'll get linker errors about missing RTTI data.
-set_target_properties(cgraPass PROPERTIES
+set_target_properties(mapperPass PROPERTIES
     COMPILE_FLAGS "-fno-rtti"
 )
 
 # Get proper shared-library behavior (where symbols are not necessarily
 # resolved when the shared library is linked) on OS X.
 if(APPLE)
-    set_target_properties(cgraPass PROPERTIES
+    set_target_properties(mapperPass PROPERTIES
         LINK_FLAGS "-undefined dynamic_lookup"
     )
 endif(APPLE)
