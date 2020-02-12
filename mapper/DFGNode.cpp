@@ -5,7 +5,7 @@
  * DFG node implementation.
  *
  * Author : Cheng Tan
- *   Date : July 19, 2019
+ *   Date : Feb 12, 2020
  */
 
 #include "DFGNode.h"
@@ -18,7 +18,6 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_succNodes = NULL;
   m_opcodeName = t_inst->getOpcodeName();
   m_isMapped = false;
-
 }
 
 int DFGNode::getID() {
@@ -93,6 +92,17 @@ bool DFGNode::isGetptr() {
 
 string DFGNode::getOpcodeName() {
   return m_opcodeName;
+}
+
+string DFGNode::getFuType() {
+  if (getJSONOpt().compare("OPT_LD") == 0 or
+      getJSONOpt().compare("OPT_STR") == 0 )
+    return "MemUnit";
+  else if (getJSONOpt().compare("OPT_ADD") == 0 or
+           getJSONOpt().compare("OPT_SUB") == 0)
+    return "ALU";
+  else
+    return "TODO";
 }
 
 string DFGNode::getJSONOpt() {

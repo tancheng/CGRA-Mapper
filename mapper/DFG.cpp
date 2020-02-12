@@ -318,17 +318,41 @@ void DFG::generateJSON(Function &t_F) {
   ofstream jsonFile;
   jsonFile.open("dfg.json");
   jsonFile<<"[\n";
+  int node_index = 0;
+  int node_size = nodes.size();
   for (DFGNode* node: nodes) {
     jsonFile<<"  {\n";
-    jsonFile<<"    \"fu\"         : \"ALU\",\n";
+    jsonFile<<"    \"fu\"         : \""<<node->getFuType()<<"\",\n";
     jsonFile<<"    \"id\"         : "<<node->getID()<<",\n";
-    jsonFile<<"    \"opt\"        : "<<node->getJSONOpt()<<",\n";
+    jsonFile<<"    \"opt\"        : \""<<node->getJSONOpt()<<"\",\n";
+    jsonFile<<"    \"in_const\"   : [],\n";
     jsonFile<<"    \"in\"         : [";
+    int in_size = node->getPredNodes()->size();
+    int in_index = 0;
     for (DFGNode* predNode: *(node->getPredNodes())) {
-      jsonFile<<predNode->getID()<<",";
+      jsonFile<<predNode->getID();
+      in_index += 1;
+      if (in_index < in_size)
+        jsonFile<<",";
     }
     jsonFile<<"],\n";
+    jsonFile<<"    \"out\"        : [";
+    int out_size = node->getSuccNodes()->size();
+    int out_index = 0;
+    for (DFGNode* succNode: *(node->getSuccNodes())) {
+      jsonFile<<succNode->getID();
+      out_index += 1;
+      if (out_index < out_size)
+        jsonFile<<",";
+    }
+    jsonFile<<"]\n";
+    node_index += 1;
+    if (node_index < node_size)
+      jsonFile<<"  },\n";
+    else
+      jsonFile<<"  }\n";
   }
+  jsonFile<<"]\n";
 }
 
 void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {

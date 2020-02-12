@@ -65,6 +65,7 @@ class DFGNode {
     void setOutEdge(DFGEdge*);
     void cutEdges();
     string getJSONOpt();
+    string getFuType();
 };
 
 #endif
