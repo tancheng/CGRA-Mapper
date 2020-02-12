@@ -18,6 +18,7 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_succNodes = NULL;
   m_opcodeName = t_inst->getOpcodeName();
   m_isMapped = false;
+  m_numConst = 0;
 }
 
 int DFGNode::getID() {
@@ -202,3 +203,10 @@ bool DFGNode::isPredecessorOf(DFGNode* t_dfgNode) {
   return false;
 }
 
+void DFGNode::addConst() {
+  ++m_numConst;
+}
+
+int DFGNode::getNumConst() {
+  return m_numConst;
+}

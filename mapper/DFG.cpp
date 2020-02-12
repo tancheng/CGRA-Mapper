@@ -293,6 +293,8 @@ void DFG::construct(Function& t_F) {
 //              getNode(tempInst)->setOutEdge(dfgEdge);
 //              (*nodeItr)->setInEdge(dfgEdge);
             }
+          } else {
+            node->addConst();
           }
         }
         break;
@@ -325,7 +327,14 @@ void DFG::generateJSON(Function &t_F) {
     jsonFile<<"    \"fu\"         : \""<<node->getFuType()<<"\",\n";
     jsonFile<<"    \"id\"         : "<<node->getID()<<",\n";
     jsonFile<<"    \"opt\"        : \""<<node->getJSONOpt()<<"\",\n";
-    jsonFile<<"    \"in_const\"   : [],\n";
+    jsonFile<<"    \"in_const\"   : [";
+    int const_size = node->getNumConst();
+    for (int const_index=0; const_index < const_size; ++const_index) {
+      jsonFile<<const_index;
+      if (const_index < const_size - 1)
+        jsonFile<<",";
+    }
+    jsonFile<<"],\n";
     jsonFile<<"    \"in\"         : [";
     int in_size = node->getPredNodes()->size();
     int in_index = 0;

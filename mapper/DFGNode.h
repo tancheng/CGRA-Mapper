@@ -39,6 +39,7 @@ class DFGNode {
     list<DFGNode*>* m_succNodes;
     list<DFGNode*>* m_predNodes;
     bool m_isMapped;
+    int m_numConst;
 
   public:
     DFGNode(int, Instruction*, StringRef);
@@ -66,6 +67,8 @@ class DFGNode {
     void cutEdges();
     string getJSONOpt();
     string getFuType();
+    void addConst();
+    int getNumConst();
 };
 
 #endif
