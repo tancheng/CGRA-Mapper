@@ -19,6 +19,8 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_opcodeName = t_inst->getOpcodeName();
   m_isMapped = false;
   m_numConst = 0;
+  m_optType = "";
+  initType();
 }
 
 int DFGNode::getID() {
@@ -96,49 +98,78 @@ string DFGNode::getOpcodeName() {
 }
 
 string DFGNode::getFuType() {
-  if (getJSONOpt().compare("OPT_LD") == 0 or
-      getJSONOpt().compare("OPT_STR") == 0 )
-    return "MemUnit";
-  else if (getJSONOpt().compare("OPT_ADD") == 0 or
-           getJSONOpt().compare("OPT_SUB") == 0)
-    return "ALU";
-  else
-    return "TODO";
+  return m_fuType;
 }
 
 string DFGNode::getJSONOpt() {
-  if (isLoad())
-    return "OPT_LD";
-  else if (isStore())
-    return "OPT_STR";
-  else if (isBranch())
-    return "OPT_BRH";
-  else if (isPhi())
-    return "OPT_PHI";
-  else if (isCmp())
-    return "OPT_CMP";
-  else if (isBitcast())
-    return "OPT_NAH";
-  else if (isGetptr())
-    return "OPT_ADD";
-  else if (m_opcodeName.compare("add") == 0)
-    return "OPT_ADD";
-  else if (m_opcodeName.compare("fadd") == 0)
-    return "OPT_ADD";
-  else if (m_opcodeName.compare("sub") == 0)
-    return "OPT_SUB";
-  else if (m_opcodeName.compare("xor") == 0)
-    return "OPT_XOR";
-  else if (m_opcodeName.compare("or") == 0)
-    return "OPT_OR";
-  else if (m_opcodeName.compare("and") == 0)
-    return "OPT_AND";
-  else if (m_opcodeName.compare("mul") == 0)
-    return "OPT_MUL";
-  else if (m_opcodeName.compare("fmul") == 0)
-    return "OPT_MUL";
+  return m_optType;
+}
 
-  return "Unfamiliar: " + m_opcodeName;
+void DFGNode::initType() {
+  if (isLoad()) {
+    m_optType = "OPT_LD";
+    m_fuType = "MemUnit";
+  }
+  else if (isStore()) {
+    m_optType = "OPT_STR";
+    m_fuType = "MemUnit";
+  }
+  else if (isBranch()) {
+    m_optType = "OPT_BRH";
+    m_fuType = "BRH";
+  }
+  else if (isPhi()) {
+    m_optType = "OPT_PHI";
+    m_fuType = "PHI";
+  }
+  else if (isCmp()) {
+    m_optType = "OPT_CMP";
+    m_fuType = "CMP";
+  }
+  else if (isBitcast()) {
+    m_optType = "OPT_NAH";
+    m_fuType = "NAH";
+  }
+  else if (isGetptr()) {
+    m_optType = "OPT_ADD";
+    m_fuType = "ALU";
+  }
+  else if (m_opcodeName.compare("add") == 0) {
+    m_optType = "OPT_ADD";
+    m_fuType = "ALU";
+  }
+  else if (m_opcodeName.compare("fadd") == 0) {
+    m_optType = "OPT_ADD";
+    m_fuType = "ALU";
+  }
+  else if (m_opcodeName.compare("sub") == 0) {
+    m_optType = "OPT_SUB";
+    m_fuType = "ALU";
+  }
+  else if (m_opcodeName.compare("xor") == 0) {
+    m_optType = "OPT_XOR";
+    m_fuType = "ALU";
+  }
+  else if (m_opcodeName.compare("or") == 0) {
+    m_optType = "OPT_OR";
+    m_fuType = "LOGIC";
+  }
+  else if (m_opcodeName.compare("and") == 0) {
+    m_optType = "OPT_AND";
+    m_fuType = "LOGIC";
+  }
+  else if (m_opcodeName.compare("mul") == 0) {
+    m_optType = "OPT_MUL";
+    m_fuType = "MUL";
+  }
+  else if (m_opcodeName.compare("fmul") == 0) {
+    m_optType = "OPT_MUL";
+    m_fuType = "MUL";
+  }
+  else {
+    m_optType = "Unfamiliar: " + m_opcodeName;
+    m_fuType = "Unknown";
+  }
 }
 
 list<DFGNode*>* DFGNode::getPredNodes() {

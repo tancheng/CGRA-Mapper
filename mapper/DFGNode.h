@@ -40,6 +40,8 @@ class DFGNode {
     list<DFGNode*>* m_predNodes;
     bool m_isMapped;
     int m_numConst;
+    string m_optType;
+    string m_fuType;
 
   public:
     DFGNode(int, Instruction*, StringRef);
@@ -69,6 +71,7 @@ class DFGNode {
     string getFuType();
     void addConst();
     int getNumConst();
+    void initType();
 };
 
 #endif
