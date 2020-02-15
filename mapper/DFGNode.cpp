@@ -123,7 +123,7 @@ void DFGNode::initType() {
     m_fuType = "Phi";
   }
   else if (isCmp()) {
-    m_optType = "OPT_CMP";
+    m_optType = "OPT_EQ";
     m_fuType = "Comp";
   }
   else if (isBitcast()) {
