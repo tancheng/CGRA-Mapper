@@ -116,55 +116,55 @@ void DFGNode::initType() {
   }
   else if (isBranch()) {
     m_optType = "OPT_BRH";
-    m_fuType = "BRH";
+    m_fuType = "Branch";
   }
   else if (isPhi()) {
     m_optType = "OPT_PHI";
-    m_fuType = "PHI";
+    m_fuType = "Phi";
   }
   else if (isCmp()) {
     m_optType = "OPT_CMP";
-    m_fuType = "CMP";
+    m_fuType = "Comp";
   }
   else if (isBitcast()) {
     m_optType = "OPT_NAH";
-    m_fuType = "NAH";
+    m_fuType = "Alu";
   }
   else if (isGetptr()) {
     m_optType = "OPT_ADD";
-    m_fuType = "ALU";
+    m_fuType = "Alu";
   }
   else if (m_opcodeName.compare("add") == 0) {
     m_optType = "OPT_ADD";
-    m_fuType = "ALU";
+    m_fuType = "Alu";
   }
   else if (m_opcodeName.compare("fadd") == 0) {
     m_optType = "OPT_ADD";
-    m_fuType = "ALU";
+    m_fuType = "Alu";
   }
   else if (m_opcodeName.compare("sub") == 0) {
     m_optType = "OPT_SUB";
-    m_fuType = "ALU";
+    m_fuType = "Alu";
   }
   else if (m_opcodeName.compare("xor") == 0) {
     m_optType = "OPT_XOR";
-    m_fuType = "ALU";
+    m_fuType = "Alu";
   }
   else if (m_opcodeName.compare("or") == 0) {
     m_optType = "OPT_OR";
-    m_fuType = "LOGIC";
+    m_fuType = "Logic";
   }
   else if (m_opcodeName.compare("and") == 0) {
     m_optType = "OPT_AND";
-    m_fuType = "LOGIC";
+    m_fuType = "Logic";
   }
   else if (m_opcodeName.compare("mul") == 0) {
     m_optType = "OPT_MUL";
-    m_fuType = "MUL";
+    m_fuType = "Mul";
   }
   else if (m_opcodeName.compare("fmul") == 0) {
     m_optType = "OPT_MUL";
-    m_fuType = "MUL";
+    m_fuType = "Mul";
   }
   else {
     m_optType = "Unfamiliar: " + m_opcodeName;
