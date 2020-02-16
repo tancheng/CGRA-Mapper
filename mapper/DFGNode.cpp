@@ -181,6 +181,22 @@ list<DFGNode*>* DFGNode::getPredNodes() {
     assert(edge->getDst() == this);
     m_predNodes->push_back(edge->getSrc());
   }
+  if (isBranch()) {
+    list<DFGNode*>* m_tempNodes = new list<DFGNode*>();
+    for (DFGNode* node: *m_predNodes) {
+      // make sure the CMP node is the last one in the predecessors,
+      // so the JSON file will get the correct ordering.
+      if (!node->isCmp()) {
+        m_tempNodes->push_back(node);
+      }
+    }
+    for (DFGNode* node: *m_predNodes) {
+      if (node->isCmp()) {
+        m_tempNodes->push_back(node);
+      }
+    }
+    m_predNodes = m_tempNodes;
+  }
   return m_predNodes;
 }
 
@@ -236,6 +252,10 @@ bool DFGNode::isPredecessorOf(DFGNode* t_dfgNode) {
 
 void DFGNode::addConst() {
   ++m_numConst;
+}
+
+void DFGNode::removeConst() {
+  --m_numConst;
 }
 
 int DFGNode::getNumConst() {

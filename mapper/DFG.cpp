@@ -282,6 +282,9 @@ void DFG::construct(Function& t_F) {
         for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) {
           Instruction* tempInst = dyn_cast<Instruction>(*op);
           if (tempInst and !shouldIgnore(tempInst)) {
+            if(node->isBranch()) {
+              errs()<<"real branch's pred: "<<*tempInst<<"\n";
+            }
             DFGEdge* dfgEdge;
             if (hasNode(tempInst)) {
               if (hasDFGEdge(getNode(tempInst), node))
@@ -294,8 +297,11 @@ void DFG::construct(Function& t_F) {
 //              (*nodeItr)->setInEdge(dfgEdge);
             }
           } else {
-            node->addConst();
-          }
+            // Original Branch node will take three
+            // predecessors (i.e., condi, true, false).
+            if(!node->isBranch())
+              node->addConst();
+          } 
         }
         break;
       }
@@ -345,7 +351,7 @@ void DFG::generateJSON(Function &t_F) {
         jsonFile<<",";
     }
     jsonFile<<"],\n";
-    jsonFile<<"    \"out\"        : [";
+    jsonFile<<"    \"out\"        : [[";
     int out_size = node->getSuccNodes()->size();
     int out_index = 0;
     for (DFGNode* succNode: *(node->getSuccNodes())) {
@@ -354,7 +360,7 @@ void DFG::generateJSON(Function &t_F) {
       if (out_index < out_size)
         jsonFile<<",";
     }
-    jsonFile<<"]\n";
+    jsonFile<<"]]\n";
     node_index += 1;
     if (node_index < node_size)
       jsonFile<<"  },\n";

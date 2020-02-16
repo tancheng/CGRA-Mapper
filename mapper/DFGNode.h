@@ -70,6 +70,7 @@ class DFGNode {
     string getJSONOpt();
     string getFuType();
     void addConst();
+    void removeConst();
     int getNumConst();
     void initType();
 };
