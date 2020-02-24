@@ -611,7 +611,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           jsonFile<<"    \"x\"         : "<<j<<",\n";
           jsonFile<<"    \"y\"         : "<<i<<",\n";
           jsonFile<<"    \"cycle\"     : "<<t<<",\n";
-          string targetOpt = "none";
+          string targetOpt = "OPT_NAH";
           string stringDst[8];
           stringDst[0] = "none";
           stringDst[1] = "none";
@@ -630,7 +630,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
               if (ol->isOccupied(t, t_II, t_isStaticElasticCGRA) and
                   ol->getMappedDFGNode(t) == targetDFGNode) {
                 // FIXME: should support multiple outputs and distinguish them.
-                stringDst[ol->getDirectionID(currentCGRANode)] = "in_4";
+                stringDst[ol->getDirectionID(currentCGRANode)] = "4";
               }
             }
 //            for (CGRALink* il: *inLinks) {
@@ -644,7 +644,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
 //              }
 //            }
           } else {
-            targetOpt = "none";
+            targetOpt = "OPT_NAH";
           }
 
           // handle function unit's inputs for next cycle
@@ -661,7 +661,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           for (int reg_index=0; reg_index<4; ++reg_index) {
             int direction = currentCGRANode->getRegsAllocation(t)[reg_index];
             if (direction != -1) {
-              stringDst[out_index] = "in_" + to_string(direction);
+              stringDst[out_index] = to_string(direction);
 //              errs()<<"out_"<<out_index<<": "<<stringDst[out_index]<<"\n";
             }
             out_index++;
@@ -682,7 +682,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
                     errs()<<"[cheng] inside roi for CGRA node "<<currentCGRANode->getID()<<"...\n";
                     if (il->getMappedDFGNode(t_tmp) == NULL)
                       errs()<<"[cheng] none..."<<il->getMappedDFGNode(t_tmp)<<"\n";
-                    stringDst[outIndex] = "in_"+to_string(il->getDirectionID(currentCGRANode));//+"; t_tmp: "+to_string(t_tmp)+"; dfg node: " + to_string(il->getMappedDFGNode(t_tmp)->getID());
+                    stringDst[outIndex] = to_string(il->getDirectionID(currentCGRANode));//+"; t_tmp: "+to_string(t_tmp)+"; dfg node: " + to_string(il->getMappedDFGNode(t_tmp)->getID());
                   }
                 }
               }
