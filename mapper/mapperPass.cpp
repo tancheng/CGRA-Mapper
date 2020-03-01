@@ -38,6 +38,8 @@ namespace {
 
       // Set the target function and loop.
       map<string, int>* functionWithLoop = new map<string, int>();
+      (*functionWithLoop)["_Z4spmviiPiS_S_"] = 0;
+      (*functionWithLoop)["_Z4spmvPiii"] = 0;
       (*functionWithLoop)["fir"] = 0;
       (*functionWithLoop)["latnrm"] = 1;
       (*functionWithLoop)["fft"] = 0;
