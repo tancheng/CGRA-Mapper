@@ -37,14 +37,22 @@ namespace {
     bool runOnFunction(Function &t_F) override {
 
       // Set the target function and loop.
-      map<string, int>* functionWithLoop = new map<string, int>();
-      (*functionWithLoop)["_Z4spmviiPiS_S_"] = 0;
-      (*functionWithLoop)["_Z4spmvPiii"] = 0;
-      (*functionWithLoop)["fir"] = 0;
-      (*functionWithLoop)["latnrm"] = 1;
-      (*functionWithLoop)["fft"] = 0;
-      (*functionWithLoop)["BF_encrypt"] = 0;
-      (*functionWithLoop)["susan_smoothing"] = 0;
+      map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
+      (*functionWithLoop)["_Z4spmviiPiS_S_"] = new list<int>();
+      (*functionWithLoop)["_Z4spmviiPiS_S_"]->push_back(0);
+      (*functionWithLoop)["_Z4spmvPiii"] = new list<int>();
+      (*functionWithLoop)["_Z4spmvPiii"]->push_back(0);
+      (*functionWithLoop)["fir"] = new list<int>();
+      (*functionWithLoop)["fir"]->push_back(0);
+//      (*functionWithLoop)["fir"].push_back(1);
+      (*functionWithLoop)["latnrm"] = new list<int>();
+      (*functionWithLoop)["latnrm"]->push_back(1);
+      (*functionWithLoop)["fft"] = new list<int>();
+      (*functionWithLoop)["fft"]->push_back(0);
+      (*functionWithLoop)["BF_encrypt"] = new list<int>();
+      (*functionWithLoop)["BF_encrypt"]->push_back(0);
+      (*functionWithLoop)["susan_smoothing"] = new list<int>();
+      (*functionWithLoop)["susan_smoothing"]->push_back(0);
 
       // Configuration for static CGRA.
       // int rows = 8;
@@ -72,8 +80,8 @@ namespace {
       errs() << "==================================\n";
       errs()<<"[target function \'"<<t_F.getName()<<"\' is detected]\n";
 
-      Loop* targetLoop = getTargetLoop(t_F, functionWithLoop);
-      DFG* dfg = new DFG(t_F, targetLoop);
+      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop);
+      DFG* dfg = new DFG(t_F, targetLoops);
       CGRA* cgra = new CGRA(rows, columns);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
@@ -141,33 +149,41 @@ namespace {
     }
 
 
-    Loop* getTargetLoop(Function& t_F, map<string, int>* t_functionWithLoop) {
+    list<Loop*>* getTargetLoops(Function& t_F, map<string, list<int>*>* t_functionWithLoop) {
       int targetLoopID = 0;
-      targetLoopID = (*t_functionWithLoop)[t_F.getName()];
+      list<Loop*>* targetLoops = new list<Loop*>();
+      while((*t_functionWithLoop)[t_F.getName()]->size() > 0) {
+        targetLoopID = (*t_functionWithLoop)[t_F.getName()]->front();
+        (*t_functionWithLoop)[t_F.getName()]->pop_front();
 
-      // Specify the particular loop we are focusing on.
-      // TODO: move the following to another .cpp file.
-      LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-      Loop* targetLoop = NULL;
-      int tempLoopID = 0;
-      for(LoopInfo::iterator loopItr=LI.begin();
-          loopItr!= LI.end(); ++loopItr) {
-        targetLoop = *loopItr;
-        if (tempLoopID == targetLoopID) {
-          while (!targetLoop->getSubLoops().empty()) {
-            errs()<<"*** detected nested loop ... size: "<<targetLoop->getSubLoops().size()<<"\n";
-            // TODO: might change '0' to a reasonable index
-            targetLoop = targetLoop->getSubLoops()[0];
+        // Specify the particular loop we are focusing on.
+        // TODO: move the following to another .cpp file.
+        LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+        int tempLoopID = 0;
+        Loop* current_loop = NULL;
+        for(LoopInfo::iterator loopItr=LI.begin();
+            loopItr!= LI.end(); ++loopItr) {
+//          targetLoops.push_back(*loopItr);
+          current_loop = *loopItr;
+          if (tempLoopID == targetLoopID) {
+//            if (!current_loop->getSubLoops().empty()) {
+//              errs()<<"*** detected nested loop ... size: "<<targetLoop->getSubLoops().size()<<"\n";
+//              // TODO: might change '0' to a reasonable index
+//              targetLoops.push_back(current_loop->getSubLoops()[0]);
+//            } else {
+            targetLoops->push_back(*loopItr);
+//            }
+            errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
+            break;
           }
-          errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
-          break;
+          ++tempLoopID;
         }
-        ++tempLoopID;
+        if (targetLoops->size() == 0) {
+          errs()<<"... no loop detected in the target kernel ...\n";
+        }
       }
-      if (targetLoop == NULL) {
-        errs()<<"... no loop detected in the target kernel ...\n";
-      }
-      return targetLoop;
+      errs()<<"... detected loops.size(): "<<targetLoops->size()<<"\n";
+      return targetLoops;
     }
 
   };

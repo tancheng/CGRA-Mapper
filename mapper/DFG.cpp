@@ -11,9 +11,9 @@
 #include <fstream>
 #include "DFG.h"
 
-DFG::DFG(Function& t_F, Loop* t_loop) {
+DFG::DFG(Function& t_F, list<Loop*>* t_loops) {
   m_num = 0;
-  m_targetLoop = t_loop;
+  m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   construct(t_F);
   tuneForBranch();
@@ -23,10 +23,12 @@ DFG::DFG(Function& t_F, Loop* t_loop) {
 }
 
 bool DFG::shouldIgnore(Instruction* t_inst) {
-  if (m_targetLoop == NULL)
+  if (m_targetLoops->size() == 0)
     return false;
-  if (m_targetLoop->contains(t_inst)) {
-    return false;
+  for (Loop* current_loop: *m_targetLoops) {
+    if (current_loop->contains(t_inst)) {
+      return false;
+    }
   }
   return true;
 }

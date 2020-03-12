@@ -30,7 +30,7 @@ class DFG {
   private:
     int m_num;
     list<DFGNode*>* m_orderedNodes;
-    Loop* m_targetLoop;
+    list<Loop*>* m_targetLoops;
 
     //edges of data flow
     list<DFGEdge*> m_DFGEdges;
@@ -58,7 +58,7 @@ class DFG {
     void connectDFGNodes();
 
   public:
-    DFG(Function&, Loop*);
+    DFG(Function&, list<Loop*>*);
     //initial ordering of insts
     list<DFGNode*> nodes;
 
