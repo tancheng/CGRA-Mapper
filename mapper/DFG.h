@@ -44,6 +44,7 @@ class DFG {
     DFGNode* getNode(Value*);
     bool hasNode(Value*);
     DFGEdge* getDFGEdge(DFGNode*, DFGNode*);
+    void replaceDFGEdge(DFGNode*, DFGNode*, DFGNode*, DFGNode*);
     bool hasDFGEdge(DFGNode*, DFGNode*);
     DFGEdge* getCtrlEdge(DFGNode*, DFGNode*);
     bool hasCtrlEdge(DFGNode*, DFGNode*);
@@ -51,6 +52,7 @@ class DFG {
     void tuneForBranch();
     void tuneForBitcast();
     void tuneForLoad();
+    void tuneForPattern();
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
@@ -58,7 +60,7 @@ class DFG {
     void connectDFGNodes();
 
   public:
-    DFG(Function&, list<Loop*>*);
+    DFG(Function&, list<Loop*>*, bool);
     //initial ordering of insts
     list<DFGNode*> nodes;
 

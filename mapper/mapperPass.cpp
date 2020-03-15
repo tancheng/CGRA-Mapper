@@ -81,8 +81,11 @@ namespace {
       errs()<<"[target function \'"<<t_F.getName()<<"\' is detected]\n";
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop);
-      DFG* dfg = new DFG(t_F, targetLoops);
-      CGRA* cgra = new CGRA(rows, columns);
+      // TODO: will make a list of patterns/tiles to illustrate how the
+      //       heterogeneity is
+      bool heterogeneity = true;
+      DFG* dfg = new DFG(t_F, targetLoops, heterogeneity);
+      CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);

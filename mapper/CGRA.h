@@ -23,7 +23,7 @@ class CGRA {
     int m_columns;
 
   public:
-    CGRA(int, int);
+    CGRA(int, int, bool);
     CGRANode ***nodes;
     CGRALink **links;
     int getFUCount();

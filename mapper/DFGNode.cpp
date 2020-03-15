@@ -20,6 +20,10 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_isMapped = false;
   m_numConst = 0;
   m_optType = "";
+  m_combined = false;
+  m_isPatternRoot = false;
+  m_patternRoot = NULL;
+  m_patternNodes = new list<DFGNode*>();
   initType();
 }
 
@@ -75,6 +79,21 @@ bool DFGNode::isPhi() {
   return false;
 }
 
+bool DFGNode::isMul() {
+  if (m_opcodeName.compare("fmul") == 0 or
+      m_opcodeName.compare("mul") == 0)
+    return true;
+  return false;
+}
+
+bool DFGNode::isAdd() {
+  if (m_opcodeName.compare("getelementptr") == 0 or
+      m_opcodeName.compare("add") == 0 or
+      m_opcodeName.compare("fadd") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::isCmp() {
   if (m_opcodeName.compare("icmp") == 0)
     return true;
@@ -91,6 +110,38 @@ bool DFGNode::isGetptr() {
   if (m_opcodeName.compare("getelementptr") == 0)
     return true;
   return false;
+}
+
+bool DFGNode::hasCombined() {
+  return m_combined;
+}
+
+void DFGNode::setCombine() {
+  m_combined = true;
+}
+
+void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
+  m_isPatternRoot = true;
+  m_patternRoot = this;
+  m_patternNodes->push_back(t_patternNode);
+  t_patternNode->setPatternRoot(this);
+  m_opcodeName += t_patternNode->getOpcodeName();
+}
+
+list<DFGNode*>* DFGNode::getPatternNodes() {
+  return m_patternNodes;
+}
+
+void DFGNode::setPatternRoot(DFGNode* t_patternRoot) {
+  m_patternRoot = t_patternRoot;
+}
+
+DFGNode* DFGNode::getPatternRoot() {
+  return m_patternRoot;
+}
+
+bool DFGNode::isPatternRoot() {
+  return m_isPatternRoot;
 }
 
 string DFGNode::getOpcodeName() {

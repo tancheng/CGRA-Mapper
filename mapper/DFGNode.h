@@ -38,10 +38,15 @@ class DFGNode {
     list<DFGEdge*> m_outEdges;
     list<DFGNode*>* m_succNodes;
     list<DFGNode*>* m_predNodes;
+    list<DFGNode*>* m_patternNodes;
     bool m_isMapped;
     int m_numConst;
     string m_optType;
     string m_fuType;
+    bool m_combined;
+    bool m_isPatternRoot;
+    DFGNode* m_patternRoot;
+    void setPatternRoot(DFGNode*);
 
   public:
     DFGNode(int, Instruction*, StringRef);
@@ -54,9 +59,14 @@ class DFGNode {
     bool isStore();
     bool isBranch();
     bool isPhi();
+    bool isAdd();
+    bool isMul();
     bool isCmp();
     bool isBitcast();
     bool isGetptr();
+    bool hasCombined();
+    void setCombine();
+    void addPatternPartner(DFGNode*);
     Instruction* getInst();
     StringRef getStringRef();
     string getOpcodeName();
@@ -73,6 +83,9 @@ class DFGNode {
     void removeConst();
     int getNumConst();
     void initType();
+    bool isPatternRoot();
+    DFGNode* getPatternRoot();
+    list<DFGNode*>* getPatternNodes();
 };
 
 #endif

@@ -11,7 +11,7 @@
 #include <fstream>
 #include "DFG.h"
 
-DFG::DFG(Function& t_F, list<Loop*>* t_loops) {
+DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   m_num = 0;
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
@@ -19,7 +19,88 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops) {
   tuneForBranch();
   tuneForBitcast();
   tuneForLoad();
+  if (t_heterogeneity)
+    tuneForPattern();
   trimForStandalone();
+}
+
+// FIXME: only combine operations of mul+alu and alu+cmp for now,
+//        since these two are the most common patterns across all
+//        the kernels.
+void DFG::tuneForPattern() {
+  // detect patterns (e.g., mul+alu)
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine();
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine();
+          break;
+        }
+      }
+    }
+  }
+
+  // detect patterns (e.g., alu+cmp)
+  addNode = NULL;
+  DFGNode* cmpNode = NULL;
+  found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isCmp() and !succNode->hasCombined()) {
+          addNode = dfgNode;
+          addNode->setCombine();
+          cmpNode = succNode;
+          addNode->addPatternPartner(cmpNode);
+          cmpNode->setCombine();
+          break;
+        }
+      }
+    }
+  }
+
+  // reconstruct connected DFG by modifying m_DFGEdge
+  list<DFGNode*>* removeNodes = new list<DFGNode*>();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->hasCombined()) {
+      if (dfgNode->isPatternRoot()) {
+        for (DFGNode* patternNode: *(dfgNode->getPatternNodes())) {
+          if (hasDFGEdge(dfgNode, patternNode))
+            m_DFGEdges.remove(getDFGEdge(dfgNode, patternNode));
+          for (DFGNode* predNode: *(patternNode->getPredNodes())) {
+            if (predNode == dfgNode) continue;
+            DFGNode* newPredNode = NULL;
+            if (predNode->hasCombined())
+              newPredNode = predNode->getPatternRoot();
+            else
+              newPredNode = predNode;
+            replaceDFGEdge(predNode, patternNode, newPredNode, dfgNode);
+          }
+          for (DFGNode* succNode: *(patternNode->getSuccNodes())) {
+            DFGNode* newSuccNode = NULL;
+            if (succNode->hasCombined())
+              newSuccNode = succNode->getPatternRoot();
+            else
+              newSuccNode = succNode;
+            replaceDFGEdge(patternNode, succNode, dfgNode, newSuccNode);
+          }
+
+        }
+      } else {
+        removeNodes->push_back(dfgNode);
+      }
+    }
+  }
+  for (DFGNode* dfgNode: *removeNodes) {
+    nodes.remove(dfgNode);
+  }
 }
 
 bool DFG::shouldIgnore(Instruction* t_inst) {
@@ -540,6 +621,23 @@ DFGEdge* DFG::getDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
   }
   assert("ERROR cannot find the corresponding DFG edge.");
   return NULL;
+}
+
+void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
+                         DFGNode* t_new_src, DFGNode* t_new_dst) {
+  DFGEdge* target = NULL;
+  for (DFGEdge* edge: m_DFGEdges) {
+    if (edge->getSrc() == t_old_src and
+        edge->getDst() == t_old_dst) {
+      target = edge;
+      break;
+    }
+  }
+  if (target == NULL)
+    assert("ERROR cannot find the corresponding DFG edge.");
+  m_DFGEdges.remove(target);
+  DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst);
+  m_DFGEdges.push_back(newEdge);
 }
 
 bool DFG::hasDFGEdge(DFGNode* t_src, DFGNode* t_dst) {

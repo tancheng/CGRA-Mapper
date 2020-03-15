@@ -10,7 +10,7 @@
 
 #include "CGRA.h"
 
-CGRA::CGRA(int t_rows, int t_columns) {
+CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
