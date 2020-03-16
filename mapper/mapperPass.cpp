@@ -72,7 +72,7 @@ namespace {
       int bypassConstraint = 4;
       // FIXME: should not change this for now, it is the four directions by default
       int regConstraint = 4;
-      bool heterogeneity = false;
+      bool heterogeneity = true;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
         errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";

@@ -88,8 +88,10 @@ bool DFGNode::isMul() {
 
 bool DFGNode::isAdd() {
   if (m_opcodeName.compare("getelementptr") == 0 or
-      m_opcodeName.compare("add") == 0 or
-      m_opcodeName.compare("fadd") == 0)
+      m_opcodeName.compare("add") == 0  or
+      m_opcodeName.compare("fadd") == 0 or
+      m_opcodeName.compare("sub") == 0  or
+      m_opcodeName.compare("fsub") == 0)
     return true;
   return false;
 }
