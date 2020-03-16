@@ -72,6 +72,7 @@ namespace {
       int bypassConstraint = 4;
       // FIXME: should not change this for now, it is the four directions by default
       int regConstraint = 4;
+      bool heterogeneity = false;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
         errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";
@@ -83,7 +84,6 @@ namespace {
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      bool heterogeneity = true;
       DFG* dfg = new DFG(t_F, targetLoops, heterogeneity);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
@@ -169,13 +169,12 @@ namespace {
 //          targetLoops.push_back(*loopItr);
           current_loop = *loopItr;
           if (tempLoopID == targetLoopID) {
-//            if (!current_loop->getSubLoops().empty()) {
-//              errs()<<"*** detected nested loop ... size: "<<targetLoop->getSubLoops().size()<<"\n";
-//              // TODO: might change '0' to a reasonable index
-//              targetLoops.push_back(current_loop->getSubLoops()[0]);
-//            } else {
-            targetLoops->push_back(*loopItr);
-//            }
+            while (!current_loop->getSubLoops().empty()) {
+              errs()<<"*** detected nested loop ... size: "<<current_loop->getSubLoops().size()<<"\n";
+              // TODO: might change '0' to a reasonable index
+              current_loop = current_loop->getSubLoops()[0];
+            }
+            targetLoops->push_back(current_loop);
             errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
             break;
           }

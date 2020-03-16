@@ -301,6 +301,12 @@ bool DFGNode::isPredecessorOf(DFGNode* t_dfgNode) {
   return false;
 }
 
+bool DFGNode::isOneOfThem(list<DFGNode*>* t_pattern) {
+  if (find (t_pattern->begin(), t_pattern->end(), this) != t_pattern->end())
+    return true;
+  return false;
+}
+
 void DFGNode::addConst() {
   ++m_numConst;
 }

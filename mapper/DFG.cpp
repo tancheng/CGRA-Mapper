@@ -50,18 +50,30 @@ void DFG::tuneForPattern() {
   // detect patterns (e.g., alu+cmp)
   addNode = NULL;
   DFGNode* cmpNode = NULL;
+  DFGNode* brhNode = NULL;
   found = false;
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isCmp() and !succNode->hasCombined()) {
-          addNode = dfgNode;
-          addNode->setCombine();
-          cmpNode = succNode;
-          addNode->addPatternPartner(cmpNode);
-          cmpNode->setCombine();
-          break;
+          for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
+            if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
+                succSuccNode->isSuccessorOf(dfgNode)) {
+              addNode = dfgNode;
+              addNode->setCombine();
+              cmpNode = succNode;
+              addNode->addPatternPartner(cmpNode);
+              cmpNode->setCombine();
+              brhNode = succSuccNode;
+              addNode->addPatternPartner(brhNode);
+              brhNode->setCombine();
+              found = true;
+              break;
+            }
+          }
         }
+        if (found) break;
       }
     }
   }
@@ -75,7 +87,11 @@ void DFG::tuneForPattern() {
           if (hasDFGEdge(dfgNode, patternNode))
             m_DFGEdges.remove(getDFGEdge(dfgNode, patternNode));
           for (DFGNode* predNode: *(patternNode->getPredNodes())) {
-            if (predNode == dfgNode) continue;
+            if (predNode == dfgNode or
+                predNode->isOneOfThem(dfgNode->getPatternNodes())) {
+              deleteDFGEdge(predNode, patternNode);
+              continue;
+            }
             DFGNode* newPredNode = NULL;
             if (predNode->hasCombined())
               newPredNode = predNode->getPatternRoot();
@@ -84,6 +100,11 @@ void DFG::tuneForPattern() {
             replaceDFGEdge(predNode, patternNode, newPredNode, dfgNode);
           }
           for (DFGNode* succNode: *(patternNode->getSuccNodes())) {
+            if (succNode == dfgNode or
+                succNode->isOneOfThem(dfgNode->getPatternNodes())) {
+              deleteDFGEdge(patternNode, succNode);
+              continue;
+            }
             DFGNode* newSuccNode = NULL;
             if (succNode->hasCombined())
               newSuccNode = succNode->getPatternRoot();
@@ -626,6 +647,7 @@ DFGEdge* DFG::getDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
 void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
                          DFGNode* t_new_src, DFGNode* t_new_dst) {
   DFGEdge* target = NULL;
+  errs()<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<" [new] "<<t_new_src->getID()<<"->"<<t_new_dst->getID()<<"\n";
   for (DFGEdge* edge: m_DFGEdges) {
     if (edge->getSrc() == t_old_src and
         edge->getDst() == t_old_dst) {
@@ -638,6 +660,11 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
   m_DFGEdges.remove(target);
   DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst);
   m_DFGEdges.push_back(newEdge);
+}
+
+void DFG::deleteDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
+  if (!hasDFGEdge(t_src, t_dst)) return;
+  m_DFGEdges.remove(getDFGEdge(t_src, t_dst));
 }
 
 bool DFG::hasDFGEdge(DFGNode* t_src, DFGNode* t_dst) {

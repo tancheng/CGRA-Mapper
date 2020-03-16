@@ -74,6 +74,7 @@ class DFGNode {
     list<DFGNode*>* getSuccNodes();
     bool isSuccessorOf(DFGNode*);
     bool isPredecessorOf(DFGNode*);
+    bool isOneOfThem(list<DFGNode*>*);
     void setInEdge(DFGEdge*);
     void setOutEdge(DFGEdge*);
     void cutEdges();
