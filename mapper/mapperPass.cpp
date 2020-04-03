@@ -78,11 +78,11 @@ namespace {
 //      bool heterogeneity = true;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
-        errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";
+        errs()<<"[function \'"<<t_F.getName()<<"\' is not in our target list]\n";
         return false;
       }
       errs() << "==================================\n";
-      errs()<<"[target function \'"<<t_F.getName()<<"\' is detected]\n";
+      errs()<<"[function \'"<<t_F.getName()<<"\' is one of our targets]\n";
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop);
       // TODO: will make a list of patterns/tiles to illustrate how the
