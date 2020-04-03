@@ -57,6 +57,7 @@ class DFGNode {
     void clearMapped();
     bool isLoad();
     bool isStore();
+    bool isCall();
     bool isBranch();
     bool isPhi();
     bool isAdd();

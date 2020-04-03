@@ -38,6 +38,8 @@ namespace {
 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
+      (*functionWithLoop)["_Z12ARENA_kerneliii"] = new list<int>();
+      (*functionWithLoop)["_Z12ARENA_kerneliii"]->push_back(0);
       (*functionWithLoop)["_Z4spmviiPiS_S_"] = new list<int>();
       (*functionWithLoop)["_Z4spmviiPiS_S_"]->push_back(0);
       (*functionWithLoop)["_Z4spmvPiii"] = new list<int>();
@@ -71,8 +73,9 @@ namespace {
       int ctrlMemConstraint = 100;
       int bypassConstraint = 4;
       // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint = 4;
-      bool heterogeneity = true;
+      int regConstraint = 16;
+      bool heterogeneity = false;
+//      bool heterogeneity = true;
 
       if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
         errs()<<"[target function \'"<<t_F.getName()<<"\' is not detected]\n";

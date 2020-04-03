@@ -51,6 +51,7 @@ class CGRANode {
     map<CGRALink*,bool*> m_xbarOccupied;
     bool m_canStore;
     bool m_canLoad;
+    bool m_canCall;
     int** m_regs_duration;
     int** m_regs_timing;
 
@@ -64,6 +65,7 @@ class CGRANode {
     int getID();
     void enableStore();
     void enableLoad();
+    void enableCall();
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
     list<CGRALink*>* getInLinks();
@@ -89,6 +91,7 @@ class CGRANode {
     int getY();
     bool canStore();
     bool canLoad();
+    bool canCall();
     DFGNode* getMappedDFGNode(int);
     void allocateReg(CGRALink*, int, int, int);
     void allocateReg(int, int, int, int);

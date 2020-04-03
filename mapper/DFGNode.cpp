@@ -55,6 +55,12 @@ StringRef DFGNode::getStringRef() {
   return m_stringRef;
 }
 
+bool DFGNode::isCall() {
+  if (m_opcodeName.compare("call") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::isLoad() {
   if (m_opcodeName.compare("load") == 0)
     return true;

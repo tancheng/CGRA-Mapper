@@ -29,10 +29,17 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
   }
 
   // Enable the load/store on specific CGRA nodes.
-  for (int j=0; j<t_columns; ++j) {
-    nodes[0][j]->enableLoad();
-    nodes[t_rows-1][j]->enableStore();
+  for (int r=0; r<t_rows; ++r) {
+    nodes[r][0]->enableLoad();
+    nodes[r][0]->enableStore();
+    if (r%2 == 0)
+      nodes[r][t_columns-1]->enableCall();
   }
+
+  // for (int j=0; j<t_columns; ++j) {
+  //   nodes[0][j]->enableLoad();
+  //   nodes[t_rows-1][j]->enableStore();
+  // }
 
   // Connect the CGRA nodes with links.
   int link_id = 0;

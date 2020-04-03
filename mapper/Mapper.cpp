@@ -301,6 +301,7 @@ map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
   int latest = -1;
   bool isAnyPredDFGNodeMapped = false;
   for(DFGNode* pre: *predNodes) {
+//      errs()<<"[TAN DEBUG] how dare to pre node: "<<pre->getID()<<"; CGRA node: "<<t_fu->getID()<<"\n";
     if(m_mapping.find(pre) != m_mapping.end()) {
       // Leverage Dijkstra algorithm to search the shortest path between
       // the mapped 'CGRANode' of the 'pre' and the target 'fu'.
