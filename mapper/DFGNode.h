@@ -45,6 +45,7 @@ class DFGNode {
     string m_fuType;
     bool m_combined;
     bool m_isPatternRoot;
+    bool m_critical;
     DFGNode* m_patternRoot;
     void setPatternRoot(DFGNode*);
 
@@ -65,6 +66,7 @@ class DFGNode {
     bool isCmp();
     bool isBitcast();
     bool isGetptr();
+    bool isOpt(string);
     bool hasCombined();
     void setCombine();
     void addPatternPartner(DFGNode*);
@@ -88,6 +90,8 @@ class DFGNode {
     bool isPatternRoot();
     DFGNode* getPatternRoot();
     list<DFGNode*>* getPatternNodes();
+    void setCritical();
+    bool isCritical();
 };
 
 #endif

@@ -54,6 +54,10 @@ class DFG {
     void tuneForBitcast();
     void tuneForLoad();
     void tuneForPattern();
+    void combineCmpBranch();
+    void combineMulAdd();
+    void combinePhiAdd();
+    void combine(string, string);
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);

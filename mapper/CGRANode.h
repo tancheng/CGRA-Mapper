@@ -52,6 +52,7 @@ class CGRANode {
     bool m_canStore;
     bool m_canLoad;
     bool m_canCall;
+    bool m_supportComplex;
     int** m_regs_duration;
     int** m_regs_timing;
 
@@ -66,6 +67,7 @@ class CGRANode {
     void enableStore();
     void enableLoad();
     void enableCall();
+    void enableComplex();
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
     list<CGRALink*>* getInLinks();
@@ -92,6 +94,7 @@ class CGRANode {
     bool canStore();
     bool canLoad();
     bool canCall();
+    bool supportComplex();
     DFGNode* getMappedDFGNode(int);
     void allocateReg(CGRALink*, int, int, int);
     void allocateReg(int, int, int, int);

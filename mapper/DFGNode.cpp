@@ -23,6 +23,7 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_combined = false;
   m_isPatternRoot = false;
   m_patternRoot = NULL;
+  m_critical = false;
   m_patternNodes = new list<DFGNode*>();
   initType();
 }
@@ -33,6 +34,14 @@ int DFGNode::getID() {
 
 void DFGNode::setID(int t_id) {
   m_id = t_id;
+}
+
+void DFGNode::setCritical() {
+  m_critical = true;
+}
+
+bool DFGNode::isCritical() {
+  return m_critical;
 }
 
 bool DFGNode::isMapped() {
@@ -81,6 +90,12 @@ bool DFGNode::isBranch() {
 
 bool DFGNode::isPhi() {
   if (m_opcodeName.compare("phi") == 0)
+    return true;
+  return false;
+}
+
+bool DFGNode::isOpt(string t_opt) {
+  if (m_opcodeName.compare(t_opt) == 0)
     return true;
   return false;
 }

@@ -19,8 +19,23 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   tuneForBranch();
   tuneForBitcast();
   tuneForLoad();
-  if (t_heterogeneity)
+  if (t_heterogeneity) {
+    getCycles();
+//    combine("phi", "add");
+//    combine("and", "xor");
+//    combine("br", "phi");
+//    combine("add", "icmp");
+//    combine("xor", "add");
+    combineCmpBranch();
+//    combine("icmp", "br");
+//    combine("getelementptr", "load");
     tuneForPattern();
+
+//    getCycles();
+////    combine("icmp", "br");
+//    combine("xor", "add");
+//    tuneForPattern();
+  }
   trimForStandalone();
 }
 
@@ -28,55 +43,6 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
 //        since these two are the most common patterns across all
 //        the kernels.
 void DFG::tuneForPattern() {
-  // detect patterns (e.g., mul+alu)
-  DFGNode* mulNode = NULL;
-  DFGNode* addNode = NULL;
-  bool found = false;
-  for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
-      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isAdd() and !succNode->hasCombined()) {
-          mulNode = dfgNode;
-          mulNode->setCombine();
-          addNode = succNode;
-          mulNode->addPatternPartner(addNode);
-          addNode->setCombine();
-          break;
-        }
-      }
-    }
-  }
-
-  // detect patterns (e.g., alu+cmp)
-  addNode = NULL;
-  DFGNode* cmpNode = NULL;
-  DFGNode* brhNode = NULL;
-  found = false;
-  for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
-      found = false;
-      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isCmp() and !succNode->hasCombined()) {
-          for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
-            if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
-                succSuccNode->isSuccessorOf(dfgNode)) {
-              addNode = dfgNode;
-              addNode->setCombine();
-              cmpNode = succNode;
-              addNode->addPatternPartner(cmpNode);
-              cmpNode->setCombine();
-              brhNode = succSuccNode;
-              addNode->addPatternPartner(brhNode);
-              brhNode->setCombine();
-              found = true;
-              break;
-            }
-          }
-        }
-        if (found) break;
-      }
-    }
-  }
 
   // reconstruct connected DFG by modifying m_DFGEdge
   list<DFGNode*>* removeNodes = new list<DFGNode*>();
@@ -121,6 +87,81 @@ void DFG::tuneForPattern() {
   }
   for (DFGNode* dfgNode: *removeNodes) {
     nodes.remove(dfgNode);
+  }
+}
+
+void DFG::combineCmpBranch() {
+  // detect patterns (e.g., cmp+branch)
+  DFGNode* addNode = NULL;
+  DFGNode* cmpNode = NULL;
+  DFGNode* brhNode = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      found = false;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isCmp() and !succNode->hasCombined()) {
+          for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
+            if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
+                succSuccNode->isSuccessorOf(dfgNode)) {
+              addNode = dfgNode;
+              addNode->setCombine();
+              cmpNode = succNode;
+              addNode->addPatternPartner(cmpNode);
+              cmpNode->setCombine();
+              brhNode = succSuccNode;
+              addNode->addPatternPartner(brhNode);
+              brhNode->setCombine();
+              found = true;
+              break;
+            }
+          }
+        }
+        if (found) break;
+      }
+    }
+  }
+}
+
+void DFG::combineMulAdd() {
+  // detect patterns (e.g., mul+alu)
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isMul() and dfgNode->isCritical() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and succNode->isCritical() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine();
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine();
+          break;
+        }
+      }
+    }
+  }
+}
+
+void DFG::combine(string t_opt0, string t_opt1) {
+  DFGNode* opt0Node = NULL;
+  DFGNode* opt1Node = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+//    if (dfgNode->isOpt(t_opt0) and dfgNode->isCritical() and !dfgNode->hasCombined()) {
+    if (dfgNode->isOpt(t_opt0) and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isOpt(t_opt1) and !succNode->hasCombined()) {
+          opt0Node = dfgNode;
+          opt0Node->setCombine();
+          opt1Node = succNode;
+          opt0Node->addPatternPartner(opt1Node);
+          opt1Node->setCombine();
+          break;
+        }
+      }
+    }
   }
 }
 
@@ -571,6 +612,11 @@ list<list<DFGEdge*>*>* DFG::getCycles() {
   for (DFGNode* node: nodes) {
     currentCycle->clear();
     DFS_on_DFG(node, node, erasedEdges, currentCycle, cycleLists);
+  }
+  for (list<DFGEdge*>* cycle: *cycleLists) {
+    for (DFGEdge* edge: *cycle) {
+      edge->getDst()->setCritical();
+    }
   }
   return cycleLists;
 }

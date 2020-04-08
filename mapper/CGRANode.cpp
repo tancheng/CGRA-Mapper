@@ -24,6 +24,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canStore = false;
   m_canLoad = false;
   m_canCall = false;
+  m_supportComplex = false;
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
@@ -182,9 +183,10 @@ bool CGRANode::canOccupy(int t_cycle, int t_II) {
 
 bool CGRANode::canSupport(DFGNode* t_opt) {
   // Check whether this CGRA node supports the required functionality.
-  if ((t_opt->isLoad() and !canLoad()) or
-      (t_opt->isStore() and !canStore()) or
-      (t_opt->isCall() and !canCall())){
+  if ((t_opt->isLoad()      and !canLoad())  or
+      (t_opt->isStore()     and !canStore()) or
+      (t_opt->isCall()      and !canCall())  or
+      (t_opt->hasCombined() and !supportComplex() )){
     return false;
   }
   return true;
@@ -330,6 +332,14 @@ void CGRANode::enableLoad() {
 
 void CGRANode::enableCall() {
   m_canCall = true;
+}
+
+void CGRANode::enableComplex() {
+  m_supportComplex = true;
+}
+
+bool CGRANode::supportComplex() {
+  return m_supportComplex;
 }
 
 bool CGRANode::canCall() {
