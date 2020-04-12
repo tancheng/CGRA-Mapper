@@ -34,10 +34,15 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     nodes[r][0]->enableStore();
     if (r%2 == 0)
       nodes[r][t_columns-1]->enableCall();
-    nodes[1][1]->enableComplex();
-    nodes[1][3]->enableComplex();
-    nodes[3][1]->enableComplex();
-    nodes[3][3]->enableComplex();
+  }
+
+  if (t_heterogeneity) {
+    for (int r=0; r<t_rows; ++r) {
+      for (int c=0; c<t_columns; ++c) {
+        if(r%2==1 and c%2 == 1)
+          nodes[r][c]->enableComplex();
+      }
+    }
   }
 
   // for (int j=0; j<t_columns; ++j) {

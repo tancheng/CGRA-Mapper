@@ -204,14 +204,14 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
 
 DFGNode* CGRALink::getMappedDFGNode(int t_cycle) {
   if (t_cycle < 0) {
-    if (m_dfgNodes[m_II+t_cycle] == NULL) {
-      errs()<<"[cheng] 1 no mapped DFG node at cycle "<<t_cycle<<"\n";
-    }
+//    if (m_dfgNodes[m_II+t_cycle] == NULL) {
+//      errs()<<"[cheng] 1 no mapped DFG node at cycle "<<t_cycle<<"\n";
+//    }
     return m_dfgNodes[m_II+t_cycle];
   }
-  if (m_dfgNodes[t_cycle] == NULL) {
-    errs()<<"[cheng] 2 no mapped DFG node at cycle "<<t_cycle<<"\n";
-  }
+//  if (m_dfgNodes[t_cycle] == NULL) {
+//    errs()<<"[cheng] 2 no mapped DFG node at cycle "<<t_cycle<<"\n";
+//  }
   return m_dfgNodes[t_cycle];
 }
 
