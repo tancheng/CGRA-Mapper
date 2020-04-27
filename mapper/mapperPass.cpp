@@ -60,6 +60,9 @@ namespace {
       (*functionWithLoop)["susan_smoothing"] = new list<int>();
       (*functionWithLoop)["susan_smoothing"]->push_back(0);
 
+//      (*functionWithLoop)["main"] = new list<int>();
+//      (*functionWithLoop)["main"]->push_back(0);
+
       // Configuration for static CGRA.
       // int rows = 8;
       // int columns = 8;
@@ -81,7 +84,7 @@ namespace {
       bool heterogeneity = false;
 //      bool heterogeneity = true;
 
-      if (functionWithLoop->find(t_F.getName()) == functionWithLoop->end()) {
+      if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
         errs()<<"[function \'"<<t_F.getName()<<"\' is not in our target list]\n";
         return false;
       }
@@ -162,9 +165,9 @@ namespace {
     list<Loop*>* getTargetLoops(Function& t_F, map<string, list<int>*>* t_functionWithLoop) {
       int targetLoopID = 0;
       list<Loop*>* targetLoops = new list<Loop*>();
-      while((*t_functionWithLoop)[t_F.getName()]->size() > 0) {
-        targetLoopID = (*t_functionWithLoop)[t_F.getName()]->front();
-        (*t_functionWithLoop)[t_F.getName()]->pop_front();
+      while((*t_functionWithLoop).at(t_F.getName().str())->size() > 0) {
+        targetLoopID = (*t_functionWithLoop).at(t_F.getName().str())->front();
+        (*t_functionWithLoop).at(t_F.getName().str())->pop_front();
 
         // Specify the particular loop we are focusing on.
         // TODO: move the following to another .cpp file.
