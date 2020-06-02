@@ -623,7 +623,7 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           stringDst[6] = "none";
           stringDst[7] = "none";
           int stringDstIndex = 0;
-          // handle function output
+          // handle function unit's output
           if (targetDFGNode != NULL) {
             targetOpt = targetDFGNode->getJSONOpt();
             // handle funtion unit's outputs for this cycle
@@ -651,14 +651,6 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           // handle function unit's inputs for next cycle
           int out_index = 4;
           int max_index = 7;
-//          DFGNode* nextDFGNode = NULL;
-//          for (DFGNode* dfgNode: t_dfg->nodes) {
-//            if (m_mapping[dfgNode] == currentCGRANode and
-//                currentCGRANode->getMappedDFGNode(t+1) == dfgNode) {
-//              nextDFGNode = dfgNode;
-//              break;
-//            }
-//          }
           for (int reg_index=0; reg_index<4; ++reg_index) {
             int direction = currentCGRANode->getRegsAllocation(t)[reg_index];
             if (direction != -1) {
@@ -670,16 +662,18 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           }
 
           jsonFile<<"    \"opt"<<"\"       : \""<<targetOpt<<"\",\n";
-          // handle bypass
+
+          // handle bypass: need consider next cycle, i.e., t+1
+          int next_t = t+1;
           for (CGRALink* ol: *outLinks) {
-            if (ol->isOccupied(t, t_II, t_isStaticElasticCGRA)) {
+            if (ol->isOccupied(next_t, t_II, t_isStaticElasticCGRA)) {
               int outIndex = -1;
               outIndex = ol->getDirectionID(currentCGRANode);
               for (CGRALink* il: *inLinks) {
-                for (int t_tmp=t-t_II; t_tmp<t; ++t_tmp) {
+                for (int t_tmp=next_t-t_II; t_tmp<next_t; ++t_tmp) {
                   if (il->isOccupied(t_tmp, t_II, t_isStaticElasticCGRA) and
                       il->isBypass(t_tmp) and
-                      il->getMappedDFGNode(t_tmp) == ol->getMappedDFGNode(t)) {
+                      il->getMappedDFGNode(t_tmp) == ol->getMappedDFGNode(next_t)) {
                     errs()<<"[cheng] inside roi for CGRA node "<<currentCGRANode->getID()<<"...\n";
                     if (il->getMappedDFGNode(t_tmp) == NULL)
                       errs()<<"[cheng] none..."<<il->getMappedDFGNode(t_tmp)<<"\n";
