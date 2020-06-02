@@ -669,6 +669,9 @@ void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             if (ol->isOccupied(next_t, t_II, t_isStaticElasticCGRA)) {
               int outIndex = -1;
               outIndex = ol->getDirectionID(currentCGRANode);
+              // skip the outport as function unit inport, since they are
+              // not regarded as bypass links.
+              if (outIndex>=4) continue;
               for (CGRALink* il: *inLinks) {
                 for (int t_tmp=next_t-t_II; t_tmp<next_t; ++t_tmp) {
                   if (il->isOccupied(t_tmp, t_II, t_isStaticElasticCGRA) and
