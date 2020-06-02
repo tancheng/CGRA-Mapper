@@ -80,7 +80,7 @@ namespace {
       int ctrlMemConstraint = 100;
       int bypassConstraint = 4;
       // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint = 32;
+      int regConstraint = 4;
       bool heterogeneity = false;
 //      bool heterogeneity = true;
 

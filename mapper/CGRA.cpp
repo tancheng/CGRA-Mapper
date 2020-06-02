@@ -28,14 +28,13 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     }
   }
 
-  // Enable the load/store on specific CGRA nodes.
+  // Enable the specialized 'call' functionality.
   for (int r=0; r<t_rows; ++r) {
-    nodes[r][0]->enableLoad();
-    nodes[r][0]->enableStore();
     if (r%2 == 0)
       nodes[r][t_columns-1]->enableCall();
   }
 
+  // Enable the heterogeneity.
   if (t_heterogeneity) {
     for (int r=0; r<t_rows; ++r) {
       for (int c=0; c<t_columns; ++c) {
@@ -45,10 +44,17 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     }
   }
 
-  // for (int j=0; j<t_columns; ++j) {
-  //   nodes[0][j]->enableLoad();
-  //   nodes[t_rows-1][j]->enableStore();
+  // Enable the load/store on specific CGRA nodes.
+  // for (int r=0; r<t_rows; ++r) {
+  //   nodes[r][0]->enableLoad();
+  //   nodes[r][0]->enableStore();
   // }
+
+  for (int j=0; j<t_columns; ++j) {
+    nodes[0][j]->enableLoad();
+    nodes[0][j]->enableStore();
+  //  nodes[t_rows-1][j]->enableStore();
+  }
 
   // Connect the CGRA nodes with links.
   int link_id = 0;
