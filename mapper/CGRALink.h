@@ -11,13 +11,13 @@
 #ifndef CGRALink_H
 #define CGRALink_H
 
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/FileSystem.h>
+//#include <llvm/Support/raw_ostream.h>
+//#include <llvm/Support/FileSystem.h>
 
 #include "CGRANode.h"
 #include "DFGNode.h"
 
-using namespace llvm;
+//using namespace llvm;
 using namespace std;
 
 class CGRANode;

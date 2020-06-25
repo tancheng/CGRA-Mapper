@@ -13,10 +13,10 @@
 
 #include "CGRALink.h"
 #include "DFGNode.h"
-#include <llvm/IR/Function.h>
-#include <llvm/IR/Value.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/FileSystem.h>
+//#include <llvm/IR/Function.h>
+//#include <llvm/IR/Value.h>
+//#include <llvm/Support/raw_ostream.h>
+//#include <llvm/Support/FileSystem.h>
 #include <list>
 #include <string>
 

@@ -8,17 +8,11 @@
  *   Date : July 16, 2019
  */
 
-#include <llvm/IR/Function.h>
-#include <llvm/IR/Value.h>
 #include "DFG.h"
 #include "CGRA.h"
 
-using namespace llvm;
-
 class Mapper {
   private:
-//    typedef std::pair<Value*, StringRef> DFGNode;
-//    typedef pair<DFGNode, DFGNode> DFGEdge;
     int m_maxMappingCycle;
     map<DFGNode*, CGRANode*> m_mapping;
     map<DFGNode*, int> m_mappingTiming;
