@@ -560,7 +560,7 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   errs()<<"II: "<<t_II<<"\n";
 }
 
-void Mapper::writeJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
+void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA) {
   ofstream jsonFile;
   jsonFile.open("config.json");

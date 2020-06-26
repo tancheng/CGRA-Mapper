@@ -114,7 +114,7 @@ namespace {
       // Generate the DFG dot file.
       errs() << "==================================\n";
       errs() << "[generate JSON for DFG]\n";
-      dfg->generateJSON(t_F);
+      dfg->generateJSON();
 
       // Initialize the II.
       int ResMII = mapper->getResMII(dfg, cgra);
@@ -153,7 +153,7 @@ namespace {
         errs() << "==================================\n";
         errs() << "[success]\n";
         errs() << "==================================\n";
-        mapper->writeJSON(cgra, dfg, II, isStaticElasticCGRA);
+        mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
         errs() << "[Output Json]\n";
       }
       errs() << "==================================\n";

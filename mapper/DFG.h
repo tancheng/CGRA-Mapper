@@ -79,5 +79,5 @@ class DFG {
     bool isStore(DFGNode*);
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
-    void generateJSON(Function&);
+    void generateJSON();
 };

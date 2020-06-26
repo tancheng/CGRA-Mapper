@@ -467,7 +467,7 @@ void DFG::connectDFGNodes() {
   }
 }
 
-void DFG::generateJSON(Function &t_F) {
+void DFG::generateJSON() {
   ofstream jsonFile;
   jsonFile.open("dfg.json");
   jsonFile<<"[\n";
@@ -486,7 +486,7 @@ void DFG::generateJSON(Function &t_F) {
         jsonFile<<",";
     }
     jsonFile<<"],\n";
-    jsonFile<<"    \"in\"         : [";
+    jsonFile<<"    \"pre\"         : [";
     int in_size = node->getPredNodes()->size();
     int in_index = 0;
     for (DFGNode* predNode: *(node->getPredNodes())) {
@@ -496,7 +496,7 @@ void DFG::generateJSON(Function &t_F) {
         jsonFile<<",";
     }
     jsonFile<<"],\n";
-    jsonFile<<"    \"out\"        : [[";
+    jsonFile<<"    \"succ\"       : [[";
     int out_size = node->getSuccNodes()->size();
     int out_index = 0;
     for (DFGNode* succNode: *(node->getSuccNodes())) {
