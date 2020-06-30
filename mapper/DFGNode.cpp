@@ -183,64 +183,61 @@ void DFGNode::initType() {
   if (isLoad()) {
     m_optType = "OPT_LD";
     m_fuType = "MemUnit";
-  }
-  else if (isStore()) {
+  } else if (isStore()) {
     m_optType = "OPT_STR";
     m_fuType = "MemUnit";
-  }
-  else if (isBranch()) {
+  } else if (isBranch()) {
     m_optType = "OPT_BRH";
     m_fuType = "Branch";
-  }
-  else if (isPhi()) {
+  } else if (isPhi()) {
     m_optType = "OPT_PHI";
     m_fuType = "Phi";
-  }
-  else if (isCmp()) {
+  } else if (isCmp()) {
     m_optType = "OPT_EQ";
     m_fuType = "Comp";
-  }
-  else if (isBitcast()) {
+  } else if (isBitcast()) {
     m_optType = "OPT_NAH";
     m_fuType = "Alu";
-  }
-  else if (isGetptr()) {
+  } else if (isGetptr()) {
     m_optType = "OPT_ADD";
     m_fuType = "Alu";
-  }
-  else if (m_opcodeName.compare("add") == 0) {
+  } else if (m_opcodeName.compare("add") == 0) {
     m_optType = "OPT_ADD";
     m_fuType = "Alu";
-  }
-  else if (m_opcodeName.compare("fadd") == 0) {
+  } else if (m_opcodeName.compare("fadd") == 0) {
     m_optType = "OPT_ADD";
     m_fuType = "Alu";
-  }
-  else if (m_opcodeName.compare("sub") == 0) {
+  } else if (m_opcodeName.compare("sub") == 0) {
     m_optType = "OPT_SUB";
     m_fuType = "Alu";
-  }
-  else if (m_opcodeName.compare("xor") == 0) {
+  } else if (m_opcodeName.compare("fsub") == 0) {
+    m_optType = "OPT_SUB";
+    m_fuType = "Alu";
+  } else if (m_opcodeName.compare("xor") == 0) {
     m_optType = "OPT_XOR";
     m_fuType = "Alu";
-  }
-  else if (m_opcodeName.compare("or") == 0) {
+  } else if (m_opcodeName.compare("or") == 0) {
     m_optType = "OPT_OR";
     m_fuType = "Logic";
-  }
-  else if (m_opcodeName.compare("and") == 0) {
+  } else if (m_opcodeName.compare("and") == 0) {
     m_optType = "OPT_AND";
     m_fuType = "Logic";
-  }
-  else if (m_opcodeName.compare("mul") == 0) {
+  } else if (m_opcodeName.compare("mul") == 0) {
     m_optType = "OPT_MUL";
     m_fuType = "Mul";
-  }
-  else if (m_opcodeName.compare("fmul") == 0) {
+  } else if (m_opcodeName.compare("fmul") == 0) {
     m_optType = "OPT_MUL";
     m_fuType = "Mul";
-  }
-  else {
+  } else if (m_opcodeName.compare("shl") == 0) {
+    m_optType = "OPT_SHL";
+    m_fuType = "Shift";
+  } else if (m_opcodeName.compare("lshr") == 0) {
+    m_optType = "OPT_LSR";
+    m_fuType = "Shift";
+  } else if (m_opcodeName.compare("ashr") == 0) {
+    m_optType = "OPT_ASR";
+    m_fuType = "Shift";
+  } else {
     m_optType = "Unfamiliar: " + m_opcodeName;
     m_fuType = "Unknown";
   }

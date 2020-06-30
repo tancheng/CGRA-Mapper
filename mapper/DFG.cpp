@@ -477,7 +477,8 @@ void DFG::generateJSON() {
     jsonFile<<"  {\n";
     jsonFile<<"    \"fu\"         : \""<<node->getFuType()<<"\",\n";
     jsonFile<<"    \"id\"         : "<<node->getID()<<",\n";
-    jsonFile<<"    \"opt\"        : \""<<node->getJSONOpt()<<"\",\n";
+    jsonFile<<"    \"org_opt\"    : \""<<node->getOpcodeName()<<"\",\n";
+    jsonFile<<"    \"JSON_opt\"   : \""<<node->getJSONOpt()<<"\",\n";
     jsonFile<<"    \"in_const\"   : [";
     int const_size = node->getNumConst();
     for (int const_index=0; const_index < const_size; ++const_index) {
