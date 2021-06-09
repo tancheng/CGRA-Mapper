@@ -1,3 +1,19 @@
+<pre>
+==========================================
+
+ ___ ___   ____  ____  ____   ___  ____  
+|   |   | /    ||    \|    \ /  _]|    \ 
+| _   _ ||  o  ||  o  )  o  )  [_ |  D  )
+|  \_/  ||     ||   _/|   _/    _]|    / 
+|   |   ||  _  ||  |  |  | |   [_ |    \ 
+|   |   ||  |  ||  |  |  | |     ||  .  \
+|___|___||__|__||__|  |__| |_____||__|\_|
+                                         
+
+==========================================
+</pre>
+
+
 This is a CGRA (Coarse-Grained Reconfigurable Architecture) mapper to map the inner-most loop onto the CGRA. The CGRA is parameterizable (e.g., CGRA size, type of the computing units in each tile, communication connection, etc.). Different advanced mapping strategies are built on top of this basic mapper.
 
 
