@@ -32,4 +32,6 @@ The mapper requires the following additional prerequisites:
 
 Execution
 --------------------------------------------------------
-opt -load ~/this repo/build/mapper/libmapperPass.so -mapperPass ~/target benchmark/target_kernel.bc
+```
+ % opt -load ~/this repo/build/mapper/libmapperPass.so -mapperPass ~/target benchmark/target_kernel.bc
+```
