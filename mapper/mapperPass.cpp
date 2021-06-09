@@ -48,6 +48,10 @@ namespace {
       (*functionWithLoop)["adpcm_coder"]->push_back(0);
       (*functionWithLoop)["adpcm_decoder"] = new list<int>();
       (*functionWithLoop)["adpcm_decoder"]->push_back(0);
+      (*functionWithLoop)["kernel_gemm"] = new list<int>();
+      (*functionWithLoop)["kernel_gemm"]->push_back(0);
+      (*functionWithLoop)["kernel"] = new list<int>();
+      (*functionWithLoop)["kernel"]->push_back(0);
       (*functionWithLoop)["fir"] = new list<int>();
       (*functionWithLoop)["fir"]->push_back(0);
 //      (*functionWithLoop)["fir"].push_back(1);

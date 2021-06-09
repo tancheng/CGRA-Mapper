@@ -118,7 +118,7 @@ bool DFGNode::isAdd() {
 }
 
 bool DFGNode::isCmp() {
-  if (m_opcodeName.compare("icmp") == 0)
+  if (m_opcodeName.compare("icmp") == 0 or m_opcodeName.compare("cmp") == 0)
     return true;
   return false;
 }
@@ -204,6 +204,36 @@ void DFGNode::initType() {
   } else if (m_opcodeName.compare("add") == 0) {
     m_optType = "OPT_ADD";
     m_fuType = "Alu";
+  } else if (m_opcodeName.compare("sdiv") == 0) {
+    m_optType = "OPT_DIV";
+    m_fuType = "Div";
+  } else if (m_opcodeName.compare("div") == 0) {
+    m_optType = "OPT_DIV";
+    m_fuType = "Div";
+  } else if (m_opcodeName.compare("srem") == 0) {
+    m_optType = "OPT_REM";
+    m_fuType = "Div";
+  } else if (m_opcodeName.compare("rem") == 0) {
+    m_optType = "OPT_REM";
+    m_fuType = "Div";
+  } else if (m_opcodeName.compare("trunc") == 0) {
+    m_optType = "OPT_TRUNC";
+    m_fuType = "Alu";
+  } else if (m_opcodeName.compare("select") == 0) {
+    m_optType = "OPT_SEL";
+    m_fuType = "Select";
+  } else if (m_opcodeName.compare("ext") == 0) {
+    m_optType = "OPT_EXT";
+    m_fuType = "ext";
+  } else if (m_opcodeName.compare("sext") == 0) {
+    m_optType = "OPT_EXT";
+    m_fuType = "sext";
+  } else if (m_opcodeName.compare("zext") == 0) {
+    m_optType = "OPT_EXT";
+    m_fuType = "zext";
+  } else if (m_opcodeName.compare("extractelement") == 0) {
+    m_optType = "OPT_EXTRACT";
+    m_fuType = "extract";
   } else if (m_opcodeName.compare("fadd") == 0) {
     m_optType = "OPT_ADD";
     m_fuType = "Alu";
