@@ -92,6 +92,40 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
       }
     }
   }
+
+/*
+  cout<<"[connection] horizontal and vertical."<<endl;
+  // Connect the CGRA nodes with diagonal links.
+  for (int i=0; i<t_rows-1; ++i) {
+    for (int j=0; j<t_columns-1; ++j) {
+      link = new CGRALink();
+      nodes[i][j]->attachOutLink(link, _RIGHT_UP);
+      nodes[i+1][j+1]->attachInLink(link, _LEFT_DOWN);
+      link->connect(nodes[i][j], nodes[i+1][j+1]);
+      m_links.push_back(link);
+
+      link = new CGRALink();
+      nodes[i+1][j+1]->attachOutLink(link, _LEFT_DOWN);
+      nodes[i][j]->attachInLink(link, _RIGHT_UP);
+      link->connect(nodes[i+1][j+1], nodes[i][j]);
+      m_links.push_back(link);
+
+      link = new CGRALink();
+      nodes[i][j+1]->attachOutLink(link, _RIGHT_DOWN);
+      nodes[i+1][j]->attachInLink(link, _LEFT_UP);
+      link->connect(nodes[i][j+1], nodes[i+1][j]);
+      m_links.push_back(link);
+
+      link = new CGRALink();
+      nodes[i+1][j]->attachOutLink(link, _LEFT_UP);
+      nodes[i][j+1]->attachInLink(link, _RIGHT_DOWN);
+      link->connect(nodes[i+1][j], nodes[i][j+1]);
+      m_links.push_back(link);
+    }
+  }
+  cout<<"[connection] diagonal."<<endl;
+*/
+
   disable();
 }
 
