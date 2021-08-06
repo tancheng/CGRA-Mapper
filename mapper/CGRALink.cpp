@@ -18,6 +18,7 @@ CGRALink::CGRALink(int t_linkId) {
   m_dfgNodes = new DFGNode*[1];
   m_bypassed = new bool[1];
   m_arrived = new bool[1];
+  m_disabled = false;
 }
 
 void CGRALink::setCtrlMemConstraint(int t_ctrlMemConstraint) {
@@ -105,6 +106,8 @@ bool CGRALink::satisfyBypassConstraint(int t_cycle, int t_II) {
 // The current design can only support one bypass and
 // one computation. So at most two bypass.
 bool CGRALink::canOccupy(int t_cycle, int t_II) {
+  if (m_disabled)
+    return false;
   if (m_currentCtrlMemItems + 1 > m_ctrlMemSize)
     return false;
   if (m_occupied[t_cycle])
@@ -115,6 +118,8 @@ bool CGRALink::canOccupy(int t_cycle, int t_II) {
 }
 
 bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II) {
+  if (m_disabled)
+    return false;
   if (m_dfgNodes[t_cycle] != NULL and t_srcDFGNode == m_dfgNodes[t_cycle])
     return true;
   if (m_currentCtrlMemItems + 1 > m_ctrlMemSize)
@@ -199,7 +204,7 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
 
   ++m_currentCtrlMemItems;
 
-  errs()<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<t_cycle<<"\n";
+  cout<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<t_cycle<<"\n";
 }
 
 DFGNode* CGRALink::getMappedDFGNode(int t_cycle) {
@@ -282,3 +287,6 @@ string CGRALink::getDirection(CGRANode* t_cgraNode) {
   return "self";
 }
 
+void CGRALink::disable() {
+  m_disabled = true;
+}

@@ -19,6 +19,7 @@
 #include <llvm/Analysis/CFG.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <list>
+#include <iostream>
 
 #include "DFGNode.h"
 #include "DFGEdge.h"

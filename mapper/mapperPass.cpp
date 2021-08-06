@@ -52,8 +52,20 @@ namespace {
       (*functionWithLoop)["kernel_gemm"]->push_back(0);
       (*functionWithLoop)["kernel"] = new list<int>();
       (*functionWithLoop)["kernel"]->push_back(0);
+      (*functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
+      (*functionWithLoop)["_Z6kerneliPPiS_S_S_"]->push_back(0);
+      (*functionWithLoop)["_Z6kernelPPii"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPPii"]->push_back(0);
+      (*functionWithLoop)["_Z6kernelP7RGBType"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelP7RGBType"]->push_back(0);
+      (*functionWithLoop)["_Z6kernelP7RGBTypePi"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelP7RGBTypePi"]->push_back(0);
+      (*functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"]->push_back(0);
       (*functionWithLoop)["fir"] = new list<int>();
       (*functionWithLoop)["fir"]->push_back(0);
+      (*functionWithLoop)["spmv"] = new list<int>();
+      (*functionWithLoop)["spmv"]->push_back(0);
 //      (*functionWithLoop)["fir"].push_back(1);
       (*functionWithLoop)["latnrm"] = new list<int>();
       (*functionWithLoop)["latnrm"]->push_back(1);
@@ -63,6 +75,27 @@ namespace {
       (*functionWithLoop)["BF_encrypt"]->push_back(0);
       (*functionWithLoop)["susan_smoothing"] = new list<int>();
       (*functionWithLoop)["susan_smoothing"]->push_back(0);
+
+      (*functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"] = new list<int>();
+      (*functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"]->push_back(0);
+
+      // For LU:
+      // init
+      (*functionWithLoop)["_Z6kernelPPdidPi"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPPdidPi"]->push_back(0);
+
+      // solver0 & solver1
+      (*functionWithLoop)["_Z6kernelPPdPiS_iS_"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPPdPiS_iS_"]->push_back(0);
+
+      // determinant
+      (*functionWithLoop)["_Z6kernelPPdPii"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPPdPii"]->push_back(0);
+
+      // invert
+      (*functionWithLoop)["_Z6kernelPPdPiiS0_"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPPdPiiS0_"]->push_back(0);
+
 
 //      (*functionWithLoop)["main"] = new list<int>();
 //      (*functionWithLoop)["main"]->push_back(0);
@@ -77,14 +110,14 @@ namespace {
       // int regConstraint = 1;
 
       // Configuration for dynamic CGRA.
-      int rows = 4;
-      int columns = 4;
+      int rows    = 2;
+      int columns = 2;
       bool isStaticElasticCGRA = false;
       bool isTrimmedDemo = true;
-      int ctrlMemConstraint = 100;
+      int ctrlMemConstraint = 200;
       int bypassConstraint = 4;
       // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint = 4;
+      int regConstraint = 8;
       bool heterogeneity = false;
 //      bool heterogeneity = true;
 
@@ -130,7 +163,7 @@ namespace {
       int II = ResMII;
       if(II < RecMII)
         II = RecMII;
-
+      
       // Heuristic algorithm (hill climbing) to get a valid mapping within
       // a acceptable II.
       bool success = false;

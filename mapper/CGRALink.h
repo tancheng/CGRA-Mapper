@@ -34,6 +34,7 @@ class CGRALink
     int m_currentCtrlMemItems;
 
     int m_cycleBoundary;
+    bool m_disabled;
     bool* m_occupied;
     bool* m_bypassed;
     bool* m_arrived;
@@ -63,6 +64,7 @@ class CGRALink
     void setCtrlMemConstraint(int);
     void setBypassConstraint(int);
     int getBypassConstraint();
+    void disable();
 };
 
 #endif

@@ -21,6 +21,7 @@
 CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_id = t_id;
   m_currentCtrlMemItems = 0;
+  m_disabled = false;
   m_canStore = false;
   m_canLoad = false;
   m_canCall = false;
@@ -62,7 +63,7 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
       }
     }
     if (reg_occupied == false) {
-      errs()<<"[cheng] in allocateReg() t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_port_id<<" duration "<<t_duration<<"\n";
+      cout<<"[cheng] in allocateReg() t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_port_id<<" duration "<<t_duration<<"\n";
       for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
         m_regs_timing[cycle][i] = t_port_id;
 //        if (cycle < 20)
@@ -85,7 +86,7 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
       break;
     }
   }
-//  assert(allocated);
+  //assert(allocated);
 }
 
 int* CGRANode::getRegsAllocation(int t_cycle) {
@@ -164,6 +165,8 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
 }
 
 bool CGRANode::canOccupy(int t_cycle, int t_II) {
+  if (m_disabled) 
+    return false;
   // Check whether the limit of config mem is reached.
   if (m_currentCtrlMemItems + 1 > m_ctrlMemSize) {
     return false;
@@ -182,6 +185,8 @@ bool CGRANode::canOccupy(int t_cycle, int t_II) {
 }
 
 bool CGRANode::canSupport(DFGNode* t_opt) {
+  if (m_disabled) 
+    return false;
   // Check whether this CGRA node supports the required functionality.
   if ((t_opt->isLoad()      and !canLoad())  or
       (t_opt->isStore()     and !canStore()) or
@@ -193,6 +198,8 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
 }
 
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
+  if (m_disabled) 
+    return false;
   // Check whether this CGRA node supports the required functionality.
   if ((t_opt->isLoad() and !canLoad()) or (t_opt->isStore() and !canStore())){
     return false;
@@ -238,7 +245,7 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
   }
-  errs()<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
+  cout<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
   ++m_currentCtrlMemItems;
   t_opt->setMapped();
 }
@@ -362,3 +369,12 @@ int CGRANode::getY() {
   return m_y;
 }
 
+void CGRANode::disable() {
+  m_disabled = true;
+  for (CGRALink* link: m_inLinks) {
+    link->disable();
+  }
+  for (CGRALink* link: m_outLinks) {
+    link->disable();
+  }
+}

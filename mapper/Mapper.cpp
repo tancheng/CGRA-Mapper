@@ -410,13 +410,13 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     if (m_mapping.find(node) != m_mapping.end()) {
       if (m_mapping[(node)] == onePredCGRANode and
           onePredCGRANode->getMappedDFGNode(onePredCGRANodeTiming)==node) {
-        errs()<<"[CHENG] skip predecessor routing -- dfgNode: "<<node->getID()<<"\n";
+        cout<<"[CHENG] skip predecessor routing -- dfgNode: "<<node->getID()<<"\n";
         continue;
       }
 //      if (m_mapping[(node)] != onePredCGRANode) {
       if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], fu,
           m_mappingTiming[t_dfgNode], false, t_isStaticElasticCGRA)){
-        errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
+        cout<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
         return false;
       }
 //    }
@@ -428,7 +428,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     if (m_mapping.find(node) != m_mapping.end()) {
       if (!tryToRoute(t_cgra, t_dfg, t_II, t_dfgNode, fu, m_mapping[node],
           m_mappingTiming[node], true, t_isStaticElasticCGRA)) {
-        errs()<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped succ DFG node: "<<node->getID()<<"; return false\n";
+        cout<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped succ DFG node: "<<node->getID()<<"; return false\n";
         return false;
       }
     }
@@ -677,9 +677,9 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
                   if (il->isOccupied(t_tmp, t_II, t_isStaticElasticCGRA) and
                       il->isBypass(t_tmp) and
                       il->getMappedDFGNode(t_tmp) == ol->getMappedDFGNode(next_t)) {
-                    errs()<<"[cheng] inside roi for CGRA node "<<currentCGRANode->getID()<<"...\n";
+                    cout<<"[cheng] inside roi for CGRA node "<<currentCGRANode->getID()<<"...\n";
                     if (il->getMappedDFGNode(t_tmp) == NULL)
-                      errs()<<"[cheng] none..."<<il->getMappedDFGNode(t_tmp)<<"\n";
+                      cout<<"[cheng] none..."<<il->getMappedDFGNode(t_tmp)<<"\n";
                     stringDst[outIndex] = to_string(il->getDirectionID(currentCGRANode));//+"; t_tmp: "+to_string(t_tmp)+"; dfg node: " + to_string(il->getMappedDFGNode(t_tmp)->getID());
                   }
                 }
@@ -868,7 +868,7 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
 bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
     DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode, CGRANode* t_dstCGRANode,
     int t_dstCycle, bool t_isBackedge, bool t_isStaticElasticCGRA) {
-  errs()<<"[cheng] tryToRoute -- srcDFGNode: "<<t_srcDFGNode->getID()<<" srcCGRANode: "<<t_srcCGRANode->getID()<<" dstCGRANode: "<<t_dstCGRANode->getID()<<"\n";
+  cout<<"[cheng] tryToRoute -- srcDFGNode: "<<t_srcDFGNode->getID()<<" srcCGRANode: "<<t_srcCGRANode->getID()<<" dstCGRANode: "<<t_dstCGRANode->getID()<<"\n";
   list<CGRANode*> searchPool;
   map<CGRANode*, int> distance;
   map<CGRANode*, int> timing;
@@ -978,10 +978,10 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   map<int, CGRANode*>::iterator previousIter;
   map<int, CGRANode*>::reverse_iterator riter = reorderPath->rbegin();
-  errs()<<"[cheng] check route size: "<<reorderPath->size()<<"\n";
+  cout<<"[cheng] check route size: "<<reorderPath->size()<<"\n";
   if (reorderPath->size() == 1) {
     int duration = (t_II+(t_dstCycle-(*riter).first)%t_II)%t_II;
-    errs()<<"[cheng] allocate for local reg maintain... duration="<<duration<<" last cycle: "<<(*riter).first<<"\n";
+    cout<<"[cheng] allocate for local reg maintain... duration="<<duration<<" last cycle: "<<(*riter).first<<"\n";
     (*riter).second->allocateReg(4, (*riter).first, duration, t_II);
   }
   for (map<int, CGRANode*>::iterator iter = reorderPath->begin();
@@ -995,7 +995,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
         isBypass = true;
       else {
         duration = (t_II+(t_dstCycle-(*previousIter).first)%t_II)%t_II;
-        errs()<<"[cheng] reset duration: "<<duration<<" t_dstCycle: "<<t_dstCycle<<" previous: "<<(*previousIter).first<<" II: "<<t_II<<"\n";
+        cout<<"[cheng] reset duration: "<<duration<<" t_dstCycle: "<<t_dstCycle<<" previous: "<<(*previousIter).first<<" II: "<<t_II<<"\n";
       }
       if (duration == 0) {
         duration = t_II;
@@ -1022,8 +1022,8 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA) {
   bool fail = false;
   while (1) {
-    errs()<<"----------------------------------------\n";
-    errs()<<"DEBUG start heuristic algorithm with II="<<t_II<<"\n";
+    cout<<"----------------------------------------\n";
+    cout<<"DEBUG start heuristic algorithm with II="<<t_II<<"\n";
     int cycle = 0;
     constructMRRG(t_dfg, t_cgra, t_II);
     fail = false;
@@ -1040,7 +1040,7 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
             paths.push_back(tempPath);
           }
             else
-              errs()<<"DEBUG no available path for DFG node "<<(*dfgNode)->getID()
+              cout<<"DEBUG no available path for DFG node "<<(*dfgNode)->getID()
                   <<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<"; path size: "<<paths.size()<<".\n";
         }
       }
@@ -1051,24 +1051,24 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
         if (optimalPath->size() != 0) {
           if (!schedule(t_cgra, t_dfg, t_II, *dfgNode, optimalPath,
               t_isStaticElasticCGRA)) {
-            errs()<<"DEBUG fail1 in schedule() II: "<<t_II<<"\n";
+            cout<<"DEBUG fail1 in schedule() II: "<<t_II<<"\n";
             for (map<CGRANode*,int>::iterator iter = optimalPath->begin();
                 iter!=optimalPath->end(); ++iter) {
-              errs()<<"[tan] the failed path -- cycle: "<<(*iter).second<<" CGRANode: "<<(*iter).first->getID()<<"\n";
+              cout<<"[tan] the failed path -- cycle: "<<(*iter).second<<" CGRANode: "<<(*iter).first->getID()<<"\n";
             }
 
             fail = true;
             break;
           }
-          errs()<<"DEBUG success in schedule()\n";
+          cout<<"DEBUG success in schedule()\n";
         } else {
-          errs()<<"DEBUG fail2 in schedule() II: "<<t_II<<"\n";
+          cout<<"DEBUG fail2 in schedule() II: "<<t_II<<"\n";
           fail = true;
           break;
         }
       } else {
         fail = true;
-        errs()<<"DEBUG [else] no available path for DFG node "<<(*dfgNode)->getID()
+        cout<<"DEBUG [else] no available path for DFG node "<<(*dfgNode)->getID()
             <<" within II "<<t_II<<".\n";
         break;
       }
@@ -1121,7 +1121,7 @@ bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
 //    errs()<<"----copying previous schedule in exhaustive---- targetDFGNode: "<<(*mappedDFGNodeItr)->getID()<<"\n";
     if (!schedule(t_cgra, t_dfg, t_II, *mappedDFGNodeItr, path,
         t_isStaticElasticCGRA)) {
-      errs()<<"DEBUG <this is impossible> fail3 in DFS() II: "<<t_II<<"\n";
+      cout<<"DEBUG <this is impossible> fail3 in DFS() II: "<<t_II<<"\n";
       assert(0);
       break;
     }
@@ -1178,7 +1178,7 @@ bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     for (map<CGRANode*, int>* path: *t_exhaustivePaths) {
       if (!schedule(t_cgra, t_dfg, t_II, *mappedDFGNodeItr, path,
           t_isStaticElasticCGRA)) {
-        errs()<<"DEBUG <this is impossible> fail7 in DFS() II: "<<t_II<<"\n";
+        cout<<"DEBUG <this is impossible> fail7 in DFS() II: "<<t_II<<"\n";
         assert(0);
         break;
       }
@@ -1186,7 +1186,7 @@ bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     }
   }
   if (t_exhaustivePaths->size() != 0) {
-    errs()<<"======= go backward one step ======== popped DFG node ["<<t_mappedDFGNodes->back()->getID()<<"] from CGRA node ["<<m_mapping[t_mappedDFGNodes->back()]->getID()<<"]\n";
+    cout<<"======= go backward one step ======== popped DFG node ["<<t_mappedDFGNodes->back()->getID()<<"] from CGRA node ["<<m_mapping[t_mappedDFGNodes->back()]->getID()<<"]\n";
     t_mappedDFGNodes->pop_back();
     t_exhaustivePaths->pop_back();
 //    m_exit++;

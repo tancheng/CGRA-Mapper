@@ -45,16 +45,18 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
   }
 
   // Enable the load/store on specific CGRA nodes.
-  // for (int r=0; r<t_rows; ++r) {
-  //   nodes[r][0]->enableLoad();
-  //   nodes[r][0]->enableStore();
-  // }
-
-  for (int j=0; j<t_columns; ++j) {
-    nodes[0][j]->enableLoad();
-    nodes[0][j]->enableStore();
-  //  nodes[t_rows-1][j]->enableStore();
+  for (int r=0; r<t_rows; ++r) {
+    nodes[r][0]->enableLoad();
+    nodes[r][0]->enableStore();
   }
+
+//  for (int i=0; i<t_rows; ++i) {
+//    for (int j=0; j<t_columns; ++j) {
+//      nodes[i][j]->enableLoad();
+//      nodes[i][j]->enableStore();
+//  //  nodes[t_rows-1][j]->enableStore();
+//    }
+//  }
 
   // Connect the CGRA nodes with links.
   int link_id = 0;
@@ -90,6 +92,35 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
       }
     }
   }
+  disable();
+}
+
+void CGRA::disable() {
+//  nodes[0][0]->disable();
+//  nodes[0][1]->disable();
+//  nodes[0][2]->disable();
+//  nodes[0][3]->disable();
+//  nodes[0][4]->disable();
+//  nodes[1][0]->disable();
+//  nodes[1][1]->disable();
+//  nodes[1][2]->disable();
+//  nodes[1][4]->disable();
+//  nodes[1][3]->disable();
+//  nodes[2][0]->disable();
+//  nodes[2][1]->disable();
+//  nodes[2][2]->disable();
+//  nodes[2][3]->disable();
+//  nodes[2][4]->disable();
+//  nodes[3][1]->disable();
+//  nodes[3][2]->disable();
+//  nodes[3][2]->disable();
+//  nodes[3][3]->disable();
+//  nodes[3][4]->disable();
+//  nodes[4][1]->disable();
+//  nodes[4][2]->disable();
+//  nodes[4][3]->disable();
+//  nodes[4][4]->disable();
+
 }
 
 void CGRA::setRegConstraint(int t_regConstraint) {
@@ -130,7 +161,7 @@ CGRALink* CGRA::getLink(CGRANode* t_n1, CGRANode* t_n2) {
        return links[i];
      }
   }
-  errs() << "bad quiry for CGRA link\n";
+  cout << "bad quiry for CGRA link\n";
   return NULL;
 //  assert(0);
 }

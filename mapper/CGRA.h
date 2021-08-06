@@ -11,6 +11,7 @@
 //#include "llvm/Pass.h"
 #include "CGRANode.h"
 #include "CGRALink.h"
+#include <iostream>
 //#include <llvm/Support/raw_ostream.h>
 
 using namespace llvm;
@@ -21,6 +22,7 @@ class CGRA {
     int m_LinkCount;
     int m_rows;
     int m_columns;
+    void disable();
 
   public:
     CGRA(int, int, bool);

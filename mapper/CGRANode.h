@@ -13,6 +13,7 @@
 
 #include "CGRALink.h"
 #include "DFGNode.h"
+#include <iostream>
 //#include <llvm/IR/Function.h>
 //#include <llvm/IR/Value.h>
 //#include <llvm/Support/raw_ostream.h>
@@ -49,6 +50,7 @@ class CGRANode {
     bool* m_fuOccupied;
     DFGNode** m_dfgNodes;
     map<CGRALink*,bool*> m_xbarOccupied;
+    bool m_disabled;
     bool m_canStore;
     bool m_canLoad;
     bool m_canCall;
@@ -99,6 +101,7 @@ class CGRANode {
     void allocateReg(CGRALink*, int, int, int);
     void allocateReg(int, int, int, int);
     int* getRegsAllocation(int);
+    void disable();
 };
 
 #endif

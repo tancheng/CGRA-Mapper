@@ -22,13 +22,13 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   if (t_heterogeneity) {
     getCycles();
 //    combine("phi", "add");
-//    combine("and", "xor");
+    combine("and", "xor");
 //    combine("br", "phi");
 //    combine("add", "icmp");
 //    combine("xor", "add");
     combineCmpBranch();
-//    combine("icmp", "br");
-//    combine("getelementptr", "load");
+    combine("icmp", "br");
+    combine("getelementptr", "load");
     tuneForPattern();
 
 //    getCycles();
@@ -289,6 +289,9 @@ void DFG::construct(Function& t_F) {
       BB!=BEnd; ++BB) {
     BasicBlock *curBB = &*BB;
     errs()<<"*** current basic block: "<<*curBB->begin()<<"\n";
+    for (BasicBlock* sucBB : successors(curBB)) {
+      errs()<<"   ****** succ bb: "<<*sucBB->begin()<<"\n";
+    }
 
      // Construct DFG nodes.
     for (BasicBlock::iterator II=curBB->begin(),
@@ -301,7 +304,7 @@ void DFG::construct(Function& t_F) {
 //            "of the scope (target loop)\n";
         continue;
       }
-      errs()<<*curII<<"\n";
+      errs()<<*curII;
       DFGNode* dfgNode;
       if (hasNode(curII)) {
         dfgNode = getNode(curII);
@@ -309,6 +312,7 @@ void DFG::construct(Function& t_F) {
         dfgNode = new DFGNode(nodeID++, curII, getValueName(curII));
         nodes.push_back(dfgNode);
       }
+      errs()<<" (ID: "<<dfgNode->getID()<<")\n";
     }
     Instruction* terminator = curBB->getTerminator();
 
@@ -632,6 +636,7 @@ void DFG::showOpcodeDistribution() {
       opcodeItr!=opcodeMap.end(); ++opcodeItr) {
     errs() << (*opcodeItr).first << " : " << (*opcodeItr).second << "\n";
   }
+  errs() << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"\n";
 }
 
 int DFG::getID(DFGNode* t_node) {
