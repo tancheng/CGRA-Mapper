@@ -320,41 +320,74 @@ void DFG::construct(Function& t_F) {
       continue;
 //    DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
     for (BasicBlock* sucBB : successors(curBB)) {
-      for (BasicBlock::iterator II=sucBB->begin(),
-          IEnd=sucBB->end(); II!=IEnd; ++II) {
-        Instruction* inst = &*II;
-//      for (Instruction* inst: sucBB) {
-        // Ignore this IR if it is out of the scope.
-        if (shouldIgnore(inst))
-          continue;
-        DFGNode* dfgNode;
-        if (hasNode(inst)) {
-          dfgNode = getNode(inst);
-        } else {
-          dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
-          nodes.push_back(dfgNode);
-        }
-//        Instruction* first = &*(sucBB->begin());
-        if (!getNode(inst)->isPhi()) {
+      Instruction* inst = &(sucBB->front());
+//    for (Instruction* inst: sucBB) {
+      // Ignore this IR if it is out of the scope.
+      if (shouldIgnore(inst))
+        continue;
+      DFGNode* dfgNode;
+      if (hasNode(inst)) {
+        dfgNode = getNode(inst);
+      } else {
+        dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+        nodes.push_back(dfgNode);
+      }
+//      Instruction* first = &*(sucBB->begin());
+//      if (!getNode(inst)->isPhi()) {
+//
+//        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//        continue;
+//      }
 
-          errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
-          continue;
-        }
+      errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 
-        errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
-
-        // Construct contrl flow edges.
-        DFGEdge* ctrlEdge;
-        if (hasCtrlEdge(getNode(terminator), dfgNode)) {
-          ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
-        }
-        else {
-          ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
-          m_ctrlEdges.push_back(ctrlEdge);
-        }
+      // Construct contrl flow edges.
+      DFGEdge* ctrlEdge;
+      if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+        ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+      }
+      else {
+        ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+        m_ctrlEdges.push_back(ctrlEdge);
       }
     }
   }
+ 
+//      for (BasicBlock::iterator II=sucBB->begin(),
+//          IEnd=sucBB->end(); II!=IEnd; ++II) {
+//        Instruction* inst = &*II;
+////      for (Instruction* inst: sucBB) {
+//        // Ignore this IR if it is out of the scope.
+//        if (shouldIgnore(inst))
+//          continue;
+//        DFGNode* dfgNode;
+//        if (hasNode(inst)) {
+//          dfgNode = getNode(inst);
+//        } else {
+//          dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+//          nodes.push_back(dfgNode);
+//        }
+////        Instruction* first = &*(sucBB->begin());
+//        if (!getNode(inst)->isPhi()) {
+//
+//          errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//          continue;
+//        }
+//
+//        errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//
+//        // Construct contrl flow edges.
+//        DFGEdge* ctrlEdge;
+//        if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+//          ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+//        }
+//        else {
+//          ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+//          m_ctrlEdges.push_back(ctrlEdge);
+//        }
+//      }
+//    }
+//  }
 
 //  // Construct contrl flow forward edges.
 //  for (list<DFGNode*>::iterator nodeItr=nodes.begin();
