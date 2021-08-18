@@ -16,7 +16,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   construct(t_F);
-  tuneForBranch();
+//  tuneForBranch();
   tuneForBitcast();
   tuneForLoad();
   if (t_heterogeneity) {
@@ -36,7 +36,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
 //    combine("xor", "add");
 //    tuneForPattern();
   }
-  trimForStandalone();
+//  trimForStandalone();
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -335,8 +335,13 @@ void DFG::construct(Function& t_F) {
           nodes.push_back(dfgNode);
         }
 //        Instruction* first = &*(sucBB->begin());
-        if (!getNode(inst)->isPhi())
+        if (!getNode(inst)->isPhi()) {
+
+          errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
           continue;
+        }
+
+        errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 
         // Construct contrl flow edges.
         DFGEdge* ctrlEdge;
@@ -431,9 +436,10 @@ void DFG::construct(Function& t_F) {
         for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) {
           Instruction* tempInst = dyn_cast<Instruction>(*op);
           if (tempInst and !shouldIgnore(tempInst)) {
-            if(node->isBranch()) {
-              errs()<<"real branch's pred: "<<*tempInst<<"\n";
-            }
+//            if(node->isBranch()) {
+//              errs()<<"  the real branch's pred: "<<*tempInst<<"\n";
+//              int numSuccs = tempInst->getNumSuccessors();
+//            }
             DFGEdge* dfgEdge;
             if (hasNode(tempInst)) {
               if (hasDFGEdge(getNode(tempInst), node))
@@ -452,6 +458,13 @@ void DFG::construct(Function& t_F) {
               node->addConst();
           } 
         }
+//        if(node->isBranch()) {
+//          int numSuccs = curII->getNumSuccessors();
+//          errs()<<"the succ of the branch: "<<*curII<<"; ("<<numSuccs<<")\n";
+//          for(int i=0; i<numSuccs; ++i) {
+//            BasicBlock* bb
+//          }
+//        }
         break;
       }
     }
@@ -549,14 +562,16 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
             file << "\tNode" << node->first << "[shape=record, label=\"" << node->second << "\"];\n";
   */
 
-  /*
+
   //Dump control flow.
-  for (list<DFGEdge*>::iterator edge = m_ctrlEdges.begin(), edge_end = m_ctrlEdges.end(); edge != edge_end; ++edge) {
-    file << "\tNode" << (*edge)->getSrc()->getID() << "_" << (*edge)->getSrc()->getOpcodeName() << " -> Node" << (*edge)->getDst()->getID() << "_" << (*edge)->getDst()->getOpcodeName() << "\n";
-//    file << "\tNode" << (*edge)->getSrc()->getInst() << " -> Node" << (*edge)->getDst()->getInst() << "\n";
-  // file << "\tNode" << edge->first.first << " -> Node" << edge->second.first << "\n";
+  file << "edge [color=blue]" << "\n";
+  for (DFGEdge* edge: m_ctrlEdges) {
+    if (t_isTrimmedDemo) {
+      file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
+    } else {
+      file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+    }
   }
-  */
 
   //Dump data flow.
   file << "edge [color=red]" << "\n";

@@ -96,6 +96,9 @@ namespace {
       (*functionWithLoop)["_Z6kernelPPdPiiS0_"] = new list<int>();
       (*functionWithLoop)["_Z6kernelPPdPiiS0_"]->push_back(0);
 
+      // nested
+      (*functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
+      (*functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
 
 //      (*functionWithLoop)["main"] = new list<int>();
 //      (*functionWithLoop)["main"]->push_back(0);
@@ -216,11 +219,11 @@ namespace {
 //          targetLoops.push_back(*loopItr);
           current_loop = *loopItr;
           if (tempLoopID == targetLoopID) {
-            while (!current_loop->getSubLoops().empty()) {
-              errs()<<"*** detected nested loop ... size: "<<current_loop->getSubLoops().size()<<"\n";
-              // TODO: might change '0' to a reasonable index
-              current_loop = current_loop->getSubLoops()[0];
-            }
+//            while (!current_loop->getSubLoops().empty()) {
+//              errs()<<"*** detected nested loop ... size: "<<current_loop->getSubLoops().size()<<"\n";
+//              // TODO: might change '0' to a reasonable index
+//              current_loop = current_loop->getSubLoops()[0];
+//            }
             targetLoops->push_back(current_loop);
             errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
             break;
