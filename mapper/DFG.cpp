@@ -320,38 +320,81 @@ void DFG::construct(Function& t_F) {
       continue;
 //    DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
     for (BasicBlock* sucBB : successors(curBB)) {
-      Instruction* inst = &(sucBB->front());
-//    for (Instruction* inst: sucBB) {
-      // Ignore this IR if it is out of the scope.
-      if (shouldIgnore(inst))
-        continue;
-      DFGNode* dfgNode;
-      if (hasNode(inst)) {
-        dfgNode = getNode(inst);
-      } else {
-        dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
-        nodes.push_back(dfgNode);
-      }
-//      Instruction* first = &*(sucBB->begin());
-//      if (!getNode(inst)->isPhi()) {
-//
-//        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
-//        continue;
-//      }
+      // TODO: get the live-in nodes rather than front() and connect them
+      for (BasicBlock::iterator II=sucBB->begin(),
+          IEnd=sucBB->end(); II!=IEnd; ++II) {
+        Instruction* inst = &*II;
 
-      errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+        // Ignore this IR if it is out of the scope.
+        if (shouldIgnore(inst))
+          continue;
 
-      // Construct contrl flow edges.
-      DFGEdge* ctrlEdge;
-      if (hasCtrlEdge(getNode(terminator), dfgNode)) {
-        ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
-      }
-      else {
-        ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
-        m_ctrlEdges.push_back(ctrlEdge);
+        if (isLiveInInst(sucBB, inst)) {
+          errs()<<" check inst: "<<*inst<<"\n";
+
+          DFGNode* dfgNode;
+          if (hasNode(inst)) {
+            dfgNode = getNode(inst);
+          } else {
+            dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+            nodes.push_back(dfgNode);
+          }
+    //      Instruction* first = &*(sucBB->begin());
+    //      if (!getNode(inst)->isPhi()) {
+    //
+    //        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+    //        continue;
+    //      }
+    
+          errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+    
+          // Construct contrl flow edges.
+          DFGEdge* ctrlEdge;
+          if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+            ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+          }
+          else {
+            ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+            m_ctrlEdges.push_back(ctrlEdge);
+          }
+
+        }
       }
     }
   }
+
+//      Instruction* inst = &(sucBB->front());
+////    for (Instruction* inst: sucBB) {
+//      // Ignore this IR if it is out of the scope.
+//      if (shouldIgnore(inst))
+//        continue;
+//      DFGNode* dfgNode;
+//      if (hasNode(inst)) {
+//        dfgNode = getNode(inst);
+//      } else {
+//        dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+//        nodes.push_back(dfgNode);
+//      }
+////      Instruction* first = &*(sucBB->begin());
+////      if (!getNode(inst)->isPhi()) {
+////
+////        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+////        continue;
+////      }
+//
+//      errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//
+//      // Construct contrl flow edges.
+//      DFGEdge* ctrlEdge;
+//      if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+//        ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+//      }
+//      else {
+//        ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+//        m_ctrlEdges.push_back(ctrlEdge);
+//      }
+//    }
+//  }
  
 //      for (BasicBlock::iterator II=sucBB->begin(),
 //          IEnd=sucBB->end(); II!=IEnd; ++II) {
@@ -503,6 +546,59 @@ void DFG::construct(Function& t_F) {
     }
   }
   connectDFGNodes();
+}
+
+bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
+  if (t_inst == &(t_bb->front())) {
+    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
+    return true;
+  }
+  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+    Instruction* tempInst = dyn_cast<Instruction>(*op);
+    if (tempInst and !containsInst(t_bb, tempInst)) {
+      errs()<<"ctrl to: "<<*t_inst<<"; containsInst(t_bb, tempInst): "<<containsInst(t_bb, tempInst)<<"; ";
+      return true;
+    }
+  }
+
+  // The first (lower ID) IR with only in-block dependency is also treated as live-in.
+  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+    Instruction* tempInst = dyn_cast<Instruction>(*op);
+    if (tempInst and getInstID(t_bb, t_inst) > getInstID(t_bb, tempInst)) {
+      return false;
+    }
+  }
+
+  errs()<<"ctrl to: "<<*t_inst<<"; ";
+  return true;
+}
+
+bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) {
+
+  for (BasicBlock::iterator II=t_bb->begin(),
+       IEnd=t_bb->end(); II!=IEnd; ++II) {
+    Instruction* inst = &*II;
+    if ((inst) == (t_inst)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+int DFG::getInstID(BasicBlock* t_bb, Instruction* t_inst) {
+
+  int id = 0;
+  for (BasicBlock::iterator II=t_bb->begin(),
+       IEnd=t_bb->end(); II!=IEnd; ++II) {
+    Instruction* inst = &*II;
+    if ((inst) == (t_inst)) {
+      return id;
+    }
+    id += 1;
+  }
+  // This never gonna happen.
+  assert(false);
+  return -1;
 }
 
 void DFG::connectDFGNodes() {

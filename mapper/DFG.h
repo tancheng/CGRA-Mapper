@@ -64,6 +64,9 @@ class DFG {
     void eliminateOpcode(string);
     bool searchDFS(DFGNode*, DFGNode*, list<DFGNode*>*);
     void connectDFGNodes();
+    bool isLiveInInst(BasicBlock*, Instruction*);
+    bool containsInst(BasicBlock*, Instruction*);
+    int getInstID(BasicBlock*, Instruction*);
 
   public:
     DFG(Function&, list<Loop*>*, bool);
