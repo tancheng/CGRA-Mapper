@@ -113,8 +113,8 @@ namespace {
       // int regConstraint = 1;
 
       // Configuration for dynamic CGRA.
-      int rows    = 2;
-      int columns = 2;
+      int rows    = 4;
+      int columns = 4;
       bool isStaticElasticCGRA = false;
       bool isTrimmedDemo = true;
       int ctrlMemConstraint = 200;

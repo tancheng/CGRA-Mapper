@@ -456,6 +456,9 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     }
   }
   int showCycleBoundary = t_cgra->getFUCount();
+  if (showCycleBoundary < 2 * t_II) {
+    showCycleBoundary = 2 * t_II;
+  }
   if (t_isStaticElasticCGRA)
     showCycleBoundary = t_dfg->getNodeCount();
   while (cycle <= showCycleBoundary) {

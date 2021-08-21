@@ -753,7 +753,7 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         for (DFGEdge* currentEdge: *t_currentCycle) {
           temp_cycle->push_back(currentEdge);
           // break the cycle to avoid future repeated detection
-          errs() << "cycle edge: {" << *(currentEdge)->getSrc()->getInst() << "  } -> {"<< *(currentEdge)->getDst()->getInst() << "  }\n";
+          errs() << "cycle edge: {" << *(currentEdge)->getSrc()->getInst() << "  } -> {"<< *(currentEdge)->getDst()->getInst() << "  } ("<<currentEdge->getSrc()->getID()<<" -> "<<currentEdge->getDst()->getID()<<")\n";
         }
         t_erasedEdges->push_back(edge);
         t_cycles->push_back(temp_cycle);
