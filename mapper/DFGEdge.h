@@ -26,18 +26,18 @@ class DFGEdge
     int m_id;
     DFGNode *m_src;
     DFGNode *m_dst;
-    bool m_isBackCtrlEdge;
+    bool m_isCtrlEdge;
 
   public:
     DFGEdge(int, DFGNode*, DFGNode*);
+    DFGEdge(int, DFGNode*, DFGNode*, bool);
     void setID(int);
     int getID();
     DFGNode* getSrc();
     DFGNode* getDst();
     void connect(DFGNode*, DFGNode*);
     DFGNode* getConnectedNode(DFGNode*);
-    bool isBackCtrlEdge();
-    void setBackCtrlEdge();
+    bool isCtrlEdge();
 };
 
 #endif

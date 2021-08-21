@@ -354,7 +354,7 @@ void DFG::construct(Function& t_F) {
             ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
           }
           else {
-            ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+            ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode, true);
             m_ctrlEdges.push_back(ctrlEdge);
           }
 
@@ -605,12 +605,26 @@ void DFG::connectDFGNodes() {
   for (DFGNode* node: nodes)
     node->cutEdges();
 
+  // Incorporate ctrl flow into data flow.
+  for (DFGEdge* edge: m_ctrlEdges) {
+    m_DFGEdges.push_back(edge);
+  }
+
   for (DFGEdge* edge: m_DFGEdges) {
     DFGNode* left = edge->getSrc();
     DFGNode* right = edge->getDst();
     left->setOutEdge(edge);
     right->setInEdge(edge);
   }
+
+//  for (DFGEdge* edge: m_ctrlEdges) {
+//    DFGNode* left = edge->getSrc();
+//    DFGNode* right = edge->getDst();
+//    errs()<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
+//    left->setOutEdge(edge);
+//    right->setInEdge(edge);
+//  }
+
 }
 
 void DFG::generateJSON() {
