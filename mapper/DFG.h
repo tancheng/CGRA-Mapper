@@ -30,6 +30,7 @@ using namespace std;
 class DFG {
   private:
     int m_num;
+    bool m_CDFGFused;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
 
@@ -64,6 +65,9 @@ class DFG {
     void eliminateOpcode(string);
     bool searchDFS(DFGNode*, DFGNode*, list<DFGNode*>*);
     void connectDFGNodes();
+    bool isLiveInInst(BasicBlock*, Instruction*);
+    bool containsInst(BasicBlock*, Instruction*);
+    int getInstID(BasicBlock*, Instruction*);
 
   public:
     DFG(Function&, list<Loop*>*, bool);

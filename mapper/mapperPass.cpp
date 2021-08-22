@@ -5,7 +5,7 @@
  * Mapper pass implementation.
  *
  * Author : Cheng Tan
- *   Date : July 16, 2019
+ *   Date : Aug 16, 2021
  */
 
 #include <llvm/IR/Function.h>
@@ -13,14 +13,19 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/LoopIterator.h>
 #include <stdio.h>
+#include <fstream>
+#include <iostream>
+#include "json.hpp"
 #include "Mapper.h"
 
 using namespace llvm;
+using namespace std;
+using json = nlohmann::json;
+
+void addDefaultKernels(map<string, list<int>*>*);
 
 namespace {
 
-//  typedef pair<Value*, StringRef> DFGNode;
-//  typedef pair<DFGNode, DFGNode> DFGEdge;
   struct mapperPass : public FunctionPass {
 
   public:
@@ -36,69 +41,21 @@ namespace {
 
     bool runOnFunction(Function &t_F) override {
 
+      // Read the parameter JSON file.
+      ifstream i("../arch/arch.json");
+      json param;
+      i >> param;
+ 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
-      (*functionWithLoop)["_Z12ARENA_kerneliii"] = new list<int>();
-      (*functionWithLoop)["_Z12ARENA_kerneliii"]->push_back(0);
-      (*functionWithLoop)["_Z4spmviiPiS_S_"] = new list<int>();
-      (*functionWithLoop)["_Z4spmviiPiS_S_"]->push_back(0);
-      (*functionWithLoop)["_Z4spmvPiii"] = new list<int>();
-      (*functionWithLoop)["_Z4spmvPiii"]->push_back(0);
-      (*functionWithLoop)["adpcm_coder"] = new list<int>();
-      (*functionWithLoop)["adpcm_coder"]->push_back(0);
-      (*functionWithLoop)["adpcm_decoder"] = new list<int>();
-      (*functionWithLoop)["adpcm_decoder"]->push_back(0);
-      (*functionWithLoop)["kernel_gemm"] = new list<int>();
-      (*functionWithLoop)["kernel_gemm"]->push_back(0);
-      (*functionWithLoop)["kernel"] = new list<int>();
-      (*functionWithLoop)["kernel"]->push_back(0);
-      (*functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
-      (*functionWithLoop)["_Z6kerneliPPiS_S_S_"]->push_back(0);
-      (*functionWithLoop)["_Z6kernelPPii"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelPPii"]->push_back(0);
-      (*functionWithLoop)["_Z6kernelP7RGBType"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelP7RGBType"]->push_back(0);
-      (*functionWithLoop)["_Z6kernelP7RGBTypePi"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelP7RGBTypePi"]->push_back(0);
-      (*functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"]->push_back(0);
-      (*functionWithLoop)["fir"] = new list<int>();
-      (*functionWithLoop)["fir"]->push_back(0);
-      (*functionWithLoop)["spmv"] = new list<int>();
-      (*functionWithLoop)["spmv"]->push_back(0);
-//      (*functionWithLoop)["fir"].push_back(1);
-      (*functionWithLoop)["latnrm"] = new list<int>();
-      (*functionWithLoop)["latnrm"]->push_back(1);
-      (*functionWithLoop)["fft"] = new list<int>();
-      (*functionWithLoop)["fft"]->push_back(0);
-      (*functionWithLoop)["BF_encrypt"] = new list<int>();
-      (*functionWithLoop)["BF_encrypt"]->push_back(0);
-      (*functionWithLoop)["susan_smoothing"] = new list<int>();
-      (*functionWithLoop)["susan_smoothing"]->push_back(0);
+      addDefaultKernels(functionWithLoop);
 
-      (*functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"] = new list<int>();
-      (*functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"]->push_back(0);
-
-      // For LU:
-      // init
-      (*functionWithLoop)["_Z6kernelPPdidPi"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelPPdidPi"]->push_back(0);
-
-      // solver0 & solver1
-      (*functionWithLoop)["_Z6kernelPPdPiS_iS_"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelPPdPiS_iS_"]->push_back(0);
-
-      // determinant
-      (*functionWithLoop)["_Z6kernelPPdPii"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelPPdPii"]->push_back(0);
-
-      // invert
-      (*functionWithLoop)["_Z6kernelPPdPiiS0_"] = new list<int>();
-      (*functionWithLoop)["_Z6kernelPPdPiiS0_"]->push_back(0);
-
-
-//      (*functionWithLoop)["main"] = new list<int>();
-//      (*functionWithLoop)["main"]->push_back(0);
+      (*functionWithLoop)[param["kernel"]] = new list<int>();
+      json loops = param["targetLoopsID"];
+      for (int i=0; i<loops.size(); ++i) {
+        cout<<"add index "<<loops[i]<<endl;
+        (*functionWithLoop)[param["kernel"]]->push_back(loops[i]);
+      }
 
       // Configuration for static CGRA.
       // int rows = 8;
@@ -108,19 +65,19 @@ namespace {
       // int ctrlMemConstraint = 1;
       // int bypassConstraint = 3;
       // int regConstraint = 1;
-
+     
       // Configuration for dynamic CGRA.
-      int rows    = 2;
-      int columns = 2;
-      bool isStaticElasticCGRA = false;
-      bool isTrimmedDemo = true;
-      int ctrlMemConstraint = 200;
-      int bypassConstraint = 4;
+      int rows                 = param["row"];
+      int columns              = param["column"];
+      bool isStaticElasticCGRA = param["isStaticElasticCGRA"];
+      bool isTrimmedDemo       = param["isTrimmedDemo"];
+      int ctrlMemConstraint    = param["ctrlMemConstraint"];
+      int bypassConstraint     = param["bypassConstraint"];
       // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint = 8;
-      bool heterogeneity = false;
-//      bool heterogeneity = true;
+      int regConstraint        = param["regConstraint"];
+      bool heterogeneity       = param["heterogeneity"];
 
+      // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
         errs()<<"[function \'"<<t_F.getName()<<"\' is not in our target list]\n";
         return false;
@@ -128,7 +85,7 @@ namespace {
       errs() << "==================================\n";
       errs()<<"[function \'"<<t_F.getName()<<"\' is one of our targets]\n";
 
-      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop);
+      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, param["targetNested"]);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, heterogeneity);
@@ -198,28 +155,31 @@ namespace {
       return false;
     }
 
-
-    list<Loop*>* getTargetLoops(Function& t_F, map<string, list<int>*>* t_functionWithLoop) {
+    /*
+     * Add the loops of each kernel. Target nested-loops if it is indicated.
+     */
+    list<Loop*>* getTargetLoops(Function& t_F, map<string, list<int>*>* t_functionWithLoop, bool t_targetNested) {
       int targetLoopID = 0;
       list<Loop*>* targetLoops = new list<Loop*>();
+      // Since the ordering of the target loop id could be random, I use O(n^2) to search the target loop.
       while((*t_functionWithLoop).at(t_F.getName().str())->size() > 0) {
         targetLoopID = (*t_functionWithLoop).at(t_F.getName().str())->front();
         (*t_functionWithLoop).at(t_F.getName().str())->pop_front();
-
-        // Specify the particular loop we are focusing on.
-        // TODO: move the following to another .cpp file.
         LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
         int tempLoopID = 0;
         Loop* current_loop = NULL;
         for(LoopInfo::iterator loopItr=LI.begin();
             loopItr!= LI.end(); ++loopItr) {
-//          targetLoops.push_back(*loopItr);
+          // targetLoops->push_back(*loopItr);
           current_loop = *loopItr;
           if (tempLoopID == targetLoopID) {
-            while (!current_loop->getSubLoops().empty()) {
-              errs()<<"*** detected nested loop ... size: "<<current_loop->getSubLoops().size()<<"\n";
-              // TODO: might change '0' to a reasonable index
-              current_loop = current_loop->getSubLoops()[0];
+            // Targets innermost loop if the param targetNested is not set.
+            if (!t_targetNested) {
+              while (!current_loop->getSubLoops().empty()) {
+                errs()<<"[explore] nested loop ... subloop size: "<<current_loop->getSubLoops().size()<<"\n";
+                // TODO: might change '0' to a reasonable index
+                current_loop = current_loop->getSubLoops()[0];
+              }
             }
             targetLoops->push_back(current_loop);
             errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
@@ -231,12 +191,82 @@ namespace {
           errs()<<"... no loop detected in the target kernel ...\n";
         }
       }
-      errs()<<"... detected loops.size(): "<<targetLoops->size()<<"\n";
+      errs()<<"... done detected loops.size(): "<<targetLoops->size()<<"\n";
       return targetLoops;
     }
-
   };
 }
 
 char mapperPass::ID = 0;
 static RegisterPass<mapperPass> X("mapperPass", "DFG Pass Analyse", false, false);
+
+/*
+ * Add the kernel names of some popular applications.
+ * Assume each kernel contains single loop.
+ */
+void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
+
+  (*t_functionWithLoop)["_Z12ARENA_kerneliii"] = new list<int>();
+  (*t_functionWithLoop)["_Z12ARENA_kerneliii"]->push_back(0);
+  (*t_functionWithLoop)["_Z4spmviiPiS_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z4spmviiPiS_S_"]->push_back(0);
+  (*t_functionWithLoop)["_Z4spmvPiii"] = new list<int>();
+  (*t_functionWithLoop)["_Z4spmvPiii"]->push_back(0);
+  (*t_functionWithLoop)["adpcm_coder"] = new list<int>();
+  (*t_functionWithLoop)["adpcm_coder"]->push_back(0);
+  (*t_functionWithLoop)["adpcm_decoder"] = new list<int>();
+  (*t_functionWithLoop)["adpcm_decoder"]->push_back(0);
+  (*t_functionWithLoop)["kernel_gemm"] = new list<int>();
+  (*t_functionWithLoop)["kernel_gemm"]->push_back(0);
+  (*t_functionWithLoop)["kernel"] = new list<int>();
+  (*t_functionWithLoop)["kernel"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPPii"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPPii"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelP7RGBType"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelP7RGBType"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelP7RGBTypePi"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelP7RGBTypePi"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelP7RGBTypeP4Vect"]->push_back(0);
+  (*t_functionWithLoop)["fir"] = new list<int>();
+  (*t_functionWithLoop)["fir"]->push_back(0);
+  (*t_functionWithLoop)["spmv"] = new list<int>();
+  (*t_functionWithLoop)["spmv"]->push_back(0);
+  // (*functionWithLoop)["fir"].push_back(1);
+  (*t_functionWithLoop)["latnrm"] = new list<int>();
+  (*t_functionWithLoop)["latnrm"]->push_back(1);
+  (*t_functionWithLoop)["fft"] = new list<int>();
+  (*t_functionWithLoop)["fft"]->push_back(0);
+  (*t_functionWithLoop)["BF_encrypt"] = new list<int>();
+  (*t_functionWithLoop)["BF_encrypt"]->push_back(0);
+  (*t_functionWithLoop)["susan_smoothing"] = new list<int>();
+  (*t_functionWithLoop)["susan_smoothing"]->push_back(0);
+
+  (*t_functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z9LUPSolve0PPdPiS_iS_"]->push_back(0);
+
+  // For LU:
+  // init
+  (*t_functionWithLoop)["_Z6kernelPPdidPi"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPPdidPi"]->push_back(0);
+
+  // solver0 & solver1
+  (*t_functionWithLoop)["_Z6kernelPPdPiS_iS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPPdPiS_iS_"]->push_back(0);
+
+  // determinant
+  (*t_functionWithLoop)["_Z6kernelPPdPii"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPPdPii"]->push_back(0);
+
+  // invert
+  (*t_functionWithLoop)["_Z6kernelPPdPiiS0_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPPdPiiS0_"]->push_back(0);
+
+  // nested
+  // (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
+  // (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
+}
+
+

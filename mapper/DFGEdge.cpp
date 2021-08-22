@@ -14,7 +14,14 @@ DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst) {
   m_id = t_id;
   m_src = t_src;
   m_dst = t_dst;
-  m_isBackCtrlEdge = false;
+  m_isCtrlEdge = false;
+}
+
+DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst, bool t_isCtrlEdge) {
+  m_id = t_id;
+  m_src = t_src;
+  m_dst = t_dst;
+  m_isCtrlEdge = t_isCtrlEdge;
 }
 
 void DFGEdge::setID(int t_id) {
@@ -47,11 +54,7 @@ DFGNode* DFGEdge::getConnectedNode(DFGNode* t_node) {
     return m_src;
 }
 
-bool DFGEdge::isBackCtrlEdge() {
-  return m_isBackCtrlEdge;
-}
-
-void DFGEdge::setBackCtrlEdge() {
-  m_isBackCtrlEdge = true;
+bool DFGEdge::isCtrlEdge() {
+  return m_isCtrlEdge;
 }
 

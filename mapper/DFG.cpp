@@ -15,8 +15,9 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   m_num = 0;
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
+  m_CDFGFused = false;
   construct(t_F);
-  tuneForBranch();
+//  tuneForBranch();
   tuneForBitcast();
   tuneForLoad();
   if (t_heterogeneity) {
@@ -36,7 +37,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
 //    combine("xor", "add");
 //    tuneForPattern();
   }
-  trimForStandalone();
+//  trimForStandalone();
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -320,36 +321,117 @@ void DFG::construct(Function& t_F) {
       continue;
 //    DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
     for (BasicBlock* sucBB : successors(curBB)) {
+      // TODO: get the live-in nodes rather than front() and connect them
       for (BasicBlock::iterator II=sucBB->begin(),
           IEnd=sucBB->end(); II!=IEnd; ++II) {
         Instruction* inst = &*II;
-//      for (Instruction* inst: sucBB) {
+
         // Ignore this IR if it is out of the scope.
         if (shouldIgnore(inst))
           continue;
-        DFGNode* dfgNode;
-        if (hasNode(inst)) {
-          dfgNode = getNode(inst);
-        } else {
-          dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
-          nodes.push_back(dfgNode);
-        }
-//        Instruction* first = &*(sucBB->begin());
-        if (!getNode(inst)->isPhi())
-          continue;
 
-        // Construct contrl flow edges.
-        DFGEdge* ctrlEdge;
-        if (hasCtrlEdge(getNode(terminator), dfgNode)) {
-          ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
-        }
-        else {
-          ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
-          m_ctrlEdges.push_back(ctrlEdge);
+        if (isLiveInInst(sucBB, inst)) {
+          errs()<<" check inst: "<<*inst<<"\n";
+
+          DFGNode* dfgNode;
+          if (hasNode(inst)) {
+            dfgNode = getNode(inst);
+          } else {
+            dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+            nodes.push_back(dfgNode);
+          }
+    //      Instruction* first = &*(sucBB->begin());
+    //      if (!getNode(inst)->isPhi()) {
+    //
+    //        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+    //        continue;
+    //      }
+    
+          errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+    
+          // Construct contrl flow edges.
+          DFGEdge* ctrlEdge;
+          if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+            ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+          }
+          else {
+            ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode, true);
+            m_ctrlEdges.push_back(ctrlEdge);
+          }
+
         }
       }
     }
   }
+
+//      Instruction* inst = &(sucBB->front());
+////    for (Instruction* inst: sucBB) {
+//      // Ignore this IR if it is out of the scope.
+//      if (shouldIgnore(inst))
+//        continue;
+//      DFGNode* dfgNode;
+//      if (hasNode(inst)) {
+//        dfgNode = getNode(inst);
+//      } else {
+//        dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+//        nodes.push_back(dfgNode);
+//      }
+////      Instruction* first = &*(sucBB->begin());
+////      if (!getNode(inst)->isPhi()) {
+////
+////        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+////        continue;
+////      }
+//
+//      errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//
+//      // Construct contrl flow edges.
+//      DFGEdge* ctrlEdge;
+//      if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+//        ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+//      }
+//      else {
+//        ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+//        m_ctrlEdges.push_back(ctrlEdge);
+//      }
+//    }
+//  }
+ 
+//      for (BasicBlock::iterator II=sucBB->begin(),
+//          IEnd=sucBB->end(); II!=IEnd; ++II) {
+//        Instruction* inst = &*II;
+////      for (Instruction* inst: sucBB) {
+//        // Ignore this IR if it is out of the scope.
+//        if (shouldIgnore(inst))
+//          continue;
+//        DFGNode* dfgNode;
+//        if (hasNode(inst)) {
+//          dfgNode = getNode(inst);
+//        } else {
+//          dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+//          nodes.push_back(dfgNode);
+//        }
+////        Instruction* first = &*(sucBB->begin());
+//        if (!getNode(inst)->isPhi()) {
+//
+//          errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//          continue;
+//        }
+//
+//        errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//
+//        // Construct contrl flow edges.
+//        DFGEdge* ctrlEdge;
+//        if (hasCtrlEdge(getNode(terminator), dfgNode)) {
+//          ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
+//        }
+//        else {
+//          ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
+//          m_ctrlEdges.push_back(ctrlEdge);
+//        }
+//      }
+//    }
+//  }
 
 //  // Construct contrl flow forward edges.
 //  for (list<DFGNode*>::iterator nodeItr=nodes.begin();
@@ -431,9 +513,10 @@ void DFG::construct(Function& t_F) {
         for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) {
           Instruction* tempInst = dyn_cast<Instruction>(*op);
           if (tempInst and !shouldIgnore(tempInst)) {
-            if(node->isBranch()) {
-              errs()<<"real branch's pred: "<<*tempInst<<"\n";
-            }
+//            if(node->isBranch()) {
+//              errs()<<"  the real branch's pred: "<<*tempInst<<"\n";
+//              int numSuccs = tempInst->getNumSuccessors();
+//            }
             DFGEdge* dfgEdge;
             if (hasNode(tempInst)) {
               if (hasDFGEdge(getNode(tempInst), node))
@@ -452,6 +535,13 @@ void DFG::construct(Function& t_F) {
               node->addConst();
           } 
         }
+//        if(node->isBranch()) {
+//          int numSuccs = curII->getNumSuccessors();
+//          errs()<<"the succ of the branch: "<<*curII<<"; ("<<numSuccs<<")\n";
+//          for(int i=0; i<numSuccs; ++i) {
+//            BasicBlock* bb
+//          }
+//        }
         break;
       }
     }
@@ -459,9 +549,70 @@ void DFG::construct(Function& t_F) {
   connectDFGNodes();
 }
 
+bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
+  if (t_inst == &(t_bb->front())) {
+    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
+    return true;
+  }
+  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+    Instruction* tempInst = dyn_cast<Instruction>(*op);
+    if (tempInst and !containsInst(t_bb, tempInst)) {
+      errs()<<"ctrl to: "<<*t_inst<<"; containsInst(t_bb, tempInst): "<<containsInst(t_bb, tempInst)<<"; ";
+      return true;
+    }
+  }
+
+  // The first (lower ID) IR with only in-block dependency is also treated as live-in.
+  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+    Instruction* tempInst = dyn_cast<Instruction>(*op);
+    if (tempInst and getInstID(t_bb, t_inst) > getInstID(t_bb, tempInst)) {
+      return false;
+    }
+  }
+
+  errs()<<"ctrl to: "<<*t_inst<<"; ";
+  return true;
+}
+
+bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) {
+
+  for (BasicBlock::iterator II=t_bb->begin(),
+       IEnd=t_bb->end(); II!=IEnd; ++II) {
+    Instruction* inst = &*II;
+    if ((inst) == (t_inst)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+int DFG::getInstID(BasicBlock* t_bb, Instruction* t_inst) {
+
+  int id = 0;
+  for (BasicBlock::iterator II=t_bb->begin(),
+       IEnd=t_bb->end(); II!=IEnd; ++II) {
+    Instruction* inst = &*II;
+    if ((inst) == (t_inst)) {
+      return id;
+    }
+    id += 1;
+  }
+  // This never gonna happen.
+  assert(false);
+  return -1;
+}
+
 void DFG::connectDFGNodes() {
   for (DFGNode* node: nodes)
     node->cutEdges();
+
+  // Incorporate ctrl flow into data flow.
+  if (!m_CDFGFused) {
+    for (DFGEdge* edge: m_ctrlEdges) {
+      m_DFGEdges.push_back(edge);
+    }
+    m_CDFGFused = true;
+  }
 
   for (DFGEdge* edge: m_DFGEdges) {
     DFGNode* left = edge->getSrc();
@@ -469,6 +620,15 @@ void DFG::connectDFGNodes() {
     left->setOutEdge(edge);
     right->setInEdge(edge);
   }
+
+//  for (DFGEdge* edge: m_ctrlEdges) {
+//    DFGNode* left = edge->getSrc();
+//    DFGNode* right = edge->getDst();
+////    errs()<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
+//    left->setOutEdge(edge);
+//    right->setInEdge(edge);
+//  }
+
 }
 
 void DFG::generateJSON() {
@@ -549,22 +709,30 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
             file << "\tNode" << node->first << "[shape=record, label=\"" << node->second << "\"];\n";
   */
 
-  /*
-  //Dump control flow.
-  for (list<DFGEdge*>::iterator edge = m_ctrlEdges.begin(), edge_end = m_ctrlEdges.end(); edge != edge_end; ++edge) {
-    file << "\tNode" << (*edge)->getSrc()->getID() << "_" << (*edge)->getSrc()->getOpcodeName() << " -> Node" << (*edge)->getDst()->getID() << "_" << (*edge)->getDst()->getOpcodeName() << "\n";
-//    file << "\tNode" << (*edge)->getSrc()->getInst() << " -> Node" << (*edge)->getDst()->getInst() << "\n";
-  // file << "\tNode" << edge->first.first << " -> Node" << edge->second.first << "\n";
-  }
-  */
 
-  //Dump data flow.
+  // Dump control flow.
+  file << "edge [color=blue]" << "\n";
+  for (DFGEdge* edge: m_ctrlEdges) {
+    // Distinguish data and control flows. Don't show the ctrl flows that are optimzied out from the data flow optimization.
+    if (find(m_DFGEdges.begin(), m_DFGEdges.end(), edge) != m_DFGEdges.end()) {
+      if (t_isTrimmedDemo) {
+        file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
+      } else {
+        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+      }
+    }
+  }
+
+  // Dump data flow.
   file << "edge [color=red]" << "\n";
   for (DFGEdge* edge: m_DFGEdges) {
-    if (t_isTrimmedDemo) {
-      file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
-    } else {
-      file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+    // Distinguish data and control flows. Make ctrl flow invisible.
+    if (find(m_ctrlEdges.begin(), m_ctrlEdges.end(), edge) == m_ctrlEdges.end()) {
+      if (t_isTrimmedDemo) {
+        file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
+      } else {
+        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+      }
     }
   }
 //  errs() << "Write data flow done.\n";
@@ -595,7 +763,7 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         for (DFGEdge* currentEdge: *t_currentCycle) {
           temp_cycle->push_back(currentEdge);
           // break the cycle to avoid future repeated detection
-          errs() << "cycle edge: {" << *(currentEdge)->getSrc()->getInst() << "  } -> {"<< *(currentEdge)->getDst()->getInst() << "  }\n";
+          errs() << "cycle edge: {" << *(currentEdge)->getSrc()->getInst() << "  } -> {"<< *(currentEdge)->getDst()->getInst() << "  } ("<<currentEdge->getSrc()->getID()<<" -> "<<currentEdge->getDst()->getID()<<")\n";
         }
         t_erasedEdges->push_back(edge);
         t_cycles->push_back(temp_cycle);
