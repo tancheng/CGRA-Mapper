@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
-#include "nlohmann/json.hpp"
+#include "json.hpp"
 #include "Mapper.h"
 
 using namespace llvm;
