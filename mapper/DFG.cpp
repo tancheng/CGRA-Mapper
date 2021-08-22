@@ -15,6 +15,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   m_num = 0;
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
+  m_CDFGFused = false;
   construct(t_F);
 //  tuneForBranch();
   tuneForBitcast();
@@ -606,8 +607,11 @@ void DFG::connectDFGNodes() {
     node->cutEdges();
 
   // Incorporate ctrl flow into data flow.
-  for (DFGEdge* edge: m_ctrlEdges) {
-    m_DFGEdges.push_back(edge);
+  if (!m_CDFGFused) {
+    for (DFGEdge* edge: m_ctrlEdges) {
+      m_DFGEdges.push_back(edge);
+    }
+    m_CDFGFused = true;
   }
 
   for (DFGEdge* edge: m_DFGEdges) {
@@ -620,7 +624,7 @@ void DFG::connectDFGNodes() {
 //  for (DFGEdge* edge: m_ctrlEdges) {
 //    DFGNode* left = edge->getSrc();
 //    DFGNode* right = edge->getDst();
-//    errs()<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
+////    errs()<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
 //    left->setOutEdge(edge);
 //    right->setInEdge(edge);
 //  }
@@ -706,23 +710,29 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
   */
 
 
-  //Dump control flow.
+  // Dump control flow.
   file << "edge [color=blue]" << "\n";
   for (DFGEdge* edge: m_ctrlEdges) {
-    if (t_isTrimmedDemo) {
-      file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
-    } else {
-      file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+    // Distinguish data and control flows. Don't show the ctrl flows that are optimzied out from the data flow optimization.
+    if (find(m_DFGEdges.begin(), m_DFGEdges.end(), edge) != m_DFGEdges.end()) {
+      if (t_isTrimmedDemo) {
+        file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
+      } else {
+        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+      }
     }
   }
 
-  //Dump data flow.
+  // Dump data flow.
   file << "edge [color=red]" << "\n";
   for (DFGEdge* edge: m_DFGEdges) {
-    if (t_isTrimmedDemo) {
-      file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
-    } else {
-      file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+    // Distinguish data and control flows. Make ctrl flow invisible.
+    if (find(m_ctrlEdges.begin(), m_ctrlEdges.end(), edge) == m_ctrlEdges.end()) {
+      if (t_isTrimmedDemo) {
+        file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
+      } else {
+        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+      }
     }
   }
 //  errs() << "Write data flow done.\n";

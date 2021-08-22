@@ -30,6 +30,7 @@ using namespace std;
 class DFG {
   private:
     int m_num;
+    bool m_CDFGFused;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
 
