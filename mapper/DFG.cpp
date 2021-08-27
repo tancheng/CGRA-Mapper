@@ -756,9 +756,11 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         continue;
       }
       t_currentCycle->push_back(edge);
+
+//      errs() << ".. add current cycle edge: {" << *edge->getSrc()->getInst() << "  } -> {"<< *edge->getDst()->getInst() << "  } ("<<edge->getSrc()->getID()<<" -> "<<edge->getDst()->getID()<<")\n";
       if (edge->getDst() == t_head) {
         errs() << "==================================\n";
-        errs() << "[detected one cycle]\n";
+        errs() << "[detected one cycle] head: "<<*(t_head->getInst())<<"\n";
         list<DFGEdge*>* temp_cycle = new list<DFGEdge*>();
         for (DFGEdge* currentEdge: *t_currentCycle) {
           temp_cycle->push_back(currentEdge);
@@ -767,6 +769,7 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         }
         t_erasedEdges->push_back(edge);
         t_cycles->push_back(temp_cycle);
+        t_currentCycle->remove(edge);
       } else {
         DFS_on_DFG(t_head, edge->getDst(), t_erasedEdges, t_currentCycle, t_cycles);
       }
