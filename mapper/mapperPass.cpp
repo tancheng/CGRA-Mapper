@@ -42,7 +42,7 @@ namespace {
     bool runOnFunction(Function &t_F) override {
 
       // Read the parameter JSON file.
-      ifstream i("../arch/arch.json");
+      ifstream i("./arch.json");
       json param;
       i >> param;
  
