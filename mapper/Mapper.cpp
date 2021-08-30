@@ -954,7 +954,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
     // found the target point in the shortest path
     if (minNode == t_dstCGRANode) {
       if (previous[minNode] == NULL)
-      break;
+        break;
     }
     list<CGRANode*>* currentNeighbors = minNode->getNeighbors();
 
@@ -993,6 +993,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
   }
 
   // Not a valid mapping if it exceeds the 'm_maxMappingCycle'.
+  // errs()<<"[TAN] check timing -- srcCGRANode("<<t_srcCGRANode->getID()<<":timing "<<timing[t_srcCGRANode]<<")->dstCGRANode("<<t_dstCGRANode->getID()<<":timing "<<timing[t_dstCGRANode]<<")\n";
   if(timing[t_dstCGRANode] > m_maxMappingCycle or
      timing[t_dstCGRANode] - timing[t_srcCGRANode] > t_II) {
 // or
@@ -1043,6 +1044,12 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
         cout<<"[cheng] reset duration: "<<duration<<" t_dstCycle: "<<t_dstCycle<<" previous: "<<(*previousIter).first<<" II: "<<t_II<<"\n";
       }
       if (duration == 0) {
+        cout<<"[cheng] reset duration is 0...\n";
+        // The successor can only be done within an interval of II, otherwise
+        // the II is no longer II but II*2.
+        if (t_isBackedge) {
+          return false;
+        }
         duration = t_II;
       }
       l->occupy(t_srcDFGNode, (*previousIter).first,
