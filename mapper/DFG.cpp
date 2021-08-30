@@ -356,7 +356,6 @@ void DFG::construct(Function& t_F) {
           }
           else {
             ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode, true);
-            dfgNode->setPredicated();
             m_ctrlEdges.push_back(ctrlEdge);
           }
 

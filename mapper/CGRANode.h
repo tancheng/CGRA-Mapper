@@ -98,6 +98,7 @@ class CGRANode {
     bool canCall();
     bool supportComplex();
     DFGNode* getMappedDFGNode(int);
+    bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);
     void allocateReg(int, int, int, int);
     int* getRegsAllocation(int);

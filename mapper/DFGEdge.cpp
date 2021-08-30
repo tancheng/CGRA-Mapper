@@ -22,6 +22,7 @@ DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst, bool t_isCtrlEdge) {
   m_src = t_src;
   m_dst = t_dst;
   m_isCtrlEdge = t_isCtrlEdge;
+  m_src->addPredicatee(m_dst);
 }
 
 void DFGEdge::setID(int t_id) {

@@ -25,7 +25,9 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_patternRoot = NULL;
   m_critical = false;
   m_level = 0;
-  m_predicated = false;
+  m_isPredicatee = false;
+  m_predicatees = NULL;
+  m_isPredicater = false;
   m_patternNodes = new list<DFGNode*>();
   initType();
 }
@@ -54,12 +56,29 @@ bool DFGNode::isCritical() {
   return m_critical;
 }
 
-void DFGNode::setPredicated() {
-  m_predicated = true;
+void DFGNode::setPredicatee() {
+  m_isPredicatee = true;
 }
 
-bool DFGNode::isPredicated() {
-  return m_predicated;
+bool DFGNode::isPredicatee() {
+  return m_isPredicatee;
+}
+
+bool DFGNode::isPredicater() {
+  return m_isPredicater;
+}
+
+void DFGNode::addPredicatee(DFGNode* t_node) {
+  m_isPredicater = true;
+  if (m_predicatees == NULL) {
+    m_predicatees = new list<DFGNode*>();
+  }
+  m_predicatees->push_back(t_node);
+  t_node->setPredicatee();
+}
+
+list<DFGNode*>* DFGNode::getPredicatees() {
+  return m_predicatees;
 }
 
 bool DFGNode::isMapped() {

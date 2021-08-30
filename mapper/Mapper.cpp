@@ -612,11 +612,12 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             jsonFile<<",\n";
     
           jsonFile<<"  {\n";
-          jsonFile<<"    \"x\"         : "<<j<<",\n";
-          jsonFile<<"    \"y\"         : "<<i<<",\n";
-          jsonFile<<"    \"cycle\"     : "<<t<<",\n";
+          jsonFile<<"    \"x\"           : "<<j<<",\n";
+          jsonFile<<"    \"y\"           : "<<i<<",\n";
+          jsonFile<<"    \"cycle\"       : "<<t<<",\n";
           string targetOpt = "OPT_NAH";
           string stringDst[8];
+          string predicate_in = "";
           stringDst[0] = "none";
           stringDst[1] = "none";
           stringDst[2] = "none";
@@ -626,6 +627,39 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           stringDst[6] = "none";
           stringDst[7] = "none";
           int stringDstIndex = 0;
+
+          // Handle predicate based on inports.
+          for (CGRALink* il: *inLinks) {
+            if (il->isOccupied(t, t_II, t_isStaticElasticCGRA) and
+                il->getMappedDFGNode(t)->isPredicater()) {
+              if (predicate_in != "") {
+                predicate_in += ",";
+              }
+              if (predicate_in == "") {
+                predicate_in = "[";
+              }
+              predicate_in += to_string(il->getDirectionID(currentCGRANode));
+            }
+          }
+          // Handle predicate based on predecessor. Both the predecessor 'BR' and
+          // the current DFG node can be mapped onto the same CGRA node. I only
+          // take care the case one successor would be mapped onto the same CGRA
+          // node here for now.
+          if (targetDFGNode != NULL and targetDFGNode->isPredicater()) {
+            for (DFGNode* succNode: *(targetDFGNode->getPredicatees())) {
+              if (currentCGRANode->containMappedDFGNode(succNode, t_II)) {
+                if (predicate_in == "") {
+                  predicate_in = "[";
+                }
+                predicate_in += ",4";
+                break; // Assume only one predicatee at the same CGRA node.
+              }
+            }
+          }
+          if (predicate_in != "") {
+            predicate_in += "]";
+          }
+
           // handle function unit's output
           if (targetDFGNode != NULL) {
             targetOpt = targetDFGNode->getJSONOpt();
@@ -664,12 +698,15 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             assert(out_index <= max_index+1);
           }
 
-          jsonFile<<"    \"opt"<<"\"       : \""<<targetOpt<<"\",\n";
+          jsonFile<<"    \"opt"<<"\"         : \""<<targetOpt<<"\",\n";
           int predicated = 0;
-          if (targetDFGNode != NULL and targetDFGNode->isPredicated()) {
+          if (targetDFGNode != NULL and targetDFGNode->isPredicatee()) {
             predicated = 1;
           }
-          jsonFile<<"    \"predicate"<<"\" : "<<predicated<<",\n";
+          jsonFile<<"    \"predicate"<<"\"   : "<<predicated<<",\n";
+          if (predicate_in != "") {
+            jsonFile<<"    \"predicate_in"<<"\": "<<predicate_in<<",\n";
+          }
 
           // handle bypass: need consider next cycle, i.e., t+1
           int next_t = t+1;
@@ -695,7 +732,7 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             }
           }
           for (int out_index=0; out_index<8; ++out_index) {  
-            jsonFile<<"    \"out_"<<to_string(out_index)<<"\"     : \""<<stringDst[out_index]<<"\"";
+            jsonFile<<"    \"out_"<<to_string(out_index)<<"\"       : \""<<stringDst[out_index]<<"\"";
             if (out_index < 7)
               jsonFile<<",\n";
             else

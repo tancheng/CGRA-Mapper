@@ -258,6 +258,15 @@ DFGNode* CGRANode::getMappedDFGNode(int t_cycle) {
   return m_dfgNodes[t_cycle];
 }
 
+bool CGRANode::containMappedDFGNode(DFGNode* t_node, int t_II) {
+  for (int c=0; c<2*t_II; ++c) {
+    if (t_node == m_dfgNodes[c]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void CGRANode::configXbar(CGRALink*, int, int)
 {
 
