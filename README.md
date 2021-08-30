@@ -31,8 +31,8 @@ for (i = 0; i < NTAPS; ++i) {
 }
 ```
 <p float="center">
-  <img src="https://user-images.githubusercontent.com/6756658/131276748-779f92c6-6d9c-40ec-8868-ba95d44c5005.png" width="400" />
-  <img src="https://user-images.githubusercontent.com/6756658/131276443-d5a7ffa4-cfd5-4e46-8fe1-98254abb9d03.png" width="250" /> 
+  <img src="https://github.com/tancheng/CGRA-Mapper/blob/master/docs/fir_dfg.png" width="400" />
+  <img src="https://github.com/tancheng/CGRA-Mapper/blob/master/docs/fir_map.png" width="250" /> 
 </p>
 
 
