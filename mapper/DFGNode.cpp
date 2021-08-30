@@ -213,6 +213,23 @@ string DFGNode::getFuType() {
 }
 
 string DFGNode::getJSONOpt() {
+
+  int numPred = 0;
+  for (DFGEdge* edge: m_inEdges) {
+    if (!edge->isCtrlEdge()) {
+      numPred += 1;
+    }
+  }
+
+  if (numPred < 2) {
+    if (isPhi() or isCmp() or isGetptr() or m_opcodeName.compare("add") == 0 or
+        m_opcodeName.compare("fadd") == 0 or m_opcodeName.compare("sub") == 0 or
+        m_opcodeName.compare("fsub") == 0 or m_opcodeName.compare("fmul") == 0 or
+        m_opcodeName.compare("mul") == 0 or m_opcodeName.compare("shl") == 0 or
+        m_opcodeName.compare("lshr") == 0 or m_opcodeName.compare("ashr") == 0) {
+      return m_optType + "_CONST";
+    }
+  }
   return m_optType;
 }
 
@@ -236,7 +253,7 @@ void DFGNode::initType() {
     m_optType = "OPT_NAH";
     m_fuType = "Alu";
   } else if (isGetptr()) {
-    m_optType = "OPT_ADD";
+    m_optType += "OPT_ADD";
     m_fuType = "Alu";
   } else if (m_opcodeName.compare("add") == 0) {
     m_optType = "OPT_ADD";
