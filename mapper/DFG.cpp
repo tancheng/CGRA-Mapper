@@ -356,6 +356,7 @@ void DFG::construct(Function& t_F) {
           }
           else {
             ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode, true);
+            dfgNode->setPredicated();
             m_ctrlEdges.push_back(ctrlEdge);
           }
 
@@ -547,6 +548,48 @@ void DFG::construct(Function& t_F) {
     }
   }
   connectDFGNodes();
+
+  // The mapping algorithm works on the DFG that is ordered in ASAP.
+  reorderInASAP();
+  
+}
+
+// Reorder the DFG nodes in ASAP based on original sequential execution order.
+void DFG::reorderInASAP() {
+
+  list<DFGNode*> tempNodes;
+  // The first node in the nodes is treated as the starting point (no 
+  // matter it has predecessors or not).
+  int maxLevel = 0;
+  for (DFGNode* node: nodes) {
+    int level = 0;
+    for (DFGNode* predNode: *(node->getPredNodes())) {
+      if (predNode->getID() < node->getID()) {
+        if (level < predNode->getLevel() + 1) {
+          level = predNode->getLevel() + 1;
+        }
+      }
+    }
+    node->setLevel(level);
+    if (maxLevel < level) {
+      maxLevel = level;
+    }
+  } 
+
+  for (int l=0; l<maxLevel+1; ++l) {
+    for (DFGNode* node: nodes) {
+      if (node->getLevel() == l) {
+        tempNodes.push_back(node);
+      }
+    }
+  }
+
+  nodes.clear();
+  errs()<<"[reorder DFG in ASAP]\n";
+  for (DFGNode* node: tempNodes) {
+    nodes.push_back(node);
+    errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
+  }
 }
 
 bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {

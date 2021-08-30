@@ -24,6 +24,8 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
+  m_level = 0;
+  m_predicated = false;
   m_patternNodes = new list<DFGNode*>();
   initType();
 }
@@ -36,12 +38,28 @@ void DFGNode::setID(int t_id) {
   m_id = t_id;
 }
 
+void DFGNode::setLevel(int t_level) {
+  m_level = t_level;
+}
+
+int DFGNode::getLevel() {
+  return m_level;
+}
+
 void DFGNode::setCritical() {
   m_critical = true;
 }
 
 bool DFGNode::isCritical() {
   return m_critical;
+}
+
+void DFGNode::setPredicated() {
+  m_predicated = true;
+}
+
+bool DFGNode::isPredicated() {
+  return m_predicated;
 }
 
 bool DFGNode::isMapped() {

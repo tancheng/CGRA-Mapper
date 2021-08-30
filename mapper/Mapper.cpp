@@ -665,6 +665,11 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
           }
 
           jsonFile<<"    \"opt"<<"\"       : \""<<targetOpt<<"\",\n";
+          int predicated = 0;
+          if (targetDFGNode != NULL and targetDFGNode->isPredicated()) {
+            predicated = 1;
+          }
+          jsonFile<<"    \"predicate"<<"\" : "<<predicated<<",\n";
 
           // handle bypass: need consider next cycle, i.e., t+1
           int next_t = t+1;

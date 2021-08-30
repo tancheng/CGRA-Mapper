@@ -68,6 +68,9 @@ class DFG {
     bool isLiveInInst(BasicBlock*, Instruction*);
     bool containsInst(BasicBlock*, Instruction*);
     int getInstID(BasicBlock*, Instruction*);
+    // Reorder the DFG nodes (initial CPU execution ordering) in
+    // ASAP (as soon as possible) for mapping.
+    void reorderInASAP();
 
   public:
     DFG(Function&, list<Loop*>*, bool);

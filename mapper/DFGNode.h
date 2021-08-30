@@ -29,6 +29,8 @@ class DFGEdge;
 
 class DFGNode {
   private:
+    // Original id that is ordered in the original execution order (i.e.,
+    // CPU/IR execution sequential ordering).
     int m_id;
     Instruction* m_inst;
     Value* m_value;
@@ -46,6 +48,8 @@ class DFGNode {
     bool m_combined;
     bool m_isPatternRoot;
     bool m_critical;
+    int m_level;
+    bool m_predicated;
     DFGNode* m_patternRoot;
     void setPatternRoot(DFGNode*);
 
@@ -53,6 +57,8 @@ class DFGNode {
     DFGNode(int, Instruction*, StringRef);
     int getID();
     void setID(int);
+    void setLevel(int);
+    int getLevel();
     bool isMapped();
     void setMapped();
     void clearMapped();
@@ -92,6 +98,8 @@ class DFGNode {
     list<DFGNode*>* getPatternNodes();
     void setCritical();
     bool isCritical();
+    void setPredicated();
+    bool isPredicated();
 };
 
 #endif
