@@ -48,7 +48,7 @@ void Mapper::constructMRRG(DFG* t_dfg, CGRA* t_cgra, int t_II) {
   }
 }
 
-// TODO: assume that the arriving data can stay inside the input buffer
+// The arriving data can stay inside the input buffer
 map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
     int t_II, DFGNode* t_srcDFGNode, DFGNode* t_targetDFGNode,
     CGRANode* t_dstCGRANode) {
@@ -60,7 +60,8 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
 //    errs()<<"DEBUG -1, srcDFGNode: "<<(t_srcDFGNode->getID())<<"; CGRANode: "<<m_mapping[t_srcDFGNode]->getID()<<"\n";
 //    errs()<<"DEBUG -2, t_dstCGRANode: "<<t_dstCGRANode->getID()<<"; timing for src: "<<m_mappingTiming[t_srcDFGNode]<<"\n";
 //  }
-  timing[m_mapping[t_srcDFGNode]] = m_mappingTiming[t_srcDFGNode];
+  CGRANode* srcCGRANode = m_mapping[t_srcDFGNode];
+  timing[srcCGRANode] = m_mappingTiming[t_srcDFGNode];
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
       CGRANode* node = t_cgra->nodes[i][j];
@@ -107,7 +108,7 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
       while (1) {
         CGRALink* currentLink = minNode->getOutLink(neighbor);
         // TODO: should also consider the cost of the register file
-        if (currentLink->canOccupy(t_srcDFGNode, cycle, t_II)) {
+        if (currentLink->canOccupy(t_srcDFGNode, srcCGRANode, cycle, t_II)) {
           // rough estimate the cost based on the suspend cycle
           int cost = distance[minNode] + (cycle - timing[minNode]) + 1;
           if (cost < distance[neighbor]) {
@@ -127,15 +128,13 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
   // Get the shortest path.
   map<CGRANode*, int>* path = new map<CGRANode*, int>();
   CGRANode* u = t_dstCGRANode;
-  if(previous[u] != NULL or u == m_mapping[t_srcDFGNode])
-  {
-    while(u != NULL)
-    {
+  if (previous[u] != NULL or u == m_mapping[t_srcDFGNode]) {
+    while (u != NULL) {
       (*path)[u] = timing[u];
       u = previous[u];
     }
   }
-  if(timing[t_dstCGRANode] > m_maxMappingCycle or
+  if (timing[t_dstCGRANode] > m_maxMappingCycle or
       !t_dstCGRANode->canOccupy(t_targetDFGNode,
       timing[t_dstCGRANode], t_II)) {
 //    path.clear();
@@ -171,6 +170,29 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
 //    }
     // Consider the cost of the distance.
     float cost = distanceCost + 1;
+
+    // Consider the same tile mapped with continuously two DFG nodes.
+    map<int, CGRANode*>::iterator lastCGRANodeItr=reorderPath->begin();
+    for (map<int, CGRANode*>::iterator cgraNodeItr=reorderPath->begin();
+        cgraNodeItr!=reorderPath->end(); ++cgraNodeItr) {
+      if (cgraNodeItr != reorderPath->begin()) {
+        int lastCycle = (*lastCGRANodeItr).first;
+        int currentCycle = (*cgraNodeItr).first;
+        int delta = currentCycle - lastCycle;
+        if (delta > 1) {
+          cost = cost + 1.5;
+        }
+      }
+      lastCGRANodeItr = cgraNodeItr;
+    }
+
+    // Consider the single tile that processes everything. FIXME: this is
+    // actually a bug because we use map<CGRANode*, int> rather than
+    // map<int, CGRANode*>, in which case the different cycles's execution
+    // will be wrongly merged into one.
+    if (reorderPath->size() == 1) {
+      cost += 2;
+    }
 
     // Consider the cost of the utilization of contrl memory.
     cost += targetCGRANode->getCurrentCtrlMemItems()/2;
@@ -229,7 +251,7 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
 
     // Consider the bonus of reusing the same link for delivery the
     // same data to different destination CGRA nodes (multicast).
-    map<int, CGRANode*>::iterator lastCGRANodeItr=reorderPath->begin();
+    lastCGRANodeItr=reorderPath->begin();
     for (map<int, CGRANode*>::iterator cgraNodeItr=reorderPath->begin();
         cgraNodeItr!=reorderPath->end(); ++cgraNodeItr) {
       if (cgraNodeItr != reorderPath->begin()) {
@@ -296,6 +318,7 @@ list<DFGNode*>* Mapper::getMappedDFGNodes(DFG* t_dfg, CGRANode* t_cgraNode) {
 //       same data delivery
 map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
     int t_II, DFGNode* t_dfgNode, CGRANode* t_fu) {
+  //cout<<"...calculateCost() for dfgNode "<<t_dfgNode->getID()<<" on tile "<<t_fu->getID()<<endl;
   map<CGRANode*, int>* path = NULL;
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
   int latest = -1;
@@ -334,13 +357,19 @@ map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
       if (t_fu->canOccupy(t_dfgNode, cycle, t_II)) {
         path = new map<CGRANode*, int>();
         (*path)[t_fu] = cycle;
-//        errs()<<"DEBUG how dare to map DFG node: "<<t_dfgNode->getID()<<"; CGRA node: "<<t_fu->getID()<<" at cycle "<< cycle<<"\n";
+        //cout<<"DEBUG how dare to map DFG node: "<<t_dfgNode->getID()<<"; CGRA node: "<<t_fu->getID()<<" at cycle "<< cycle<<endl;
         return path;
       }
       ++cycle;
     }
 //    errs() << "DEBUG: failed in mapping the starting DFG node "<<t_dfg->getID(t_dfgNode)<<" on CGRA node "<<t_fu->getID()<<"\n";
   }
+//  cout<<".....in calculate cost path"<<endl;
+//  for (map<CGRANode*, int>::iterator iter=path->begin();
+//        iter!=path->end(); ++iter) {
+//    cout<<"(tile:"<<(*iter).first->getID()<<", cycle:"<<(*iter).second<<") --";
+//  }
+//  cout<<endl;
   return path;
 }
 
@@ -377,6 +406,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
       ++next;
   }
   map<int, CGRANode*>::reverse_iterator riter=reorderPath->rbegin();
+  bool generatedOut = true;
   for (map<int, CGRANode*>::iterator iter=reorderPath->begin();
       iter!=reorderPath->end(); ++iter) {
     if (iter != reorderPath->begin()) {
@@ -392,9 +422,11 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
         isBypass = true;
       else
         duration = (m_mappingTiming[t_dfgNode]-(*previousIter).first)%t_II;
+      errs()<<"[cheng] occupy reserved link...\n";
       l->occupy(srcCGRANode->getMappedDFGNode(srcCycle),
                 (*previousIter).first, duration,
-                t_II, isBypass, t_isStaticElasticCGRA);
+                t_II, isBypass, generatedOut, t_isStaticElasticCGRA);
+      generatedOut = false;
     } else {
       onePredCGRANode = (*iter).second;
       onePredCGRANodeTiming = (*iter).first;
@@ -414,7 +446,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
         continue;
       }
 //      if (m_mapping[(node)] != onePredCGRANode) {
-      if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], fu,
+      if (!tryToRoute(t_cgra, t_dfg, t_II, node, m_mapping[node], t_dfgNode, fu,
           m_mappingTiming[t_dfgNode], false, t_isStaticElasticCGRA)){
         cout<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped pred DFG node: "<<node->getID()<<"; return false\n";
         return false;
@@ -423,11 +455,18 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     }
   }
 
-  // Try to route the path with the mapped successors.
+  // Try to route the path with the mapped successors that are only in
+  // certain cycle.
   for (DFGNode* node: *t_dfgNode->getSuccNodes()) {
     if (m_mapping.find(node) != m_mapping.end()) {
-      if (!tryToRoute(t_cgra, t_dfg, t_II, t_dfgNode, fu, m_mapping[node],
-          m_mappingTiming[node], true, t_isStaticElasticCGRA)) {
+      bool bothNodesInCycle = false;
+      if (node->getCycleID() != -1 and
+          node->isCritical() and t_dfgNode->isCritical() and
+          node->getCycleID() == t_dfgNode->getCycleID()) {
+        bothNodesInCycle = true;
+      }
+      if (!tryToRoute(t_cgra, t_dfg, t_II, t_dfgNode, fu, node, m_mapping[node],
+          m_mappingTiming[node], bothNodesInCycle, t_isStaticElasticCGRA)) {
         cout<<"DEBUG target DFG node: "<<t_dfgNode->getID()<<" on fu: "<<fu->getID()<<" failed, mapped succ DFG node: "<<node->getID()<<"; return false\n";
         return false;
       }
@@ -911,14 +950,22 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
 // TODO: Should consider the type of CGRA, say, a static in-elastic CGRA should
 //       join at the same successor at exact same cycle without pending.
 bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
-    DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode, CGRANode* t_dstCGRANode,
-    int t_dstCycle, bool t_isBackedge, bool t_isStaticElasticCGRA) {
-  cout<<"[cheng] tryToRoute -- srcDFGNode: "<<t_srcDFGNode->getID()<<" srcCGRANode: "<<t_srcCGRANode->getID()<<" dstCGRANode: "<<t_dstCGRANode->getID()<<"\n";
+    DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode, DFGNode* t_dstDFGNode,
+    CGRANode* t_dstCGRANode, int t_dstCycle, bool t_isBackedge,
+    bool t_isStaticElasticCGRA) {
+  cout<<"[cheng] tryToRoute -- srcDFGNode: "<<t_srcDFGNode->getID()<<", srcCGRANode: "<<t_srcCGRANode->getID()<<"; dstDFGNode: "<<t_dstDFGNode->getID()<<", dstCGRANode: "<<t_dstCGRANode->getID()<<"; backEdge: "<<t_isBackedge<<endl;
   list<CGRANode*> searchPool;
   map<CGRANode*, int> distance;
   map<CGRANode*, int> timing;
   map<CGRANode*, CGRANode*> previous;
   timing[t_srcCGRANode] = m_mappingTiming[t_srcDFGNode];
+  // Check whether the II is violated on each cycle.
+  if (t_srcDFGNode->getCycleID() != -1 and
+      t_srcDFGNode->getCycleID() == t_dstDFGNode->getCycleID() and
+      t_dstCycle - m_mappingTiming[t_srcDFGNode] > t_II) {
+    cout<<"[DEBUG] cannot route due to II is violated"<<endl;
+    return false;
+  }
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
       CGRANode* node = t_cgra->nodes[i][j];
@@ -963,7 +1010,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
       while (1) {
         CGRALink* currentLink = minNode->getOutLink(neighbor);
         // TODO: should also consider the cost of the register file
-        if (currentLink->canOccupy(t_srcDFGNode, cycle, t_II)) {
+        if (currentLink->canOccupy(t_srcDFGNode, t_srcCGRANode, cycle, t_II)) {
           // rough estimate the cost based on the suspend cycle
           int cost = distance[minNode] + (cycle - timing[minNode]) + 1;
           if (cost < distance[neighbor]) {
@@ -1030,6 +1077,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
     cout<<"[cheng] allocate for local reg maintain... duration="<<duration<<" last cycle: "<<(*riter).first<<"\n";
     (*riter).second->allocateReg(4, (*riter).first, duration, t_II);
   }
+  bool generatedOut = true;
   for (map<int, CGRANode*>::iterator iter = reorderPath->begin();
       iter!=reorderPath->end(); ++iter) {
     if (iter != reorderPath->begin()) {
@@ -1053,7 +1101,8 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
         duration = t_II;
       }
       l->occupy(t_srcDFGNode, (*previousIter).first,
-                duration, t_II, isBypass, t_isStaticElasticCGRA);
+                duration, t_II, isBypass, generatedOut, t_isStaticElasticCGRA);
+      generatedOut = false;
     }
     previousIter = iter;
   }
@@ -1090,10 +1139,10 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
               calculateCost(t_cgra, t_dfg, t_II, *dfgNode, fu);
           if(tempPath != NULL and tempPath->size() != 0) {
             paths.push_back(tempPath);
+          } else {
+            cout<<"DEBUG no available path for DFG node "<<(*dfgNode)->getID()
+                <<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<"; path size: "<<paths.size()<<".\n";
           }
-            else
-              cout<<"DEBUG no available path for DFG node "<<(*dfgNode)->getID()
-                  <<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<"; path size: "<<paths.size()<<".\n";
         }
       }
       // Found some potential mappings.

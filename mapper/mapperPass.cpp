@@ -127,7 +127,8 @@ namespace {
       if (!isStaticElasticCGRA) {
         errs() << "==================================\n";
         errs() << "[heuristic]\n";
-        II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+        //II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+        II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
       }
 
       // Partially exhaustive search to try to map the DFG onto

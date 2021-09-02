@@ -17,10 +17,10 @@ class Mapper {
     map<DFGNode*, CGRANode*> m_mapping;
     map<DFGNode*, int> m_mappingTiming;
     map<CGRANode*, int>* dijkstra_search(CGRA*, DFG*, int, DFGNode*,
-        DFGNode*, CGRANode*);
+                                         DFGNode*, CGRANode*);
     int getMaxMappingCycle();
-    bool tryToRoute(CGRA*, DFG*, int, DFGNode*, CGRANode*, CGRANode*,
-        int, bool, bool);
+    bool tryToRoute(CGRA*, DFG*, int, DFGNode*, CGRANode*,
+                    DFGNode*, CGRANode*, int, bool, bool);
     list<DFGNode*>* getMappedDFGNodes(DFG*, CGRANode*);
     map<int, CGRANode*>* getReorderPath(map<CGRANode*, int>*);
     bool DFSMap(CGRA*, DFG*, int, list<DFGNode*>*, list<map<CGRANode*, int>*>*, bool);

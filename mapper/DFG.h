@@ -33,6 +33,7 @@ class DFG {
     bool m_CDFGFused;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
+    list<list<DFGEdge*>*>* m_cycleLists;
 
     //edges of data flow
     list<DFGEdge*> m_DFGEdges;
@@ -69,8 +70,10 @@ class DFG {
     bool containsInst(BasicBlock*, Instruction*);
     int getInstID(BasicBlock*, Instruction*);
     // Reorder the DFG nodes (initial CPU execution ordering) in
-    // ASAP (as soon as possible) for mapping.
+    // ASAP (as soon as possible) or ALAP (as last as possible)
+    // for mapping.
     void reorderInASAP();
+    void reorderInALAP();
 
   public:
     DFG(Function&, list<Loop*>*, bool);
@@ -81,6 +84,7 @@ class DFG {
     list<DFGNode*>* getDFSOrderedNodes();
     int getNodeCount();
     void construct(Function&);
+    void setupCycles();
     list<list<DFGEdge*>*>* getCycles();
     int getID(DFGNode*);
     bool isLoad(DFGNode*);

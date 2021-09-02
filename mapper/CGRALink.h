@@ -37,6 +37,7 @@ class CGRALink
     bool m_disabled;
     bool* m_occupied;
     bool* m_bypassed;
+    bool* m_generatedOut;
     bool* m_arrived;
     DFGNode** m_dfgNodes;
     bool satisfyBypassConstraint(int, int);
@@ -54,8 +55,8 @@ class CGRALink
     bool canOccupy(int, int);
     bool isOccupied(int);
     bool isOccupied(int, int, bool);
-    bool canOccupy(DFGNode*, int, int);
-    void occupy(DFGNode*, int, int, int, bool, bool);
+    bool canOccupy(DFGNode*, CGRANode*, int, int);
+    void occupy(DFGNode*, int, int, int, bool, bool, bool);
     bool isBypass(int);
     string getDirection(CGRANode*);
     int getDirectionID(CGRANode*);

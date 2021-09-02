@@ -48,6 +48,7 @@ class DFGNode {
     bool m_combined;
     bool m_isPatternRoot;
     bool m_critical;
+    int m_cycleID;
     int m_level;
     // "m_predicated" indicates whether the execution of the node depends on
     // predication or not (i.e., the predecessor probably is a "branch"). 
@@ -101,7 +102,9 @@ class DFGNode {
     DFGNode* getPatternRoot();
     list<DFGNode*>* getPatternNodes();
     void setCritical();
+    void setCycleID(int);
     bool isCritical();
+    int getCycleID();
     void addPredicatee(DFGNode*);
     list<DFGNode*>* getPredicatees();
     void setPredicatee();

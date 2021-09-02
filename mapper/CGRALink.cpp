@@ -17,6 +17,7 @@ CGRALink::CGRALink(int t_linkId) {
   m_occupied = new bool[1];
   m_dfgNodes = new DFGNode*[1];
   m_bypassed = new bool[1];
+  m_generatedOut = new bool[1];
   m_arrived = new bool[1];
   m_disabled = false;
 }
@@ -60,6 +61,8 @@ void CGRALink::constructMRRG(int t_CGRANodeCount, int t_II) {
   m_dfgNodes = new DFGNode*[m_cycleBoundary];
   delete[] m_bypassed;
   m_bypassed = new bool[m_cycleBoundary];
+  delete[] m_generatedOut;
+  m_generatedOut = new bool[m_cycleBoundary];
   delete[] m_arrived;
   m_arrived = new bool[m_cycleBoundary];
   m_currentCtrlMemItems = 0;
@@ -67,6 +70,7 @@ void CGRALink::constructMRRG(int t_CGRANodeCount, int t_II) {
     m_occupied[i] = false;
     m_dfgNodes[i] = NULL;
     m_bypassed[i] = false;
+    m_generatedOut[i] = false;
     m_arrived[i] = false;
   }
 }
@@ -102,10 +106,10 @@ bool CGRALink::satisfyBypassConstraint(int t_cycle, int t_II) {
   return true;
 }
 
-// The occupancy is special for the ue-cgra.
-// The current design can only support one bypass and
-// one computation. So at most two bypass.
+// The occupancy is special for the ue-cgra, whose current design
+// can only support one bypass and one computation. So at most two bypass.
 bool CGRALink::canOccupy(int t_cycle, int t_II) {
+  // cout<<"[link->canOccupy() 0] ("<<m_src->getID()<<")->("<<m_dst->getID()<<")..."<<endl;
   if (m_disabled)
     return false;
   if (m_currentCtrlMemItems + 1 > m_ctrlMemSize)
@@ -117,7 +121,10 @@ bool CGRALink::canOccupy(int t_cycle, int t_II) {
   return true;
 }
 
-bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II) {
+bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode,
+                         int t_cycle, int t_II) {
+
+  // cout<<"[link->canOccupy() 1] ("<<m_src->getID()<<")->("<<m_dst->getID()<<")..."<<endl;
   if (m_disabled)
     return false;
   if (m_dfgNodes[t_cycle] != NULL and t_srcDFGNode == m_dfgNodes[t_cycle])
@@ -128,6 +135,26 @@ bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, int t_cycle, int t_II) {
     return false;
   if (!satisfyBypassConstraint(t_cycle, t_II))
     return false;
+
+  // The current design of the lightweight xbar has some constrains.
+  // The case of resultOut that is blocked by the bypass (blocking
+  // the port/register) for 2 cycles:
+  if (getSrc() == t_srcCGRANode) {
+    int t = (t_cycle+1) % t_II;
+    if (m_dfgNodes[t] != NULL and
+        !m_generatedOut[t]) {
+      return false;
+    }
+  } else { // On the other hand, the link for bypass is blocked
+           // by the resultOut for 2 cycles:
+    int t = (t_cycle+t_II-1) % t_II;
+    if (m_dfgNodes[t] != NULL and
+        m_generatedOut[t]) {
+      return false;
+    }
+
+  }
+
   return true;
 }
 
@@ -168,7 +195,7 @@ bool CGRALink::isReused(int t_cycle) {
 }
 
 void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
-    int t_II, bool t_isBypass, bool t_isStaticElasticCGRA) {
+    int t_II, bool t_isBypass, bool t_isGeneratedOut, bool t_isStaticElasticCGRA) {
   int interval = t_II;
   if (t_isStaticElasticCGRA) {
     interval = 1;
@@ -181,6 +208,8 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
     // Will never set it back to false.
     if (t_isBypass)
       m_bypassed[cycle] = true;
+    if (t_isGeneratedOut)
+      m_generatedOut[cycle] = true;
     // Only set 'm_arrived' as true if it is not bypassed.
     // Will never set it back to false.
     if (!t_isBypass)
@@ -193,6 +222,8 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
     // Will never set it back to false.
     if (t_isBypass)
       m_bypassed[cycle] = true;
+    if (t_isGeneratedOut)
+      m_generatedOut[cycle] = true;
     // Only set 'm_arrived' as true if it is not bypassed.
     // Will never set it back to false.
     if (!t_isBypass)
@@ -204,7 +235,7 @@ void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
 
   ++m_currentCtrlMemItems;
 
-  cout<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<t_cycle<<"\n";
+  cout<<"[CHENG] occupy link["<<m_src->getID()<<"]-->["<<m_dst->getID()<<"] (bypass:"<<t_isBypass<<") dfgNode: "<<t_srcDFGNode->getID()<<" at cycle "<<t_cycle<<"\n";
 }
 
 DFGNode* CGRALink::getMappedDFGNode(int t_cycle) {

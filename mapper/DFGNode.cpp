@@ -24,6 +24,7 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
+  m_cycleID = -1;
   m_level = 0;
   m_isPredicatee = false;
   m_predicatees = NULL;
@@ -50,6 +51,14 @@ int DFGNode::getLevel() {
 
 void DFGNode::setCritical() {
   m_critical = true;
+}
+
+void DFGNode::setCycleID(int t_cycleID) {
+  m_cycleID = t_cycleID;
+}
+
+int DFGNode::getCycleID() {
+  return m_cycleID;
 }
 
 bool DFGNode::isCritical() {

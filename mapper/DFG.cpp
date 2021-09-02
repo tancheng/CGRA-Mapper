@@ -16,6 +16,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   m_CDFGFused = false;
+
   construct(t_F);
 //  tuneForBranch();
   tuneForBitcast();
@@ -549,7 +550,9 @@ void DFG::construct(Function& t_F) {
   connectDFGNodes();
 
   // The mapping algorithm works on the DFG that is ordered in ASAP.
-  reorderInASAP();
+  // reorderInASAP();
+  // The mapping algorithm works on the DFG that is ordered in ALAP.
+  reorderInALAP();
   
 }
 
@@ -585,6 +588,49 @@ void DFG::reorderInASAP() {
 
   nodes.clear();
   errs()<<"[reorder DFG in ASAP]\n";
+  for (DFGNode* node: tempNodes) {
+    nodes.push_back(node);
+    errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
+  }
+}
+
+// Reorder the DFG nodes in ALAP based on original sequential execution order.
+void DFG::reorderInALAP() {
+
+  list<DFGNode*> tempNodes;
+  // The last node in the nodes is treated as the end point (no 
+  // matter it has successors or not).
+  int maxLevel = 0;
+  nodes.reverse();
+  for (DFGNode* node: nodes) {
+    int level = 0;
+    for (DFGNode* succNode: *(node->getSuccNodes())) {
+      if (succNode->getID() > node->getID()) {
+        if (level < succNode->getLevel() + 1) {
+          level = succNode->getLevel() + 1;
+        }
+      }
+    }
+    node->setLevel(level);
+    if (maxLevel < level) {
+      maxLevel = level;
+    }
+  } 
+
+  for (DFGNode* node: nodes) {
+    node->setLevel(maxLevel - node->getLevel());
+  }
+
+  for (int l=0; l<maxLevel+1; ++l) {
+    for (DFGNode* node: nodes) {
+      if (node->getLevel() == l) {
+        tempNodes.push_back(node);
+      }
+    }
+  }
+
+  nodes.clear();
+  errs()<<"[reorder DFG in ALAP]\n";
   for (DFGNode* node: tempNodes) {
     nodes.push_back(node);
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
@@ -831,10 +877,13 @@ list<list<DFGEdge*>*>* DFG::getCycles() {
     currentCycle->clear();
     DFS_on_DFG(node, node, erasedEdges, currentCycle, cycleLists);
   }
+  int cycleID = 0;
   for (list<DFGEdge*>* cycle: *cycleLists) {
     for (DFGEdge* edge: *cycle) {
       edge->getDst()->setCritical();
+      edge->getDst()->setCycleID(cycleID);
     }
+    cycleID += 1;
   }
   return cycleLists;
 }
