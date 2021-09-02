@@ -42,7 +42,7 @@ namespace {
     bool runOnFunction(Function &t_F) override {
 
       // Read the parameter JSON file.
-      ifstream i("./arch.json");
+      ifstream i("./param.json");
       json param;
       i >> param;
  
@@ -76,6 +76,7 @@ namespace {
       // FIXME: should not change this for now, it is the four directions by default
       int regConstraint        = param["regConstraint"];
       bool heterogeneity       = param["heterogeneity"];
+      bool heuristicMapping    = param["heuristicMapping"];
 
       // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
@@ -126,9 +127,13 @@ namespace {
       bool success = false;
       if (!isStaticElasticCGRA) {
         errs() << "==================================\n";
-        errs() << "[heuristic]\n";
-        //II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
-        II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
+        if (heuristicMapping) {
+          errs() << "[heuristic]\n";
+          II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+        } else {
+          errs() << "[exhaustive]\n";
+          II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
+        }
       }
 
       // Partially exhaustive search to try to map the DFG onto
