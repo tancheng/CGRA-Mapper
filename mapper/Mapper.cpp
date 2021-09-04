@@ -688,9 +688,10 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             for (DFGNode* succNode: *(targetDFGNode->getPredicatees())) {
               if (currentCGRANode->containMappedDFGNode(succNode, t_II)) {
                 if (predicate_in == "") {
-                  predicate_in = "[";
+                  predicate_in = "[4";
+                } else {
+                  predicate_in += ",4";
                 }
-                predicate_in += ",4";
                 break; // Assume only one predicatee at the same CGRA node.
               }
             }
