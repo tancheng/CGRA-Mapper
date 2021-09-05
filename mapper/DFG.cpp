@@ -830,11 +830,9 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
 }
 
 void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
-    list<DFGEdge*>* t_erasedEdges, list<DFGEdge*>* t_currentCycle,
-    list<list<DFGEdge*>*>* t_cycles) {
-  int times = 0;
+    list<DFGNode*>* t_visitedNodes, list<DFGEdge*>* t_erasedEdges,
+    list<DFGEdge*>* t_currentCycle, list<list<DFGEdge*>*>* t_cycles) {
   for (DFGEdge* edge: m_DFGEdges) {
-    times++;
     if (find(t_erasedEdges->begin(), t_erasedEdges->end(), edge) != t_erasedEdges->end())
       continue;
     // check whether the IR is equal
@@ -859,7 +857,15 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         t_cycles->push_back(temp_cycle);
         t_currentCycle->remove(edge);
       } else {
-        DFS_on_DFG(t_head, edge->getDst(), t_erasedEdges, t_currentCycle, t_cycles);
+        if (find(t_visitedNodes->begin(), t_visitedNodes->end(), edge->getDst()) == t_visitedNodes->end()) {
+          t_visitedNodes->push_back(edge->getDst());
+          // Only continue when the path size is less than the node count.
+          if (t_currentCycle->size() <= nodes.size()) {
+            DFS_on_DFG(t_head, edge->getDst(), t_visitedNodes, t_erasedEdges, t_currentCycle, t_cycles);
+          }
+        } else {
+          t_currentCycle->remove(edge);
+        }
       }
     }
   }
@@ -871,11 +877,14 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
 list<list<DFGEdge*>*>* DFG::getCycles() {
   list<list<DFGEdge*>*>* cycleLists = new list<list<DFGEdge*>*>();
   list<DFGEdge*>* currentCycle = new list<DFGEdge*>();
+  list<DFGNode*>* visitedNodes = new list<DFGNode*>();
   list<DFGEdge*>* erasedEdges = new list<DFGEdge*>();
   cycleLists->clear();
   for (DFGNode* node: nodes) {
     currentCycle->clear();
-    DFS_on_DFG(node, node, erasedEdges, currentCycle, cycleLists);
+    visitedNodes->clear();
+    visitedNodes->push_back(node);
+    DFS_on_DFG(node, node, visitedNodes, erasedEdges, currentCycle, cycleLists);
   }
   int cycleID = 0;
   for (list<DFGEdge*>* cycle: *cycleLists) {

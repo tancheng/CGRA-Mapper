@@ -42,7 +42,7 @@ class DFG {
     string changeIns2Str(Instruction* ins);
     //get value's name or inst's content
     StringRef getValueName(Value* v);
-    void DFS_on_DFG(DFGNode*, DFGNode*, list<DFGEdge*>*,
+    void DFS_on_DFG(DFGNode*, DFGNode*, list<DFGNode*>*, list<DFGEdge*>*,
         list<DFGEdge*>*, list<list<DFGEdge*>*>*);
     DFGNode* getNode(Value*);
     bool hasNode(Value*);

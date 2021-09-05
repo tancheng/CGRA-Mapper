@@ -1217,7 +1217,8 @@ bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
 //  }
 
   list<DFGNode*>::iterator mappedDFGNodeItr = t_mappedDFGNodes->begin();
-  list<DFGNode*>::iterator dfgNodeItr = t_dfg->getDFSOrderedNodes()->begin();
+  list<DFGNode*>::iterator dfgNodeItr = t_dfg->nodes.begin();
+//  list<DFGNode*>::iterator dfgNodeItr = t_dfg->getDFSOrderedNodes()->begin();
 //  errs()<<"----copying previous schedule in exhaustive----\n";
   for (map<CGRANode*, int>* path: *t_exhaustivePaths) {
 //    errs()<<"----copying previous schedule in exhaustive---- targetDFGNode: "<<(*mappedDFGNodeItr)->getID()<<"\n";
@@ -1232,7 +1233,7 @@ bool Mapper::DFSMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     ++dfgNodeItr;
   }
 //  if (dfgNodeSearchPool.size() == 0) {
-  if (dfgNodeItr == t_dfg->getDFSOrderedNodes()->end())
+  if (dfgNodeItr == t_dfg->nodes.end())
     return true;
 //  }
 
