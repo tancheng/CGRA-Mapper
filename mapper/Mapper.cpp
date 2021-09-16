@@ -422,7 +422,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
         isBypass = true;
       else
         duration = (m_mappingTiming[t_dfgNode]-(*previousIter).first)%t_II;
-      errs()<<"[cheng] occupy reserved link...\n";
+      // errs()<<"[cheng] occupy reserved link...\n";
       l->occupy(srcCGRANode->getMappedDFGNode(srcCycle),
                 (*previousIter).first, duration,
                 t_II, isBypass, generatedOut, t_isStaticElasticCGRA);

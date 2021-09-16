@@ -67,16 +67,17 @@ namespace {
       // int regConstraint = 1;
      
       // Configuration for dynamic CGRA.
-      int rows                 = param["row"];
-      int columns              = param["column"];
-      bool isStaticElasticCGRA = param["isStaticElasticCGRA"];
-      bool isTrimmedDemo       = param["isTrimmedDemo"];
-      int ctrlMemConstraint    = param["ctrlMemConstraint"];
-      int bypassConstraint     = param["bypassConstraint"];
+      int rows                  = param["row"];
+      int columns               = param["column"];
+      bool targetEntireFunction = param["targetFunction"];
+      bool isStaticElasticCGRA  = param["isStaticElasticCGRA"];
+      bool isTrimmedDemo        = param["isTrimmedDemo"];
+      int ctrlMemConstraint     = param["ctrlMemConstraint"];
+      int bypassConstraint      = param["bypassConstraint"];
       // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint        = param["regConstraint"];
-      bool heterogeneity       = param["heterogeneity"];
-      bool heuristicMapping    = param["heuristicMapping"];
+      int regConstraint         = param["regConstraint"];
+      bool heterogeneity        = param["heterogeneity"];
+      bool heuristicMapping     = param["heuristicMapping"];
 
       // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
@@ -89,7 +90,7 @@ namespace {
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, param["targetNested"]);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      DFG* dfg = new DFG(t_F, targetLoops, heterogeneity);
+      DFG* dfg = new DFG(t_F, targetLoops, param["targetFunction"], heterogeneity);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);

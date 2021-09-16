@@ -11,15 +11,17 @@
 #include <fstream>
 #include "DFG.h"
 
-DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_heterogeneity) {
+DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
+         bool t_heterogeneity) {
   m_num = 0;
+  m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   m_CDFGFused = false;
 
   construct(t_F);
 //  tuneForBranch();
-  tuneForBitcast();
+//  tuneForBitcast();
   tuneForLoad();
   if (t_heterogeneity) {
     getCycles();
@@ -168,6 +170,9 @@ void DFG::combine(string t_opt0, string t_opt1) {
 }
 
 bool DFG::shouldIgnore(Instruction* t_inst) {
+  if (m_targetFunction) {
+    return false;
+  }
   if (m_targetLoops->size() == 0)
     return false;
   for (Loop* current_loop: *m_targetLoops) {
@@ -302,8 +307,8 @@ void DFG::construct(Function& t_F) {
 
       // Ignore this IR if it is out of the scope.
       if (shouldIgnore(curII)) {
-//        errs()<<"*** ignored by pass due to that the BB is out "<<
-//            "of the scope (target loop)\n";
+        errs()<<*curII<<" *** ignored by pass due to that the BB is out "<<
+            "of the scope (target loop)\n";
         continue;
       }
       errs()<<*curII;

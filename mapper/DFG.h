@@ -31,6 +31,7 @@ class DFG {
   private:
     int m_num;
     bool m_CDFGFused;
+    bool m_targetFunction;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
     list<list<DFGEdge*>*>* m_cycleLists;
@@ -76,7 +77,7 @@ class DFG {
     void reorderInALAP();
 
   public:
-    DFG(Function&, list<Loop*>*, bool);
+    DFG(Function&, list<Loop*>*, bool, bool);
     //initial ordering of insts
     list<DFGNode*> nodes;
 
