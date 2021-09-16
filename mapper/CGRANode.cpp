@@ -22,6 +22,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_id = t_id;
   m_currentCtrlMemItems = 0;
   m_disabled = false;
+  m_canReturn = false;
   m_canStore = false;
   m_canLoad = false;
   m_canCall = false;
@@ -190,6 +191,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   // Check whether this CGRA node supports the required functionality.
   if ((t_opt->isLoad()      and !canLoad())  or
       (t_opt->isStore()     and !canStore()) or
+      (t_opt->isReturn()    and !canReturn()) or
       (t_opt->isCall()      and !canCall())  or
       (t_opt->hasCombined() and !supportComplex() )){
     return false;
@@ -201,7 +203,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (m_disabled) 
     return false;
   // Check whether this CGRA node supports the required functionality.
-  if ((t_opt->isLoad() and !canLoad()) or (t_opt->isStore() and !canStore())){
+  if (!canSupport(t_opt)) {
     return false;
   }
   // Check whether the limit of config mem is reached.
@@ -338,6 +340,10 @@ int CGRANode::getCurrentCtrlMemItems() {
   return m_currentCtrlMemItems;
 }
 
+void CGRANode::enableReturn() {
+  m_canReturn = true;
+}
+
 void CGRANode::enableStore() {
   m_canStore = true;
 }
@@ -360,6 +366,10 @@ bool CGRANode::supportComplex() {
 
 bool CGRANode::canCall() {
   return m_canCall;
+}
+
+bool CGRANode::canReturn() {
+  return m_canReturn;
 }
 
 bool CGRANode::canStore() {

@@ -51,6 +51,7 @@ class CGRANode {
     DFGNode** m_dfgNodes;
     map<CGRALink*,bool*> m_xbarOccupied;
     bool m_disabled;
+    bool m_canReturn;
     bool m_canStore;
     bool m_canLoad;
     bool m_canCall;
@@ -66,6 +67,7 @@ class CGRANode {
     void setID(int);
     void setLocation(int, int);
     int getID();
+    void enableReturn();
     void enableStore();
     void enableLoad();
     void enableCall();
@@ -93,6 +95,7 @@ class CGRANode {
     int getCurrentCtrlMemItems();
     int getX();
     int getY();
+    bool canReturn();
     bool canStore();
     bool canLoad();
     bool canCall();

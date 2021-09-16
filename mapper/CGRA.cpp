@@ -50,6 +50,10 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     nodes[r][0]->enableStore();
   }
 
+  for (int r=0; r<t_rows; ++r) {
+    nodes[r][t_columns-1]->enableReturn();
+  }
+
 //  for (int i=0; i<t_rows; ++i) {
 //    for (int j=0; j<t_columns; ++j) {
 //      nodes[i][j]->enableLoad();

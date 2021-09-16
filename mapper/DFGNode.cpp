@@ -122,6 +122,12 @@ bool DFGNode::isLoad() {
   return false;
 }
 
+bool DFGNode::isReturn() {
+  if (m_opcodeName.compare("ret") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::isStore() {
   if (m_opcodeName.compare("store") == 0)
     return true;
