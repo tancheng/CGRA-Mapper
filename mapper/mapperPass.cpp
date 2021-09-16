@@ -122,7 +122,11 @@ namespace {
       int II = ResMII;
       if(II < RecMII)
         II = RecMII;
-      
+
+      if (!param["doCGRAMapping"]) {
+        errs() << "==================================\n";
+        return false;
+      }
       // Heuristic algorithm (hill climbing) to get a valid mapping within
       // a acceptable II.
       bool success = false;
