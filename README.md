@@ -64,12 +64,17 @@ Build
 
 The mapper requires the following additional prerequisites:
 
- - LLVM 11.0
+ - LLVM 4.0 ~ LLVM 12.0
  - CMAKE 3.1
 
 
 Execution
 --------------------------------------------------------
+- The pass should be built and run with the same version of the LLVM.
+
+- A [param.json](https://github.com/tancheng/CGRA-Bench/blob/master/kernels/fir/param.json) indicating the configuration of the target CGRA and the kernel should locate in the kernel folder.
+  - The [kernel](https://github.com/tancheng/CGRA-Bench/blob/d9182292651bf9b5f16e9f16eee908937e57ff4d/kernels/fir/param.json#L2) name in the `param.json` should be identical as the [function name](https://github.com/tancheng/CGRA-Bench/blob/8f3f20167883680735d1d79cd6f2c1439c999950/kernels/fir/fir.ll#L33) shown in the generated IR file. Note that different versions of LLVM could lead to different generated function names, which should be explicitly indicated in the `param.json` by the users.
+- Run:
 ```
  % opt -load ~/this repo/build/mapper/libmapperPass.so -mapperPass ~/target benchmark/target_kernel.bc
 ```
