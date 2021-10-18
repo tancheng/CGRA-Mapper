@@ -14,4 +14,4 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
-add_subdirectory(mapper)  # Use your pass directory here.
+add_subdirectory(src)  # Use your pass directory here.
