@@ -67,6 +67,9 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = m_mappingTiming[t_srcDFGNode];
+      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
+        timing[node] += 1;
+      }
       // TODO: should also consider the xbar here?
 //      if (!cgra->nodes[i][j]->canOccupyFU(timing[node], II)) {
 //        int temp_cycle = timing[node];
@@ -388,7 +391,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   map<int, CGRANode*>::reverse_iterator ri = reorderPath->rbegin();
   CGRANode* fu = (*ri).second;
-//  errs()<<"schedule dfg node["<<t_dfg->getID(t_dfgNode)<<"] onto fu["<<fu->getID()<<"] at cycle "<<(*t_path)[fu]<<" within II: "<<t_II<<"\n";
+  errs()<<"schedule dfg node["<<t_dfg->getID(t_dfgNode)<<"] onto fu["<<fu->getID()<<"] at cycle "<<(*t_path)[fu]<<" within II: "<<t_II<<"\n";
 
   // Map the DFG node onto the CGRA nodes across cycles.
   m_mapping[t_dfgNode] = fu;

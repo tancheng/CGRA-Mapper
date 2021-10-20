@@ -44,11 +44,13 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     }
   }
 
-  // Enable the load/store on specific CGRA nodes.
-  for (int r=0; r<t_rows; ++r) {
-    nodes[r][0]->enableLoad();
-    nodes[r][0]->enableStore();
-  }
+//  // Enable the load/store on specific CGRA nodes.
+//  for (int r=0; r<t_rows; ++r) {
+//    nodes[r][0]->enableLoad();
+//    nodes[r][0]->enableStore();
+//  }
+  nodes[1][0]->enableLoad();
+  nodes[1][0]->enableStore();
 
   for (int r=0; r<t_rows; ++r) {
     nodes[r][t_columns-1]->enableReturn();

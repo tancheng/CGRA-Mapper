@@ -220,6 +220,20 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
       return false;
     }
   }
+  // Handle multi-cycle execution.
+  if (t_opt->isLoad() or t_opt->isStore()) {
+    for (int cycle=t_cycle+1; cycle>=0; cycle-=t_II) {
+      if (m_fuOccupied[cycle]) {
+        return false;
+      }
+    }
+    for (int cycle=t_cycle+1; cycle<m_cycleBoundary; cycle+=t_II) {
+      if (m_fuOccupied[cycle]) {
+        return false;
+      }
+    }
+  }
+
   return true;
 }
 
@@ -241,14 +255,29 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     assert(!m_fuOccupied[cycle]);
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
+    if (cycle+1 < m_cycleBoundary and (t_opt->isLoad() or t_opt->isStore())) {
+      if (m_fuOccupied[cycle+1]) {
+        cout<<"check which one is occupying fu[4]: "<<m_dfgNodes[cycle+1]<<" at cycle "<<cycle+1<<"; DFG node "<<t_opt->getID()<<" is asking.."<<endl;
+      }
+      assert(!m_fuOccupied[cycle+1]);
+      m_dfgNodes[cycle+1] = t_opt;
+      m_fuOccupied[cycle+1] = true;
+    }
   }
   for (int cycle=t_cycle; cycle>=0; cycle-=interval) {
 //    assert(!m_fuOccupied[cycle]);
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
+    if (t_opt->isLoad() or t_opt->isStore()) {
+      m_dfgNodes[cycle+1] = t_opt;
+      m_fuOccupied[cycle+1] = true;
+    }
   }
   cout<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
   ++m_currentCtrlMemItems;
+  if (t_opt->isLoad() or t_opt->isStore()) {
+    ++m_currentCtrlMemItems;
+  }
   t_opt->setMapped();
 }
 

@@ -43,6 +43,13 @@ namespace {
 
       // Read the parameter JSON file.
       ifstream i("./param.json");
+      if (!i.good()) {
+
+        cout<< "=============================================================\n";
+        cout<<"\033[0;31mPlease provide a valid <param.json> in the current directory.\033[0m"<<endl;
+        cout<< "=============================================================\n";
+        exit(0);
+      }
       json param;
       i >> param;
  
