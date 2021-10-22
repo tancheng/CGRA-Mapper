@@ -19,6 +19,8 @@
 #include <llvm/Analysis/CFG.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <list>
+#include <set>
+#include <map>
 #include <iostream>
 
 #include "DFGNode.h"
@@ -34,7 +36,6 @@ class DFG {
     bool m_targetFunction;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
-    list<list<DFGEdge*>*>* m_cycleLists;
 
     //edges of data flow
     list<DFGEdge*> m_DFGEdges;
@@ -75,9 +76,13 @@ class DFG {
     // for mapping.
     void reorderInASAP();
     void reorderInALAP();
+    void reorderInLongest();
+    void reorderDFS(set<DFGNode*>*, list<DFGNode*>*,
+                    list<DFGNode*>*, DFGNode*);
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool);
+    list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
 
@@ -86,7 +91,8 @@ class DFG {
     int getNodeCount();
     void construct(Function&);
     void setupCycles();
-    list<list<DFGEdge*>*>* getCycles();
+    list<list<DFGEdge*>*>* calculateCycles();
+    list<list<DFGNode*>*>* getCycleLists();
     int getID(DFGNode*);
     bool isLoad(DFGNode*);
     bool isStore(DFGNode*);

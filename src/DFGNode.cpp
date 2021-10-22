@@ -24,7 +24,7 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
-  m_cycleID = -1;
+  m_cycleID = new list<int>();
   m_level = 0;
   m_isPredicatee = false;
   m_predicatees = NULL;
@@ -53,12 +53,24 @@ void DFGNode::setCritical() {
   m_critical = true;
 }
 
-void DFGNode::setCycleID(int t_cycleID) {
-  m_cycleID = t_cycleID;
+void DFGNode::addCycleID(int t_cycleID) {
+  m_cycleID->push_back(t_cycleID);
 }
 
-int DFGNode::getCycleID() {
+list<int>* DFGNode::getCycleIDs() {
   return m_cycleID;
+}
+
+bool DFGNode::shareSameCycle(DFGNode* t_node) {
+  cout<<"[Tan] in shareSameCycle node "<<t_node->getID()<<endl;
+  list<int>* my_list = t_node->getCycleIDs();
+  for (int cycleID: *m_cycleID) {
+    bool found = (find(my_list->begin(), my_list->end(), cycleID) != my_list->end());
+    if (found) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool DFGNode::isCritical() {

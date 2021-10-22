@@ -19,6 +19,7 @@
 #include <string>
 #include <list>
 #include <stdio.h>
+#include <iostream>
 
 #include "DFGEdge.h"
 
@@ -41,6 +42,7 @@ class DFGNode {
     list<DFGNode*>* m_succNodes;
     list<DFGNode*>* m_predNodes;
     list<DFGNode*>* m_patternNodes;
+    list<int>* m_cycleID;
     bool m_isMapped;
     int m_numConst;
     string m_optType;
@@ -48,7 +50,6 @@ class DFGNode {
     bool m_combined;
     bool m_isPatternRoot;
     bool m_critical;
-    int m_cycleID;
     int m_level;
     // "m_predicated" indicates whether the execution of the node depends on
     // predication or not (i.e., the predecessor probably is a "branch"). 
@@ -103,14 +104,16 @@ class DFGNode {
     DFGNode* getPatternRoot();
     list<DFGNode*>* getPatternNodes();
     void setCritical();
-    void setCycleID(int);
+    void addCycleID(int);
     bool isCritical();
     int getCycleID();
+    list<int>* getCycleIDs();
     void addPredicatee(DFGNode*);
     list<DFGNode*>* getPredicatees();
     void setPredicatee();
     bool isPredicatee();
     bool isPredicater();
+    bool shareSameCycle(DFGNode*);
 };
 
 #endif

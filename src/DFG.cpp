@@ -18,13 +18,14 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   m_CDFGFused = false;
+  m_cycleNodeLists = new list<list<DFGNode*>*>();
 
   construct(t_F);
 //  tuneForBranch();
 //  tuneForBitcast();
   tuneForLoad();
   if (t_heterogeneity) {
-    getCycles();
+    calculateCycles();
 //    combine("phi", "add");
     combine("and", "xor");
 //    combine("br", "phi");
@@ -35,7 +36,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
     combine("getelementptr", "load");
     tuneForPattern();
 
-//    getCycles();
+//    calculateCycles();
 ////    combine("icmp", "br");
 //    combine("xor", "add");
 //    tuneForPattern();
@@ -554,10 +555,14 @@ void DFG::construct(Function& t_F) {
   }
   connectDFGNodes();
 
+  calculateCycles();
+
   // The mapping algorithm works on the DFG that is ordered in ASAP.
   // reorderInASAP();
   // The mapping algorithm works on the DFG that is ordered in ALAP.
-  reorderInALAP();
+  // reorderInALAP();
+  // The mapping algorithm works on the DFG that is ordered along with the longest path.
+  reorderInLongest();
   
 }
 
@@ -598,6 +603,93 @@ void DFG::reorderInASAP() {
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
   }
 }
+
+// Reorder the DFG nodes based on the longest path.
+void DFG::reorderInLongest() {
+  list<DFGNode*>* longestPath = new list<DFGNode*>();
+  list<DFGNode*>* currentPath = new list<DFGNode*>();
+  set<DFGNode*>* visited = new set<DFGNode*>();
+  map<DFGNode*, int> indegree;
+  for (DFGNode* node: nodes) {
+    indegree[node] = node->getPredNodes()->size();
+    currentPath->clear();
+    visited->clear();
+    reorderDFS(visited, longestPath, currentPath, node);
+  }
+
+  visited->clear();
+  int level = 0;
+  for (DFGNode* node: *longestPath) {
+    node->setLevel(level);
+    visited->insert(node);
+    //cout<<"check longest path node: "<<node->getID()<<endl;
+    for (DFGNode* succNode: *(node->getSuccNodes())) {
+      indegree[succNode] -= 1;
+    }
+    level += 1;
+  }
+  int maxLevel = level;
+
+  while (visited->size() < nodes.size()) {
+    for (DFGNode* node: nodes) {
+      if (visited->find(node) == visited->end() and indegree[node] <= 0) {
+        level = 0;
+        for (DFGNode* preNode: *(node->getPredNodes())) {
+          if (level < preNode->getLevel() + 1) {
+            level = preNode->getLevel() + 1;
+          }
+        }
+        node->setLevel(level);
+        visited->insert(node);
+        for (DFGNode* succNode: *(node->getSuccNodes())) {
+          indegree[succNode] -= 1;
+        }
+      }
+    }
+  }
+
+  list<DFGNode*> tempNodes;
+  for (int l=0; l<maxLevel+1; ++l) {
+    for (DFGNode* node: nodes) {
+      if (node->getLevel() == l) {
+        tempNodes.push_back(node);
+      }
+    }
+  }
+
+  nodes.clear();
+  errs()<<"[reorder DFG along with the longest path]\n";
+  for (DFGNode* node: tempNodes) {
+    nodes.push_back(node);
+    errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
+  }
+
+}
+
+void DFG::reorderDFS(set<DFGNode*>* t_visited, list<DFGNode*>* t_targetPath,
+                     list<DFGNode*>* t_curPath, DFGNode* targetDFGNode) {
+
+  t_visited->insert(targetDFGNode);
+  t_curPath->push_back(targetDFGNode);
+
+  // Update target longest path if current one is longer.
+  if (t_curPath->size() > t_targetPath->size()) {
+    t_targetPath->clear();
+    for (DFGNode* node: *t_curPath) {
+      t_targetPath->push_back(node);
+    }
+  }
+
+  for (DFGNode* succNode: *(targetDFGNode->getSuccNodes())) {
+    if (t_visited->find(succNode) == t_visited->end()) { // not visited yet
+      reorderDFS(t_visited, t_targetPath, t_curPath, succNode);
+      t_visited->erase(succNode);
+      t_curPath->pop_back();
+    }
+  }
+
+}
+
 
 // Reorder the DFG nodes in ALAP based on original sequential execution order.
 void DFG::reorderInALAP() {
@@ -881,7 +973,7 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
   }
 }
 
-list<list<DFGEdge*>*>* DFG::getCycles() {
+list<list<DFGEdge*>*>* DFG::calculateCycles() {
   list<list<DFGEdge*>*>* cycleLists = new list<list<DFGEdge*>*>();
   list<DFGEdge*>* currentCycle = new list<DFGEdge*>();
   list<DFGNode*>* visitedNodes = new list<DFGNode*>();
@@ -894,14 +986,22 @@ list<list<DFGEdge*>*>* DFG::getCycles() {
     DFS_on_DFG(node, node, visitedNodes, erasedEdges, currentCycle, cycleLists);
   }
   int cycleID = 0;
+  m_cycleNodeLists->clear();
   for (list<DFGEdge*>* cycle: *cycleLists) {
+    list<DFGNode*>* nodeCycle = new list<DFGNode*>();
     for (DFGEdge* edge: *cycle) {
       edge->getDst()->setCritical();
-      edge->getDst()->setCycleID(cycleID);
+      edge->getDst()->addCycleID(cycleID);
+      nodeCycle->push_back(edge->getDst());
     }
+    m_cycleNodeLists->push_back(nodeCycle);
     cycleID += 1;
   }
   return cycleLists;
+}
+
+list<list<DFGNode*>*>* DFG::getCycleLists() {
+  return m_cycleNodeLists;
 }
 
 void DFG::showOpcodeDistribution() {

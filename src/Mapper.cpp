@@ -27,10 +27,10 @@ int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
 int Mapper::getRecMII(DFG* t_dfg) {
   float RecMII = 0.0;
   float temp_RecMII = 0.0;
-  list<list<DFGEdge*>*>* cycles = t_dfg->getCycles();
+  list<list<DFGNode*>*>* cycles = t_dfg->getCycleLists();//calculateCycles();
   errs()<<"... number of cycles: "<<cycles->size()<<" ...\n";
   // TODO: RecMII = MAX (delay(c) / distance(c))
-  for( list<DFGEdge*>* cycle: *cycles) {
+  for( list<DFGNode*>* cycle: *cycles) {
     temp_RecMII = float(cycle->size()) / 1.0;
     if(temp_RecMII > RecMII)
       RecMII = temp_RecMII;
@@ -463,9 +463,10 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   for (DFGNode* node: *t_dfgNode->getSuccNodes()) {
     if (m_mapping.find(node) != m_mapping.end()) {
       bool bothNodesInCycle = false;
-      if (node->getCycleID() != -1 and
-          node->isCritical() and t_dfgNode->isCritical() and
-          node->getCycleID() == t_dfgNode->getCycleID()) {
+      if (node->shareSameCycle(t_dfgNode) and
+          node->isCritical() and t_dfgNode->isCritical()) {//getCycleID() != -1 and
+//          node->isCritical() and t_dfgNode->isCritical() and
+//          node->getCycleID() == t_dfgNode->getCycleID()) {
         bothNodesInCycle = true;
       }
       if (!tryToRoute(t_cgra, t_dfg, t_II, t_dfgNode, fu, node, m_mapping[node],
@@ -964,29 +965,53 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
   map<CGRANode*, CGRANode*> previous;
   timing[t_srcCGRANode] = m_mappingTiming[t_srcDFGNode];
   // Check whether the II is violated on each cycle.
-  if (t_srcDFGNode->getCycleID() != -1 and
-      t_srcDFGNode->getCycleID() == t_dstDFGNode->getCycleID() and
-      t_dstCycle - m_mappingTiming[t_srcDFGNode] > t_II) {
-    cout<<"[DEBUG] cannot route due to II is violated"<<endl;
-    return false;
+  if (t_srcDFGNode->shareSameCycle(t_dstDFGNode)) {
+    list<list<DFGNode*>*>* dfgNodeCycles = t_dfg->getCycleLists();
+    for (list<DFGNode*>* cycle: *dfgNodeCycles) {
+      bool foundSrc = (find(cycle->begin(), cycle->end(), t_srcDFGNode) != cycle->end());
+      bool foundDst = (find(cycle->begin(), cycle->end(), t_dstDFGNode) != cycle->end());
+      if (!foundSrc or !foundDst) {
+        continue;
+      }
+      int totalTime = 0;
+      DFGNode* lastDFGNode = cycle->back();
+      bool turned = false;
+      for (DFGNode* dfgNode: *cycle) {
+        if (m_mappingTiming.find(dfgNode) == m_mappingTiming.end() or
+            m_mappingTiming.find(lastDFGNode) == m_mappingTiming.end()) {
+          totalTime = 0;
+          break;
+        } else {
+          int t1 = m_mappingTiming[lastDFGNode];
+          int t2 = m_mappingTiming[dfgNode];
+          if (t1 >= t2) {
+            if (turned) {
+              return false;
+            }
+            t2 += t_II;
+            turned = true;
+            if (t1 >= t2) {
+              return false;
+            }
+          }
+          totalTime += t2 - t1;
+        }
+        lastDFGNode = dfgNode;
+      }
+      if (totalTime > t_II) {
+        cout<<"[DEBUG] cannot route due to II is violated"<<endl;
+        return false;
+      }
+    }
   }
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = timing[t_srcCGRANode];
-      // TODO: should also consider the xbar here?
-//      if (!cgra->nodes[i][j]->canOccupyFU(timing[node])) {
-//        int temp_cycle = timing[node];
-//        timing[node] = m_maxMappingCycle;
-//        while (temp_cycle < m_maxMappingCycle) {
-//          if (cgra->nodes[i][j]->canOccupyFU(temp_cycle)) {
-//            timing[node] = temp_cycle;
-//            break;
-//          }
-//          ++temp_cycle;
-//        }
-//      }
+      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
+        timing[node] += 1;
+      }
       previous[node] = NULL;
       searchPool.push_back(t_cgra->nodes[i][j]);
     }

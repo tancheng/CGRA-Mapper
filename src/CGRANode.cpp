@@ -87,6 +87,7 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
       break;
     }
   }
+  cout<<"[tan] done reg allocation"<<endl;
   //assert(allocated);
 }
 
@@ -256,9 +257,9 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     m_dfgNodes[cycle] = t_opt;
     m_fuOccupied[cycle] = true;
     if (cycle+1 < m_cycleBoundary and (t_opt->isLoad() or t_opt->isStore())) {
-      if (m_fuOccupied[cycle+1]) {
-        cout<<"check which one is occupying fu[4]: "<<m_dfgNodes[cycle+1]<<" at cycle "<<cycle+1<<"; DFG node "<<t_opt->getID()<<" is asking.."<<endl;
-      }
+//      if (m_fuOccupied[cycle+1]) {
+//        cout<<"check which one is occupying fu[4]: "<<m_dfgNodes[cycle+1]<<" at cycle "<<cycle+1<<"; DFG node "<<t_opt->getID()<<" is asking.."<<endl;
+//      }
       assert(!m_fuOccupied[cycle+1]);
       m_dfgNodes[cycle+1] = t_opt;
       m_fuOccupied[cycle+1] = true;
