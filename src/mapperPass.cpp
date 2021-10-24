@@ -41,50 +41,60 @@ namespace {
 
     bool runOnFunction(Function &t_F) override {
 
+      // Initializes input parameters.
+      int rows                  = 4;
+      int columns               = 4;
+      bool targetEntireFunction = false;
+      bool targetNested         = false;
+      bool doCGRAMapping        = true;
+      bool isStaticElasticCGRA  = false;
+      bool isTrimmedDemo        = true;
+      int ctrlMemConstraint     = 200;
+      int bypassConstraint      = 4;
+      int regConstraint         = 8;
+      bool heterogeneity        = false;
+      bool heuristicMapping     = true;
+
+      // Set the target function and loop.
+      map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
+      addDefaultKernels(functionWithLoop);
+
       // Read the parameter JSON file.
       ifstream i("./param.json");
       if (!i.good()) {
 
         cout<< "=============================================================\n";
-        cout<<"\033[0;31mPlease provide a valid <param.json> in the current directory.\033[0m"<<endl;
+        cout<<"\033[0;31mPlease provide a valid <param.json> in the current directory."<<endl;
+        cout<<"A set of default parameters is leveraged.\033[0m"<<endl;
         cout<< "=============================================================\n";
-        exit(0);
-      }
-      json param;
-      i >> param;
+      } else {
+        json param;
+        i >> param;
  
-      // Set the target function and loop.
-      map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
-      addDefaultKernels(functionWithLoop);
+        (*functionWithLoop)[param["kernel"]] = new list<int>();
+        json loops = param["targetLoopsID"];
+        for (int i=0; i<loops.size(); ++i) {
+          // cout<<"add index "<<loops[i]<<endl;
+          (*functionWithLoop)[param["kernel"]]->push_back(loops[i]);
+        }
 
-      (*functionWithLoop)[param["kernel"]] = new list<int>();
-      json loops = param["targetLoopsID"];
-      for (int i=0; i<loops.size(); ++i) {
-        cout<<"add index "<<loops[i]<<endl;
-        (*functionWithLoop)[param["kernel"]]->push_back(loops[i]);
+        // Configuration for customizable CGRA.
+        rows                  = param["row"];
+        columns               = param["column"];
+        targetEntireFunction  = param["targetFunction"];
+        targetNested          = param["targetNested"];
+        doCGRAMapping         = param["doCGRAMapping"];
+        isStaticElasticCGRA   = param["isStaticElasticCGRA"];
+        isTrimmedDemo         = param["isTrimmedDemo"];
+        ctrlMemConstraint     = param["ctrlMemConstraint"];
+        bypassConstraint      = param["bypassConstraint"];
+        regConstraint         = param["regConstraint"];
+        heterogeneity         = param["heterogeneity"];
+        heuristicMapping      = param["heuristicMapping"];
+        for (auto& opt : param["optStatus"].items()) {
+          cout<<opt.key()<<" : "<<opt.value()<<endl;
+        }
       }
-
-      // Configuration for static CGRA.
-      // int rows = 8;
-      // int columns = 8;
-      // bool isStaticElasticCGRA = true;
-      // bool isTrimmedDemo = true;
-      // int ctrlMemConstraint = 1;
-      // int bypassConstraint = 3;
-      // int regConstraint = 1;
-     
-      // Configuration for dynamic CGRA.
-      int rows                  = param["row"];
-      int columns               = param["column"];
-      bool targetEntireFunction = param["targetFunction"];
-      bool isStaticElasticCGRA  = param["isStaticElasticCGRA"];
-      bool isTrimmedDemo        = param["isTrimmedDemo"];
-      int ctrlMemConstraint     = param["ctrlMemConstraint"];
-      int bypassConstraint      = param["bypassConstraint"];
-      // FIXME: should not change this for now, it is the four directions by default
-      int regConstraint         = param["regConstraint"];
-      bool heterogeneity        = param["heterogeneity"];
-      bool heuristicMapping     = param["heuristicMapping"];
 
       // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
@@ -94,10 +104,10 @@ namespace {
       errs() << "==================================\n";
       errs()<<"[function \'"<<t_F.getName()<<"\' is one of our targets]\n";
 
-      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, param["targetNested"]);
+      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      DFG* dfg = new DFG(t_F, targetLoops, param["targetFunction"], heterogeneity);
+      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
@@ -130,7 +140,7 @@ namespace {
       if(II < RecMII)
         II = RecMII;
 
-      if (!param["doCGRAMapping"]) {
+      if (!doCGRAMapping) {
         errs() << "==================================\n";
         return false;
       }
@@ -238,6 +248,8 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["kernel_gemm"]->push_back(0);
   (*t_functionWithLoop)["kernel"] = new list<int>();
   (*t_functionWithLoop)["kernel"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
   (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPPii"] = new list<int>();
