@@ -67,9 +67,10 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = m_mappingTiming[t_srcDFGNode];
-      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
-        timing[node] += 1;
-      }
+      timing[node] += t_srcDFGNode->getExecLatency() - 1;
+//      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
+//        timing[node] += 1;
+//      }
       // TODO: should also consider the xbar here?
 //      if (!cgra->nodes[i][j]->canOccupyFU(timing[node], II)) {
 //        int temp_cycle = timing[node];
@@ -1009,9 +1010,10 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = timing[t_srcCGRANode];
-      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
-        timing[node] += 1;
-      }
+      timing[node] += t_srcDFGNode->getExecLatency() - 1;
+//      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
+//        timing[node] += 1;
+//      }
       previous[node] = NULL;
       searchPool.push_back(t_cgra->nodes[i][j]);
     }

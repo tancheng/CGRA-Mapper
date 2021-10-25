@@ -80,9 +80,10 @@ class DFG {
     void reorderDFS(set<DFGNode*>*, list<DFGNode*>*,
                     list<DFGNode*>*, DFGNode*);
     void initExecLatency(map<string, int>*);
+    void initPipelinedOpt(list<string>*);
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, map<string, int>*);
+    DFG(Function&, list<Loop*>*, bool, bool, map<string, int>*, list<string>*);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;

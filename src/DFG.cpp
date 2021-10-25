@@ -12,7 +12,8 @@
 #include "DFG.h"
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
-         bool t_heterogeneity, map<string, int>* t_execLatency) {
+         bool t_heterogeneity, map<string, int>* t_execLatency,
+         list<string>* t_pipelinedOpt) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -43,6 +44,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   }
 //  trimForStandalone();
   initExecLatency(t_execLatency);
+  initPipelinedOpt(t_pipelinedOpt);
 
 }
 
@@ -750,7 +752,30 @@ void DFG::initExecLatency(map<string, int>* t_execLatency) {
     }
   }
   if (!targetOpt.empty()) {
-    cout<<"\033[0;31mPlease check the operations targeting multiple cycles of execution:\"\033[0m";
+    cout<<"\033[0;31mPlease check the operations targeting multi-cycle execution in <param.json>:\"\033[0m";
+    for (set<string>::iterator it = targetOpt.begin(); it != targetOpt.end(); ++it) {
+      cout<<" "<<*it<<" "; // Note the "*" here
+    }
+    cout<<"\033[0;31m\".\033[0m"<<endl;
+  }
+}
+
+void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
+  set<string> targetOpt;
+  for (string opt: *t_pipelinedOpt) {
+    targetOpt.insert(opt);
+  }
+  for (DFGNode* node: nodes) {
+    list<string>::iterator it;
+    it = find(t_pipelinedOpt->begin(), t_pipelinedOpt->end(), node->getOpcodeName());
+    if(it != t_pipelinedOpt->end()) {
+      string opcodeName = node->getOpcodeName();
+      node->setPipelinable();
+      targetOpt.erase(opcodeName);
+    }
+  }
+  if (!targetOpt.empty()) {
+    cout<<"\033[0;31mPlease check the pipelinable operations in <param.json>:\"\033[0m";
     for (set<string>::iterator it = targetOpt.begin(); it != targetOpt.end(); ++it) {
       cout<<" "<<*it<<" "; // Note the "*" here
     }

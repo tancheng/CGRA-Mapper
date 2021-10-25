@@ -55,6 +55,7 @@ namespace {
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       map<string, int>* execLatency = new map<string, int>();
+      list<string>* pipelinedOpt    = new list<string>();
 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
@@ -92,9 +93,13 @@ namespace {
         regConstraint         = param["regConstraint"];
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
-        for (auto& opt : param["optStatus"].items()) {
+        for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
           (*execLatency)[opt.key()] = opt.value();
+        }
+        json pipeOpt = param["optPipelined"];
+        for (int i=0; i<pipeOpt.size(); ++i) {
+          pipelinedOpt->push_back(pipeOpt[i]);
         }
       }
 
@@ -109,7 +114,8 @@ namespace {
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity, execLatency);
+      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity,
+                         execLatency, pipelinedOpt);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
