@@ -79,9 +79,10 @@ class DFG {
     void reorderInLongest();
     void reorderDFS(set<DFGNode*>*, list<DFGNode*>*,
                     list<DFGNode*>*, DFGNode*);
+    void initExecLatency(map<string, int>*);
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool);
+    DFG(Function&, list<Loop*>*, bool, bool, map<string, int>*);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;

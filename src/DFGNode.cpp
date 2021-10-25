@@ -26,6 +26,7 @@ DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
   m_critical = false;
   m_cycleID = new list<int>();
   m_level = 0;
+  m_execLatency = 1;
   m_isPredicatee = false;
   m_predicatees = NULL;
   m_isPredicater = false;
@@ -258,6 +259,14 @@ string DFGNode::getJSONOpt() {
     }
   }
   return m_optType;
+}
+
+void DFGNode::setExecLatency(int t_execLatency) {
+  m_execLatency = t_execLatency;
+}
+
+int DFGNode::getExecLatency() {
+  return m_execLatency;
 }
 
 void DFGNode::initType() {

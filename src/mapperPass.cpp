@@ -42,18 +42,19 @@ namespace {
     bool runOnFunction(Function &t_F) override {
 
       // Initializes input parameters.
-      int rows                  = 4;
-      int columns               = 4;
-      bool targetEntireFunction = false;
-      bool targetNested         = false;
-      bool doCGRAMapping        = true;
-      bool isStaticElasticCGRA  = false;
-      bool isTrimmedDemo        = true;
-      int ctrlMemConstraint     = 200;
-      int bypassConstraint      = 4;
-      int regConstraint         = 8;
-      bool heterogeneity        = false;
-      bool heuristicMapping     = true;
+      int rows                      = 4;
+      int columns                   = 4;
+      bool targetEntireFunction     = false;
+      bool targetNested             = false;
+      bool doCGRAMapping            = true;
+      bool isStaticElasticCGRA      = false;
+      bool isTrimmedDemo            = true;
+      int ctrlMemConstraint         = 200;
+      int bypassConstraint          = 4;
+      int regConstraint             = 8;
+      bool heterogeneity            = false;
+      bool heuristicMapping         = true;
+      map<string, int>* execLatency = new map<string, int>();
 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
@@ -93,6 +94,7 @@ namespace {
         heuristicMapping      = param["heuristicMapping"];
         for (auto& opt : param["optStatus"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
+          (*execLatency)[opt.key()] = opt.value();
         }
       }
 
@@ -107,7 +109,7 @@ namespace {
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity);
+      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity, execLatency);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);

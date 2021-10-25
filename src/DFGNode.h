@@ -51,6 +51,7 @@ class DFGNode {
     bool m_isPatternRoot;
     bool m_critical;
     int m_level;
+    int m_execLatency;
     // "m_predicated" indicates whether the execution of the node depends on
     // predication or not (i.e., the predecessor probably is a "branch"). 
     bool m_isPredicatee;
@@ -114,6 +115,8 @@ class DFGNode {
     bool isPredicatee();
     bool isPredicater();
     bool shareSameCycle(DFGNode*);
+    void setExecLatency(int);
+    int getExecLatency();
 };
 
 #endif

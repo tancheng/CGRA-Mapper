@@ -12,7 +12,7 @@
 #include "DFG.h"
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
-         bool t_heterogeneity) {
+         bool t_heterogeneity, map<string, int>* t_execLatency) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -42,6 +42,8 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //    tuneForPattern();
   }
 //  trimForStandalone();
+  initExecLatency(t_execLatency);
+
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -731,6 +733,28 @@ void DFG::reorderInALAP() {
   for (DFGNode* node: tempNodes) {
     nodes.push_back(node);
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
+  }
+}
+
+void DFG::initExecLatency(map<string, int>* t_execLatency) {
+  set<string> targetOpt;
+  for (map<string, int>::iterator iter=t_execLatency->begin();
+      iter!=t_execLatency->end(); ++iter) {
+    targetOpt.insert(iter->first);
+  }
+  for (DFGNode* node: nodes) {
+    if (t_execLatency->find(node->getOpcodeName()) != t_execLatency->end()) {
+      string opcodeName = node->getOpcodeName();
+      node->setExecLatency((*t_execLatency)[opcodeName]);
+      targetOpt.erase(opcodeName);
+    }
+  }
+  if (!targetOpt.empty()) {
+    cout<<"\033[0;31mPlease check the operations targeting multiple cycles of execution:\"\033[0m";
+    for (set<string>::iterator it = targetOpt.begin(); it != targetOpt.end(); ++it) {
+      cout<<" "<<*it<<" "; // Note the "*" here
+    }
+    cout<<"\033[0;31m\".\033[0m"<<endl;
   }
 }
 
