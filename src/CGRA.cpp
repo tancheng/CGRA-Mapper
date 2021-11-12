@@ -36,14 +36,14 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity,
       iter!=t_additionalFunc->end(); ++iter) {
     for (int nodeIndex: *(iter->second)) {
       if (nodeIndex >= m_FUCount) {
-        cout<<"Invalid CGRA node ID "<<nodeIndex<<" for operation "<<iter->first<<endl;
+        cout<<"\033[0;31mInvalid CGRA node ID "<<nodeIndex<<" for operation "<<iter->first<<"\033[0m"<<endl;
         continue;
       } else {
         int row = nodeIndex / m_columns;
         int col = nodeIndex % m_columns;
         bool canEnable = nodes[row][col]->enableFunctionality(iter->first);
         if (!canEnable) {
-          cout<<"Invalid operation "<<iter->first<<" on CGRA node ID "<<nodeIndex<<endl;
+          cout<<"\033[0;31mInvalid operation "<<iter->first<<" on CGRA node ID "<<nodeIndex<<"\033[0m"<<endl;
         } else {
           if ((iter->first).compare("store")) {
             storeCount += 1;
