@@ -67,6 +67,7 @@ class CGRANode {
     void setID(int);
     void setLocation(int, int);
     int getID();
+    bool enableFunctionality(string);
     void enableReturn();
     void enableStore();
     void enableLoad();

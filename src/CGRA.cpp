@@ -10,7 +10,8 @@
 
 #include "CGRA.h"
 
-CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
+CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity,
+           map<string, list<int>*>* t_additionalFunc) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
@@ -28,6 +29,47 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     }
   }
 
+  // Enable the load/store on specific CGRA nodes based on param.json.
+  int loadCount = 0;
+  int storeCount = 0;
+  for (map<string, list<int>*>::iterator iter=t_additionalFunc->begin();
+      iter!=t_additionalFunc->end(); ++iter) {
+    for (int nodeIndex: *(iter->second)) {
+      if (nodeIndex >= m_FUCount) {
+        cout<<"Invalid CGRA node ID "<<nodeIndex<<" for operation "<<iter->first<<endl;
+        continue;
+      } else {
+        int row = nodeIndex / m_columns;
+        int col = nodeIndex % m_columns;
+        bool canEnable = nodes[row][col]->enableFunctionality(iter->first);
+        if (!canEnable) {
+          cout<<"Invalid operation "<<iter->first<<" on CGRA node ID "<<nodeIndex<<endl;
+        } else {
+          if ((iter->first).compare("store")) {
+            storeCount += 1;
+          }
+          if ((iter->first).compare("load")) {
+            loadCount += 1;
+          }
+        }
+      }
+    }
+  }
+  if (storeCount == 0) {
+    cout<<"Without customization in param.json, we enable store functionality on the left most column."<<endl;
+    for (int r=0; r<t_rows; ++r) {
+      nodes[r][0]->enableStore();
+    }
+  }
+  if (loadCount == 0) {
+    cout<<"Without customization in param.json, we enable load functionality on the left most column."<<endl;
+    for (int r=0; r<t_rows; ++r) {
+      nodes[r][0]->enableLoad();
+    }
+  }
+
+
+  // Some other basic operations that can be indicated in the param.json:
   // Enable the specialized 'call' functionality.
   for (int r=0; r<t_rows; ++r) {
     if (r%2 == 0)
@@ -44,25 +86,9 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity) {
     }
   }
 
-//  // Enable the load/store on specific CGRA nodes.
-//  for (int r=0; r<t_rows; ++r) {
-//    nodes[r][0]->enableLoad();
-//    nodes[r][0]->enableStore();
-//  }
-  nodes[1][0]->enableLoad();
-  nodes[1][0]->enableStore();
-
   for (int r=0; r<t_rows; ++r) {
     nodes[r][t_columns-1]->enableReturn();
   }
-
-//  for (int i=0; i<t_rows; ++i) {
-//    for (int j=0; j<t_columns; ++j) {
-//      nodes[i][j]->enableLoad();
-//      nodes[i][j]->enableStore();
-//  //  nodes[t_rows-1][j]->enableStore();
-//    }
-//  }
 
   // Connect the CGRA nodes with links.
   int link_id = 0;

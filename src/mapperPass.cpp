@@ -56,6 +56,7 @@ namespace {
       bool heuristicMapping         = true;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
+      map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
@@ -93,6 +94,7 @@ namespace {
         regConstraint         = param["regConstraint"];
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
+        cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
           (*execLatency)[opt.key()] = opt.value();
@@ -100,6 +102,16 @@ namespace {
         json pipeOpt = param["optPipelined"];
         for (int i=0; i<pipeOpt.size(); ++i) {
           pipelinedOpt->push_back(pipeOpt[i]);
+        }
+        cout<<"Initialize additional functionality on CGRA nodes: "<<endl;
+        for (auto& opt : param["additionalFunc"].items()) {
+          (*additionalFunc)[opt.key()] = new list<int>();
+          cout<<opt.key()<<" : "<<opt.value()<<": ";
+          for (int i=0; i<opt.value().size(); ++i) {
+            (*additionalFunc)[opt.key()]->push_back(opt.value()[i]);
+            cout<<opt.value()[i]<<" ";
+          }
+          cout<<endl;
         }
       }
 
@@ -116,7 +128,7 @@ namespace {
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity,
                          execLatency, pipelinedOpt);
-      CGRA* cgra = new CGRA(rows, columns, heterogeneity);
+      CGRA* cgra = new CGRA(rows, columns, heterogeneity, additionalFunc);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);

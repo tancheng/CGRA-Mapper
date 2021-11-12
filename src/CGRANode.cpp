@@ -370,6 +370,23 @@ int CGRANode::getCurrentCtrlMemItems() {
   return m_currentCtrlMemItems;
 }
 
+bool CGRANode::enableFunctionality(string t_func) {
+  if (t_func.compare("store")) {
+    enableStore();
+  } else if (t_func.compare("load")) {
+    enableLoad();
+  } else if (t_func.compare("return")) {
+    enableReturn();
+  } else if (t_func.compare("call")) {
+    enableCall();
+  } else if (t_func.compare("complex")) {
+    enableComplex();
+  } else {
+    return false;
+  }
+  return true;
+}
+
 void CGRANode::enableReturn() {
   m_canReturn = true;
 }
