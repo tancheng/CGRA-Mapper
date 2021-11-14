@@ -47,7 +47,7 @@ class CGRANode {
 
     // functional unit occupied with cycle going on
     int m_cycleBoundary;
-    bool* m_fuOccupied;
+    int* m_fuOccupied;
     DFGNode** m_dfgNodes;
     map<CGRALink*,bool*> m_xbarOccupied;
     bool m_disabled;
@@ -58,6 +58,7 @@ class CGRANode {
     bool m_supportComplex;
     int** m_regs_duration;
     int** m_regs_timing;
+    vector<list<pair<DFGNode*, int>>*> m_dfgNodesWithOccupyStatus;
 
   public:
     CGRANode(int, int, int);
@@ -84,7 +85,7 @@ class CGRANode {
     void constructMRRG(int, int);
     bool canSupport(DFGNode*);
     bool isOccupied(int, int);
-    bool canOccupy(int, int);
+    // bool canOccupy(int, int);
     bool canOccupy(DFGNode*, int, int);
     void setDFGNode(DFGNode*, int, int, bool);
     void configXbar(CGRALink*, int, int);
@@ -92,7 +93,7 @@ class CGRANode {
     list<CGRALink*>* getOccupiableInLinks(int, int);
     list<CGRALink*>* getOccupiableOutLinks(int, int);
     int getAvailableRegisterCount();
-    int getMinIdleCycle(int, int);
+    int getMinIdleCycle(DFGNode*, int, int);
     int getCurrentCtrlMemItems();
     int getX();
     int getY();

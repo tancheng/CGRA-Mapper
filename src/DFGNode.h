@@ -117,9 +117,11 @@ class DFGNode {
     bool isPredicater();
     bool shareSameCycle(DFGNode*);
     void setExecLatency(int);
+    bool isMultiCycleExec();
     int getExecLatency();
     void setPipelinable();
     bool isPipelinable();
+    bool shareFU(DFGNode*);
 };
 
 #endif

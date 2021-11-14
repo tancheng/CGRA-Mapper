@@ -101,7 +101,7 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
     searchPool.remove(minNode);
     // found the target point in the shortest path
     if (minNode == t_dstCGRANode) {
-      timing[t_dstCGRANode] = minNode->getMinIdleCycle(timing[minNode], t_II);
+      timing[t_dstCGRANode] = minNode->getMinIdleCycle(t_targetDFGNode, timing[minNode], t_II);
       break;
     }
     list<CGRANode*>* currentNeighbors = minNode->getNeighbors();

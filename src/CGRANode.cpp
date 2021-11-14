@@ -11,6 +11,11 @@
 #include "CGRANode.h"
 #include <stdio.h>
 
+#define SINGLE_OCCUPY     0 // A single-cycle opt is in the FU
+#define START_PIPE_OCCUPY 1 // A multi-cycle opt starts in the FU
+#define END_PIPE_OCCUPY   2 // A multi-cycle opt ends in the FU
+#define IN_PIPE_OCCUPY    3 // A multi-cycle opt is occupying the FU
+
 //CGRANode::CGRANode(int t_id) {
 //  m_id = t_id;
 //  m_currentCtrlMemItems = 0;
@@ -32,8 +37,9 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_neighbors = NULL;
   m_occupiableInLinks = NULL;
   m_occupiableOutLinks = NULL;
-  m_dfgNodes = new DFGNode*[1];
-  m_fuOccupied = new bool[1];
+  // new list<list<pair<DFGNode*, int>>*>();//DFGNode*[1];
+  // m_dfgNodes = new DFGNode*[1];
+  // m_fuOccupied = new int[1];
   m_regs_duration = NULL;
   m_regs_timing = NULL;
 
@@ -143,17 +149,20 @@ list<CGRANode*>* CGRANode::getNeighbors() {
 
 void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
   m_cycleBoundary = t_CGRANodeCount*t_II*t_II;
-  // FIXME: Need to delete all these local arrays to avoid memory leakage.
-  delete[] m_dfgNodes;
-  m_dfgNodes = new DFGNode*[m_cycleBoundary];
-  delete[] m_fuOccupied;
-  m_fuOccupied = new bool[m_cycleBoundary];
   m_currentCtrlMemItems = 0;
   m_registers.clear();
-  for (int i=0; i<m_cycleBoundary; ++i) {
-    m_dfgNodes[i] = NULL;
-    m_fuOccupied[i] = false;
+  // Delete all these local arrays to avoid memory leakage.
+  if (m_dfgNodesWithOccupyStatus.size() > 0) {
+    for (list<pair<DFGNode*, int>>* opts: m_dfgNodesWithOccupyStatus) {
+      opts->clear();
+    }
   }
+  m_dfgNodesWithOccupyStatus.clear();
+  // m_dfgNodesWithOccupyStatus = new list<list<pair<DFGNode*, int>>*>();
+  for (int i=0; i<m_cycleBoundary; ++i) {
+    m_dfgNodesWithOccupyStatus.push_back(new list<pair<DFGNode*, int>>());
+  }
+  
   m_regs_duration = new int*[m_cycleBoundary];
   m_regs_timing = new int*[m_cycleBoundary];
   for (int i=0; i<m_cycleBoundary; ++i) {
@@ -164,26 +173,6 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
       m_regs_timing[i][j] = -1;
     }
   }
-}
-
-bool CGRANode::canOccupy(int t_cycle, int t_II) {
-  if (m_disabled) 
-    return false;
-  // Check whether the limit of config mem is reached.
-  if (m_currentCtrlMemItems + 1 > m_ctrlMemSize) {
-    return false;
-  }
-  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
-    if (m_fuOccupied[cycle]) {
-      return false;
-    }
-  }
-  for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
-    if (m_fuOccupied[cycle]) {
-      return false;
-    }
-  }
-  return true;
 }
 
 bool CGRANode::canSupport(DFGNode* t_opt) {
@@ -203,34 +192,66 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (m_disabled) 
     return false;
+
   // Check whether this CGRA node supports the required functionality.
   if (!canSupport(t_opt)) {
     return false;
   }
+
   // Check whether the limit of config mem is reached.
   if (m_currentCtrlMemItems + 1 > m_ctrlMemSize) {
     return false;
   }
-  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
-    if (m_fuOccupied[cycle]) {
-      return false;
-    }
-  }
-  for (int cycle=t_cycle; cycle>=0; cycle-=t_II) {
-    if (m_fuOccupied[cycle]) {
-      return false;
-    }
-  }
-  // Handle multi-cycle execution.
-  if (t_opt->isLoad() or t_opt->isStore()) {
-    for (int cycle=t_cycle+1; cycle>=0; cycle-=t_II) {
-      if (m_fuOccupied[cycle]) {
-        return false;
+
+  // Handle multi-cycle execution and pipelinable operations.
+  if (not t_opt->isMultiCycleExec()) {
+    // Single-cycle opt:
+    for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+        if (p.second != IN_PIPE_OCCUPY) {
+          return false;
+        }
       }
     }
-    for (int cycle=t_cycle+1; cycle<m_cycleBoundary; cycle+=t_II) {
-      if (m_fuOccupied[cycle]) {
-        return false;
+  } else {
+    // Multi-cycle opt.
+    for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      // Check start cycle.
+      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+        // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
+        if (p.second == SINGLE_OCCUPY) {
+          return false;
+        } 
+        // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
+        else if (p.second == START_PIPE_OCCUPY) {
+          return false;
+        }
+        // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
+        else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
+                 (t_opt->shareFU(p.first))   and
+                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+          return false;
+        }
+      }
+      if (cycle+t_opt->getExecLatency()-1 >= m_cycleBoundary) {
+        break;
+      }
+      // Check end cycle.
+      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency()-1])) {
+        // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
+        if (p.second == SINGLE_OCCUPY) {
+          return false;
+        } 
+        // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
+        else if (p.second == END_PIPE_OCCUPY) {
+          return false;
+        }
+        // Multi-cycle opt's end cycle overlaps with multi-cycle opt with the same type:
+        else if ((p.second == IN_PIPE_OCCUPY or p.second == START_PIPE_OCCUPY) and
+                 (t_opt->shareFU(p.first))   and
+                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+          return false;
+        }
       }
     }
   }
@@ -240,8 +261,12 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
 
 bool CGRANode::isOccupied(int t_cycle, int t_II) {
   for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
-    if (m_fuOccupied[cycle])
-      return true;
+    for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+      // if (m_fuOccupied[cycle])
+      if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY) {
+        return true;
+      }
+    }
   }
   return false;
 }
@@ -252,48 +277,43 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
   if (t_isStaticElasticCGRA) {
     interval = 1;
   }
-  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=interval) {
-    assert(!m_fuOccupied[cycle]);
-    m_dfgNodes[cycle] = t_opt;
-    m_fuOccupied[cycle] = true;
-    if (cycle+1 < m_cycleBoundary and (t_opt->isLoad() or t_opt->isStore())) {
-//      if (m_fuOccupied[cycle+1]) {
-//        cout<<"check which one is occupying fu[4]: "<<m_dfgNodes[cycle+1]<<" at cycle "<<cycle+1<<"; DFG node "<<t_opt->getID()<<" is asking.."<<endl;
-//      }
-      assert(!m_fuOccupied[cycle+1]);
-      m_dfgNodes[cycle+1] = t_opt;
-      m_fuOccupied[cycle+1] = true;
+  for (int cycle=t_cycle%interval; cycle<m_cycleBoundary; cycle+=interval) {
+    if (not t_opt->isMultiCycleExec()) {
+      m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, SINGLE_OCCUPY));
+    } else {
+      m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, START_PIPE_OCCUPY));
+      for (int i=1; i<t_opt->getExecLatency()-1; ++i) {
+        if (cycle+i < m_cycleBoundary) {
+          m_dfgNodesWithOccupyStatus[cycle+i]->push_back(make_pair(t_opt, IN_PIPE_OCCUPY));
+        }
+      }
+      int lastCycle = cycle+t_opt->getExecLatency()-1;
+      if (lastCycle < m_cycleBoundary) {
+        m_dfgNodesWithOccupyStatus[lastCycle]->push_back(make_pair(t_opt, END_PIPE_OCCUPY));
+      }
     }
   }
-  for (int cycle=t_cycle; cycle>=0; cycle-=interval) {
-//    assert(!m_fuOccupied[cycle]);
-    m_dfgNodes[cycle] = t_opt;
-    m_fuOccupied[cycle] = true;
-    if (t_opt->isLoad() or t_opt->isStore()) {
-      m_dfgNodes[cycle+1] = t_opt;
-      m_fuOccupied[cycle+1] = true;
-    }
-  }
+
   cout<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
   ++m_currentCtrlMemItems;
-  if (t_opt->isLoad() or t_opt->isStore()) {
-    ++m_currentCtrlMemItems;
-  }
   t_opt->setMapped();
 }
 
 DFGNode* CGRANode::getMappedDFGNode(int t_cycle) {
-  if (m_dfgNodes[t_cycle] == NULL) {
-//    assert(0);
-    return NULL;
+  for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[t_cycle])) {
+    if (p.second == SINGLE_OCCUPY or p.second == END_PIPE_OCCUPY) {
+      return p.first;
+    }
   }
-  return m_dfgNodes[t_cycle];
+  return NULL;
 }
 
 bool CGRANode::containMappedDFGNode(DFGNode* t_node, int t_II) {
   for (int c=0; c<2*t_II; ++c) {
-    if (t_node == m_dfgNodes[c]) {
-      return true;
+    for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[c])) {
+      if (t_node == p.first) {
+        return true;
+      }
     }
   }
   return false;
@@ -356,10 +376,10 @@ CGRALink* CGRANode::getOutLink(CGRANode* t_node) {
 //  assert(0);
 }
 
-int CGRANode::getMinIdleCycle(int t_cycle, int t_II) {
+int CGRANode::getMinIdleCycle(DFGNode* t_dfgNode, int t_cycle, int t_II) {
   int tempCycle = t_cycle;
   while (tempCycle < m_cycleBoundary) {
-    if (canOccupy(tempCycle, t_II))
+    if (canOccupy(t_dfgNode, tempCycle, t_II))
       return tempCycle;
     ++tempCycle;
   }
@@ -370,6 +390,7 @@ int CGRANode::getCurrentCtrlMemItems() {
   return m_currentCtrlMemItems;
 }
 
+// TODO: will support precision-based operations (e.g., fadd, fmul, etc).
 bool CGRANode::enableFunctionality(string t_func) {
   if (t_func.compare("store")) {
     enableStore();

@@ -270,12 +270,27 @@ int DFGNode::getExecLatency() {
   return m_execLatency;
 }
 
+bool DFGNode::isMultiCycleExec() {
+  if (m_execLatency > 1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void DFGNode::setPipelinable() {
   m_pipelinable = true;
 }
 
 bool DFGNode::isPipelinable() {
   return m_pipelinable;
+}
+
+bool DFGNode::shareFU(DFGNode* t_dfgNode) {
+  if (t_dfgNode->getFuType().compare(m_fuType) == 0) {
+    return true;
+  }
+  return false;
 }
 
 void DFGNode::initType() {
