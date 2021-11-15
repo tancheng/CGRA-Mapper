@@ -52,6 +52,7 @@ namespace {
       int ctrlMemConstraint         = 200;
       int bypassConstraint          = 4;
       int regConstraint             = 8;
+      bool precisionAware           = false;
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       map<string, int>* execLatency = new map<string, int>();
@@ -92,6 +93,7 @@ namespace {
         ctrlMemConstraint     = param["ctrlMemConstraint"];
         bypassConstraint      = param["bypassConstraint"];
         regConstraint         = param["regConstraint"];
+        precisionAware        = param["precisionAware"];
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
@@ -126,8 +128,8 @@ namespace {
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
-      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, heterogeneity,
-                         execLatency, pipelinedOpt);
+      DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
+                         heterogeneity, execLatency, pipelinedOpt);
       CGRA* cgra = new CGRA(rows, columns, heterogeneity, additionalFunc);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);

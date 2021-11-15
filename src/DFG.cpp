@@ -12,14 +12,15 @@
 #include "DFG.h"
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
-         bool t_heterogeneity, map<string, int>* t_execLatency,
-         list<string>* t_pipelinedOpt) {
+         bool t_precisionAware, bool t_heterogeneity,
+         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
   m_orderedNodes = NULL;
   m_CDFGFused = false;
   m_cycleNodeLists = new list<list<DFGNode*>*>();
+  m_precisionAware = t_precisionAware;
 
   construct(t_F);
 //  tuneForBranch();
@@ -321,7 +322,7 @@ void DFG::construct(Function& t_F) {
       if (hasNode(curII)) {
         dfgNode = getNode(curII);
       } else {
-        dfgNode = new DFGNode(nodeID++, curII, getValueName(curII));
+        dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII));
         nodes.push_back(dfgNode);
       }
       errs()<<" (ID: "<<dfgNode->getID()<<")\n";
@@ -348,7 +349,7 @@ void DFG::construct(Function& t_F) {
           if (hasNode(inst)) {
             dfgNode = getNode(inst);
           } else {
-            dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
+            dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst));
             nodes.push_back(dfgNode);
           }
     //      Instruction* first = &*(sucBB->begin());
@@ -1274,7 +1275,7 @@ void DFG::tuneForBranch() {
         processedDFGBrNodes.end()) {
       processedDFGBrNodes.push_back(left);
     } else {
-      DFGNode* newDFGBrNode = new DFGNode(nodes.size(), left->getInst(),
+      DFGNode* newDFGBrNode = new DFGNode(nodes.size(), m_precisionAware, left->getInst(),
           getValueName(left->getInst()));
       for (DFGNode* predDFGNode: *(left->getPredNodes())) {
         DFGEdge* newDFGBrEdge = new DFGEdge(newDFGEdgeID++,

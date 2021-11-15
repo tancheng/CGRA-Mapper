@@ -34,6 +34,7 @@ class DFG {
     int m_num;
     bool m_CDFGFused;
     bool m_targetFunction;
+    bool m_precisionAware;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
 
@@ -83,7 +84,7 @@ class DFG {
     void initPipelinedOpt(list<string>*);
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, map<string, int>*, list<string>*);
+    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;

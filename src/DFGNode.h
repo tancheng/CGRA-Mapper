@@ -33,6 +33,7 @@ class DFGNode {
     // Original id that is ordered in the original execution order (i.e.,
     // CPU/IR execution sequential ordering).
     int m_id;
+    bool m_precisionAware;
     Instruction* m_inst;
     Value* m_value;
     StringRef m_stringRef;
@@ -62,7 +63,7 @@ class DFGNode {
     void setPatternRoot(DFGNode*);
 
   public:
-    DFGNode(int, Instruction*, StringRef);
+    DFGNode(int, bool, Instruction*, StringRef);
     int getID();
     void setID(int);
     void setLevel(int);

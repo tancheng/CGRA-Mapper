@@ -10,8 +10,10 @@
 
 #include "DFGNode.h"
 
-DFGNode::DFGNode(int t_id, Instruction* t_inst, StringRef t_stringRef) {
+DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
+                 StringRef t_stringRef) {
   m_id = t_id;
+  m_precisionAware = t_precisionAware;
   m_inst = t_inst;
   m_stringRef = t_stringRef;
   m_predNodes = NULL;
@@ -234,6 +236,23 @@ bool DFGNode::isPatternRoot() {
 }
 
 string DFGNode::getOpcodeName() {
+
+  if (not m_precisionAware) {
+    if (m_opcodeName.compare("fadd") == 0) {
+      return "add";
+    } else if (m_opcodeName.compare("fsub") == 0) {
+      return "sub";
+    } else if (m_opcodeName.compare("fmul") == 0) {
+      return "mul";
+    } else if (m_opcodeName.compare("fcmp") == 0) {
+      return "cmp";
+    } else if (m_opcodeName.compare("icmp") == 0) {
+      return "cmp";
+    } else if (m_opcodeName.compare("fdiv") == 0) {
+      return "div";
+    }
+  }
+
   return m_opcodeName;
 }
 
