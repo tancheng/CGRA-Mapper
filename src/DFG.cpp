@@ -25,7 +25,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   construct(t_F);
 //  tuneForBranch();
 //  tuneForBitcast();
-  tuneForLoad();
+//  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
 //    combine("phi", "add");
