@@ -11,7 +11,7 @@
   {
     "fu"         : "Comp",
     "id"         : 10,
-    "org_opt"    : "cmp",
+    "org_opt"    : "icmp",
     "JSON_opt"   : "OPT_EQ_CONST",
     "in_const"   : [0],
     "pre"         : [9],
@@ -74,7 +74,7 @@
   {
     "fu"         : "Mul",
     "id"         : 6,
-    "org_opt"    : "mul",
+    "org_opt"    : "fmul",
     "JSON_opt"   : "OPT_MUL",
     "in_const"   : [],
     "pre"         : [3,5],
@@ -83,7 +83,7 @@
   {
     "fu"         : "Alu",
     "id"         : 7,
-    "org_opt"    : "add",
+    "org_opt"    : "fadd",
     "JSON_opt"   : "OPT_ADD",
     "in_const"   : [],
     "pre"         : [0,6],

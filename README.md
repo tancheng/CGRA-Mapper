@@ -15,7 +15,7 @@ This is a CGRA (Coarse-Grained Reconfigurable Architecture) mapper to map the ta
 - It takes the arch&kernel info in `JSON` format. 
 - It can generate the DFG/CDFG of the target code region (in `.png`).
 - Nested-loop and complex if/else control flows are supported with [partial predication](https://dl.acm.org/doi/abs/10.1145/2593069.2593100).
-- Users can easily invoke loop-unrolling in the compile script.
+- Users can easily invoke loop-unrolling in the compile/run script (`opt --loop-unroll --unroll-count=4 -load PATH/libmapperPass.so -mapperPass kernel.bc`).
 - It schedules and maps the DFG onto the CGRA arch that is represented in [MRRG](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=1188678).
 - The generated dfg.json and config.json can be taken as inputs for the simulation in the [OpenCGRA](https://github.com/tancheng/OpenCGRA) (register index needed to be manually added/distinguished).
 - Benchmark including a set of representative kernels/applications with compilation scripts can be found [here](https://github.com/tancheng/CGRA-Bench).
