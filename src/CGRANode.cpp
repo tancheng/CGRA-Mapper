@@ -77,7 +77,7 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
 //          errs()<<"[cheng] see m_regs_timing["<<cycle<<"]["<<i<<"]: "<<m_regs_timing[cycle][i]<<"\n";
         for (int d=0; d<t_duration; ++d) {
           if (cycle+d<m_cycleBoundary) {
-            assert(m_regs_duration[cycle+d][i] == -1);
+            // assert(m_regs_duration[cycle+d][i] == -1);
             m_regs_duration[cycle+d][i] = t_port_id;
           }
         }
