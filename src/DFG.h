@@ -82,6 +82,7 @@ class DFG {
                     list<DFGNode*>*, DFGNode*);
     void initExecLatency(map<string, int>*);
     void initPipelinedOpt(list<string>*);
+    bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);

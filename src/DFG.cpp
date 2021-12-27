@@ -609,6 +609,18 @@ void DFG::reorderInASAP() {
   }
 }
 
+bool DFG::isMinimumAndHasNotBeenVisited(set<DFGNode*>* t_visited, map<DFGNode*, int>* t_map, DFGNode* t_node) {
+  if (t_visited->find(t_node) != t_visited->end()) {
+    return false;
+  }
+  for (DFGNode* e_node: nodes) {
+    if (e_node != t_node and t_visited->find(e_node) == t_visited->end() and (*t_map)[e_node] < (*t_map)[t_node]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Reorder the DFG nodes based on the longest path.
 void DFG::reorderInLongest() {
   list<DFGNode*>* longestPath = new list<DFGNode*>();
@@ -636,8 +648,10 @@ void DFG::reorderInLongest() {
   int maxLevel = level;
 
   while (visited->size() < nodes.size()) {
+    cout<<"nodes.size(): "<<nodes.size()<<"; visited->size(): "<<visited->size()<<endl;
     for (DFGNode* node: nodes) {
-      if (visited->find(node) == visited->end() and indegree[node] <= 0) {
+      // if (visited->find(node) == visited->end() and indegree[node] <= 0) {
+      if (isMinimumAndHasNotBeenVisited(visited, &indegree, node)) {
         level = 0;
         for (DFGNode* preNode: *(node->getPredNodes())) {
           if (level < preNode->getLevel() + 1) {
