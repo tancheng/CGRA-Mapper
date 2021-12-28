@@ -648,7 +648,6 @@ void DFG::reorderInLongest() {
   int maxLevel = level;
 
   while (visited->size() < nodes.size()) {
-    cout<<"nodes.size(): "<<nodes.size()<<"; visited->size(): "<<visited->size()<<endl;
     for (DFGNode* node: nodes) {
       // if (visited->find(node) == visited->end() and indegree[node] <= 0) {
       if (isMinimumAndHasNotBeenVisited(visited, &indegree, node)) {
