@@ -54,7 +54,6 @@ void CGRANode::allocateReg(CGRALink* t_link, int t_cycle, int t_duration, int t_
 
 void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II) {
   bool allocated = false;
-//  errs()<<"[cheng] inside allocateReg() t_cycle: "<<t_cycle<<" CGRA node: "<<this->getID()<<"; link: "<<t_link->getDirection(this)<<" duration: "<<t_duration<<" registerCount: "<<m_registerCount<<"\n";
   for (int i=0; i<m_registerCount; ++i) {
     bool reg_occupied = false;
     for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
@@ -70,11 +69,9 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
       }
     }
     if (reg_occupied == false) {
-      cout<<"[cheng] in allocateReg() t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_port_id<<" duration "<<t_duration<<"\n";
+      cout<<"[DEBUG] in allocateReg() t_cycle: "<<t_cycle<<"; i: "<<i<<" CGRA node: "<<this->getID()<<"; link: "<<t_port_id<<" duration "<<t_duration<<"\n";
       for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
         m_regs_timing[cycle][i] = t_port_id;
-//        if (cycle < 20)
-//          errs()<<"[cheng] see m_regs_timing["<<cycle<<"]["<<i<<"]: "<<m_regs_timing[cycle][i]<<"\n";
         for (int d=0; d<t_duration; ++d) {
           if (cycle+d<m_cycleBoundary) {
             // assert(m_regs_duration[cycle+d][i] == -1);
@@ -88,12 +85,11 @@ void CGRANode::allocateReg(int t_port_id, int t_cycle, int t_duration, int t_II)
           m_regs_duration[cycle+d][i] = t_port_id;
         }
       }
-//      errs()<<"[cheng] in detail about register alloc -- m_regs[2][0]: "<<m_regs[2][0]<<"; duration: "<<t_duration<<"\n";
       allocated = true;
       break;
     }
   }
-  cout<<"[tan] done reg allocation"<<endl;
+  cout<<"[DEBUG] done reg allocation"<<endl;
   //assert(allocated);
 }
 
@@ -294,7 +290,7 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     }
   }
 
-  cout<<"[CHENG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
+  cout<<"[DEBUG] setDFGNode "<<t_opt->getID()<<" onto CGRANode "<<getID()<<" at cycle: "<<t_cycle<<"\n";
   ++m_currentCtrlMemItems;
   t_opt->setMapped();
 }

@@ -66,11 +66,11 @@ list<int>* DFGNode::getCycleIDs() {
 }
 
 bool DFGNode::shareSameCycle(DFGNode* t_node) {
-  cout<<"[Tan] in shareSameCycle node "<<t_node->getID()<<endl;
   list<int>* my_list = t_node->getCycleIDs();
   for (int cycleID: *m_cycleID) {
     bool found = (find(my_list->begin(), my_list->end(), cycleID) != my_list->end());
     if (found) {
+      cout<<"[DEBUG] in shareSameCycle is true: node "<<t_node->getID()<<endl;
       return true;
     }
   }

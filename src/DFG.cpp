@@ -239,11 +239,11 @@ list<DFGNode*>* DFG::getDFSOrderedNodes() {
       }
     }
   }
-  errs()<<"\nordered nodes: \n";
+  cout<<"\nordered nodes: \n";
   for (DFGNode* dfgNode: *m_orderedNodes) {
-    errs()<<dfgNode->getID()<<"  ";
+    cout<<dfgNode->getID()<<"  ";
   }
-  errs()<<"\n";
+  cout<<"\n";
   assert(m_orderedNodes->size() == nodes.size());
   return m_orderedNodes;
 }
@@ -275,11 +275,11 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
       }
     }
   }
-  errs()<<"\nordered nodes: \n";
+  cout<<"\nordered nodes: \n";
   for (DFGNode* dfgNode: *m_orderedNodes) {
-    errs()<<dfgNode->getID()<<"  ";
+    cout<<dfgNode->getID()<<"  ";
   }
-  errs()<<"\n";
+  cout<<"\n";
   assert(m_orderedNodes->size() == nodes.size());
   return m_orderedNodes;
 }
@@ -295,7 +295,7 @@ void DFG::construct(Function& t_F) {
   int ctrlEdgeID = 0;
   int dfgEdgeID = 0;
 
-  errs()<<"*** current function: "<<t_F.getName()<<"\n";
+  cout<<"*** current function: "<<t_F.getName().str()<<"\n";
 
   // FIXME: eleminate duplicated edges.
   for (Function::iterator BB=t_F.begin(), BEnd=t_F.end();
@@ -325,7 +325,7 @@ void DFG::construct(Function& t_F) {
         dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII));
         nodes.push_back(dfgNode);
       }
-      errs()<<" (ID: "<<dfgNode->getID()<<")\n";
+      cout<<" (ID: "<<dfgNode->getID()<<")\n";
     }
     Instruction* terminator = curBB->getTerminator();
 
@@ -355,7 +355,7 @@ void DFG::construct(Function& t_F) {
     //      Instruction* first = &*(sucBB->begin());
     //      if (!getNode(inst)->isPhi()) {
     //
-    //        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+    //        cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
     //        continue;
     //      }
     
@@ -391,11 +391,11 @@ void DFG::construct(Function& t_F) {
 ////      Instruction* first = &*(sucBB->begin());
 ////      if (!getNode(inst)->isPhi()) {
 ////
-////        errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+////        cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 ////        continue;
 ////      }
 //
-//      errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//      cout<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 //
 //      // Construct contrl flow edges.
 //      DFGEdge* ctrlEdge;
@@ -426,11 +426,11 @@ void DFG::construct(Function& t_F) {
 ////        Instruction* first = &*(sucBB->begin());
 //        if (!getNode(inst)->isPhi()) {
 //
-//          errs()<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//          cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 //          continue;
 //        }
 //
-//        errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
+//        cout<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
 //
 //        // Construct contrl flow edges.
 //        DFGEdge* ctrlEdge;
@@ -526,7 +526,7 @@ void DFG::construct(Function& t_F) {
           Instruction* tempInst = dyn_cast<Instruction>(*op);
           if (tempInst and !shouldIgnore(tempInst)) {
 //            if(node->isBranch()) {
-//              errs()<<"  the real branch's pred: "<<*tempInst<<"\n";
+//              cout<<"  the real branch's pred: "<<*tempInst<<"\n";
 //              int numSuccs = tempInst->getNumSuccessors();
 //            }
             DFGEdge* dfgEdge;
@@ -549,7 +549,7 @@ void DFG::construct(Function& t_F) {
         }
 //        if(node->isBranch()) {
 //          int numSuccs = curII->getNumSuccessors();
-//          errs()<<"the succ of the branch: "<<*curII<<"; ("<<numSuccs<<")\n";
+//          cout<<"the succ of the branch: "<<*curII<<"; ("<<numSuccs<<")\n";
 //          for(int i=0; i<numSuccs; ++i) {
 //            BasicBlock* bb
 //          }
@@ -602,7 +602,7 @@ void DFG::reorderInASAP() {
   }
 
   nodes.clear();
-  errs()<<"[reorder DFG in ASAP]\n";
+  cout<<"[reorder DFG in ASAP]\n";
   for (DFGNode* node: tempNodes) {
     nodes.push_back(node);
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
@@ -676,7 +676,7 @@ void DFG::reorderInLongest() {
   }
 
   nodes.clear();
-  errs()<<"[reorder DFG along with the longest path]\n";
+  cout<<"[reorder DFG along with the longest path]\n";
   for (DFGNode* node: tempNodes) {
     nodes.push_back(node);
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
@@ -745,7 +745,7 @@ void DFG::reorderInALAP() {
   }
 
   nodes.clear();
-  errs()<<"[reorder DFG in ALAP]\n";
+  cout<<"[reorder DFG in ALAP]\n";
   for (DFGNode* node: tempNodes) {
     nodes.push_back(node);
     errs()<<"("<<node->getID()<<") "<<*(node->getInst())<<", level: "<<node->getLevel()<<"\n";
@@ -872,7 +872,7 @@ void DFG::connectDFGNodes() {
 //  for (DFGEdge* edge: m_ctrlEdges) {
 //    DFGNode* left = edge->getSrc();
 //    DFGNode* right = edge->getDst();
-////    errs()<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
+////    cout<<"... connectDFGNodes() for inst (left): "<<*(left->getInst())<<", (right): "<<*(right->getInst())<<"\n";
 //    left->setOutEdge(edge);
 //    right->setInEdge(edge);
 //  }
@@ -985,7 +985,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       }
     }
   }
-//  errs() << "Write data flow done.\n";
+//  cout << "Write data flow done.\n";
   file << "}\n";
   file.close();
 
@@ -1005,9 +1005,9 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
       }
       t_currentCycle->push_back(edge);
 
-//      errs() << ".. add current cycle edge: {" << *edge->getSrc()->getInst() << "  } -> {"<< *edge->getDst()->getInst() << "  } ("<<edge->getSrc()->getID()<<" -> "<<edge->getDst()->getID()<<")\n";
+//      cout << ".. add current cycle edge: {" << *edge->getSrc()->getInst() << "  } -> {"<< *edge->getDst()->getInst() << "  } ("<<edge->getSrc()->getID()<<" -> "<<edge->getDst()->getID()<<")\n";
       if (edge->getDst() == t_head) {
-        errs() << "==================================\n";
+        cout << "==================================\n";
         errs() << "[detected one cycle] head: "<<*(t_head->getInst())<<"\n";
         list<DFGEdge*>* temp_cycle = new list<DFGEdge*>();
         for (DFGEdge* currentEdge: *t_currentCycle) {
@@ -1075,9 +1075,9 @@ void DFG::showOpcodeDistribution() {
   }
   for (map<string, int>::iterator opcodeItr=opcodeMap.begin();
       opcodeItr!=opcodeMap.end(); ++opcodeItr) {
-    errs() << (*opcodeItr).first << " : " << (*opcodeItr).second << "\n";
+    cout << (*opcodeItr).first << " : " << (*opcodeItr).second << "\n";
   }
-  errs() << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"\n";
+  cout << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"\n";
 }
 
 int DFG::getID(DFGNode* t_node) {
@@ -1140,7 +1140,7 @@ DFGEdge* DFG::getDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
 void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
                          DFGNode* t_new_src, DFGNode* t_new_dst) {
   DFGEdge* target = NULL;
-  errs()<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<" [new] "<<t_new_src->getID()<<"->"<<t_new_dst->getID()<<"\n";
+  cout<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<" [new] "<<t_new_src->getID()<<"->"<<t_new_dst->getID()<<"\n";
   for (DFGEdge* edge: m_DFGEdges) {
     if (edge->getSrc() == t_old_src and
         edge->getDst() == t_old_dst) {
@@ -1188,7 +1188,7 @@ StringRef DFG::getValueName(Value* t_value) {
     temp_result = t_value->getName().str();
   }
   StringRef result(temp_result);
-//  errs() << "" << result;
+//  cout << "" << result;
   return result;
 }
 

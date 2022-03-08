@@ -119,11 +119,11 @@ namespace {
 
       // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
-        errs()<<"[function \'"<<t_F.getName()<<"\' is not in our target list]\n";
+        cout<<"[function \'"<<t_F.getName().str()<<"\' is not in our target list]\n";
         return false;
       }
-      errs() << "==================================\n";
-      errs()<<"[function \'"<<t_F.getName()<<"\' is one of our targets]\n";
+      cout << "==================================\n";
+      cout<<"[function \'"<<t_F.getName().str()<<"\' is one of our targets]\n";
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
@@ -137,45 +137,45 @@ namespace {
       mapper = new Mapper();
 
       // Show the count of different opcodes (IRs).
-      errs() << "==================================\n";
-      errs() << "[show opcode count]\n";
+      cout << "==================================\n";
+      cout << "[show opcode count]\n";
       dfg->showOpcodeDistribution();
 
       // Generate the DFG dot file.
-      errs() << "==================================\n";
-      errs() << "[generate dot for DFG]\n";
+      cout << "==================================\n";
+      cout << "[generate dot for DFG]\n";
       dfg->generateDot(t_F, isTrimmedDemo);
 
       // Generate the DFG dot file.
-      errs() << "==================================\n";
-      errs() << "[generate JSON for DFG]\n";
+      cout << "==================================\n";
+      cout << "[generate JSON for DFG]\n";
       dfg->generateJSON();
 
       // Initialize the II.
       int ResMII = mapper->getResMII(dfg, cgra);
-      errs() << "==================================\n";
-      errs() << "[ResMII: " << ResMII << "]\n";
+      cout << "==================================\n";
+      cout << "[ResMII: " << ResMII << "]\n";
       int RecMII = mapper->getRecMII(dfg);
-      errs() << "==================================\n";
-      errs() << "[RecMII: " << RecMII << "]\n";
+      cout << "==================================\n";
+      cout << "[RecMII: " << RecMII << "]\n";
       int II = ResMII;
       if(II < RecMII)
         II = RecMII;
 
       if (!doCGRAMapping) {
-        errs() << "==================================\n";
+        cout << "==================================\n";
         return false;
       }
       // Heuristic algorithm (hill climbing) to get a valid mapping within
       // a acceptable II.
       bool success = false;
       if (!isStaticElasticCGRA) {
-        errs() << "==================================\n";
+        cout << "==================================\n";
         if (heuristicMapping) {
-          errs() << "[heuristic]\n";
+          cout << "[heuristic]\n";
           II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
         } else {
-          errs() << "[exhaustive]\n";
+          cout << "[exhaustive]\n";
           II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
         }
       }
@@ -184,23 +184,23 @@ namespace {
       // the static elastic CGRA.
 
       if (isStaticElasticCGRA and !success) {
-        errs() << "==================================\n";
-        errs() << "[exhaustive]\n";
+        cout << "==================================\n";
+        cout << "[exhaustive]\n";
         II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
       }
 
       // Show the mapping and routing results with JSON output.
       if (II == -1)
-        errs() << "[fail]\n";
+        cout << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA);
-        errs() << "==================================\n";
-        errs() << "[success]\n";
-        errs() << "==================================\n";
+        cout << "==================================\n";
+        cout << "[success]\n";
+        cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
-        errs() << "[Output Json]\n";
+        cout << "[Output Json]\n";
       }
-      errs() << "==================================\n";
+      cout << "=================================="<<endl;
 
       return false;
     }
@@ -226,22 +226,22 @@ namespace {
             // Targets innermost loop if the param targetNested is not set.
             if (!t_targetNested) {
               while (!current_loop->getSubLoops().empty()) {
-                errs()<<"[explore] nested loop ... subloop size: "<<current_loop->getSubLoops().size()<<"\n";
+                cout<<"[explore] nested loop ... subloop size: "<<current_loop->getSubLoops().size()<<"\n";
                 // TODO: might change '0' to a reasonable index
                 current_loop = current_loop->getSubLoops()[0];
               }
             }
             targetLoops->push_back(current_loop);
-            errs()<<"*** reach target loop ID: "<<tempLoopID<<"\n";
+            cout<<"*** reach target loop ID: "<<tempLoopID<<"\n";
             break;
           }
           ++tempLoopID;
         }
         if (targetLoops->size() == 0) {
-          errs()<<"... no loop detected in the target kernel ...\n";
+          cout<<"... no loop detected in the target kernel ...\n";
         }
       }
-      errs()<<"... done detected loops.size(): "<<targetLoops->size()<<"\n";
+      cout<<"... done detected loops.size(): "<<targetLoops->size()<<"\n";
       return targetLoops;
     }
   };
