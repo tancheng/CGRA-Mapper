@@ -67,6 +67,12 @@ The mapper requires the following additional prerequisites:
  - LLVM 4.0 ~ LLVM 12.0
  - CMAKE 3.1
 
+```
+ $ mkdir build
+ $ cd build
+ $ cmake ..
+ $ make
+```
 
 Execution
 --------------------------------------------------------
