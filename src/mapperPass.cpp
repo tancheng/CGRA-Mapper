@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include "json.hpp"
 #include "Mapper.h"
 
@@ -75,6 +76,38 @@ namespace {
         json param;
         i >> param;
  
+	// Check param exist or not.
+	set<string> paramKeys;
+	paramKeys.insert("row");
+	paramKeys.insert("column");
+	paramKeys.insert("targetFunction");
+	paramKeys.insert("kernel");
+	paramKeys.insert("targetNested");
+	paramKeys.insert("targetLoopsID");
+	paramKeys.insert("isTrimmedDemo");
+	paramKeys.insert("doCGRAMapping");
+	paramKeys.insert("isStaticElasticCGRA");
+	paramKeys.insert("ctrlMemConstraint");
+	paramKeys.insert("bypassConstraint");
+	paramKeys.insert("regConstraint");
+	paramKeys.insert("precisionAware");
+	paramKeys.insert("heterogeneity");
+	paramKeys.insert("heuristicMapping");
+
+	try
+        {
+          // try to access a nonexisting key
+          for (auto itr : paramKeys)
+          {
+            param.at(itr);
+          }
+        }
+        catch (json::out_of_range& e)
+        {
+          cout<<"Please include related parameter in param.json: "<<e.what()<<endl;
+	  exit(0);
+        }
+
         (*functionWithLoop)[param["kernel"]] = new list<int>();
         json loops = param["targetLoopsID"];
         for (int i=0; i<loops.size(); ++i) {
