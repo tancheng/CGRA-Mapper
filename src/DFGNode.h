@@ -83,6 +83,7 @@ class DFGNode {
     bool isBitcast();
     bool isGetptr();
     bool isOpt(string);
+    bool isVectorized();
     bool hasCombined();
     void setCombine();
     void addPatternPartner(DFGNode*);

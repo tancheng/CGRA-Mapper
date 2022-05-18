@@ -132,6 +132,20 @@ bool DFGNode::isCall() {
   return false;
 }
 
+bool DFGNode::isVectorized() {
+  // TODO: need a more robust way to recognize vectorized instructions.
+  list<string> vectorPatterns = {"<2 x ", "<4 x ", "<8 x ", "<16 x ", "<32 x "};
+  string instStr;
+  raw_string_ostream(instStr) << *m_inst;
+  for (const string & pattern : vectorPatterns) {
+    if (instStr.find(pattern) != string::npos) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool DFGNode::isLoad() {
   if (m_opcodeName.compare("load") == 0)
     return true;
