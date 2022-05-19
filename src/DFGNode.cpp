@@ -127,7 +127,7 @@ StringRef DFGNode::getStringRef() {
 }
 
 bool DFGNode::isCall() {
-  if (m_opcodeName.compare("call") == 0)
+  if (m_opcodeName.compare("call") == 0 && !isVectorized())
     return true;
   return false;
 }
@@ -263,6 +263,21 @@ string DFGNode::getOpcodeName() {
       return "cmp";
     } else if (m_opcodeName.compare("fdiv") == 0) {
       return "div";
+    } else if (m_opcodeName.compare("call") == 0 && isVectorized()) {
+
+      Function *func = ((CallInst*)m_inst)->getCalledFunction();
+      if (func) {
+        string newName = func->getName().str();
+	string removingPattern = "llvm.vector.";
+	int pos = newName.find(removingPattern);
+	newName.erase(pos, removingPattern.length());
+        string delimiter = ".v";
+        newName = newName.substr(0, newName.find(delimiter));
+	replace(newName.begin(), newName.end(), '.', '_');
+	return newName;
+      }
+      else
+        return "indirect call";
     }
   }
 
