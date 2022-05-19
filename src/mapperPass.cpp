@@ -54,6 +54,7 @@ namespace {
       int bypassConstraint          = 4;
       int regConstraint             = 8;
       bool precisionAware           = false;
+      bool diagonalVectorization    = false;
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       map<string, int>* execLatency = new map<string, int>();
@@ -91,6 +92,7 @@ namespace {
 	paramKeys.insert("bypassConstraint");
 	paramKeys.insert("regConstraint");
 	paramKeys.insert("precisionAware");
+	paramKeys.insert("diagonalVectorization");
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
 
@@ -127,6 +129,7 @@ namespace {
         bypassConstraint      = param["bypassConstraint"];
         regConstraint         = param["regConstraint"];
         precisionAware        = param["precisionAware"];
+        diagonalVectorization = param["diagonalVectorization"];
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
@@ -163,7 +166,7 @@ namespace {
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          heterogeneity, execLatency, pipelinedOpt);
-      CGRA* cgra = new CGRA(rows, columns, heterogeneity, additionalFunc);
+      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity, additionalFunc);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);

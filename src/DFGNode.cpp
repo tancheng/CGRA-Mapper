@@ -142,7 +142,6 @@ bool DFGNode::isVectorized() {
       return true;
     }
   }
-
   return false;
 }
 

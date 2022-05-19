@@ -175,11 +175,12 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   if (m_disabled) 
     return false;
   // Check whether this CGRA node supports the required functionality.
-  if ((t_opt->isLoad()      and !canLoad())  or
-      (t_opt->isStore()     and !canStore()) or
-      (t_opt->isReturn()    and !canReturn()) or
-      (t_opt->isCall()      and !canCall())  or
-      (t_opt->hasCombined() and !supportComplex() )){
+  if ((t_opt->isLoad()       and !canLoad())  or
+      (t_opt->isStore()      and !canStore()) or
+      (t_opt->isReturn()     and !canReturn()) or
+      (t_opt->isCall()       and !canCall())  or
+      (t_opt->isVectorized() and !supportVectorization()) or
+      (t_opt->hasCombined()  and !supportComplex() )){
     return false;
   }
   return true;
@@ -424,8 +425,16 @@ void CGRANode::enableComplex() {
   m_supportComplex = true;
 }
 
+void CGRANode::enableVectorization() {
+  m_supportVectorization = true;
+}
+
 bool CGRANode::supportComplex() {
   return m_supportComplex;
+}
+
+bool CGRANode::supportVectorization() {
+  return m_supportVectorization;
 }
 
 bool CGRANode::canCall() {

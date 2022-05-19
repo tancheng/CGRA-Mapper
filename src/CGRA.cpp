@@ -10,8 +10,8 @@
 
 #include "CGRA.h"
 
-CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity,
-           map<string, list<int>*>* t_additionalFunc) {
+CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
+	   bool t_heterogeneity, map<string, list<int>*>* t_additionalFunc) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
@@ -72,9 +72,27 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity,
   // Some other basic operations that can be indicated in the param.json:
   // Enable the specialized 'call' functionality.
   for (int r=0; r<t_rows; ++r) {
-    if (r%2 == 0)
-      nodes[r][t_columns-1]->enableCall();
+    for (int c=0; c<t_columns; ++c) {
+      nodes[r][c]->enableCall();
+    }
   }
+
+  // Enable the vectorization.
+  if (t_diagonalVectorization) {
+    for (int r=0; r<t_rows; ++r) {
+      for (int c=0; c<t_columns; ++c) {
+        if((r+c)%2 == 0)
+          nodes[r][c]->enableVectorization();
+      }
+    }
+  } else {
+    for (int r=0; r<t_rows; ++r) {
+      for (int c=0; c<t_columns; ++c) {
+        nodes[r][c]->enableVectorization();
+      }
+    }
+  }
+
 
   // Enable the heterogeneity.
   if (t_heterogeneity) {
@@ -158,10 +176,10 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_heterogeneity,
   cout<<"[connection] diagonal."<<endl;
 */
 
-  disable();
+  disableSpecificConnections();
 }
 
-void CGRA::disable() {
+void CGRA::disableSpecificConnections() {
 //  nodes[0][0]->disable();
 //  nodes[0][1]->disable();
 //  nodes[0][2]->disable();

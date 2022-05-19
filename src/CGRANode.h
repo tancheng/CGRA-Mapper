@@ -56,6 +56,7 @@ class CGRANode {
     bool m_canLoad;
     bool m_canCall;
     bool m_supportComplex;
+    bool m_supportVectorization;
     int** m_regs_duration;
     int** m_regs_timing;
     vector<list<pair<DFGNode*, int>>*> m_dfgNodesWithOccupyStatus;
@@ -74,6 +75,7 @@ class CGRANode {
     void enableLoad();
     void enableCall();
     void enableComplex();
+    void enableVectorization();
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
     list<CGRALink*>* getInLinks();
@@ -102,6 +104,7 @@ class CGRANode {
     bool canLoad();
     bool canCall();
     bool supportComplex();
+    bool supportVectorization();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);

@@ -500,7 +500,7 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   }
   if (t_isStaticElasticCGRA)
     showCycleBoundary = t_dfg->getNodeCount();
-  while (cycle <= showCycleBoundary) {
+  while (cycle <= 2*showCycleBoundary) {
     cout<<"--------------------------- cycle:"<<cycle<<" ---------------------------"<<endl;
     for (int i=0; i<t_cgra->getRows(); ++i) {
       for (int j=0; j<t_cgra->getColumns(); ++j) {
