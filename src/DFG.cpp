@@ -1077,7 +1077,13 @@ void DFG::showOpcodeDistribution() {
       opcodeItr!=opcodeMap.end(); ++opcodeItr) {
     cout << (*opcodeItr).first << " : " << (*opcodeItr).second << "\n";
   }
-  cout << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"\n";
+  int simdNodeCount = 0;
+  for (DFGNode* node: nodes) {
+    if (node->isVectorized()) {
+      simdNodeCount++;
+    }
+  }    
+  cout << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"; SIMD node count: "<<simdNodeCount<<"\n";
 }
 
 int DFG::getID(DFGNode* t_node) {
