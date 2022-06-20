@@ -270,6 +270,8 @@ string DFGNode::getOpcodeName() {
         string newName = func->getName().str();
 	string removingPattern = "llvm.vector.";
 	int pos = newName.find(removingPattern);
+	if (pos == -1)
+	  pos = newName.find("llvm.");
 	newName.erase(pos, removingPattern.length());
         string delimiter = ".v";
         newName = newName.substr(0, newName.find(delimiter));
