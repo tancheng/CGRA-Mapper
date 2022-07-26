@@ -1,0 +1,13 @@
+
+dist: focal
+language: cpp
+compiler: gcc
+
+install:
+  - sudo apt-get update
+  - sudo apt-get -y install libxml2-dev
+  - sudo apt-get install llvm-12
+
+script:
+  - mkdir build && cd build && cmake ..
+  - make
