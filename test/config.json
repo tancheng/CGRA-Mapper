@@ -30,21 +30,6 @@
     "out_7"       : "none"
   },
   {
-    "x"           : 3,
-    "y"           : 1,
-    "cycle"       : 0,
-    "opt"         : "OPT_NAH",
-    "predicate"   : 0,
-    "out_0"       : "none",
-    "out_1"       : "none",
-    "out_2"       : "0",
-    "out_3"       : "none",
-    "out_4"       : "none",
-    "out_5"       : "none",
-    "out_6"       : "none",
-    "out_7"       : "none"
-  },
-  {
     "x"           : 1,
     "y"           : 2,
     "cycle"       : 0,
@@ -67,7 +52,7 @@
     "opt"         : "OPT_ADD",
     "predicate"   : 0,
     "out_0"       : "none",
-    "out_1"       : "none",
+    "out_1"       : "0",
     "out_2"       : "4",
     "out_3"       : "none",
     "out_4"       : "none",
@@ -76,8 +61,8 @@
     "out_7"       : "none"
   },
   {
-    "x"           : 3,
-    "y"           : 2,
+    "x"           : 2,
+    "y"           : 3,
     "cycle"       : 0,
     "opt"         : "OPT_ADD_CONST",
     "predicate"   : 0,
@@ -131,21 +116,6 @@
     "out_2"       : "none",
     "out_3"       : "none",
     "out_4"       : "2",
-    "out_5"       : "none",
-    "out_6"       : "none",
-    "out_7"       : "none"
-  },
-  {
-    "x"           : 3,
-    "y"           : 1,
-    "cycle"       : 1,
-    "opt"         : "OPT_NAH",
-    "predicate"   : 0,
-    "out_0"       : "none",
-    "out_1"       : "none",
-    "out_2"       : "none",
-    "out_3"       : "none",
-    "out_4"       : "none",
     "out_5"       : "none",
     "out_6"       : "none",
     "out_7"       : "none"
@@ -353,18 +323,18 @@
     "cycle"       : 3,
     "opt"         : "OPT_PHI_CONST",
     "predicate"   : 1,
-    "out_0"       : "none",
+    "out_0"       : "4",
     "out_1"       : "4",
     "out_2"       : "4",
-    "out_3"       : "4",
+    "out_3"       : "none",
     "out_4"       : "2",
     "out_5"       : "none",
     "out_6"       : "none",
     "out_7"       : "none"
   },
   {
-    "x"           : 3,
-    "y"           : 2,
+    "x"           : 2,
+    "y"           : 3,
     "cycle"       : 3,
     "opt"         : "OPT_NAH",
     "predicate"   : 0,
@@ -372,7 +342,7 @@
     "out_1"       : "none",
     "out_2"       : "none",
     "out_3"       : "none",
-    "out_4"       : "2",
+    "out_4"       : "1",
     "out_5"       : "none",
     "out_6"       : "none",
     "out_7"       : "none"
@@ -423,21 +393,6 @@
     "out_7"       : "none"
   },
   {
-    "x"           : 3,
-    "y"           : 1,
-    "cycle"       : 4,
-    "opt"         : "OPT_NAH",
-    "predicate"   : 0,
-    "out_0"       : "none",
-    "out_1"       : "none",
-    "out_2"       : "0",
-    "out_3"       : "none",
-    "out_4"       : "none",
-    "out_5"       : "none",
-    "out_6"       : "none",
-    "out_7"       : "none"
-  },
-  {
     "x"           : 1,
     "y"           : 2,
     "cycle"       : 4,
@@ -460,7 +415,7 @@
     "opt"         : "OPT_ADD",
     "predicate"   : 0,
     "out_0"       : "none",
-    "out_1"       : "none",
+    "out_1"       : "0",
     "out_2"       : "4",
     "out_3"       : "none",
     "out_4"       : "none",
@@ -469,8 +424,8 @@
     "out_7"       : "none"
   },
   {
-    "x"           : 3,
-    "y"           : 2,
+    "x"           : 2,
+    "y"           : 3,
     "cycle"       : 4,
     "opt"         : "OPT_ADD_CONST",
     "predicate"   : 0,
