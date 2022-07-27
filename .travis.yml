@@ -5,15 +5,15 @@ compiler: gcc
 install:
   - sudo apt-get update
   - sudo apt-get install llvm-12
-  - sudo apt-get install clang-12
+  - sudo apt-get install llvm-12-dev
 
 script:
   - export LDFLAGS="-L/usr/lib/llvm-12/lib"
-  - export CFLAGS="-I/usr/local/clang/include"
-  - export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
-  - export C_INCLUDE_PATH=/usr/local/clang/include:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=/usr/local/clang/include:$CPLUS_INCLUDE_PATH
-  - ls /usr/local/
+  - export CFLAGS="-I/usr/local/llvm-12/include"
+  - export LD_LIBRARY_PATH=/usr/lib/llvm-12/lib:$LD_LIBRARY_PATH
+  - export C_INCLUDE_PATH=/usr/local/llvm-12/include:$C_INCLUDE_PATH
+  - export CPLUS_INCLUDE_PATH=/usr/local/llvm-12/include:$CPLUS_INCLUDE_PATH
+  - ls /usr/local/llvm-12/
   - ls /usr/lib/
   - ls /usr/include/
   - clang --version
