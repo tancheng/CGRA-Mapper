@@ -5,12 +5,9 @@ compiler: gcc
 
 install:
   - sudo apt-get update
-  - sudo apt-get install llvm-12
-  - sudo apt-get install llvm-12-dev
+  - sudo apt-get install llvm-7
 
 script:
-  - export C_INCLUDE_PATH="/usr/include/llvm-12/:$C_INCLUDE_PATH"
-  - export CPLUS_INCLUDE_PATH="/usr/include/llvm-12/:$CPLUS_INCLUDE_PATH"
   - mkdir build && cd build && cmake ..
   - make
   - cd ../test && ./compile && ./run
