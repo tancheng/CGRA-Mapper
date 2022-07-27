@@ -1,15 +1,24 @@
 
 dist: focal
-language: ruby
-
-addons:
-  apt:
-    packages:
-      - clang-12
+language: cpp
+compiler: gcc
 
 install:
   - sudo apt-get update
   - sudo apt-get install llvm-12
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-12
+          packages:
+            - clang-12
+      env:
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
 script:
   - mkdir build && cd build && cmake ..
