@@ -11,7 +11,7 @@ matrix:
           packages:
             - clang-12
       env:
-        - MATRIX_EVAL="CC=clang-8 CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-12 CXX=clang++-12"
 
 before_install:
   - eval "${MATRIX_EVAL}"
