@@ -7,12 +7,14 @@ addons:
   homebrew:
     packages:
     - cmake
-    - gcc@11
     - llvm@12
-    - ninja
     update: true
 
 script:
+  - ls /usr/local/Cellar
+  - ls /usr/local/Cellar/llvm
+  - ls /usr/local/Cellar/llvm/*
+  - export LLVM_DIR=/usr/local/Cellar/llvm/12.0.1/lib/cmake
   - mkdir build && cd build && cmake ..
   - make
   - cd ../test && ./compile && ./run
