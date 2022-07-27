@@ -1,12 +1,17 @@
-compiler:
-  - clang-12
-  
-install:
-  - printf "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-12 main" |sudo tee /etc/apt/sources.list.d/llvm-toolchain-xenial-12.list
-  - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key |sudo apt-key add -
-  - sudo apt update
-  - sudo apt install llvm-12
-  
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode12.5.1
+
+addons:
+  homebrew:
+    packages:
+    - cmake
+    - gcc@11
+    - llvm@12
+    - ninja
+    update: true
+
 script:
   - mkdir build && cd build && cmake ..
   - make
