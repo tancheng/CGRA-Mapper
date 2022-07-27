@@ -1,7 +1,6 @@
 
 dist: focal
-language: cpp
-compiler: gcc
+language: ruby
 
 install:
   - sudo apt-get update
