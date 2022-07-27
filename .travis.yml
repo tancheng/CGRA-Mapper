@@ -1,6 +1,15 @@
+sudo: required
 language: cpp
-compiler: gcc
-os: linux
+
+addons: &clang12
+  apt:
+    packages:
+      - clang-12
+      - lldb-12
+      - lld-12
+    sources:
+      - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main"
+        key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key" 
 
 install:
   - sudo apt-get update
