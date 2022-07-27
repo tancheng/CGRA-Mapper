@@ -1,12 +1,10 @@
 dist: focal
 language: cpp
 
-pre_install:
+install:
   - sudo apt remove clang
   - sudo apt remove clang-7
   - sudo apt autoclean && sudo apt autoremove
-
-install:
   - sudo apt-get update
   - sudo apt-get install llvm-12
   - sudo apt-get install llvm-12-dev
