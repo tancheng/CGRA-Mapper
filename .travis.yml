@@ -5,6 +5,7 @@ language: ruby
 install:
   - sudo apt-get update
   - sudo apt-get install llvm-12
+  - sudo apt-get install clang-12
 
 script:
   - export CC=clang-12
