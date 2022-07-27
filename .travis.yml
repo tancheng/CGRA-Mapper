@@ -1,23 +1,16 @@
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode12.5.1
 
-dist: focal
-language: cpp
-compiler: gcc
-
-install:
-  - sudo apt-get update
-  - sudo apt-get install llvm-12
-  - sudo apt-get install clang-12
+addons:
+  homebrew:
+    packages:
+    - cmake
+    - llvm@12
 
 script:
-  - export LDFLAGS="-L/usr/lib/llvm-12/lib"
-  - export CFLAGS="-I/usr/local/clang/include"
-  - export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
-  - export C_INCLUDE_PATH=/usr/local/clang/include:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=/usr/local/clang/include:$CPLUS_INCLUDE_PATH
-  - ls /usr/local/
-  - ls /usr/lib/
-  - ls /usr/include/
-  - clang --version
+  - export LLVM_DIR=/usr/local/Cellar/llvm@12/12.0.1_1/lib/cmake
   - mkdir build && cd build && cmake ..
   - make
-  - cd ../test && ./compile && ./run
+  - cd ../test && source ./compile.sh && source ./run.sh
