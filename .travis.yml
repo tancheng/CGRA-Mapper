@@ -1,20 +1,10 @@
 dist: focal
 language: cpp
 
-matrix:
-  include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - sourceline: 'ppa:ubuntu-toolchain-r/test'
-          packages:
-            - clang-12
-      env:
-        - MATRIX_EVAL="CC=clang-12 CXX=clang++-12"
-
-before_install:
-  - eval "${MATRIX_EVAL}"
+pre_install:
+  - sudo apt remove clang
+  - sudo apt remove clang-7
+  - sudo apt autoclean && sudo apt autoremove
 
 install:
   - sudo apt-get update
