@@ -1,20 +1,4 @@
-matrix:
-  include:
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-12
-          packages:
-            - clang-12
-      env:
-        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
-        
-before_install:
-    - eval "${MATRIX_EVAL}"
-    
+
 install:
   - printf "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-12 main" |sudo tee /etc/apt/sources.list.d/llvm-toolchain-xenial-12.list
   - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key |sudo apt-key add -
