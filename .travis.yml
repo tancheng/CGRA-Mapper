@@ -1,7 +1,11 @@
 
 dist: focal
 language: ruby
-compiler: gcc
+
+addons:
+  apt:
+    packages:
+      - clang-12
 
 install:
   - sudo apt-get update
