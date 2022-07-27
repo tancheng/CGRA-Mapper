@@ -9,7 +9,7 @@
 
 ========================================================
 </pre>
-[![Build Status](https://travis-ci.com/tancheng/CGRA-Mapper.svg?token=yazoBFLC1ynpzdD4wAEP&branch=master)](https://travis-ci.com/github/tancheng/CGRA-Mapper
+<!---[![Build Status](https://travis-ci.com/tancheng/CGRA-Mapper.svg?token=yazoBFLC1ynpzdD4wAEP&branch=master)](https://travis-ci.com/github/tancheng/CGRA-Mapper)--->
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 This is a CGRA (Coarse-Grained Reconfigurable Architecture) mapper to map the target loops onto the CGRA. The CGRA is parameterizable (e.g., CGRA size, type of the computing units in each tile, communication connection, etc.). Different advanced mapping strategies are built on top of this basic mapper. CGRA Mapper currently provides following features and functionalities:
