@@ -1,5 +1,6 @@
 language: cpp
-cimpiler: gcc
+compiler: gcc
+os: linux
 
 install:
   - sudo apt-get update
