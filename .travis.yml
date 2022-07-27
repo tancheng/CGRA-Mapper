@@ -1,11 +1,11 @@
 
 dist: focal
-language: cpp
+language: ruby
 compiler: gcc
 
 install:
   - sudo apt-get update
-  - sudo apt-get install llvm-7
+  - sudo apt-get install llvm-12
 
 script:
   - mkdir build && cd build && cmake ..
