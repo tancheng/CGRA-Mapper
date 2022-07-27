@@ -9,14 +9,12 @@ install:
 
 script:
   - export LDFLAGS="-L/usr/lib/llvm-12/lib"
-  - export CFLAGS="-I/usr/local/llvm-12/include"
+  - export CFLAGS="-I/usr/local/include/llvm-12"
   - export LD_LIBRARY_PATH=/usr/lib/llvm-12/lib:$LD_LIBRARY_PATH
-  - export C_INCLUDE_PATH=/usr/local/llvm-12/include:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=/usr/local/llvm-12/include:$CPLUS_INCLUDE_PATH
-  - ls /usr/local/llvm-12/
+  - export C_INCLUDE_PATH=/usr/local/include/llvm-12:$C_INCLUDE_PATH
+  - export CPLUS_INCLUDE_PATH=/usr/local/include/llvm-12:$CPLUS_INCLUDE_PATH
   - ls /usr/lib/
-  - ls /usr/include/
-  - clang --version
+  - ls /usr/include/llvm12/
   - mkdir build && cd build && cmake ..
   - make
   - cd ../test && ./compile && ./run
