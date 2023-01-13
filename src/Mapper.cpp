@@ -9,15 +9,17 @@
  */
 
 #include "Mapper.h"
+#include "json.hpp"
 #include <cmath>
 #include <iostream>
 #include <string>
 #include <list>
 #include <map>
+#include <vector>
 #include <fstream>
 
 //#include <nlohmann/json.hpp>
-//using json = nlohmann::json;
+using json = nlohmann::json;
 
 int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
   int ResMII = ceil(float(t_dfg->getNodeCount()) / t_cgra->getFUCount());
@@ -480,7 +482,16 @@ int Mapper::getMaxMappingCycle() {
 }
 
 void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
-    bool t_isStaticElasticCGRA) {
+    bool t_isStaticElasticCGRA, bool t_parameterizableCGRA) {
+
+  // tiles and links are in different formats (only used for
+  // parameterizable CGRA, i.e., CGRA-Flow mapping demonstration).
+  // tiles[tileID][cycleID][optID]
+  // links[srcTileID][dstTileID][cycleID]
+  map<string, map<string, vector<int>>> jsonTiles;
+  map<string, map<string, vector<int>>> jsonLinks;
+  map<string, map<string, map<string, vector<int>>>> jsonTilesLinks;
+
   int cycle = 0;
   int displayRows = t_cgra->getRows() * 2 - 1;
   int displayColumns = t_cgra->getColumns() * 2;
@@ -501,6 +512,26 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   if (t_isStaticElasticCGRA)
     showCycleBoundary = t_dfg->getNodeCount();
   while (cycle <= 2*showCycleBoundary) {
+
+    if (cycle < t_II and t_parameterizableCGRA) {
+      for (int i=0; i<t_cgra->getLinkCount(); ++i) {
+	CGRALink* link = t_cgra->links[i];
+        if (link->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          string strSrcNodeID = to_string(link->getSrc()->getID());
+          string strDstNodeID = to_string(link->getDst()->getID());
+          if (jsonLinks.find(strSrcNodeID) == jsonLinks.end()) {
+            map<string, vector<int>> jsonLinkDsts;
+            jsonLinks[strSrcNodeID] = jsonLinkDsts;
+          }
+          if (jsonLinks[strSrcNodeID].find(strDstNodeID) == jsonLinks[strSrcNodeID].end()) {
+            vector<int> jsonLinkDstCycles;
+            jsonLinks[strSrcNodeID][strDstNodeID] = jsonLinkDstCycles;
+          }
+          jsonLinks[strSrcNodeID][strDstNodeID].push_back(cycle);
+	}
+      }
+    }
+
     cout<<"--------------------------- cycle:"<<cycle<<" ---------------------------"<<endl;
     for (int i=0; i<t_cgra->getRows(); ++i) {
       for (int j=0; j<t_cgra->getColumns(); ++j) {
@@ -532,6 +563,15 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
             str_fu = "[  " + to_string(dfgNode->getID()) + "  ]";
           else
             str_fu = "[ " + to_string(dfgNode->getID()) + "  ]";
+	  string strNodeID = to_string(t_cgra->nodes[i][j]->getID());
+	  if (t_parameterizableCGRA) {
+	    if (jsonTiles.find(strNodeID) == jsonTiles.end()) {
+              map<string, vector<int>> jsonTileCycleOps;
+	      jsonTiles[strNodeID] = jsonTileCycleOps;
+	    }
+	    vector<int> jsonCycleOp { dfgNode->getID() };
+	    jsonTiles[strNodeID][to_string(cycle % t_II)] = jsonCycleOp;
+	  }
         } else {
           str_fu = "[     ]";
         }
@@ -547,15 +587,15 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
           string str_link = "";
           CGRALink* lu = t_cgra->getLink(t_cgra->nodes[i][j], t_cgra->nodes[i+1][j]);
           CGRALink* ld = t_cgra->getLink(t_cgra->nodes[i+1][j], t_cgra->nodes[i][j]);
-          if (ld->isOccupied(cycle, t_II, t_isStaticElasticCGRA) and
-              lu->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          if (ld != NULL and ld->isOccupied(cycle, t_II, t_isStaticElasticCGRA) and
+              lu != NULL and lu->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             str_link = "   \u21c5 ";
-          } else if (ld->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          } else if (ld != NULL and ld->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             if (!ld->isBypass(cycle))
               str_link = "   \u2193 ";
             else
               str_link = "   \u2193 ";
-          } else if (lu->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          } else if (lu != NULL and lu->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             if (!lu->isBypass(cycle))
               str_link = "   \u2191 ";
             else
@@ -569,15 +609,15 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
           string str_link = "";
           CGRALink* lr = t_cgra->getLink(t_cgra->nodes[i][j], t_cgra->nodes[i][j+1]);
           CGRALink* ll = t_cgra->getLink(t_cgra->nodes[i][j+1], t_cgra->nodes[i][j]);
-          if (lr->isOccupied(cycle, t_II, t_isStaticElasticCGRA) and
-              ll->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          if (lr != NULL and lr->isOccupied(cycle, t_II, t_isStaticElasticCGRA) and
+              ll != NULL and ll->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             str_link = " \u21c4 ";
-          } else if (lr->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          } else if (lr != NULL and lr->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             if (!lr->isBypass(cycle))
               str_link = " \u2192 ";
             else
               str_link = " \u2192 ";
-          } else if (ll->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+          } else if (ll != NULL and ll->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
             if (!ll->isBypass(cycle))
               str_link = " \u2190 ";
             else
@@ -599,7 +639,15 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     }
     ++cycle;
   }
-  cout<<"II: "<<t_II<<endl;
+  cout<<"[Mapping II: "<<t_II<<"]"<<endl;
+
+  if (t_parameterizableCGRA) {
+    jsonTilesLinks["tiles"] = jsonTiles;
+    jsonTilesLinks["links"] = jsonLinks;
+    json jsonMap(jsonTilesLinks);
+    ofstream f("schedule.json", ios_base::trunc | ios_base::out);
+    f << jsonMap;
+  }
 }
 
 void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,

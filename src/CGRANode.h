@@ -55,6 +55,15 @@ class CGRANode {
     bool m_canStore;
     bool m_canLoad;
     bool m_canCall;
+    bool m_canAdd;
+    bool m_canMul;
+    bool m_canShift;
+    bool m_canPhi;
+    bool m_canSel;
+    bool m_canCmp;
+    bool m_canMAC;
+    bool m_canLogic;
+    bool m_canBr;
     bool m_supportComplex;
     bool m_supportVectorization;
     int** m_regs_duration;
@@ -76,6 +85,16 @@ class CGRANode {
     void enableCall();
     void enableComplex();
     void enableVectorization();
+    void enableAdd();
+    void enableMul();
+    void enableShift();
+    void enablePhi();
+    void enableSel();
+    void enableCmp();
+    void enableMAC();
+    void enableLogic();
+    void enableBr();
+
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
     list<CGRALink*>* getInLinks();
@@ -105,12 +124,22 @@ class CGRANode {
     bool canCall();
     bool supportComplex();
     bool supportVectorization();
+    bool canAdd();
+    bool canMul();
+    bool canShift();
+    bool canPhi();
+    bool canSel();
+    bool canCmp();
+    bool canMAC();
+    bool canLogic();
+    bool canBr();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);
     void allocateReg(int, int, int, int);
     int* getRegsAllocation(int);
     void disable();
+    void disableAllFUs();
 };
 
 #endif

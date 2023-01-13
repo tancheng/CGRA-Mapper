@@ -43,6 +43,16 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_regs_duration = NULL;
   m_regs_timing = NULL;
 
+  // used for parameterizable CGRA functional units
+  m_canAdd   = true;
+  m_canMul   = true;
+  m_canShift = true;
+  m_canPhi   = true;
+  m_canSel   = true;
+  m_canCmp   = true;
+  m_canMAC   = true;
+  m_canLogic = true;
+  m_canBr    = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -429,6 +439,43 @@ void CGRANode::enableVectorization() {
   m_supportVectorization = true;
 }
 
+void CGRANode::enableAdd() {
+  m_canAdd = true;
+}
+
+void CGRANode::enableMul() {
+  m_canMul = true;
+}
+
+void CGRANode::enableShift() {
+  m_canShift = true;
+}
+
+void CGRANode::enablePhi() {
+  m_canPhi = true;
+}
+
+void CGRANode::enableSel() {
+  m_canSel = true;
+}
+
+void CGRANode::enableCmp() {
+  m_canCmp = true;
+}
+
+void CGRANode::enableMAC() {
+  m_canMAC = true;
+}
+
+void CGRANode::enableLogic() {
+  m_canLogic = true;
+}
+
+void CGRANode::enableBr() {
+  m_canBr = true;
+}
+
+
 bool CGRANode::supportComplex() {
   return m_supportComplex;
 }
@@ -453,6 +500,42 @@ bool CGRANode::canLoad() {
   return m_canLoad;
 }
 
+bool CGRANode::canAdd() {
+  return m_canAdd;
+}
+
+bool CGRANode::canMul() {
+  return m_canMul;
+}
+
+bool CGRANode::canShift() {
+  return m_canShift;
+}
+
+bool CGRANode::canPhi() {
+  return m_canPhi;
+}
+
+bool CGRANode::canSel() {
+  return m_canSel;
+}
+
+bool CGRANode::canCmp() {
+  return m_canCmp;
+}
+
+bool CGRANode::canMAC() {
+  return m_canMAC;
+}
+
+bool CGRANode::canLogic() {
+  return m_canLogic;
+}
+
+bool CGRANode::canBr() {
+  return m_canBr;
+}
+
 int CGRANode::getX() {
   return m_x;
 }
@@ -469,4 +552,22 @@ void CGRANode::disable() {
   for (CGRALink* link: m_outLinks) {
     link->disable();
   }
+}
+
+void CGRANode::disableAllFUs() {
+  m_canReturn = false;
+  m_canStore = false;
+  m_canLoad = false;
+  m_canCall = false;
+  m_canAdd = false;
+  m_canMul = false;
+  m_canShift = false;
+  m_canPhi = false;
+  m_canSel = false;
+  m_canCmp = false;
+  m_canMAC = false;
+  m_canLogic = false;
+  m_canBr = false;
+  m_supportComplex = false;
+  m_supportVectorization = false;
 }

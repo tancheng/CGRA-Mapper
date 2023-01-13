@@ -57,6 +57,7 @@ namespace {
       bool diagonalVectorization    = false;
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
+      bool parameterizableCGRA      = false;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -95,6 +96,7 @@ namespace {
 	paramKeys.insert("diagonalVectorization");
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
+	paramKeys.insert("parameterizableCGRA");
 
 	try
         {
@@ -132,6 +134,7 @@ namespace {
         diagonalVectorization = param["diagonalVectorization"];
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
+        parameterizableCGRA   = param["parameterizableCGRA"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -166,7 +169,8 @@ namespace {
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          heterogeneity, execLatency, pipelinedOpt);
-      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity, additionalFunc);
+      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
+		            parameterizableCGRA, additionalFunc);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);
@@ -229,9 +233,9 @@ namespace {
       if (II == -1)
         cout << "[fail]\n";
       else {
-        mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA);
+        mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
         cout << "==================================\n";
-        cout << "[success]\n";
+        cout << "[Mapping Success]\n";
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
         cout << "[Output Json]\n";

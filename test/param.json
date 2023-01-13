@@ -10,6 +10,7 @@
   "heterogeneity"         : false,
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,
+  "parameterizableCGRA"   : true,
   "diagonalVectorization" : false,
   "bypassConstraint"      : 4,
   "isStaticElasticCGRA"   : false,

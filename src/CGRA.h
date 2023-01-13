@@ -25,10 +25,11 @@ class CGRA {
     void disableSpecificConnections();
 
   public:
-    CGRA(int, int, bool, bool, map<string, list<int>*>*);
+    CGRA(int, int, bool, bool, bool, map<string, list<int>*>*);
     CGRANode ***nodes;
     CGRALink **links;
     int getFUCount();
+    int getLinkCount();
     void getRoutingResource();
     void constructMRRG(int);
     int getRows() { return m_rows; }
