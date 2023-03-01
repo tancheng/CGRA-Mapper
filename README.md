@@ -23,6 +23,9 @@ This is a CGRA (Coarse-Grained Reconfigurable Architecture) mapper to map the ta
 - The generated dfg.json and config.json can be taken as inputs for the simulation in the [OpenCGRA](https://github.com/tancheng/OpenCGRA) (register index needed to be manually added/distinguished).
 - Benchmark including a set of representative kernels/applications with compilation scripts can be found [here](https://github.com/tancheng/CGRA-Bench).
 
+Docker
+--------------------------------------------------------
+The docker image is available [here](https://hub.docker.com/layers/cgra/cgra-flow/demo/images/sha256-7ca327d24f555376d91cba6fa30e3fbaa4a4c0d4053a82ac9059c374a3dee5bd?context=repo).
 
 Showcase
 --------------------------------------------------------
