@@ -27,7 +27,6 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_id = t_id;
   m_currentCtrlMemItems = 0;
   m_disabled = false;
-  m_canReturn = false;
   m_canStore = false;
   m_canLoad = false;
   m_supportComplex = false;
@@ -43,16 +42,17 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_regs_timing = NULL;
 
   // used for parameterizable CGRA functional units
-  m_canCall  = true;
-  m_canAdd   = true;
-  m_canMul   = true;
-  m_canShift = true;
-  m_canPhi   = true;
-  m_canSel   = true;
-  m_canCmp   = true;
-  m_canMAC   = true;
-  m_canLogic = true;
-  m_canBr    = true;
+  m_canCall   = true;
+  m_canAdd    = true;
+  m_canMul    = true;
+  m_canShift  = true;
+  m_canPhi    = true;
+  m_canSel    = true;
+  m_canCmp    = true;
+  m_canMAC    = true;
+  m_canLogic  = true;
+  m_canBr     = true;
+  m_canReturn = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
