@@ -144,9 +144,9 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     // Some other basic operations that can be indicated in the param.json:
     // Enable the specialized 'call' functionality.
     for (int r=0; r<t_rows; ++r) {
-      // for (int c=0; c<t_columns; ++c) {
-        nodes[r][1]->enableCall();
-      // }
+      for (int c=0; c<t_columns; ++c) {
+        nodes[r][c]->enableCall();
+      }
     }
 
     // Enable the vectorization.
