@@ -30,7 +30,6 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canReturn = false;
   m_canStore = false;
   m_canLoad = false;
-  m_canCall = false;
   m_supportComplex = false;
   m_x = t_x;
   m_y = t_y;
@@ -44,6 +43,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_regs_timing = NULL;
 
   // used for parameterizable CGRA functional units
+  m_canCall  = true;
   m_canAdd   = true;
   m_canMul   = true;
   m_canShift = true;
