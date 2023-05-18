@@ -177,7 +177,9 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     }
 
     for (int r=0; r<t_rows; ++r) {
-      nodes[r][t_columns-1]->enableReturn();
+      for (int c=0; c<t_columns; ++c) {
+        nodes[r][c]->enableReturn();
+      }
     }
 
     // Connect the CGRA nodes with links.
