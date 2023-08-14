@@ -190,7 +190,15 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isReturn()     and !canReturn()) or
       (t_opt->isCall()       and !canCall())  or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->hasCombined()  and !supportComplex() )){
+      (t_opt->hasCombined()  and !supportComplex()) or
+      (t_opt->isAdd()        and !canAdd()) or 
+      (t_opt->isMul()        and !canMul()) or 
+      (t_opt->isPhi()        and !canPhi()) or 
+   // (t_opt->isSel()        and !canSel()) or 
+   // (t_opt->isMAC()        and !canMAC()) or 
+   // (t_opt->isLogic()      and !canLogic()) or 
+   // (t opt->isBr()         and !canBr()) or 
+      (t_opt->isCmp()        and !canCmp()) ){ 
     return false;
   }
   return true;
