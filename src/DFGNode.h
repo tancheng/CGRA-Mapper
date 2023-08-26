@@ -82,6 +82,9 @@ class DFGNode {
     bool isCmp();
     bool isBitcast();
     bool isGetptr();
+    bool isSel();
+    bool isMAC();
+    bool isLogic();
     bool isOpt(string);
     bool isVectorized();
     bool hasCombined();
