@@ -197,7 +197,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isSel()        and !canSel()) or 
       (t_opt->isMAC()        and !canMAC()) or 
       (t_opt->isLogic()      and !canLogic()) or 
-      (t opt->isBranch()     and !canBr()) or 
+      (t_opt->isBranch()     and !canBr()) or 
       (t_opt->isCmp()        and !canCmp()) ){ 
     return false;
   }
