@@ -216,6 +216,30 @@ bool DFGNode::isGetptr() {
   return false;
 }
 
+bool DFGNode::isSel() {
+  if (m_opcodeName.compare("select") == 0)
+    return true;
+  return false;
+}
+
+bool DFGNode::isMAC() {
+  if ((m_opcodeName.compare("getelementptr") == 0 or
+      m_opcodeName.compare("add") == 0  or
+      m_opcodeName.compare("fadd") == 0 or
+      m_opcodeName.compare("sub") == 0  or
+      m_opcodeName.compare("fsub") == 0) &&
+      (m_opcodeName.compare("fmul") == 0 or
+      m_opcodeName.compare("mul") == 0))
+    return true;
+  return false;
+}
+
+bool DFGNode::isLogic() {
+  if (m_opcodeName.compare("or") == 0 or m_opcodeName.compare("and") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::hasCombined() {
   return m_combined;
 }
