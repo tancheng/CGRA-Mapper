@@ -251,8 +251,10 @@ namespace {
         cout << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
-        cout << "==================================\n";
         cout << "[Mapping Success]\n";
+        cout << "==================================\n";
+        cout << "[Utilization]\n";
+        mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA);
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
 	cout << "[Output Json]\n";

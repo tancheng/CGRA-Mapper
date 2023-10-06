@@ -481,6 +481,106 @@ int Mapper::getMaxMappingCycle() {
   return m_maxMappingCycle;
 }
 
+void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStaticElasticCGRA) {
+
+  // Indicates the busy cycles of the functional units inside the
+  // tile.
+  map<int, int> tile_fu_busy_cycles; 
+  // Indicates the busy cycles of the crossbar inside the tile.
+  map<int, int> tile_xbar_busy_cycles;;
+  // Indicates the busy cycles of both the functional units and
+  // crossbar inside the tile. Note that this is not simply the
+  // sum of `tile_fu_busy_cycles` and the `tile_xbar_busy_cycles`
+  // as both the fu and xbar can be busy at the same cycle.
+  map<int, int> tile_overall_busy_cycles; 
+
+  map<int, float> tile_fu_utilization; 
+  map<int, float> tile_xbar_utilization;
+  map<int, float> tile_overall_utilization; 
+
+  for (int i=0; i<t_cgra->getRows(); ++i) {
+    for (int j=0; j<t_cgra->getColumns(); ++j) {
+      auto tile = t_cgra->nodes[i][j];
+      for (int cycle = 0; cycle < t_II; ++cycle) {
+	bool is_tile_busy = false;
+        if (t_cgra->nodes[i][j]->isOccupied(cycle, t_II)) {
+          if (tile_fu_busy_cycles.find(tile->getID()) ==
+	      tile_fu_busy_cycles.end()) {
+            tile_fu_busy_cycles[tile->getID()] = 0;
+          }
+          // Xbar is always busy if the fu is busy. This is because the
+	  // output of the fu would always go through the xbar no matter
+	  // where is the destination (even towards itself, constrained
+	  // by the hardware architecture).
+	  // TODO: xbar may not be in busy if the fu is in use with a
+	  // multi-cycle non-pipelined execution.
+          if (tile_xbar_busy_cycles.find(tile->getID()) ==
+	      tile_xbar_busy_cycles.end()) {
+            tile_xbar_busy_cycles[tile->getID()] = 0;
+          }
+          tile_fu_busy_cycles[tile->getID()] += 1;
+          tile_xbar_busy_cycles[tile->getID()] += 1;
+	  is_tile_busy = true;
+        } else {
+	  // Don't need to check the out links as out links is the in
+	  // links of the destination tiles.
+	  for (auto inLink : *(tile->getInLinks())) {
+	    if (inLink->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+              if (tile_xbar_busy_cycles.find(tile->getID()) ==
+    	          tile_xbar_busy_cycles.end()) {
+                tile_xbar_busy_cycles[tile->getID()] = 0;
+	      }
+              tile_xbar_busy_cycles[tile->getID()] += 1;
+	      is_tile_busy = true;
+	      // Only needs to set the xbar busy once.
+	      break;
+  	    }
+	  }
+	}
+	// Increments busy cycle of the tile either its fu or xbar
+	// is busy.
+	if (is_tile_busy) {
+          if (tile_overall_busy_cycles.find(tile->getID()) ==
+    	      tile_overall_busy_cycles.end()) {
+            tile_overall_busy_cycles[tile->getID()] = 0;
+	  }
+	  tile_overall_busy_cycles[tile->getID()] += 1;
+	}
+      }
+      tile_fu_utilization[tile->getID()] =
+        ((float)tile_fu_busy_cycles[tile->getID()]) / t_II;
+      tile_xbar_utilization[tile->getID()] =
+        ((float)tile_xbar_busy_cycles[tile->getID()]) / t_II;
+      tile_overall_utilization[tile->getID()] =
+        ((float)tile_overall_busy_cycles[tile->getID()]) / t_II;
+    }
+  }
+
+//    if (cycle < t_II and t_parameterizableCGRA) {
+//      for (int i=0; i<t_cgra->getLinkCount(); ++i) {
+//	CGRALink* link = t_cgra->links[i];
+//        if (link->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+//          string strSrcNodeID = to_string(link->getSrc()->getID());
+//          string strDstNodeID = to_string(link->getDst()->getID());
+//          if (jsonLinks.find(strSrcNodeID) == jsonLinks.end()) {
+//            map<string, vector<int>> jsonLinkDsts;
+//            jsonLinks[strSrcNodeID] = jsonLinkDsts;
+//          }
+//          if (jsonLinks[strSrcNodeID].find(strDstNodeID) == jsonLinks[strSrcNodeID].end()) {
+//            vector<int> jsonLinkDstCycles;
+//            jsonLinks[strSrcNodeID][strDstNodeID] = jsonLinkDstCycles;
+//          }
+//          jsonLinks[strSrcNodeID][strDstNodeID].push_back(cycle);
+//	}
+//      }
+//    }
+
+  // TODO: should ignore the disabled tiles.
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    cout << "tile[" << tile << "] fu utilization: " << tile_fu_utilization[tile] << "; xbar utilization: " << tile_xbar_utilization[tile] << "; overall utilization: " << tile_overall_utilization[tile] << endl;
+  }
+}
+ 
 void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA, bool t_parameterizableCGRA) {
 
