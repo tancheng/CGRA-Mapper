@@ -39,5 +39,6 @@ class Mapper {
         DFGNode*, list<map<CGRANode*, int>*>*);
     bool schedule(CGRA*, DFG*, int, DFGNode*, map<CGRANode*, int>*, bool);
     void showSchedule(CGRA*, DFG*, int, bool, bool);
+    void showUtilization(CGRA*, DFG*, int, bool);
     void generateJSON(CGRA*, DFG*, int, bool);
 };
