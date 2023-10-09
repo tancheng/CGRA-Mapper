@@ -575,9 +575,44 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
 //      }
 //    }
 
+  // Islandize the CGRA nodes. In the prototype, each set of 2x2 nodes are
+  // grouped as one island. For example, a 4x4 CGRA has 2x2 islands, the
+  // tiles of (0, 2), (0, 3), (1, 2), (1, 3) are viewd as the (0, 1) island.
+  std::map<tuple<int, int>, vector<CGRANode>> island_map;
+  constexpr int kIslandDim = 2;
+  for (int i=0; i<t_cgra->getRows(); ++i) {
+    for (int j=0; j<t_cgra->getColumns(); ++j) {
+      auto tile = t_cgra->nodes[i][j];
+      const int tile_x = tile->getX();
+      const int tile_y = tile->getY();
+      const int island_x = tile_x / kIslandDim;
+      const int island_y = tile_y / kIslandDim;
+      auto island_location = std::make_tuple(island_x, island_y);
+
+      if (island_map.find(island_location) != island_map.end()) {
+        island_map[island_location].push_back(*tile);
+      } else {
+	std::vector<CGRANode> tiles{*tile};
+        island_map[island_location] = tiles;
+      }
+    }
+  }
+
   // TODO: should ignore the disabled tiles.
   for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
     cout << "tile[" << tile << "] fu utilization: " << tile_fu_utilization[tile] << "; xbar utilization: " << tile_xbar_utilization[tile] << "; overall utilization: " << tile_overall_utilization[tile] << endl;
+  }
+
+  for (auto const& island_tiles : island_map) {
+    float max_utilization_within_island = 0.0f;
+    for (auto tile : island_tiles.second) {
+      if (max_utilization_within_island < tile_overall_utilization[tile.getID()]) {
+        max_utilization_within_island = tile_overall_utilization[tile.getID()];
+      }
+    }
+    std::cout << "island (" << std::get<0>(island_tiles.first)
+	      << "," << std::get<1>(island_tiles.first)
+	      << ") utilization: " << max_utilization_within_island << endl;
   }
 }
  
