@@ -603,6 +603,25 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
     cout << "tile[" << tile << "] fu utilization: " << tile_fu_utilization[tile] << "; xbar utilization: " << tile_xbar_utilization[tile] << "; overall utilization: " << tile_overall_utilization[tile] << endl;
   }
 
+  // Collects the histogram of tiles' utilization.
+  // Histogram for the number of tiles that have utilization in [0%, 25%].
+  int tile_count_0_to_25 = 0;
+  // Histogram for the number of tiles that have utilization in (25%, 50%].
+  int tile_count_25_to_50 = 0;
+  // Histogram for the number of tiles that have utilization in (50%, 100%].
+  int tile_count_50_to_100 = 0;
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    if (tile_overall_utilization[tile] <= 0.25) {
+      tile_count_0_to_25 += 1;
+    } else if (tile_overall_utilization[tile] <= 0.5) {
+      tile_count_25_to_50 += 1;
+    } else {
+      tile_count_50_to_100 += 1;
+    }
+  }
+
+  // Assembles utilization of islands.
+  std::map<tuple<int, int>, float> island_utilizations;
   for (auto const& island_tiles : island_map) {
     float max_utilization_within_island = 0.0f;
     for (auto tile : island_tiles.second) {
@@ -610,10 +629,36 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
         max_utilization_within_island = tile_overall_utilization[tile.getID()];
       }
     }
+    island_utilizations[island_tiles.first] = max_utilization_within_island;
     std::cout << "island (" << std::get<0>(island_tiles.first)
-	      << "," << std::get<1>(island_tiles.first)
-	      << ") utilization: " << max_utilization_within_island << endl;
+              << "," << std::get<1>(island_tiles.first)
+              << ") utilization: " << max_utilization_within_island << endl;
   }
+
+  // Collects the histogram of islands' utilization.
+  // Histogram for the number of islands that have utilization in [0%, 25%].
+  int island_count_0_to_25 = 0;
+  // Histogram for the number of islands that have utilization in (25%, 50%].
+  int island_count_25_to_50 = 0;
+  // Histogram for the number of islands that have utilization in (50%, 100%].
+  int island_count_50_to_100 = 0;
+  for (auto const& island_utilization : island_utilizations) {
+    if (island_utilization.second <= 0.25) {
+      island_count_0_to_25 += 1;
+    } else if (island_utilization.second <= 0.5) {
+      island_count_25_to_50 += 1;
+    } else {
+      island_count_50_to_100 += 1;
+    }
+  }
+
+  std::cout << "histogram [0%, 25%] tile utilization: " << tile_count_0_to_25 << endl;
+  std::cout << "histogram (25%, 50%] tile utilization: " << tile_count_25_to_50 << endl;
+  std::cout << "histogram (50%, 100%] tile utilization: " << tile_count_50_to_100 << endl;
+
+  std::cout << "histogram [0%, 25%] island utilization: " << island_count_0_to_25 << endl;
+  std::cout << "histogram (25%, 50%] island utilization: " << island_count_25_to_50 << endl;
+  std::cout << "histogram (50%, 100%] island utilization: " << island_count_50_to_100 << endl;
 }
  
 void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
