@@ -70,6 +70,8 @@ class CGRANode {
     int** m_regs_timing;
     vector<list<pair<DFGNode*, int>>*> m_dfgNodesWithOccupyStatus;
 
+    bool m_supportDVFS;
+
   public:
     CGRANode(int, int, int);
 //    CGRANode(int, int, int, int, int);
@@ -77,6 +79,7 @@ class CGRANode {
     void setCtrlMemConstraint(int);
     void setID(int);
     void setLocation(int, int);
+    void enableDVFS();
     int getID();
     bool enableFunctionality(string);
     void enableReturn();

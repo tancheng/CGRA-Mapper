@@ -16,6 +16,7 @@
   "isStaticElasticCGRA"   : false,
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
+  "supportDVFS"           : true,
   "optLatency"            : {
                               "load" : 2,
                               "store": 2
