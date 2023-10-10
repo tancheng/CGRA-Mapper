@@ -22,10 +22,11 @@ class CGRA {
     int m_LinkCount;
     int m_rows;
     int m_columns;
+    bool m_supportDVFS;
     void disableSpecificConnections();
 
   public:
-    CGRA(int, int, bool, bool, bool, map<string, list<int>*>*);
+    CGRA(int, int, bool, bool, bool, map<string, list<int>*>*, bool);
     CGRANode ***nodes;
     CGRALink **links;
     int getFUCount();

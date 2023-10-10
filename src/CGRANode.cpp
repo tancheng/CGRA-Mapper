@@ -53,6 +53,11 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canLogic  = true;
   m_canBr     = true;
   m_canReturn = true;
+
+  // supportDVFS should be leveraged with the optLatency (i.e., multi-
+  // cycle execution) to mimic the operations running on the low
+  // frequency.
+  m_supportDVFS = false;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -122,6 +127,10 @@ void CGRANode::setID(int t_id) {
 void CGRANode::setLocation(int t_x, int t_y) {
   m_x = t_x;
   m_y = t_y;
+}
+
+void CGRANode::enableDVFS() {
+  m_supportDVFS = true;
 }
 
 int CGRANode::getID() {
@@ -278,7 +287,8 @@ bool CGRANode::isOccupied(int t_cycle, int t_II) {
   for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
     for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
       // if (m_fuOccupied[cycle])
-      if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY) {
+      // if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY or p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) {
+      if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY or m_supportDVFS) {
         return true;
       }
     }

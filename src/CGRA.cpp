@@ -16,10 +16,11 @@ using json = nlohmann::json;
 
 CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 	   bool t_heterogeneity, bool t_parameterizableCGRA,
-	   map<string, list<int>*>* t_additionalFunc) {
+	   map<string, list<int>*>* t_additionalFunc, bool t_supportDVFS) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
+  m_supportDVFS = t_supportDVFS;
   nodes = new CGRANode**[t_rows];
 
   if (t_parameterizableCGRA) {
@@ -218,6 +219,14 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     }
 
     disableSpecificConnections();
+  }
+
+  if (t_supportDVFS) {
+    for (int r=0; r<t_rows; ++r) {
+      for (int c=0; c<t_columns; ++c) {
+        nodes[r][c]->enableDVFS();
+      }
+    }
   }
 
 /*
