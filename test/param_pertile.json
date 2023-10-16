@@ -17,7 +17,7 @@
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
   "supportDVFS"           : true,
-  "DVFSIslandDim"         : 2,
-  "DVFSAwareMapping"      : true
+  "DVFSIslandDim"         : 1,
+  "DVFSAwareMapping"      : false
 }
 

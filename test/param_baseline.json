@@ -16,8 +16,8 @@
   "isStaticElasticCGRA"   : false,
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
-  "supportDVFS"           : true,
-  "DVFSIslandDim"         : 2,
-  "DVFSAwareMapping"      : true
+  "supportDVFS"           : false,
+  "DVFSIslandDim"         : 1,
+  "DVFSAwareMapping"      : false
 }
 

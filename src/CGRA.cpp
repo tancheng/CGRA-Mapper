@@ -16,11 +16,13 @@ using json = nlohmann::json;
 
 CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 	   bool t_heterogeneity, bool t_parameterizableCGRA,
-	   map<string, list<int>*>* t_additionalFunc, bool t_supportDVFS) {
+	   map<string, list<int>*>* t_additionalFunc,
+	   bool t_supportDVFS, int t_DVFSIslandDim) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
   m_supportDVFS = t_supportDVFS;
+  m_DVFSIslandDim = t_DVFSIslandDim;
   nodes = new CGRANode**[t_rows];
 
   if (t_parameterizableCGRA) {
@@ -225,6 +227,19 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     for (int r=0; r<t_rows; ++r) {
       for (int c=0; c<t_columns; ++c) {
         nodes[r][c]->enableDVFS();
+	int DVFSIslandX = c / t_DVFSIslandDim;
+	int DVFSIslandY = r / t_DVFSIslandDim;
+	int DVFSIslandId = DVFSIslandX + DVFSIslandY * t_columns / t_DVFSIslandDim;
+        nodes[r][c]->setDVFSIsland(DVFSIslandX, DVFSIslandY, DVFSIslandId);
+	// Islandize the CGRA nodes. In the prototype, each set of 2x2 nodes are
+        // grouped as one island. For example, a 4x4 CGRA has 2x2 islands, the
+        // tiles of (0, 2), (0, 3), (1, 2), (1, 3) are viewd as the (0, 1) island.
+	if (m_DVFSIslands.find(DVFSIslandId) != m_DVFSIslands.end()) {
+          m_DVFSIslands[DVFSIslandId].push_back(nodes[r][c]);
+	} else {
+          vector<CGRANode*> tiles{nodes[r][c]};
+          m_DVFSIslands[DVFSIslandId] = tiles;
+	}
       }
     }
   }
@@ -338,3 +353,17 @@ CGRALink* CGRA::getLink(CGRANode* t_n1, CGRANode* t_n2) {
 int CGRA::getLinkCount() {
   return m_LinkCount;
 }
+
+map<int, vector<CGRANode*>> CGRA::getDVFSIslands() {
+  return m_DVFSIslands;
+}
+
+void CGRA::syncDVFSIsland(CGRANode* t_node) {
+  int islandID = t_node->getDVFSIslandID();
+  for (auto& nodeWithinIsland : m_DVFSIslands[islandID]) {
+    nodeWithinIsland->setDVFSLatencyMultiple(t_node->getDVFSLatencyMultiple());
+    nodeWithinIsland->syncDVFS();
+    cout << "[cheng] synced for node: " << nodeWithinIsland->getID() << "; check synced: " << nodeWithinIsland->isSynced() << "; addr: " << nodeWithinIsland << endl;
+  }
+}
+

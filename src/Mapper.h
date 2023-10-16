@@ -26,9 +26,10 @@ class Mapper {
     bool DFSMap(CGRA*, DFG*, int, list<DFGNode*>*, list<map<CGRANode*, int>*>*, bool);
     list<map<CGRANode*, int>*>* getOrderedPotentialPaths(CGRA*, DFG*, int,
         DFGNode*, list<map<CGRANode*, int>*>*);
+    bool m_DVFSAwareMapping;
 
   public:
-    Mapper(){}
+    Mapper(bool);
     int getResMII(DFG*, CGRA*);
     int getRecMII(DFG*);
     void constructMRRG(DFG*, CGRA*, int);

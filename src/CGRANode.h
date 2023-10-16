@@ -71,6 +71,13 @@ class CGRANode {
     vector<list<pair<DFGNode*, int>>*> m_dfgNodesWithOccupyStatus;
 
     bool m_supportDVFS;
+    int m_DVFSIslandX;
+    int m_DVFSIslandY;
+    int m_DVFSIslandId;
+
+    int m_DVFSLatencyMultiple;
+    bool m_mapped;
+    bool m_synced;
 
   public:
     CGRANode(int, int, int);
@@ -80,6 +87,11 @@ class CGRANode {
     void setID(int);
     void setLocation(int, int);
     void enableDVFS();
+    bool isDVFSEnabled();
+    void setDVFSIsland(int, int, int);
+    int getDVFSIslandID();
+    int getDVFSIslandX();
+    int getDVFSIslandY();
     int getID();
     bool enableFunctionality(string);
     void enableReturn();
@@ -143,6 +155,15 @@ class CGRANode {
     int* getRegsAllocation(int);
     void disable();
     void disableAllFUs();
+    void setDVFSLatencyMultiple(int);
+    int getDVFSLatencyMultiple();
+    bool isFrequencyLowered();
+    bool isEndPipe(int, int);
+    bool isStartOrInPipe(int, int);
+    bool isInOrEndPipe(int, int);
+    bool isSynced();
+    void syncDVFS();
+    bool isMapped();
 };
 
 #endif
