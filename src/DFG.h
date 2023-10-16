@@ -42,6 +42,9 @@ class DFG {
     list<DFGEdge*> m_DFGEdges;
     list<DFGEdge*> m_ctrlEdges;
 
+    bool m_supportDVFS;
+    bool m_DVFSAwareMapping;
+
     string changeIns2Str(Instruction* ins);
     //get value's name or inst's content
     StringRef getValueName(Value* v);
@@ -88,7 +91,7 @@ class DFG {
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);
+    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*, bool, bool);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
@@ -106,4 +109,5 @@ class DFG {
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
     void generateJSON();
+    void initDVFSLatencyMultiple();
 };

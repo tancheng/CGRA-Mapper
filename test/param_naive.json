@@ -17,17 +17,7 @@
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
   "supportDVFS"           : true,
-  "optLatency"            : {
-                              "load" : 2,
-                              "store": 2
-                            },
-  "optPipelined"          : ["load", "store"],
-  "additionalFunc"        : {
-                              "load" : [4],
-                              "store": [4]
-                            },
-  "incrementalMapping"    : false
   "DVFSIslandDim"         : 2,
-  "DVFSAwareMapping"      : true
+  "DVFSAwareMapping"      : false
 }
 

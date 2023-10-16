@@ -20,6 +20,7 @@ CGRALink::CGRALink(int t_linkId) {
   m_generatedOut = new bool[1];
   m_arrived = new bool[1];
   m_disabled = false;
+  m_mapped = false;
 }
 
 void CGRALink::setCtrlMemConstraint(int t_ctrlMemConstraint) {
@@ -50,6 +51,10 @@ int CGRALink::getID() {
 
 void CGRALink::setID(int t_id) {
   m_id = t_id;
+}
+
+bool CGRALink::isMapped() {
+  return m_mapped;
 }
 
 void CGRALink::constructMRRG(int t_CGRANodeCount, int t_II) {
@@ -152,7 +157,21 @@ bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode,
         m_generatedOut[t]) {
       return false;
     }
+  }
 
+  // Checks whether the DVFS long execution (low frequency indicates
+  // `pseudo` multi-cycle execution) is enabled. If enabled, only the
+  // last cycle (i.e., last pipe stage) can send out the data. This
+  // feature is used to mimic the asynchronous buffer on the link.
+  // if (getSrc()->isFrequencyLowered() && !getSrc()->isEndPipe(t_cycle, t_II)) {
+  // FIXME: this should be revised to align with the sync().
+  int cycle_in_II = (t_cycle+t_II) % t_II;
+  if (getDst()->isDVFSEnabled() and getDst()->getDVFSLatencyMultiple() > 1 and
+      cycle_in_II % getDst()->getDVFSLatencyMultiple() != 0) {
+    // The output should be blocked by the low frequency computation.
+    // This should roughly model the behavior of the DVFS asynchronous
+    // buffer.
+    return false;
   }
 
   return true;
@@ -196,6 +215,7 @@ bool CGRALink::isReused(int t_cycle) {
 
 void CGRALink::occupy(DFGNode* t_srcDFGNode, int t_cycle, int duration,
     int t_II, bool t_isBypass, bool t_isGeneratedOut, bool t_isStaticElasticCGRA) {
+  m_mapped = true;
   int interval = t_II;
   if (t_isStaticElasticCGRA) {
     interval = 1;

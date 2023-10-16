@@ -11,7 +11,7 @@
 #include "DFGNode.h"
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
-                 StringRef t_stringRef) {
+                 StringRef t_stringRef, bool t_supportDVFS) {
   m_id = t_id;
   m_precisionAware = t_precisionAware;
   m_inst = t_inst;
@@ -35,6 +35,12 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_isPredicater = false;
   m_patternNodes = new list<DFGNode*>();
   initType();
+  m_supportDVFS = t_supportDVFS;
+  m_DVFSLatencyMultiple = 1;
+  // if (isMul()) {
+  // if (!isPhi() and !isCmp() and !isScalarAdd() and !isBranch()) {
+  //   m_DVFSLatencyMultiple = 2;
+  // }
 }
 
 int DFGNode::getID() {
@@ -198,6 +204,14 @@ bool DFGNode::isAdd() {
   return false;
 }
 
+// Checks whether the operation is a scalar addition.
+bool DFGNode::isScalarAdd() {
+  if (m_opcodeName.compare("add") == 0 or
+      m_opcodeName.compare("sub") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::isCmp() {
   if (m_opcodeName.compare("icmp") == 0 or m_opcodeName.compare("cmp") == 0)
     return true;
@@ -338,15 +352,37 @@ string DFGNode::getJSONOpt() {
   return m_optType;
 }
 
+void DFGNode::setDVFSLatencyMultiple(int t_DVFSLatencyMultiple) {
+  // We allow 3 levels of DVFS, i.e., low, middle, and high. High level
+  // is treated as the baseline, which has the latency as 1. The middle
+  // level is 50% lower than the high level, which indicates 2 times
+  // latency. The low level DVFS has the longest latency, which is 2
+  // times of the middle level and 4 times of the high level.
+  assert(t_DVFSLatencyMultiple == 1 || t_DVFSLatencyMultiple == 2 || t_DVFSLatencyMultiple == 4);
+  m_DVFSLatencyMultiple = t_DVFSLatencyMultiple;
+  setExecLatency(t_DVFSLatencyMultiple);
+}
+
+int DFGNode::getDVFSLatencyMultiple() {
+  return m_DVFSLatencyMultiple;
+}
+
 void DFGNode::setExecLatency(int t_execLatency) {
   m_execLatency = t_execLatency;
 }
 
-int DFGNode::getExecLatency() {
+int DFGNode::getExecLatency(int t_TileDVFSLatencyMultiple) {
+  if (m_supportDVFS) {
+    // assert(t_TileDVFSLatencyMultiple <= m_DVFSLatencyMultiple);
+    return t_TileDVFSLatencyMultiple;
+  }
   return m_execLatency;
 }
 
-bool DFGNode::isMultiCycleExec() {
+bool DFGNode::isMultiCycleExec(int t_DVFSLatencyMultiple) {
+  if (m_supportDVFS and t_DVFSLatencyMultiple > 1) {
+    return true;
+  }
   if (m_execLatency > 1) {
     return true;
   } else {

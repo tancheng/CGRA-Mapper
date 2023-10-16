@@ -32,9 +32,10 @@ class Mapper {
     map<int, int> CGRANodeID2Level; 
     // The list of CGRANodes sorted by levels
     vector<vector<CGRANode*>> CGRANodes_sortedByLevel; 
+    bool m_DVFSAwareMapping;
 
   public:
-    Mapper(){}
+    Mapper(bool);
     int getResMII(DFG*, CGRA*);
     int getRecMII(DFG*);
     void constructMRRG(DFG*, CGRA*, int);

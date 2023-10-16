@@ -61,6 +61,8 @@ namespace {
       bool parameterizableCGRA      = false; 
       bool incrementalMapping       = false;
       bool supportDVFS              = false;
+      bool DVFSAwareMapping         = false;
+      int DVFSIslandDim             = 2;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -102,6 +104,8 @@ namespace {
 	paramKeys.insert("parameterizableCGRA");
         paramKeys.insert("incrementalMapping");
 	paramKeys.insert("supportDVFS");
+	paramKeys.insert("DVFSAwareMapping");
+	paramKeys.insert("DVFSIslandDim");
 
 	try
         {
@@ -142,6 +146,8 @@ namespace {
         parameterizableCGRA   = param["parameterizableCGRA"];
         incrementalMapping    = param["incrementalMapping"];
         supportDVFS           = param["supportDVFS"];
+        DVFSAwareMapping      = param["DVFSAwareMapping"];
+        DVFSIslandDim         = param["DVFSIslandDim"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -175,13 +181,15 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt);
+                         heterogeneity, execLatency, pipelinedOpt, supportDVFS,
+			 DVFSAwareMapping);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
-		            parameterizableCGRA, additionalFunc, supportDVFS);
+		            parameterizableCGRA, additionalFunc, supportDVFS,
+			    DVFSIslandDim);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);
-      mapper = new Mapper();
+      mapper = new Mapper(DVFSAwareMapping);
 
       // Show the count of different opcodes (IRs).
       cout << "==================================\n";
@@ -256,7 +264,7 @@ namespace {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
-        cout << "[Utilization]\n";
+        cout << "[Utilization & DVFS stats]\n";
         mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA);
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
