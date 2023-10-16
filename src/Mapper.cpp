@@ -557,8 +557,8 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
         } else {
 	  // Don't need to check the out links as out links is the in
 	  // links of the destination tiles.
-	  for (auto outLink : *(tile->getOutLinks())) {
-	    if (outLink->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+	  for (auto inLink : *(tile->getInLinks())) {
+	    if (inLink->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
               if (tile_xbar_busy_cycles.find(tile->getID()) ==
     	          tile_xbar_busy_cycles.end()) {
                 tile_xbar_busy_cycles[tile->getID()] = 0;
