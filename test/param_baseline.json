@@ -18,6 +18,7 @@
   "regConstraint"         : 8,
   "supportDVFS"           : false,
   "DVFSIslandDim"         : 1,
-  "DVFSAwareMapping"      : false
+  "DVFSAwareMapping"      : false,
+  "enablePowerGating"     : false
 }
 
