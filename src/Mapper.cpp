@@ -514,7 +514,9 @@ int Mapper::getMaxMappingCycle() {
   return m_maxMappingCycle;
 }
 
-void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStaticElasticCGRA) {
+void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
+		             bool t_isStaticElasticCGRA,
+			     bool t_enablePowerGating) {
 
   // Indicates the busy cycles of the functional units inside the
   // tile.
@@ -632,6 +634,13 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
 //   }
 
   // TODO: should ignore the disabled tiles.
+  int total_active_tiles = 0;
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    if (t_enablePowerGating && tile_overall_utilization[tile] == 0) {
+      continue;
+    }
+    total_active_tiles += 1;
+  }
   float avg_tile_overall_utilization = 0.0;
   float avg_tile_fu_utilization = 0.0;
   float avg_tile_xbar_utilization = 0.0;
@@ -641,21 +650,25 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
     avg_tile_xbar_utilization += tile_xbar_utilization[tile];
     // cout << "tile[" << tile << "] fu utilization: " << tile_fu_utilization[tile] << "; xbar utilization: " << tile_xbar_utilization[tile] << "; overall utilization: " << tile_overall_utilization[tile] << endl;
   }
-  avg_tile_overall_utilization /= t_cgra->getFUCount();
-  avg_tile_fu_utilization /= t_cgra->getFUCount();
-  avg_tile_xbar_utilization /= t_cgra->getFUCount();
+  avg_tile_overall_utilization /= total_active_tiles;
+  avg_tile_fu_utilization /= total_active_tiles;
+  avg_tile_xbar_utilization /= total_active_tiles;
 
   cout << "tile avg fu utilization: " << avg_tile_fu_utilization*100 << "%; avg xbar utilization: " << avg_tile_xbar_utilization*100 << "%; avg overall utilization: " << avg_tile_overall_utilization*100 << "%" << endl;
 
   // Collects the histogram of tiles' utilization.
-  // Histogram for the number of tiles that have utilization in [0%, 25%].
+  // Histogram for the number of tiles that have utilization of 0%.
+  int tile_count_0 = 0;
+  // Histogram for the number of tiles that have utilization in (0%, 25%].
   int tile_count_0_to_25 = 0;
   // Histogram for the number of tiles that have utilization in (25%, 50%].
   int tile_count_25_to_50 = 0;
   // Histogram for the number of tiles that have utilization in (50%, 100%].
   int tile_count_50_to_100 = 0;
   for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
-    if (tile_overall_utilization[tile] <= 0.25) {
+    if (tile_overall_utilization[tile] == 0) {
+      tile_count_0 += 1;
+    } else if (tile_overall_utilization[tile] <= 0.25) {
       tile_count_0_to_25 += 1;
     } else if (tile_overall_utilization[tile] <= 0.5) {
       tile_count_25_to_50 += 1;
@@ -695,7 +708,8 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
     }
   }
 
-  std::cout << "histogram [0%, 25%] tile utilization: " << tile_count_0_to_25 << endl;
+  std::cout << "histogram 0% tile utilization: " << tile_count_0 << endl;
+  std::cout << "histogram (0%, 25%] tile utilization: " << tile_count_0_to_25 << endl;
   std::cout << "histogram (25%, 50%] tile utilization: " << tile_count_25_to_50 << endl;
   std::cout << "histogram (50%, 100%] tile utilization: " << tile_count_50_to_100 << endl;
 
@@ -707,6 +721,7 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
   std::map<int, float> tile_dvfs_ratio;
   for (auto const& island_tiles : t_cgra->getDVFSIslands()) {
     float island_ratio = 0.0;
+    int unused_tiles = 0;
     for (auto tile : island_tiles.second) {
       float tile_ratio = 0.0;
       bool isMapped = tile->isMapped();
@@ -727,8 +742,13 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
         }
       }
       if (!isMapped) {
-	tile_ratio = 0.25;
-        // cout << "tile " << tile->getID() << " DVFS multiple: 0; frequency level: 25%" << endl;
+        if (t_enablePowerGating) {
+          tile_ratio = 0.0;
+	  unused_tiles += 1;
+	} else {
+          tile_ratio = 0.25;
+          // cout << "tile " << tile->getID() << " DVFS multiple: 0; frequency level: 25%" << endl;
+	}
       } else {
         tile_ratio = (1.0 / tile->getDVFSLatencyMultiple());
         // cout << "tile " << tile->getID() << " DVFS multiple: " << tile->getDVFSLatencyMultiple() << "; frequency level: " << tile_ratio * 100 << "%" << endl;
@@ -737,10 +757,14 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
         island_ratio = tile_ratio;
       }
     }
-    island_dvfs_ratio[island_tiles.first] = island_ratio;
+    island_dvfs_ratio[island_tiles.first] = island_ratio * (island_tiles.second.size() - unused_tiles) / island_tiles.second.size();
 
     for (auto tile : island_tiles.second) {
-      tile_dvfs_ratio[tile->getID()] = island_ratio;
+      if (t_enablePowerGating and tile_overall_utilization[tile->getID()] == 0) {
+        tile_dvfs_ratio[tile->getID()] = 0;
+      } else {
+        tile_dvfs_ratio[tile->getID()] = island_ratio;
+      }
     }
   }
 
@@ -755,14 +779,21 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
   }
 
   if (avg_tile_dvfs_ratio == 0) {
-    // Indicates DVFS mode is not enabled. Then, by default, the DVFS level is 100%.
-    cout << "tile average DVFS frequency level: 100%" << endl;
+    if (t_enablePowerGating) {
+      cout << "tile average DVFS frequency level: 0%" << endl;
+    } else {
+      // Indicates DVFS mode is not enabled and no power gating.
+      // Then, by default, the DVFS level is 100%.
+      cout << "tile average DVFS frequency level: 100%" << endl;
+    }
   } else {
     avg_tile_dvfs_ratio /= t_cgra->getFUCount();
     cout << "tile average DVFS frequency level: " << avg_tile_dvfs_ratio * 100 << "%" << endl;
   }
 
   // Collects the histogram of tiles' frequency ratio.
+  // Histogram for the number of tiles that have frequency ratio of 0%.
+  int tile_count_dvfs_ratio_0 = 0;
   // Histogram for the number of tiles that have frequency ratio of 25%.
   int tile_count_dvfs_ratio_25 = 0;
   // Histogram for the number of tiles that have frequency ratio of 50%.
@@ -770,7 +801,9 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
   // Histogram for the number of tiles that have frequency ratio of 100%.
   int tile_count_dvfs_ratio_100 = 0;
   for (auto const& tile_ratio : tile_dvfs_ratio) {
-    if (tile_ratio.second <= 0.25) {
+    if (tile_ratio.second == 0) {
+      tile_count_dvfs_ratio_0 += 1;
+    } else if (tile_ratio.second <= 0.25) {
       tile_count_dvfs_ratio_25 += 1;
     } else if (tile_ratio.second <= 0.5) {
       tile_count_dvfs_ratio_50 += 1;
@@ -779,10 +812,12 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II, bool t_isStatic
     }
   }
 
+  std::cout << "histogram 0% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_0 << endl;
   std::cout << "histogram 25% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_25 << endl;
   std::cout << "histogram 50% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_50 << endl;
   if (avg_tile_dvfs_ratio == 0) {
     // Indicates DVFS mode is not enabled. Then, by default, the DVFS level is 100% for all the tiles.
+    // I don't think this will be executed.
     std::cout << "histogram 100% tile DVFS frequency ratio: " << t_cgra->getFUCount() << endl;
   } else {
     std::cout << "histogram 100% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_100 << endl;

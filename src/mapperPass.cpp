@@ -63,6 +63,7 @@ namespace {
       bool supportDVFS              = false;
       bool DVFSAwareMapping         = false;
       int DVFSIslandDim             = 2;
+      bool enablePowerGating        = false;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -106,6 +107,7 @@ namespace {
 	paramKeys.insert("supportDVFS");
 	paramKeys.insert("DVFSAwareMapping");
 	paramKeys.insert("DVFSIslandDim");
+	paramKeys.insert("enablePowerGating");
 
 	try
         {
@@ -148,6 +150,7 @@ namespace {
         supportDVFS           = param["supportDVFS"];
         DVFSAwareMapping      = param["DVFSAwareMapping"];
         DVFSIslandDim         = param["DVFSIslandDim"];
+        enablePowerGating     = param["enablePowerGating"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -265,7 +268,7 @@ namespace {
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         cout << "[Utilization & DVFS stats]\n";
-        mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA);
+        mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
 	cout << "[Output Json]\n";

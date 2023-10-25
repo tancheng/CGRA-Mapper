@@ -28,6 +28,7 @@
                             },
   "incrementalMapping"    : false
   "DVFSIslandDim"         : 2,
-  "DVFSAwareMapping"      : true
+  "DVFSAwareMapping"      : true,
+  "enablePowerGating"     : true
 }
 
