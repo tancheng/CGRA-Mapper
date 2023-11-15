@@ -106,5 +106,5 @@ class DFG {
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
     void generateJSON();
-    void initDVFSLatencyMultiple();
+    void initDVFSLatencyMultiple(int, int, int);
 };

@@ -213,8 +213,12 @@ namespace {
       cout << "==================================\n";
       cout << "[RecMII: " << RecMII << "]\n";
       int II = ResMII;
-      if(II < RecMII)
+      if (II < RecMII)
         II = RecMII;
+
+      if (supportDVFS) {
+        dfg->initDVFSLatencyMultiple(II, DVFSIslandDim, cgra->getFUCount());
+      }
 
       if (!doCGRAMapping) {
         cout << "==================================\n";

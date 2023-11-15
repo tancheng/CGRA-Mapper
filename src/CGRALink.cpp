@@ -168,9 +168,11 @@ bool CGRALink::canOccupy(DFGNode* t_srcDFGNode, CGRANode* t_srcCGRANode,
   int cycle_in_II = (t_cycle+t_II) % t_II;
   if (getDst()->isDVFSEnabled() and getDst()->getDVFSLatencyMultiple() > 1 and
       cycle_in_II % getDst()->getDVFSLatencyMultiple() != 0) {
-    // The output should be blocked by the low frequency computation.
-    // This should roughly model the behavior of the DVFS asynchronous
-    // buffer.
+  // if (getDst()->isDVFSEnabled() and getDst()->getDVFSLatencyMultiple() > 1 and
+  //     cycle_in_II % getDst()->getDVFSLatencyMultiple() == 1) {
+  //   // The output should be blocked by the low frequency computation.
+  //   // This should roughly model the behavior of the DVFS asynchronous
+  //   // buffer.
     return false;
   }
 

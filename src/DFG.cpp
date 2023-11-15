@@ -54,12 +54,10 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   // This needs to be done after construct function
   // as we need assign the highest frequency to the
   // nodes on the critical path in the DFG.
-  if (m_supportDVFS) {
-    initDVFSLatencyMultiple();
-  }
 }
 
-void DFG::initDVFSLatencyMultiple() {
+void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
+		                  int t_numTiles) {
   list<list<DFGNode*>*>* cycles = getCycleLists();
   float max_cycle_length = 1.0;
   for (list<DFGNode*>* cycle: *cycles) {
@@ -68,6 +66,9 @@ void DFG::initDVFSLatencyMultiple() {
     }
   }
   set<DFGNode*> assigned_dvfs_nodes;
+  int high_dvfs_dfg_nodes = 0;
+  int mid_dvfs_dfg_nodes = 0;
+  int low_dvfs_dfg_nodes = 0;
   // TODO: might need to assign DVFS level based on the
   // number of available CGRA nodes/resources.
   for (list<DFGNode*>* cycle: *cycles) {
@@ -75,21 +76,82 @@ void DFG::initDVFSLatencyMultiple() {
       for (auto dfg_node : *cycle) {
         dfg_node->setDVFSLatencyMultiple(1);
 	assigned_dvfs_nodes.insert(dfg_node);
+	high_dvfs_dfg_nodes += 1;
       }
     }
-    if (cycle->size() <= max_cycle_length / 2) {
+    else if (cycle->size() <= max_cycle_length / 2) {
       for (auto dfg_node : *cycle) {
 	if (assigned_dvfs_nodes.count(dfg_node) == 0) {
           dfg_node->setDVFSLatencyMultiple(2);
 	  assigned_dvfs_nodes.insert(dfg_node);
+	  mid_dvfs_dfg_nodes += 1;
 	}
       }
     }
   }
+
+  int num_tiles_in_island = t_DVFSIslandDim * t_DVFSIslandDim;
+  int unused_high_dvfs_cgra_tiles_across_II =
+        t_II * num_tiles_in_island *
+	((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+        high_dvfs_dfg_nodes;
+  int unused_mid_dvfs_cgra_tiles_across_II =
+        (t_II * num_tiles_in_island *
+	 ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+         mid_dvfs_dfg_nodes * 2) / 2;
+  int unused_low_dvfs_cgra_tiles_across_II =
+        (t_II * t_numTiles -
+          (t_II * num_tiles_in_island *
+            ((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island)) -
+	  (t_II * num_tiles_in_island *
+            ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island))
+        ) / 4;
+  cout << "[debug] unused_high_dvfs_cgra_tiles_across_II: " << unused_high_dvfs_cgra_tiles_across_II << endl;
+  cout << "[debug] unused_mid_dvfs_cgra_tiles_across_II: " << unused_mid_dvfs_cgra_tiles_across_II << endl;
+  cout << "[debug] unused_low_dvfs_cgra_tiles_across_II: " << unused_low_dvfs_cgra_tiles_across_II << endl;
+
+  int unlabeled_dfg_nodes = 0;
   for (auto node : nodes) {
     if (assigned_dvfs_nodes.count(node) == 0) {
-      node->setDVFSLatencyMultiple(4);
-      assigned_dvfs_nodes.insert(node);
+      unlabeled_dfg_nodes += 1;
+    }
+  }
+  if (unlabeled_dfg_nodes < unused_low_dvfs_cgra_tiles_across_II) {
+    for (auto node : nodes) {
+      if (assigned_dvfs_nodes.count(node) == 0) {
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+      }
+    }
+  }
+
+  for (auto node : nodes) {
+    if (assigned_dvfs_nodes.count(node) == 0) {
+      if (unused_high_dvfs_cgra_tiles_across_II > 0) {
+        // High DVFS islands have the highest priority as we don't want to
+	// waste it.
+        node->setDVFSLatencyMultiple(1);
+        assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 1;
+      } else if (unused_mid_dvfs_cgra_tiles_across_II > 0) {
+        // Then try to allocate the DFG node into the mid DVFS island if the
+	// high DVFS islands are used up.
+        node->setDVFSLatencyMultiple(2);
+        assigned_dvfs_nodes.insert(node);
+        unused_mid_dvfs_cgra_tiles_across_II -= 1;
+      } else if (unused_low_dvfs_cgra_tiles_across_II > 0) {
+        // Low DVFS islands have the lowest priority.
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+        unused_low_dvfs_cgra_tiles_across_II -= 1;
+      } else {
+	// If all the islands assuming the optimal II are used up, label
+	// the left DFG nodes with highest DVFS level as we don't want
+	// to dramatically increase the II unnecessarily, which would
+	// lead to bad performance.
+        node->setDVFSLatencyMultiple(1);
+        assigned_dvfs_nodes.insert(node);
+      }
     }
   }
 }
