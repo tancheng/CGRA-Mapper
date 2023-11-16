@@ -228,6 +228,9 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
     // island has lower priority though its DVFS level is also shown
     // as 1.
     if (m_DVFSAwareMapping) {
+      if (targetCGRANode->isMapped()) {
+        cost -= 0.3;
+      }
       if (targetCGRANode->isSynced() and
           targetCGRANode->getDVFSLatencyMultiple() == t_dfgNode->getDVFSLatencyMultiple()) {
         cost -= 1.0;
