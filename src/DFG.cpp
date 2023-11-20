@@ -78,8 +78,7 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
 	assigned_dvfs_nodes.insert(dfg_node);
 	high_dvfs_dfg_nodes += 1;
       }
-    }
-    else if (cycle->size() <= max_cycle_length / 2) {
+    } else {
       for (auto dfg_node : *cycle) {
 	if (assigned_dvfs_nodes.count(dfg_node) == 0) {
           dfg_node->setDVFSLatencyMultiple(2);
@@ -116,14 +115,30 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
       unlabeled_dfg_nodes += 1;
     }
   }
-  if (unlabeled_dfg_nodes < unused_low_dvfs_cgra_tiles_across_II) {
+  if (unlabeled_dfg_nodes > unused_low_dvfs_cgra_tiles_across_II) {
+    int min_reserved_low_dvfs_tiles_across_II = unused_low_dvfs_cgra_tiles_across_II / 4;
+    int num_low_dvfs_dfg_nodes = 0;
+    for (auto node : nodes) {
+      if (assigned_dvfs_nodes.count(node) == 0) {
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+        num_low_dvfs_dfg_nodes += 1;
+        if (num_low_dvfs_dfg_nodes >= min_reserved_low_dvfs_tiles_across_II) {
+          break;
+        }
+      }
+    }
+  } else {
     for (auto node : nodes) {
       if (assigned_dvfs_nodes.count(node) == 0) {
         node->setDVFSLatencyMultiple(4);
         assigned_dvfs_nodes.insert(node);
       }
     }
+    unused_low_dvfs_cgra_tiles_across_II -= min_reserved_low_dvfs_tiles_across_II;
   }
+
+
 
   for (auto node : nodes) {
     if (assigned_dvfs_nodes.count(node) == 0) {
