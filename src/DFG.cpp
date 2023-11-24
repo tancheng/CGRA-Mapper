@@ -149,16 +149,22 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
         node->setDVFSLatencyMultiple(1);
         assigned_dvfs_nodes.insert(node);
         unused_high_dvfs_cgra_tiles_across_II -= 1;
+	unused_mid_dvfs_cgra_tiles_across_II -= 1;
+	unused_low_dvfs_cgra_tiles_across_II -= 1;
       } else if (unused_mid_dvfs_cgra_tiles_across_II > 0) {
         // Then try to allocate the DFG node into the mid DVFS island if the
 	// high DVFS islands are used up.
         node->setDVFSLatencyMultiple(2);
         assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 2;
         unused_mid_dvfs_cgra_tiles_across_II -= 1;
+        unused_low_dvfs_cgra_tiles_across_II -= 1;
       } else if (unused_low_dvfs_cgra_tiles_across_II > 0) {
         // Low DVFS islands have the lowest priority.
         node->setDVFSLatencyMultiple(4);
         assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 4;
+        unused_mid_dvfs_cgra_tiles_across_II -= 2;
         unused_low_dvfs_cgra_tiles_across_II -= 1;
       } else {
 	// If all the islands assuming the optimal II are used up, label
