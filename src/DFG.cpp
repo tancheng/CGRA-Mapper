@@ -116,7 +116,7 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
     }
   }
   if (unlabeled_dfg_nodes > unused_low_dvfs_cgra_tiles_across_II) {
-    int min_reserved_low_dvfs_tiles_across_II = unused_low_dvfs_cgra_tiles_across_II / 4;
+    int min_reserved_low_dvfs_tiles_across_II = unused_low_dvfs_cgra_tiles_across_II / 4.5;
     int num_low_dvfs_dfg_nodes = 0;
     for (auto node : nodes) {
       if (assigned_dvfs_nodes.count(node) == 0) {
@@ -124,6 +124,7 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
         assigned_dvfs_nodes.insert(node);
         num_low_dvfs_dfg_nodes += 1;
         if (num_low_dvfs_dfg_nodes >= min_reserved_low_dvfs_tiles_across_II) {
+          unused_low_dvfs_cgra_tiles_across_II -= num_low_dvfs_dfg_nodes;
           break;
         }
       }
@@ -135,7 +136,7 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
         assigned_dvfs_nodes.insert(node);
       }
     }
-    unused_low_dvfs_cgra_tiles_across_II -= min_reserved_low_dvfs_tiles_across_II;
+    unused_low_dvfs_cgra_tiles_across_II -= unlabeled_dfg_nodes;
   }
 
 
