@@ -223,8 +223,16 @@ bool DFGNode::isSel() {
 }
 
 bool DFGNode::isMAC() {
-  if (m_opcodeName.compare("muladd") == 0 or
-      m_opcodeName.compare("mulsub") == 0)
+  if (m_opcodeName.compare("mulgetelementptr") == 0 or
+      m_opcodeName.compare("muladd") == 0  or
+      m_opcodeName.compare("mulfadd") == 0 or
+      m_opcodeName.compare("mulsub") == 0  or
+      m_opcodeName.compare("mulfsub") == 0  or
+      m_opcodeName.compare("fmulgetelementptr") == 0 or
+      m_opcodeName.compare("fmuladd") == 0  or
+      m_opcodeName.compare("fmulfadd") == 0 or
+      m_opcodeName.compare("fmulsub") == 0  or
+      m_opcodeName.compare("fmulfsub") == 0)
     return true;
   return false;
 }
