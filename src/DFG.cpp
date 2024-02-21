@@ -139,9 +139,9 @@ void DFG::combineMulAdd() {
   DFGNode* addNode = NULL;
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isMul() and dfgNode->isCritical() and !dfgNode->hasCombined()) {
+    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isAdd() and succNode->isCritical() and !succNode->hasCombined()) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
           mulNode = dfgNode;
           mulNode->setCombine();
           addNode = succNode;
