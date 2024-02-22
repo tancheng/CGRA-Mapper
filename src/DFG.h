@@ -61,6 +61,7 @@ class DFG {
     void tuneForLoad();
     void tuneForPattern();
     void combineCmpBranch();
+    void combineForIter();
     void combineMulAdd();
     void combinePhiAdd();
     void combine(string, string);
