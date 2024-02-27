@@ -69,7 +69,7 @@ void DFG::tuneForPattern() {
               continue;
             }
             DFGNode* newPredNode = NULL;
-            if (predNode->hasd())
+            if (predNode->hasCombined())
               newPredNode = predNode->getPatternRoot();
             else
               newPredNode = predNode;
@@ -82,7 +82,7 @@ void DFG::tuneForPattern() {
               continue;
             }
             DFGNode* newSuccNode = NULL;
-            if (succNode->hasd())
+            if (succNode->hasCombined())
               newSuccNode = succNode->getPatternRoot();
             else
               newSuccNode = succNode;
@@ -100,28 +100,28 @@ void DFG::tuneForPattern() {
   }
 }
 
-void DFG::CmpBranch() {
+void DFG::combineCmpBranch() {
   // detect patterns (e.g., cmp+branch)
   DFGNode* addNode = NULL;
   DFGNode* cmpNode = NULL;
   DFGNode* brhNode = NULL;
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasd()) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
       found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isCmp() and !succNode->hasd()) {
+        if (succNode->isCmp() and !succNode->hasCombined()) {
           for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
-            if (succSuccNode->isBranch() and !succSuccNode->hasd() and
+            if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
                 succSuccNode->isSuccessorOf(dfgNode)) {
               addNode = dfgNode;
-              addNode->set();
+              addNode->setCombine();
               cmpNode = succNode;
               addNode->addPatternPartner(cmpNode);
-              cmpNode->set();
+              cmpNode->setCombine();
               brhNode = succSuccNode;
               addNode->addPatternPartner(brhNode);
-              brhNode->set();
+              brhNode->setCombine();
               found = true;
               break;
             }
