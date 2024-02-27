@@ -69,7 +69,7 @@ void DFG::tuneForPattern() {
               continue;
             }
             DFGNode* newPredNode = NULL;
-            if (predNode->hasCombined())
+            if (predNode->hasd())
               newPredNode = predNode->getPatternRoot();
             else
               newPredNode = predNode;
@@ -82,7 +82,7 @@ void DFG::tuneForPattern() {
               continue;
             }
             DFGNode* newSuccNode = NULL;
-            if (succNode->hasCombined())
+            if (succNode->hasd())
               newSuccNode = succNode->getPatternRoot();
             else
               newSuccNode = succNode;
@@ -100,28 +100,28 @@ void DFG::tuneForPattern() {
   }
 }
 
-void DFG::combineCmpBranch() {
+void DFG::CmpBranch() {
   // detect patterns (e.g., cmp+branch)
   DFGNode* addNode = NULL;
   DFGNode* cmpNode = NULL;
   DFGNode* brhNode = NULL;
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+    if (dfgNode->isAdd() and !dfgNode->hasd()) {
       found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isCmp() and !succNode->hasCombined()) {
+        if (succNode->isCmp() and !succNode->hasd()) {
           for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
-            if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
+            if (succSuccNode->isBranch() and !succSuccNode->hasd() and
                 succSuccNode->isSuccessorOf(dfgNode)) {
               addNode = dfgNode;
-              addNode->setCombine();
+              addNode->set();
               cmpNode = succNode;
               addNode->addPatternPartner(cmpNode);
-              cmpNode->setCombine();
+              cmpNode->set();
               brhNode = succSuccNode;
               addNode->addPatternPartner(brhNode);
-              brhNode->setCombine();
+              brhNode->set();
               found = true;
               break;
             }
@@ -171,6 +171,44 @@ void DFG::combine(string t_opt0, string t_opt1) {
           break;
         }
       }
+    }
+  }
+}
+
+void DFG::combineIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes) {
+  string t_opt = cPattern->front();
+  cPattern->pop_front();
+  DFGNode* dfgNode = cPatternNodes->back();
+  for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+    if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
+      if (cPattern->empty() == true and succNode->isSuccessorOf(cPatternNodes->front())){
+        // succNode->isSuccessorOf(cPatternNodes->front()) is not needed if the pattern is not a cycle
+        cPatternNodes->push_back(succNode);
+        DFGNode* opt0Node = cPatternNodes->front();
+        opt0Node->setCombine();
+        cPatternNodes->pop_front();
+        for(DFGNode* optNode: *cPatternNodes){
+          opt0Node->addPatternPartner(optNode);
+          optNode->setCombine();
+        }
+        return;
+      } else if(cPattern->empty() == true and !succNode->isSuccessorOf(cPatternNodes->front())){
+        continue;
+      } else{
+        cPatternNodes->push_back(succNode);
+        combineIter(cPattern, cPatternNodes);
+      }
+    }
+  }
+}
+
+void DFG::combineForIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes){
+  string t_opt = string(cPattern->front());
+  cPattern->pop_front();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isOpt(t_opt) and !dfgNode->hasCombined()) {
+      cPatternNodes->push_back(dfgNode);
+      combineIter(cPattern, cPatternNodes);
     }
   }
 }
