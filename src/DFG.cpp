@@ -176,6 +176,7 @@ void DFG::combine(string t_opt0, string t_opt1) {
 }
 
 void DFG::combineIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes) {
+  // combine the provided pattern in a recursive way
   string t_opt = cPattern->front();
   cPattern->pop_front();
   DFGNode* dfgNode = cPatternNodes->back();
@@ -203,6 +204,7 @@ void DFG::combineIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes) {
 }
 
 void DFG::combineForIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes){
+  // accept pattern and feed them to combineIter()
   string t_opt = string(cPattern->front());
   cPattern->pop_front();
   for (DFGNode* dfgNode: nodes) {
