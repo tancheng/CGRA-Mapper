@@ -65,6 +65,8 @@ class DFG {
     void combineMulAdd();
     void combinePhiAdd();
     void combine(string, string);
+    void combineIter(list<string>*, list<DFGNode*>*);
+    void combineForIter(list<string>*, list<DFGNode*>*);
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
