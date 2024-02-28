@@ -175,43 +175,37 @@ void DFG::combine(string t_opt0, string t_opt1) {
   }
 }
 
-void DFG::combineIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes) {
-  // combine the provided pattern in a recursive way
-  string t_opt = cPattern->front();
-  cPattern->pop_front();
-  DFGNode* dfgNode = cPatternNodes->back();
-  for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-    if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
-      if (cPattern->empty() == true and succNode->isSuccessorOf(cPatternNodes->front())){
-        // succNode->isSuccessorOf(cPatternNodes->front()) is not needed if the pattern is not a cycle
-        cPatternNodes->push_back(succNode);
-        DFGNode* opt0Node = cPatternNodes->front();
-        opt0Node->setCombine();
-        cPatternNodes->pop_front();
-        for(DFGNode* optNode: *cPatternNodes){
-          opt0Node->addPatternPartner(optNode);
-          optNode->setCombine();
-        }
-        return;
-      } else if(cPattern->empty() == true and !succNode->isSuccessorOf(cPatternNodes->front())){
-        continue;
-      } else{
-        cPatternNodes->push_back(succNode);
-        combineIter(cPattern, cPatternNodes);
+void DFG::combineForIter(string* t_targetPattern, int patternSize, list<DFGNode*>* t_matchedNodes){
+  // DFG::combineForIter combines patterns provided by the user, which should be a cycle. Otherwise, the fusion won't be performed.
+  string headOpt = t_targetPattern[0];
+  for (DFGNode* headNode: nodes) {
+    if (headNode->isOpt(headOpt) and !headNode->hasCombined()) {
+      t_matchedNodes->push_back(headNode);
+      for (int i = 1; i < patternSize; i++){
+        string t_opt = t_targetPattern[i];
+        DFGNode* dfgNode = t_matchedNodes->back();
+        for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+          if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
+            if (i == (patternSize-1) and succNode->isSuccessorOf(headNode)){
+              t_matchedNodes->push_back(succNode);
+              headNode->setCombine();
+              t_matchedNodes->pop_front();
+              for(DFGNode* optNode: *t_matchedNodes){
+                headNode->addPatternPartner(optNode);
+                optNode->setCombine();
+              }
+              break;
+            } else if(i == (patternSize-1) and !succNode->isSuccessorOf(headNode)){
+              continue;
+            } else{
+              t_matchedNodes->push_back(succNode);
+              break;
+            }
+          }
+        }        
       }
-    }
-  }
-}
-
-void DFG::combineForIter(list<string>* cPattern, list<DFGNode*>* cPatternNodes){
-  // accept pattern and feed them to combineIter()
-  string t_opt = string(cPattern->front());
-  cPattern->pop_front();
-  for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isOpt(t_opt) and !dfgNode->hasCombined()) {
-      cPatternNodes->push_back(dfgNode);
-      combineIter(cPattern, cPatternNodes);
-    }
+      t_matchedNodes->clear();
+    }  
   }
 }
 
