@@ -175,27 +175,30 @@ void DFG::combine(string t_opt0, string t_opt1) {
   }
 }
 
-void DFG::combineForIter(string* t_targetPattern, int patternSize, list<DFGNode*>* t_matchedNodes){
-  // DFG::combineForIter combines patterns provided by the user, which should be a cycle. Otherwise, the fusion won't be performed.
-  string headOpt = t_targetPattern[0];
-  for (DFGNode* headNode: nodes) {
-    if (headNode->isOpt(headOpt) and !headNode->hasCombined()) {
-      t_matchedNodes->push_back(headNode);
-      for (int i = 1; i < patternSize; i++){
-        string t_opt = t_targetPattern[i];
+void DFG::combineForIter(list<string>* t_targetPattern){
+  int t_patternSize = t_targetPattern->size();
+  string t_headOpt = string(t_targetPattern->front());
+  list<string>::iterator t_patternNow = t_targetPattern->begin();
+  t_patternNow++;
+  list<DFGNode*>* t_matchedNodes = new list<DFGNode*>[t_patternSize];
+  for (DFGNode* t_headNode: nodes) {
+    if (t_headNode->isOpt(t_headOpt) and !t_headNode->hasCombined()) {
+      t_matchedNodes->push_back(t_headNode);
+      for (int i = 1; i < t_patternSize; i++, t_patternNow++){
+        string t_opt = *t_patternNow;
         DFGNode* dfgNode = t_matchedNodes->back();
         for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
           if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
-            if (i == (patternSize-1) and succNode->isSuccessorOf(headNode)){
+            if (i == (t_patternSize-1) and succNode->isSuccessorOf(t_headNode)){
               t_matchedNodes->push_back(succNode);
-              headNode->setCombine();
+              t_headNode->setCombine();
               t_matchedNodes->pop_front();
               for(DFGNode* optNode: *t_matchedNodes){
-                headNode->addPatternPartner(optNode);
+                t_headNode->addPatternPartner(optNode);
                 optNode->setCombine();
               }
               break;
-            } else if(i == (patternSize-1) and !succNode->isSuccessorOf(headNode)){
+            } else if(i == (t_patternSize-1) and !succNode->isSuccessorOf(t_headNode)){
               continue;
             } else{
               t_matchedNodes->push_back(succNode);
