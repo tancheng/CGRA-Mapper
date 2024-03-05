@@ -175,39 +175,46 @@ void DFG::combine(string t_opt0, string t_opt1) {
   }
 }
 
-void DFG::combineForIter(list<string>* t_targetPattern){
-  int t_patternSize = t_targetPattern->size();
-  string t_headOpt = string(t_targetPattern->front());
-  list<string>::iterator t_patternNow = t_targetPattern->begin();
-  t_patternNow++;
-  list<DFGNode*>* t_matchedNodes = new list<DFGNode*>[t_patternSize];
-  for (DFGNode* t_headNode: nodes) {
-    if (t_headNode->isOpt(t_headOpt) and !t_headNode->hasCombined()) {
-      t_matchedNodes->push_back(t_headNode);
-      for (int i = 1; i < t_patternSize; i++, t_patternNow++){
-        string t_opt = *t_patternNow;
-        DFGNode* dfgNode = t_matchedNodes->back();
-        for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+// combineForIter is used to combine patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
+void DFG::combineForIter(list<string>* t_targetPattern){  
+  int patternSize = t_targetPattern->size();
+  string headOpt = string(t_targetPattern->front());
+  list<string>::iterator currentFunc = t_targetPattern->begin();
+  currentFunc++;
+  // toBeMatchedDFGNodes is to store the DFG nodes that match the pattern
+  list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>[patternSize];
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isOpt(headOpt) and !dfgNode->hasCombined()) {
+      toBeMatchedDFGNodes->push_back(dfgNode);
+      // the for loop below is to find the target pattern under specific dfgNode
+      for (int i = 1; i < patternSize; i++, currentFunc++){
+        string t_opt = *currentFunc;
+        DFGNode* tailNode = toBeMatchedDFGNodes->back();
+        std::cout<<"[MMJ erro] dfgNode is "<< dfgNode->getID() <<std::endl;
+        for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
           if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
-            if (i == (t_patternSize-1) and succNode->isSuccessorOf(t_headNode)){
-              t_matchedNodes->push_back(succNode);
-              t_headNode->setCombine();
-              t_matchedNodes->pop_front();
-              for(DFGNode* optNode: *t_matchedNodes){
-                t_headNode->addPatternPartner(optNode);
-                optNode->setCombine();
+            if (i == (patternSize-1) and succNode->isSuccessorOf(dfgNode)){
+              std::cout<<"[MMJ erro]  succNode is "<< succNode->getID() <<std::endl;
+              toBeMatchedDFGNodes->push_back(succNode);
+              for(DFGNode* optNode: *toBeMatchedDFGNodes){
+                if(optNode == dfgNode){
+                  optNode->setCombine();
+                } else{
+                  dfgNode->addPatternPartner(optNode);
+                  optNode->setCombine();
+                }
               }
               break;
-            } else if(i == (t_patternSize-1) and !succNode->isSuccessorOf(t_headNode)){
+            } else if(i == (patternSize-1) and !succNode->isSuccessorOf(dfgNode)){
               continue;
             } else{
-              t_matchedNodes->push_back(succNode);
+              toBeMatchedDFGNodes->push_back(succNode);
               break;
             }
           }
         }        
       }
-      t_matchedNodes->clear();
+      toBeMatchedDFGNodes->clear();
     }  
   }
 }
