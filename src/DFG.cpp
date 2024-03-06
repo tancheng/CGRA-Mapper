@@ -175,7 +175,7 @@ void DFG::combine(string t_opt0, string t_opt1) {
   }
 }
 
-// combineForIter is used to combine patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
+// combineForIter combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
 void DFG::combineForIter(list<string>* t_targetPattern){  
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
@@ -190,19 +190,16 @@ void DFG::combineForIter(list<string>* t_targetPattern){
       for (int i = 1; i < patternSize; i++, currentFunc++){
         string t_opt = *currentFunc;
         DFGNode* tailNode = toBeMatchedDFGNodes->back();
-        std::cout<<"[MMJ erro] dfgNode is "<< dfgNode->getID() <<std::endl;
         for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
           if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
+            // Indicate the pattern is finally found and matched
             if (i == (patternSize-1) and succNode->isSuccessorOf(dfgNode)){
-              std::cout<<"[MMJ erro]  succNode is "<< succNode->getID() <<std::endl;
               toBeMatchedDFGNodes->push_back(succNode);
               for(DFGNode* optNode: *toBeMatchedDFGNodes){
-                if(optNode == dfgNode){
-                  optNode->setCombine();
-                } else{
-                  dfgNode->addPatternPartner(optNode);
-                  optNode->setCombine();
+                if(optNode != dfgNode){
+                   dfgNode ->addPatternPartner(optNode);                  
                 }
+                optNode->setCombine();                       
               }
               break;
             } else if(i == (patternSize-1) and !succNode->isSuccessorOf(dfgNode)){
