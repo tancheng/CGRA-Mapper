@@ -175,7 +175,7 @@ void DFG::combine(string t_opt0, string t_opt1) {
   }
 }
 
-// combineForIter combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
+// Combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
 void DFG::combineForIter(list<string>* t_targetPattern){  
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
