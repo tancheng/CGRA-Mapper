@@ -101,6 +101,7 @@ class DFGNode {
     void setInEdge(DFGEdge*);
     void setOutEdge(DFGEdge*);
     void cutEdges();
+    void addConst(int); // combineForUnroll
     string getJSONOpt();
     string getFuType();
     void addConst();
