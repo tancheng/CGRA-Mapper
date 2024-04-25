@@ -218,6 +218,57 @@ void DFG::combineForIter(list<string>* t_targetPattern){
   }
 }
 
+void DFG::combineForUnroll(list<string>* t_targetPattern){
+  // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
+  int patternSize = t_targetPattern->size();
+  string headOpt = string(t_targetPattern->front());
+  list<string>::iterator currentFunc = t_targetPattern->begin();
+  currentFunc++;
+  // toBeMatchedDFGNodes is to store the DFG nodes that match the pattern
+  list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>[patternSize];
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isOpt(headOpt) and !dfgNode->hasCombined() and dfgNode->getID() != 1) {
+      toBeMatchedDFGNodes->push_back(dfgNode);
+      std::cout<<"\033[32m I find \033[0m" << dfgNode->getID() <<std::endl;
+      // the for loop below is to find the target pattern under specific dfgNode
+      for (int i = 1; i < patternSize; i++, currentFunc++){
+        string t_opt = *currentFunc;
+        DFGNode* tailNode = toBeMatchedDFGNodes->back();
+        for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
+          std::cout<<"\033[32m I find \033[0m" << succNode->getID() <<std::endl;
+          if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
+            if (i == (patternSize-1) and dfgNode->isSuccessorOf(succNode)){
+              toBeMatchedDFGNodes->push_back(succNode);
+              // find a phi-add-add-...
+              // new add_const(DFGNode)
+              std::cout<<"\033[31m I find phi-add-add \033[0m" <<std::endl;
+              int newAddNodeID = (nodes.back())->getID();
+              bool newAddPrecisionAware = 1; // a test
+              Instruction* newAddInst = succNode->getInst();
+              StringRef newAddStrRef = succNode->getStringRef();
+              DFGNode* newAddNode = new DFGNode(newAddNodeID++, newAddPrecisionAware, newAddInst, newAddStrRef); // succeed from the last node
+              newAddNode -> addConst(patternSize-1);
+              nodes.push_back(newAddNode);
+              // reconsturct edges
+              replaceDFGEdge(succNode, dfgNode, newAddNode, dfgNode);
+              addDFGEdge(dfgNode, newAddNode);
+              break;
+            } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
+              continue;
+            } else{
+              toBeMatchedDFGNodes->push_back(succNode);
+              break;
+            }
+          }
+        }        
+      }
+      toBeMatchedDFGNodes->clear();
+      currentFunc = t_targetPattern->begin();
+      currentFunc++;
+    }  
+  }
+}
+
 bool DFG::shouldIgnore(Instruction* t_inst) {
   if (m_targetFunction) {
     return false;
@@ -1201,6 +1252,12 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
     assert("ERROR cannot find the corresponding DFG edge.");
   m_DFGEdges.remove(target);
   DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst);
+  m_DFGEdges.push_back(newEdge);
+}
+
+void DFG::addDFGEdge(DFGNode* t_src, DFGNode* t_dst){ // combineForUnroll
+  int newEdgeID = (m_DFGEdges.back())->getID();
+  DFGEdge* newEdge = new DFGEdge(newEdgeID, t_src, t_dst);
   m_DFGEdges.push_back(newEdge);
 }
 
