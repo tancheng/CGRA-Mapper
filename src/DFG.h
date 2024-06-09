@@ -52,7 +52,6 @@ class DFG {
     DFGEdge* getDFGEdge(DFGNode*, DFGNode*);
     void deleteDFGEdge(DFGNode*, DFGNode*);
     void replaceDFGEdge(DFGNode*, DFGNode*, DFGNode*, DFGNode*);
-    void addDFGEdge(DFGNode*,DFGNode*); // combineForUnroll
     bool hasDFGEdge(DFGNode*, DFGNode*);
     DFGEdge* getCtrlEdge(DFGNode*, DFGNode*);
     bool hasCtrlEdge(DFGNode*, DFGNode*);
