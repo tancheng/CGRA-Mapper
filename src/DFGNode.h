@@ -57,8 +57,6 @@ class DFGNode {
     // "m_predicated" indicates whether the execution of the node depends on
     // predication or not (i.e., the predecessor probably is a "branch"). 
     bool m_isPredicatee;
-    // combineForUnroll(): "m_addConst" indicates the const in "add+const" node
-    int m_addConst;
     list<DFGNode*>* m_predicatees;
     bool m_isPredicater;
     DFGNode* m_patternRoot;
@@ -103,7 +101,6 @@ class DFGNode {
     void setInEdge(DFGEdge*);
     void setOutEdge(DFGEdge*);
     void cutEdges();
-    void addConst(int); // combineForUnroll
     string getJSONOpt();
     string getFuType();
     void addConst();
