@@ -31,7 +31,6 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_execLatency = 1;
   m_pipelinable = false;
   m_isPredicatee = false;
-  m_addConst = 0; // combineForUnroll
   m_predicatees = NULL;
   m_isPredicater = false;
   m_patternNodes = new list<DFGNode*>();
@@ -526,10 +525,6 @@ void DFGNode::cutEdges() {
   if (m_succNodes != NULL) {
     m_succNodes = NULL;
   }
-}
-
-void DFGNode::addConst(int t_const){ // combineForUnroll
-  m_addConst = t_const;
 }
 
 bool DFGNode::isSuccessorOf(DFGNode* t_dfgNode) {
