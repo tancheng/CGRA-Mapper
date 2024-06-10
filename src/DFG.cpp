@@ -218,11 +218,11 @@ void DFG::combineForIter(list<string>* t_targetPattern){
   }
 }
 
+// combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
 void DFG::combineForUnroll(list<string>* t_targetPattern){
-  // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns, otherwise, the fusion won't be performed.
   int patternSize = t_targetPattern->size();
   if (patternSize > 4){ 
-    std::cout<<"\033[32m [Erro] The pattern is too long! \033[0m" <<std::endl;
+    std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;
     // the longest length can be combined is 4
     return;
   }
