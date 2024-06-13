@@ -1245,8 +1245,11 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
   if (target == NULL)
     assert("ERROR cannot find the corresponding DFG edge.");
   m_DFGEdges.remove(target);
-  DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst);
+  DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst, target->isCtrlEdge());
   m_DFGEdges.push_back(newEdge);
+  if (newEdge->isCtrlEdge()){
+    m_ctrlEdges.push_back(newEdge);
+  }
 }
 
 void DFG::deleteDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
