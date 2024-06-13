@@ -193,7 +193,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
         for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
           if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
             // Indicate the pattern is finally found and matched
-            if (i == (patternSize-1) and succNode->isSuccessorOf(dfgNode)){
+            if (i == (patternSize-1) and dfgNode->isSuccessorOf(succNode)){
               toBeMatchedDFGNodes->push_back(succNode);
               for(DFGNode* optNode: *toBeMatchedDFGNodes){
                 if(optNode != dfgNode){
@@ -202,7 +202,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
                 optNode->setCombine();                       
               }
               break;
-            } else if(i == (patternSize-1) and !succNode->isSuccessorOf(dfgNode)){
+            } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
               continue;
             } else{
               toBeMatchedDFGNodes->push_back(succNode);
@@ -212,6 +212,53 @@ void DFG::combineForIter(list<string>* t_targetPattern){
         }        
       }
       toBeMatchedDFGNodes->clear();
+      currentFunc = t_targetPattern->begin();
+      currentFunc++;
+    }  
+  }
+}
+
+// combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
+void DFG::combineForUnroll(list<string>* t_targetPattern){
+  int patternSize = t_targetPattern->size();
+  if (patternSize > 4){ 
+    std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;
+    // the longest length can be combined is 4
+    return;
+  }
+  string headOpt = string(t_targetPattern->front());
+  list<string>::iterator currentFunc = t_targetPattern->begin();
+  currentFunc++;
+  // toBeMatchedDFGNodes is to store the DFG nodes that match the pattern
+  list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>[patternSize];
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isOpt(headOpt) and !dfgNode->hasCombined() and dfgNode->getID() != 1) {
+      toBeMatchedDFGNodes->push_back(dfgNode);
+      // the for loop below is to find the target pattern under specific dfgNode
+      for (int i = 1; i < patternSize; i++, currentFunc++){
+        string t_opt = *currentFunc;
+        DFGNode* tailNode = toBeMatchedDFGNodes->back();
+        for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
+          if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
+            if (i == (patternSize-1)){
+              toBeMatchedDFGNodes->push_back(succNode);
+              for(DFGNode* optNode: *toBeMatchedDFGNodes){
+                if(optNode != dfgNode){
+                   dfgNode ->addPatternPartner(optNode);                  
+                }
+                optNode->setCombine();                       
+              }
+              break;
+            } else{
+              toBeMatchedDFGNodes->push_back(succNode);
+              break;
+            }
+          }
+        }        
+      }
+      toBeMatchedDFGNodes->clear();
+      currentFunc = t_targetPattern->begin();
+      currentFunc++;
     }  
   }
 }
@@ -1198,8 +1245,12 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
   if (target == NULL)
     assert("ERROR cannot find the corresponding DFG edge.");
   m_DFGEdges.remove(target);
-  DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst);
+  // Keeps the ctrl property of the original edge on the newly added edge.
+  DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst, target->isCtrlEdge());
   m_DFGEdges.push_back(newEdge);
+  if (newEdge->isCtrlEdge()){
+    m_ctrlEdges.push_back(newEdge);
+  }
 }
 
 void DFG::deleteDFGEdge(DFGNode* t_src, DFGNode* t_dst) {

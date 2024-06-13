@@ -65,6 +65,8 @@ class DFG {
     void combinePhiAdd();
     void combine(string, string);
     void combineForIter(list<string>*);
+    // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
+    void combineForUnroll(list<string>*); 
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
