@@ -407,15 +407,15 @@ int CGRANode::getCurrentCtrlMemItems() {
 
 // TODO: will support precision-based operations (e.g., fadd, fmul, etc).
 bool CGRANode::enableFunctionality(string t_func) {
-  if (t_func.compare("store")) {
+  if (t_func.compare("store") == 0) {
     enableStore();
-  } else if (t_func.compare("load")) {
+  } else if (t_func.compare("load") == 0) {
     enableLoad();
-  } else if (t_func.compare("return")) {
+  } else if (t_func.compare("return") == 0) {
     enableReturn();
-  } else if (t_func.compare("call")) {
+  } else if (t_func.compare("call") == 0) {
     enableCall();
-  } else if (t_func.compare("complex")) {
+  } else if (t_func.compare("complex") == 0) {
     enableComplex();
   } else {
     return false;
