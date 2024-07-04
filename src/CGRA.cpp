@@ -117,10 +117,10 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
           if (!canEnable) {
             cout<<"\033[0;31mInvalid operation "<<iter->first<<" on CGRA node ID "<<nodeIndex<<"\033[0m"<<endl;
           } else {
-            if ((iter->first).compare("store")) {
+            if ((iter->first).compare("store") == 0) {
               storeCount += 1;
             }
-            if ((iter->first).compare("load")) {
+            if ((iter->first).compare("load") == 0) {
               loadCount += 1;
             }
           }
