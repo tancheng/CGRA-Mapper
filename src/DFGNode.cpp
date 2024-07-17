@@ -9,6 +9,7 @@
  */
 
 #include "DFGNode.h"
+#include "llvm/Demangle/Demangle.h"
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
                  StringRef t_stringRef) {
@@ -146,7 +147,7 @@ bool DFGNode::isVectorized() {
 }
 
 bool DFGNode::isLoad() {
-  if (m_opcodeName.compare("load") == 0)
+  if (m_opcodeName.compare("load") == 0 || m_opcodeName.compare("getelementptrload") == 0)
     return true;
   return false;
 }
@@ -158,7 +159,7 @@ bool DFGNode::isReturn() {
 }
 
 bool DFGNode::isStore() {
-  if (m_opcodeName.compare("store") == 0)
+  if (m_opcodeName.compare("store") == 0 || m_opcodeName.compare("getelementptrstore") == 0)
     return true;
   return false;
 }
@@ -243,6 +244,12 @@ bool DFGNode::isLogic() {
   return false;
 }
 
+bool DFGNode::isLut() {
+  if (m_opcodeName.compare("lut") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::hasCombined() {
   return m_combined;
 }
@@ -295,18 +302,32 @@ string DFGNode::getOpcodeName() {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {
         string newName = func->getName().str();
-	string removingPattern = "llvm.vector.";
-	int pos = newName.find(removingPattern);
-	if (pos == -1)
-	  pos = newName.find("llvm.");
-	newName.erase(pos, removingPattern.length());
+        string removingPattern = "llvm.vector.";
+        int pos = newName.find(removingPattern);
+        if (pos == -1)
+        pos = newName.find("llvm.");
+	      newName.erase(pos, removingPattern.length());
         string delimiter = ".v";
         newName = newName.substr(0, newName.find(delimiter));
-	replace(newName.begin(), newName.end(), '.', '_');
-	return newName;
+	      replace(newName.begin(), newName.end(), '.', '_');
+        return newName;
       }
       else
         return "indirect call";
+    }
+    // TODO: lut can be vectorized or not?
+    else if (m_opcodeName.compare("call") == 0) {
+      Function *func = ((CallInst*)m_inst)->getCalledFunction();
+      if (func) {
+        string newName = func->getName().str();
+        cout << "*************************************** shabi name: " << demangle(newName) << endl;
+        if (demangle(newName) == "lut(float)") {
+          cout << "find it !!!" << endl;
+          return "lut";
+        }
+        else return newName;
+      }
+      else return "indirect call";
     }
   }
 

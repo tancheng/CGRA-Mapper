@@ -117,10 +117,10 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
           if (!canEnable) {
             cout<<"\033[0;31mInvalid operation "<<iter->first<<" on CGRA node ID "<<nodeIndex<<"\033[0m"<<endl;
           } else {
-            if ((iter->first).compare("store")) {
+            if ((iter->first).compare("store") == 0) {
               storeCount += 1;
             }
-            if ((iter->first).compare("load")) {
+            if ((iter->first).compare("load") == 0) {
               loadCount += 1;
             }
           }
@@ -143,11 +143,11 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Some other basic operations that can be indicated in the param.json:
     // Enable the specialized 'call' functionality.
-    for (int r=0; r<t_rows; ++r) {
-      for (int c=0; c<t_columns; ++c) {
-        nodes[r][c]->enableCall();
-      }
-    }
+    // for (int r=0; r<t_rows; ++r) {
+    //   for (int c=0; c<t_columns; ++c) {
+    //     nodes[r][c]->enableCall();
+    //   }
+    // }
 
     // Enable the vectorization.
     if (t_diagonalVectorization) {
@@ -168,12 +168,12 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Enable the heterogeneity.
     if (t_heterogeneity) {
-      for (int r=0; r<t_rows; ++r) {
-        for (int c=0; c<t_columns; ++c) {
-          if(r%2==1 and c%2 == 1)
-            nodes[r][c]->enableComplex();
-        }
-      }
+      // for (int r=0; r<t_rows; ++r) {
+      //   for (int c=0; c<t_columns; ++c) {
+      //     // if(c == 0 || (r%2==1 and c%2 == 1))
+      //       nodes[r][c]->enableComplex();
+      //   }
+      // }
     }
 
     for (int r=0; r<t_rows; ++r) {

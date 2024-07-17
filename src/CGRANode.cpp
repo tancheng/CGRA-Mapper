@@ -53,6 +53,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canLogic  = true;
   m_canBr     = true;
   m_canReturn = true;
+  m_canLut    = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -198,7 +199,8 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isMAC()        and !canMAC()) or 
       (t_opt->isLogic()      and !canLogic()) or 
       (t_opt->isBranch()     and !canBr()) or 
-      (t_opt->isCmp()        and !canCmp()) ){ 
+      (t_opt->isCmp()        and !canCmp()) or
+      (t_opt->isLut()        and !canLut()) ){ 
     return false;
   }
   return true;
@@ -407,17 +409,20 @@ int CGRANode::getCurrentCtrlMemItems() {
 
 // TODO: will support precision-based operations (e.g., fadd, fmul, etc).
 bool CGRANode::enableFunctionality(string t_func) {
-  if (t_func.compare("store")) {
+  if (t_func.compare("store") == 0) {
     enableStore();
-  } else if (t_func.compare("load")) {
+  } else if (t_func.compare("load") == 0) {
     enableLoad();
-  } else if (t_func.compare("return")) {
+  } else if (t_func.compare("return") == 0) {
     enableReturn();
-  } else if (t_func.compare("call")) {
+  } else if (t_func.compare("call") == 0) {
     enableCall();
-  } else if (t_func.compare("complex")) {
+  } else if (t_func.compare("complex") == 0) {
     enableComplex();
-  } else {
+  } else if (t_func.compare("lut") == 0){
+    enableLut();
+  }
+  else {
     return false;
   }
   return true;
@@ -483,6 +488,10 @@ void CGRANode::enableBr() {
   m_canBr = true;
 }
 
+void CGRANode::enableLut() {
+  m_canLut = true;
+}
+
 
 bool CGRANode::supportComplex() {
   return m_supportComplex;
@@ -544,6 +553,10 @@ bool CGRANode::canBr() {
   return m_canBr;
 }
 
+bool CGRANode::canLut() {
+  return m_canLut;
+}
+
 int CGRANode::getX() {
   return m_x;
 }
@@ -576,6 +589,7 @@ void CGRANode::disableAllFUs() {
   m_canMAC = false;
   m_canLogic = false;
   m_canBr = false;
+  m_canLut = false;
   m_supportComplex = false;
   m_supportVectorization = false;
 }

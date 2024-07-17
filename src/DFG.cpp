@@ -28,14 +28,32 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
-//    combine("phi", "add");
-    combine("and", "xor");
-//    combine("br", "phi");
+   
+    // combine("and", "xor");
+  //  combine("br", "phi");
 //    combine("add", "icmp");
 //    combine("xor", "add");
+    list<string>* t_targetPattern = new list<string>();
+    t_targetPattern->push_back("phi");
+    t_targetPattern->push_back("add");
+    t_targetPattern->push_back("icmp");
+    t_targetPattern->push_back("br");
+    combineForIter(t_targetPattern);
+    delete t_targetPattern;
+    // combine("phi", "add");
     combineCmpBranch();
-    combine("icmp", "br");
+    combine("fsub", "fadd");
+    combine("fadd", "fadd");
+    combine("fadd", "fsub");
+    combine("fmul", "fmul");
+
+    // combine("fmul", "fpext");
+    // combine("fadd", "fdiv");
+    // combine("fdiv", "fadd");
+    combine("fmul", "fadd");
+    combine("fadd", "fmul");
     combine("getelementptr", "load");
+    combine("getelementptr", "store");
     tuneForPattern();
 
 //    calculateCycles();
@@ -1339,6 +1357,7 @@ void DFG::tuneForLoad() {
       DFGNode* firstLoadNode = NULL;
       for (DFGNode* succNode: *succNodes) {
         if (firstLoadNode == NULL and succNode->isLoad()) {
+          cout << "first load node: sahbiiiiiiiiiiiiiiiiiiiiiiiiiiii_________________________________" << succNode->getID() << "\n";
           firstLoadNode = succNode;
         } else if (firstLoadNode != NULL and succNode->isLoad()) {
           unnecessaryDFGNodes.push_back(succNode);
