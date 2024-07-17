@@ -30,6 +30,8 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canStore = false;
   m_canLoad = false;
   m_supportComplex = false;
+  m_canCall = false;      // It's not necessary to support specific function on each tile.
+  m_canLut = false;
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
@@ -42,7 +44,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_regs_timing = NULL;
 
   // used for parameterizable CGRA functional units
-  m_canCall   = true;
+  // m_canCall   = true;
   m_canAdd    = true;
   m_canMul    = true;
   m_canShift  = true;
@@ -53,7 +55,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canLogic  = true;
   m_canBr     = true;
   m_canReturn = true;
-  m_canLut    = true;
+  // m_canLut    = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers

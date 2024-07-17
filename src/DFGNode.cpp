@@ -245,7 +245,7 @@ bool DFGNode::isLogic() {
 }
 
 bool DFGNode::isLut() {
-  if (m_opcodeName.compare("lut") == 0)
+  if (m_opcodeName.compare("call") == 0 and getOpcodeName() == "lut")
     return true;
   return false;
 }
@@ -320,9 +320,8 @@ string DFGNode::getOpcodeName() {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {
         string newName = func->getName().str();
-        cout << "*************************************** shabi name: " << demangle(newName) << endl;
+        cout << "*************************************** demangle name: " << demangle(newName) << endl;
         if (demangle(newName) == "lut(float)") {
-          cout << "find it !!!" << endl;
           return "lut";
         }
         else return newName;
