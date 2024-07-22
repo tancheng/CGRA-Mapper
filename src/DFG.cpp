@@ -33,23 +33,37 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   //  combine("br", "phi");
 //    combine("add", "icmp");
 //    combine("xor", "add");
+    // combineForUnroll();
     list<string>* t_targetPattern = new list<string>();
+    // t_targetPattern->push_back("phi");
+    // t_targetPattern->push_back("add");
+    // t_targetPattern->push_back("icmp");
+    // t_targetPattern->push_back("br");
+    // combineForUnroll(t_targetPattern);
+    // delete t_targetPattern;
+
+    // t_targetPattern = new list<string>();
     t_targetPattern->push_back("phi");
     t_targetPattern->push_back("add");
-    t_targetPattern->push_back("icmp");
-    t_targetPattern->push_back("br");
-    combineForIter(t_targetPattern);
+    t_targetPattern->push_back("add");
+    t_targetPattern->push_back("add");
+    combineForUnroll(t_targetPattern);
+
+    t_targetPattern = new list<string>();
+    t_targetPattern->push_back("phi");
+    t_targetPattern->push_back("add");
+    t_targetPattern->push_back("add");
+    combineForUnroll(t_targetPattern);
     delete t_targetPattern;
-    // combine("phi", "add");
-    combineCmpBranch();
+
+    combine("phi", "add");
+    // tuneForBranch();
+    combine("icmp", "br");
     combine("fsub", "fadd");
     combine("fadd", "fadd");
     combine("fadd", "fsub");
-    combine("fmul", "fmul");
+    // combine("fmul", "fmul");
 
-    // combine("fmul", "fpext");
-    // combine("fadd", "fdiv");
-    // combine("fdiv", "fadd");
     combine("fmul", "fadd");
     combine("fadd", "fmul");
     combine("getelementptr", "load");
@@ -176,16 +190,18 @@ void DFG::combine(string t_opt0, string t_opt1) {
   DFGNode* opt0Node = NULL;
   DFGNode* opt1Node = NULL;
   bool found = false;
+  bool getptr = false;
+  if (t_opt0.compare("getelementptr") == 0 or t_opt1.compare("getelementptr") == 0) getptr = true;
   for (DFGNode* dfgNode: nodes) {
 //    if (dfgNode->isOpt(t_opt0) and dfgNode->isCritical() and !dfgNode->hasCombined()) {
     if (dfgNode->isOpt(t_opt0) and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isOpt(t_opt1) and !succNode->hasCombined()) {
           opt0Node = dfgNode;
-          opt0Node->setCombine();
+          if (!getptr) opt0Node->setCombine();
           opt1Node = succNode;
           opt0Node->addPatternPartner(opt1Node);
-          opt1Node->setCombine();
+          if (!getptr) opt1Node->setCombine();
           break;
         }
       }
@@ -1260,8 +1276,11 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
       break;
     }
   }
-  if (target == NULL)
+  if (target == NULL) {
     assert("ERROR cannot find the corresponding DFG edge.");
+    cout << "ERROR cannot find the corresponding DFG edge\n";
+    return;
+  }
   m_DFGEdges.remove(target);
   // Keeps the ctrl property of the original edge on the newly added edge.
   DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst, target->isCtrlEdge());
@@ -1418,6 +1437,7 @@ void DFG::tuneForBranch() {
     list<DFGNode*>* predNodes = right->getPredNodes();
     for (DFGNode* predNode: *predNodes) {
       DFGEdge* replaceDFGEdge = getDFGEdge(predNode, right);
+      if (replaceDFGEdge == NULL) cout << "shabi\n";
       DFGEdge* brDataDFGEdge = new DFGEdge(replaceDFGEdge->getID(), predNode, left);
       DFGEdge* brCtrlDFGEdge = new DFGEdge(newDFGEdgeID++, left, right);
       // FIXME: Only consider one predecessor for 'phi' node for now.

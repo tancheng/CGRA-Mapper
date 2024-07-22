@@ -65,6 +65,7 @@ class CGRANode {
     bool m_canLogic;
     bool m_canBr;
     bool m_canLut;
+    bool m_canDiv;
     bool m_supportComplex;
     bool m_supportVectorization;
     int** m_regs_duration;
@@ -96,6 +97,7 @@ class CGRANode {
     void enableLogic();
     void enableBr();
     void enableLut();
+    void enableDiv();
 
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
@@ -136,6 +138,7 @@ class CGRANode {
     bool canLogic();
     bool canBr();
     bool canLut();
+    bool canDiv();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);

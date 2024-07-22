@@ -250,6 +250,12 @@ bool DFGNode::isLut() {
   return false;
 }
 
+bool DFGNode::isDiv() {
+  if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::hasCombined() {
   return m_combined;
 }
@@ -320,7 +326,7 @@ string DFGNode::getOpcodeName() {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {
         string newName = func->getName().str();
-        cout << "*************************************** demangle name: " << demangle(newName) << endl;
+        // cout << "[DEBUG] demangle name: " << demangle(newName) << endl;
         if (demangle(newName) == "lut(float)") {
           return "lut";
         }
@@ -484,8 +490,16 @@ void DFGNode::initType() {
 }
 
 list<DFGNode*>* DFGNode::getPredNodes() {
-  if (m_predNodes != NULL)
+  // cout << "now: " << getID() << endl;
+  if (m_predNodes != NULL) {
+    // cout << "pred: ";
+  // for (DFGNode* predNode: *m_predNodes) {
+    // cout << predNode->getID() << " ";
+  // }
+  // cout << endl;
     return m_predNodes;
+  }
+    
 
   m_predNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_inEdges) {
@@ -512,8 +526,15 @@ list<DFGNode*>* DFGNode::getPredNodes() {
 }
 
 list<DFGNode*>* DFGNode::getSuccNodes() {
-  if (m_succNodes != NULL)
+  if (m_succNodes != NULL) {
+  //   cout << "succ: ";
+  // for (DFGNode* predNode: *m_succNodes) {
+  //   cout << predNode->getID() << " ";
+  // }
+  // cout << endl;
     return m_succNodes;
+  }
+    
 
   m_succNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_outEdges) {

@@ -32,6 +32,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_supportComplex = false;
   m_canCall = false;      // It's not necessary to support specific function on each tile.
   m_canLut = false;
+  m_canDiv = false;
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
@@ -202,7 +203,8 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isLogic()      and !canLogic()) or 
       (t_opt->isBranch()     and !canBr()) or 
       (t_opt->isCmp()        and !canCmp()) or
-      (t_opt->isLut()        and !canLut()) ){ 
+      (t_opt->isLut()        and !canLut()) or 
+      (t_opt->isDiv()        and !canDiv())){ 
     return false;
   }
   return true;
@@ -421,8 +423,11 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableCall();
   } else if (t_func.compare("complex") == 0) {
     enableComplex();
-  } else if (t_func.compare("lut") == 0){
+  } else if (t_func.compare("lut") == 0) {
     enableLut();
+  }
+  else if (t_func.compare("div") == 0) {
+    enableDiv();
   }
   else {
     return false;
@@ -494,6 +499,9 @@ void CGRANode::enableLut() {
   m_canLut = true;
 }
 
+void CGRANode::enableDiv() {
+  m_canDiv = true;
+}
 
 bool CGRANode::supportComplex() {
   return m_supportComplex;
@@ -557,6 +565,10 @@ bool CGRANode::canBr() {
 
 bool CGRANode::canLut() {
   return m_canLut;
+}
+
+bool CGRANode::canDiv() {
+  return m_canDiv;
 }
 
 int CGRANode::getX() {
