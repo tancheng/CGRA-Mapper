@@ -361,6 +361,8 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   // nested
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
+  (*t_functionWithLoop)["_Z7softmaxPfS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z7softmaxPfS_"]->push_back(0);
 }
 
 

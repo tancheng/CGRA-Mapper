@@ -91,6 +91,7 @@ class DFGNode {
     bool isDiv();
     bool isQuantize();
     bool hasCombined();
+    bool hasCombinedExceptMem();
     void setCombine();
     void addPatternPartner(DFGNode*);
     Instruction* getInst();

@@ -56,6 +56,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
     combineForUnroll(t_targetPattern);
     delete t_targetPattern;
 
+    // combine("fcmp", "select");
     combine("phi", "add");
     // tuneForBranch();
     combine("icmp", "br");
@@ -65,6 +66,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
     // combine("fmul", "fmul");
 
     combine("fmul", "fadd");
+    // combine("fmuladd", "fadd");
     combine("fadd", "fmul");
     combine("getelementptr", "load");
     combine("getelementptr", "store");
@@ -191,7 +193,7 @@ void DFG::combine(string t_opt0, string t_opt1) {
   DFGNode* opt1Node = NULL;
   bool found = false;
   bool getptr = false;
-  if (t_opt0.compare("getelementptr") == 0 or t_opt1.compare("getelementptr") == 0) getptr = true;
+  // if (t_opt0.compare("getelementptr") == 0 or t_opt1.compare("getelementptr") == 0) getptr = true;      // for getptr + load/store, we should not regard them as complex operations.
   for (DFGNode* dfgNode: nodes) {
 //    if (dfgNode->isOpt(t_opt0) and dfgNode->isCritical() and !dfgNode->hasCombined()) {
     if (dfgNode->isOpt(t_opt0) and !dfgNode->hasCombined()) {

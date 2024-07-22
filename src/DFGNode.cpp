@@ -268,6 +268,16 @@ bool DFGNode::hasCombined() {
   return m_combined;
 }
 
+// for getptr + load/store, we should not regard them as complex operations. 
+// in CGRA, getptr+l/s can be performed on the common tiles.
+// in DFG, it should be still regarded as complex nodes so that we will perform combining and tuning.
+bool DFGNode::hasCombinedExceptMem() {
+  if (isLoad() or isStore()) 
+    return false;
+  return m_combined;
+}
+
+
 void DFGNode::setCombine() {
   m_combined = true;
 }
