@@ -89,6 +89,7 @@ class DFGNode {
     bool isVectorized();
     bool isLut();
     bool isDiv();
+    bool isQuantize();
     bool hasCombined();
     void setCombine();
     void addPatternPartner(DFGNode*);

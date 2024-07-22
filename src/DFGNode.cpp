@@ -245,13 +245,21 @@ bool DFGNode::isLogic() {
 }
 
 bool DFGNode::isLut() {
-  if (m_opcodeName.compare("call") == 0 and getOpcodeName() == "lut")
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") == 0 and op.compare("lut") == 0)
     return true;
   return false;
 }
 
 bool DFGNode::isDiv() {
   if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
+    return true;
+  return false;
+}
+
+bool DFGNode::isQuantize() {
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") == 0 and (op.compare("fpQuantize") == 0 or op.compare("intQuantize") == 0))
     return true;
   return false;
 }
@@ -329,6 +337,12 @@ string DFGNode::getOpcodeName() {
         // cout << "[DEBUG] demangle name: " << demangle(newName) << endl;
         if (demangle(newName) == "lut(float)") {
           return "lut";
+        }
+        if (demangle(newName) == "fpQuantize(float)") {
+          return "fpQuantize";
+        }
+        if (demangle(newName) == "intQuantize(int)") {
+          return "intQuantize";
         }
         else return newName;
       }
@@ -483,7 +497,18 @@ void DFGNode::initType() {
   } else if (m_opcodeName.compare("ashr") == 0) {
     m_optType = "OPT_ASR";
     m_fuType = "Shift";
-  } else {
+  } // TODO: cooperate with RTL
+  else if (getOpcodeName() == "lut") {
+    m_optType = "OPT_LUT";
+    m_fuType = "LUT";
+  } else if (m_opcodeName.compare("fpQuantize") == 0) {
+    m_optType = "OPT_Quantize";
+    m_fuType = "Quantize";
+  } else if (m_opcodeName.compare("intQuantize") == 0) {
+    m_optType = "OPT_Quantize";
+    m_fuType = "Quantize";
+  } 
+  else {
     m_optType = "Unfamiliar: " + m_opcodeName;
     m_fuType = "Unknown";
   }

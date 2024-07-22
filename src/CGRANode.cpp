@@ -33,6 +33,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canCall = false;      // It's not necessary to support specific function on each tile.
   m_canLut = false;
   m_canDiv = false;
+  m_canQuantize = false;
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
@@ -204,7 +205,8 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isBranch()     and !canBr()) or 
       (t_opt->isCmp()        and !canCmp()) or
       (t_opt->isLut()        and !canLut()) or 
-      (t_opt->isDiv()        and !canDiv())){ 
+      (t_opt->isDiv()        and !canDiv()) or
+      (t_opt->isQuantize()   and !canQuantize())) { 
     return false;
   }
   return true;
@@ -425,9 +427,10 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableComplex();
   } else if (t_func.compare("lut") == 0) {
     enableLut();
-  }
-  else if (t_func.compare("div") == 0) {
+  } else if (t_func.compare("div") == 0) {
     enableDiv();
+  } else if (t_func.compare("quantize") == 0) {
+    enableQuantize();
   }
   else {
     return false;
@@ -503,6 +506,10 @@ void CGRANode::enableDiv() {
   m_canDiv = true;
 }
 
+void CGRANode::enableQuantize() {
+  m_canQuantize = true;
+}
+
 bool CGRANode::supportComplex() {
   return m_supportComplex;
 }
@@ -569,6 +576,10 @@ bool CGRANode::canLut() {
 
 bool CGRANode::canDiv() {
   return m_canDiv;
+}
+
+bool CGRANode::canQuantize() {
+  return m_canQuantize;
 }
 
 int CGRANode::getX() {
