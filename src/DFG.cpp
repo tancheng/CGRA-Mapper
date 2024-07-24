@@ -28,59 +28,51 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
-   
-    // combine("and", "xor");
-  //  combine("br", "phi");
-//    combine("add", "icmp");
-//    combine("xor", "add");
-    // combineForUnroll();
-    list<string>* t_targetPattern = new list<string>();
-    // t_targetPattern->push_back("phi");
-    // t_targetPattern->push_back("add");
-    // t_targetPattern->push_back("icmp");
-    // t_targetPattern->push_back("br");
-    // combineForUnroll(t_targetPattern);
-    // delete t_targetPattern;
-
-    // t_targetPattern = new list<string>();
-    t_targetPattern->push_back("phi");
-    t_targetPattern->push_back("add");
-    t_targetPattern->push_back("add");
-    t_targetPattern->push_back("add");
-    combineForUnroll(t_targetPattern);
-
-    t_targetPattern = new list<string>();
-    t_targetPattern->push_back("phi");
-    t_targetPattern->push_back("add");
-    t_targetPattern->push_back("add");
-    combineForUnroll(t_targetPattern);
-    delete t_targetPattern;
-
-    // combine("fcmp", "select");
-    combine("phi", "add");
-    // tuneForBranch();
-    combine("icmp", "br");
-    combine("fsub", "fadd");
-    combine("fadd", "fadd");
-    combine("fadd", "fsub");
-    // combine("fmul", "fmul");
-
-    combine("fmul", "fadd");
-    // combine("fmuladd", "fadd");
-    combine("fadd", "fmul");
-    combine("getelementptr", "load");
-    combine("getelementptr", "store");
-    tuneForPattern();
-
+    nonlinear_combine();
 //    calculateCycles();
-////    combine("icmp", "br");
-//    combine("xor", "add");
 //    tuneForPattern();
   }
 //  trimForStandalone();
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
 
+}
+
+void DFG::nonlinear_combine() {
+
+  list<string>* t_targetPattern = new list<string>();
+
+  // t_targetPattern = new list<string>();
+  t_targetPattern->push_back("phi");
+  t_targetPattern->push_back("add");
+  t_targetPattern->push_back("add");
+  t_targetPattern->push_back("add");
+  combineForUnroll(t_targetPattern);
+
+  t_targetPattern = new list<string>();
+  t_targetPattern->push_back("phi");
+  t_targetPattern->push_back("add");
+  t_targetPattern->push_back("add");
+  combineForUnroll(t_targetPattern);
+  delete t_targetPattern;
+
+  // combine("fcmp", "select");
+  combine("phi", "add");
+  combine("phi", "fadd");
+  // tuneForBranch();
+  combine("icmp", "br");
+  combine("fcmp", "br");
+  combineAddAdd();
+  // combine("fsub", "fadd");
+  // combine("fadd", "fadd");
+  // combine("fadd", "fsub");
+  // combine("fmul", "fmul");
+
+  combineMulAdd();
+  combineAddMul();
+  combine("getelementptr", "load");
+  combine("getelementptr", "store");
+  tuneForPattern();
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -174,6 +166,47 @@ void DFG::combineMulAdd() {
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine();
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine();
+          break;
+        }
+      }
+    }
+  }
+}
+
+void DFG::combineAddMul() {
+  // detect patterns (e.g., alu+mul)
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isMul() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine();
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine();
+          break;
+        }
+      }
+    }
+  }
+}
+
+void DFG::combineAddAdd() {
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isAdd() and !succNode->hasCombined()) {
           mulNode = dfgNode;

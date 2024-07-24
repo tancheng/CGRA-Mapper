@@ -62,6 +62,8 @@ class DFG {
     void tuneForPattern();
     void combineCmpBranch();
     void combineMulAdd();
+    void combineAddMul();
+    void combineAddAdd();
     void combinePhiAdd();
     void combine(string, string);
     void combineForIter(list<string>*);
@@ -86,6 +88,8 @@ class DFG {
     void initExecLatency(map<string, int>*);
     void initPipelinedOpt(list<string>*);
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
+    // target nonlinear ops
+    void nonlinear_combine();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);

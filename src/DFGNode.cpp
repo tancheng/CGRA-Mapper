@@ -128,7 +128,8 @@ StringRef DFGNode::getStringRef() {
 }
 
 bool DFGNode::isCall() {
-  if (m_opcodeName.compare("call") == 0 && !isVectorized())
+  // only fp2fx int2fx can be regarded as call. other calls like lut/quantize should be treated as special functionalities.
+  if (m_opcodeName.compare("call") == 0 && !isVectorized() && !isLut() && !isQuantize())
     return true;
   return false;
 }
@@ -345,7 +346,7 @@ string DFGNode::getOpcodeName() {
       if (func) {
         string newName = func->getName().str();
         // cout << "[DEBUG] demangle name: " << demangle(newName) << endl;
-        if (demangle(newName) == "lut(float)") {
+        if (demangle(newName) == "lut(float)" || demangle(newName) == "lut(int)") {
           return "lut";
         }
         if (demangle(newName) == "fpQuantize(float)") {
@@ -354,7 +355,7 @@ string DFGNode::getOpcodeName() {
         if (demangle(newName) == "intQuantize(int)") {
           return "intQuantize";
         }
-        else return newName;
+        return newName;
       }
       else return "indirect call";
     }
