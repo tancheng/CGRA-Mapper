@@ -41,37 +41,39 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 void DFG::nonlinear_combine() {
 
   list<string>* t_targetPattern = new list<string>();
-
+  // combine("getelementptr", "load", 3);
+  // combine("getelementptr", "store", 3);
   // t_targetPattern = new list<string>();
   t_targetPattern->push_back("phi");
   t_targetPattern->push_back("add");
   t_targetPattern->push_back("add");
   t_targetPattern->push_back("add");
-  combineForUnroll(t_targetPattern);
+  combineForUnroll(t_targetPattern, 1);
+  delete t_targetPattern;
 
   t_targetPattern = new list<string>();
   t_targetPattern->push_back("phi");
   t_targetPattern->push_back("add");
   t_targetPattern->push_back("add");
-  combineForUnroll(t_targetPattern);
+  combineForUnroll(t_targetPattern, 1);
   delete t_targetPattern;
 
-  // combine("fcmp", "select");
-  combine("phi", "add");
-  combine("phi", "fadd");
-  // tuneForBranch();
-  combine("icmp", "br");
-  combine("fcmp", "br");
-  combineAddAdd();
-  // combine("fsub", "fadd");
-  // combine("fadd", "fadd");
-  // combine("fadd", "fsub");
-  // combine("fmul", "fmul");
+  // t_targetPattern = new list<string>();
+  // t_targetPattern->push_back("fmul");
+  // t_targetPattern->push_back("fadd");
+  // t_targetPattern->push_back("fadd");
+  // combineForUnroll(t_targetPattern, 3);
+  // delete t_targetPattern;
 
-  combineMulAdd();
-  combineAddMul();
-  combine("getelementptr", "load");
-  combine("getelementptr", "store");
+  combine("fcmp", "select", 1);
+  combine("icmp", "select", 1);
+  // combinePhiAdd(1);
+  combine("icmp", "br", 1);
+  // combine("fcmp", "br");
+  combineMulAdd(2);
+  combineAddAdd(2);
+  combinePhiAdd(1);
+  // combineAddMul(2);
   tuneForPattern();
 }
 
@@ -159,20 +161,20 @@ void DFG::combineCmpBranch() {
   }
 }
 
-void DFG::combineMulAdd() {
+void DFG::combinePhiAdd(int type) {
   // detect patterns (e.g., mul+alu)
-  DFGNode* mulNode = NULL;
+  DFGNode* phiNode = NULL;
   DFGNode* addNode = NULL;
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+    if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isAdd() and !succNode->hasCombined()) {
-          mulNode = dfgNode;
-          mulNode->setCombine();
+          phiNode = dfgNode;
+          phiNode->setCombine(type);
           addNode = succNode;
-          mulNode->addPatternPartner(addNode);
-          addNode->setCombine();
+          phiNode->addPatternPartner(addNode);
+          addNode->setCombine(type);
           break;
         }
       }
@@ -180,7 +182,53 @@ void DFG::combineMulAdd() {
   }
 }
 
-void DFG::combineAddMul() {
+void DFG::combineMulAdd(int type) {
+  // detect patterns (e.g., mul+alu)
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  DFGNode* addNode2 = NULL;
+  bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+      found = false;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (found) break;
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          for (DFGNode* succNode2: *(dfgNode->getSuccNodes())) {
+            if (succNode2->isAdd() and !succNode2->hasCombined()) {
+              mulNode = dfgNode;
+              mulNode->setCombine(type);
+              addNode = succNode;
+              mulNode->addPatternPartner(addNode);
+              addNode->setCombine(type);
+              addNode2 = succNode2;
+              mulNode->addPatternPartner(addNode2);
+              addNode2->setCombine(type);
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine(type);
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine(type);
+          break;
+        }
+      }
+    }
+  }
+}
+
+void DFG::combineAddMul(int type) {
   // detect patterns (e.g., alu+mul)
   DFGNode* mulNode = NULL;
   DFGNode* addNode = NULL;
@@ -190,10 +238,10 @@ void DFG::combineAddMul() {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isMul() and !succNode->hasCombined()) {
           mulNode = dfgNode;
-          mulNode->setCombine();
+          mulNode->setCombine(type);
           addNode = succNode;
           mulNode->addPatternPartner(addNode);
-          addNode->setCombine();
+          addNode->setCombine(type);
           break;
         }
       }
@@ -201,19 +249,45 @@ void DFG::combineAddMul() {
   }
 }
 
-void DFG::combineAddAdd() {
+void DFG::combineAddAdd(int type) {
   DFGNode* mulNode = NULL;
   DFGNode* addNode = NULL;
+  DFGNode* addNode2 = NULL;
   bool found = false;
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      found = false;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (found) break;
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          for (DFGNode* succNode2: *(dfgNode->getSuccNodes())) {
+            if (succNode2->isAdd() and !succNode2->hasCombined()) {
+              mulNode = dfgNode;
+              mulNode->setCombine(type);
+              addNode = succNode;
+              mulNode->addPatternPartner(addNode);
+              addNode->setCombine(type);
+              addNode2 = succNode2;
+              mulNode->addPatternPartner(addNode2);
+              addNode2->setCombine(type);
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isAdd() and !succNode->hasCombined()) {
           mulNode = dfgNode;
-          mulNode->setCombine();
+          mulNode->setCombine(type);
           addNode = succNode;
           mulNode->addPatternPartner(addNode);
-          addNode->setCombine();
+          addNode->setCombine(type);
           break;
         }
       }
@@ -221,22 +295,21 @@ void DFG::combineAddAdd() {
   }
 }
 
-void DFG::combine(string t_opt0, string t_opt1) {
+void DFG::combine(string t_opt0, string t_opt1, int type) {
   DFGNode* opt0Node = NULL;
   DFGNode* opt1Node = NULL;
   bool found = false;
   bool getptr = false;
-  // if (t_opt0.compare("getelementptr") == 0 or t_opt1.compare("getelementptr") == 0) getptr = true;      // for getptr + load/store, we should not regard them as complex operations.
   for (DFGNode* dfgNode: nodes) {
 //    if (dfgNode->isOpt(t_opt0) and dfgNode->isCritical() and !dfgNode->hasCombined()) {
     if (dfgNode->isOpt(t_opt0) and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isOpt(t_opt1) and !succNode->hasCombined()) {
           opt0Node = dfgNode;
-          if (!getptr) opt0Node->setCombine();
+          if (!getptr) opt0Node->setCombine(type);
           opt1Node = succNode;
           opt0Node->addPatternPartner(opt1Node);
-          if (!getptr) opt1Node->setCombine();
+          if (!getptr) opt1Node->setCombine(type);
           break;
         }
       }
@@ -288,7 +361,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
 }
 
 // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-void DFG::combineForUnroll(list<string>* t_targetPattern){
+void DFG::combineForUnroll(list<string>* t_targetPattern, int type){
   int patternSize = t_targetPattern->size();
   if (patternSize > 4){ 
     std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;

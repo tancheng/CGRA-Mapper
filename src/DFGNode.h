@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include "DFGEdge.h"
+#define MAXIMUM_COMBINED_TYPE 100
 
 using namespace llvm;
 using namespace std;
@@ -49,6 +50,7 @@ class DFGNode {
     string m_optType;
     string m_fuType;
     bool m_combined;
+    bool m_combinedtype[MAXIMUM_COMBINED_TYPE];   // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
     bool m_isPatternRoot;
     bool m_critical;
     int m_level;
@@ -90,9 +92,11 @@ class DFGNode {
     bool isLut();
     bool isDiv();
     bool isQuantize();
-    bool hasCombined();
+    bool hasCombined(int type=-1);
+    // bool hasCombinedType(int);    // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
     bool hasCombinedExceptMem();
-    void setCombine();
+    // void setCombine();
+    void setCombine(int type=-1);     // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
     void addPatternPartner(DFGNode*);
     Instruction* getInst();
     StringRef getStringRef();

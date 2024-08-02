@@ -30,6 +30,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canStore = false;
   m_canLoad = false;
   m_supportComplex = false;
+  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_supportComplexType[i] = false; 
   m_canCall = false;      // It's not necessary to support specific function on each tile.
   m_canLut = false;
   m_canDiv = false;
@@ -195,12 +196,12 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isReturn()     and !canReturn()) or
       (t_opt->isCall()       and !canCall())  or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->hasCombinedExceptMem()  and !supportComplex()) or
+      // (t_opt->hasCombinedExceptMem()  and !supportComplex()) or
       (t_opt->isAdd()        and !canAdd()) or 
       (t_opt->isMul()        and !canMul()) or 
       (t_opt->isPhi()        and !canPhi()) or 
       (t_opt->isSel()        and !canSel()) or 
-      (t_opt->isMAC()        and !canMAC()) or 
+      // (t_opt->isMAC()        and !canMAC()) or 
       (t_opt->isLogic()      and !canLogic()) or 
       (t_opt->isBranch()     and !canBr()) or 
       (t_opt->isCmp()        and !canCmp()) or
@@ -208,6 +209,9 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isDiv()        and !canDiv()) or
       (t_opt->isQuantize()   and !canQuantize())) { 
     return false;
+  }
+  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) {
+    if (t_opt->hasCombined(i) and !supportComplex(i)) return false;
   }
   return true;
 }
@@ -423,8 +427,12 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableReturn();
   } else if (t_func.compare("call") == 0) {
     enableCall();
-  } else if (t_func.compare("complex") == 0) {
-    enableComplex();
+  } else if (t_func.find("complex") != string::npos) {
+    int type;
+    if (t_func.length() == 7) type = -1;
+    else type = stoi(t_func.substr(t_func.find("complex") + 7));
+    cout << type << endl;
+    enableComplex(type);
   } else if (t_func.compare("lut") == 0) {
     enableLut();
   } else if (t_func.compare("div") == 0) {
@@ -454,8 +462,9 @@ void CGRANode::enableCall() {
   m_canCall = true;
 }
 
-void CGRANode::enableComplex() {
-  m_supportComplex = true;
+void CGRANode::enableComplex(int type) {
+  if (type < 0) m_supportComplex = true;
+  else m_supportComplexType[type] = true;
 }
 
 void CGRANode::enableVectorization() {
@@ -510,8 +519,9 @@ void CGRANode::enableQuantize() {
   m_canQuantize = true;
 }
 
-bool CGRANode::supportComplex() {
-  return m_supportComplex;
+bool CGRANode::supportComplex(int type) {
+  if (type < 0) return m_supportComplex;
+  return m_supportComplexType[type];
 }
 
 bool CGRANode::supportVectorization() {
@@ -616,5 +626,6 @@ void CGRANode::disableAllFUs() {
   m_canBr = false;
   m_canLut = false;
   m_supportComplex = false;
+  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_supportComplexType[i] = false; 
   m_supportVectorization = false;
 }

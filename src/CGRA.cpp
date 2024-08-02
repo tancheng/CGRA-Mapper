@@ -127,18 +127,18 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
         }
       }
     }
-    if (storeCount == 0) {
-      cout<<"Without customization in param.json, we enable store functionality on the left most column."<<endl;
-      for (int r=0; r<t_rows; ++r) {
-        nodes[r][0]->enableStore();
-      }
-    }
-    if (loadCount == 0) {
-      cout<<"Without customization in param.json, we enable load functionality on the left most column."<<endl;
-      for (int r=0; r<t_rows; ++r) {
-        nodes[r][0]->enableLoad();
-      }
-    }
+    // if (storeCount == 0) {
+    //   cout<<"Without customization in param.json, we enable store functionality on the left most column."<<endl;
+    //   for (int r=0; r<t_rows; ++r) {
+    //     nodes[r][0]->enableStore();
+    //   }
+    // }
+    // if (loadCount == 0) {
+    //   cout<<"Without customization in param.json, we enable load functionality on the left most column."<<endl;
+    //   for (int r=0; r<t_rows; ++r) {
+    //     nodes[r][0]->enableLoad();
+    //   }
+    // }
 
 
     // Some other basic operations that can be indicated in the param.json:

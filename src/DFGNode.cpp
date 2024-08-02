@@ -24,6 +24,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_numConst = 0;
   m_optType = "";
   m_combined = false;
+  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_combinedtype[i] = false;
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
@@ -265,8 +266,9 @@ bool DFGNode::isQuantize() {
   return false;
 }
 
-bool DFGNode::hasCombined() {
-  return m_combined;
+bool DFGNode::hasCombined(int type) {
+  if (type < 0) return m_combined;
+  else return m_combinedtype[type];
 }
 
 // for getptr + load/store, we should not regard them as complex operations. 
@@ -279,8 +281,9 @@ bool DFGNode::hasCombinedExceptMem() {
 }
 
 
-void DFGNode::setCombine() {
+void DFGNode::setCombine(int type) {
   m_combined = true;
+  if (type >= 0) m_combinedtype[type] = true;
 }
 
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {

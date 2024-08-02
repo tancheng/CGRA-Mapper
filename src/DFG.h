@@ -61,14 +61,15 @@ class DFG {
     void tuneForLoad();
     void tuneForPattern();
     void combineCmpBranch();
-    void combineMulAdd();
-    void combineAddMul();
-    void combineAddAdd();
-    void combinePhiAdd();
-    void combine(string, string);
+    void combineMulAdd(int type=-1);
+    void combineAddMul(int type=-1);
+    void combineAddAdd(int type=-1);
+    void combinePhiAdd(int type=-1);
+    // void combine(string, string);
+    void combine(string, string, int type=-1);
     void combineForIter(list<string>*);
     // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-    void combineForUnroll(list<string>*); 
+    void combineForUnroll(list<string>*, int type=-1); 
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);

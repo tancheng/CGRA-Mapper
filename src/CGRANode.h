@@ -68,6 +68,7 @@ class CGRANode {
     bool m_canDiv;
     bool m_canQuantize;
     bool m_supportComplex;
+    bool m_supportComplexType[MAXIMUM_COMBINED_TYPE];
     bool m_supportVectorization;
     int** m_regs_duration;
     int** m_regs_timing;
@@ -86,7 +87,7 @@ class CGRANode {
     void enableStore();
     void enableLoad();
     void enableCall();
-    void enableComplex();
+    void enableComplex(int type=-1);
     void enableVectorization();
     void enableAdd();
     void enableMul();
@@ -128,7 +129,7 @@ class CGRANode {
     bool canStore();
     bool canLoad();
     bool canCall();
-    bool supportComplex();
+    bool supportComplex(int type=-1);
     bool supportVectorization();
     bool canAdd();
     bool canMul();
