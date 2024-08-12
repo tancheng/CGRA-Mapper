@@ -207,6 +207,8 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isCmp()        and !canCmp()) or
       (t_opt->isLut()        and !canLut()) or 
       (t_opt->isDiv()        and !canDiv()) or
+      (t_opt->isDequantize() and !canDequantize()) or
+      (t_opt->isConvert()    and !canConvert()) or
       (t_opt->isQuantize()   and !canQuantize())) { 
     return false;
   }
@@ -439,6 +441,10 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableDiv();
   } else if (t_func.compare("quantize") == 0) {
     enableQuantize();
+  } else if (t_func.compare("dequantize") == 0) {
+    enableDequantize();
+  } else if (t_func.compare("convert") == 0) {
+    enableConvert();
   }
   else {
     return false;
@@ -519,6 +525,14 @@ void CGRANode::enableQuantize() {
   m_canQuantize = true;
 }
 
+void CGRANode::enableDequantize() {
+  m_canDequantize = true;
+}
+
+void CGRANode::enableConvert() {
+  m_canConvert = true;
+}
+
 bool CGRANode::supportComplex(int type) {
   if (type < 0) return m_supportComplex;
   return m_supportComplexType[type];
@@ -590,6 +604,14 @@ bool CGRANode::canDiv() {
 
 bool CGRANode::canQuantize() {
   return m_canQuantize;
+}
+
+bool CGRANode::canDequantize() {
+  return m_canDequantize;
+}
+
+bool CGRANode::canConvert() {
+  return m_canConvert;
 }
 
 int CGRANode::getX() {

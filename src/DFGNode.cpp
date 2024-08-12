@@ -253,6 +253,20 @@ bool DFGNode::isLut() {
   return false;
 }
 
+bool DFGNode::isDequantize() {
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") == 0 and op.compare("Dequantize") == 0)
+    return true;
+  return false;
+}
+
+bool DFGNode::isConvert() {
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") == 0 and (op.compare("fpConvert") == 0 or op.compare("intConvert") == 0))
+    return true;
+  return false;
+}
+
 bool DFGNode::isDiv() {
   if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
     return true;
@@ -352,11 +366,20 @@ string DFGNode::getOpcodeName() {
         if (demangle(newName) == "lut(float)" || demangle(newName) == "lut(int)") {
           return "lut";
         }
-        if (demangle(newName) == "fpQuantize(float)") {
+        if (demangle(newName) == "Quantize(float)") {
           return "fpQuantize";
         }
         if (demangle(newName) == "intQuantize(int)") {
           return "intQuantize";
+        }
+        if (demangle(newName) == "Dequantize(int)") {
+          return "Dequantize";
+        }
+        if (demangle(newName) == "fpConvert(float)") {
+          return "fpConvert";
+        }
+        if (demangle(newName) == "intConvert(int)") {
+          return "intConvert";
         }
         return newName;
       }

@@ -92,6 +92,8 @@ class DFGNode {
     bool isLut();
     bool isDiv();
     bool isQuantize();
+    bool isDequantize();
+    bool isConvert();
     bool hasCombined(int type=-1);
     // bool hasCombinedType(int);    // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
     bool hasCombinedExceptMem();

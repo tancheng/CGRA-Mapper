@@ -67,6 +67,8 @@ class CGRANode {
     bool m_canLut;
     bool m_canDiv;
     bool m_canQuantize;
+    bool m_canDequantize;
+    bool m_canConvert;
     bool m_supportComplex;
     bool m_supportComplexType[MAXIMUM_COMBINED_TYPE];
     bool m_supportVectorization;
@@ -101,6 +103,8 @@ class CGRANode {
     void enableLut();
     void enableDiv();
     void enableQuantize();
+    void enableDequantize();
+    void enableConvert();
 
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
@@ -143,6 +147,8 @@ class CGRANode {
     bool canLut();
     bool canDiv();
     bool canQuantize();
+    bool canDequantize();
+    bool canConvert();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);
