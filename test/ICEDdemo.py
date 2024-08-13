@@ -18,8 +18,8 @@ import numpy as np
 # ----------------------------------------------------------------------------
 
 testBenchs = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c", 
-"aggregate1.c", "aggregate2.c", "combine.c", "combineRelu.c", "compress.cpp", "pooling.c", "decompose.cpp", 
-"init.cpp", "invert.cpp", "solver0.cpp"] # the file type of kernels must match
+"aggregate1.c", "aggregate2.c", "combine.c", "combineRelu.c", "compress.cpp", "pooling.c", "decompose.cpp", "determinant.cpp",
+"init.cpp", "invert.cpp", "solver0.cpp", "solver1.cpp"] # the file type of kernels must match
 testBenchsNum = len(testBenchs)
 dictCvs = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'avg tile utilization': "", '0% tiles u': "", 'avg tile frequency': "",	'0% tiles f': "", 
 '25% tiles f': "",'50% tiles f': "", '100% tiles f': ""}  # column names of generated CVS
@@ -137,6 +137,42 @@ def DVFSMap(kernels,df):
                         dataS.append(int(outputLine.split("histogram 50% tile DVFS frequency ratio: ")[1]))
                     if "histogram 100% tile DVFS frequency ratio: " in outputLine:
                         dataS.append(int(outputLine.split("histogram 100% tile DVFS frequency ratio: ")[1]))
+                    
+    except eventlet.timeout.Timeout:
+        dataS = [0]*(dictColumn)
+        print("Skipping a specific config for kernel: ", kernels)
+
+    df.loc[len(df.index)] = dataS
+
+
+def DVFSGen(kernels,df):
+    """
+    This is a func gain DFG information only for showTableI().
+
+    Parameters: kernel name, df array to collect mapping information of kernels
+
+    Returns: NULL
+    """
+    getMapCommand = "opt-12 -load ../build/src/libmapperPass.so -mapperPass kernel.bc"
+    genMapProc = subprocess.Popen([getMapCommand, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    dataS = []    # for get results from subprocess and output to pandas
+    kernelsSource = (kernels.split("."))[0]
+    dataS.append(kernelsSource)
+
+    try:
+        eventlet.monkey_patch()
+        with eventlet.Timeout(timeOutSet, True):
+            with genMapProc.stdout:
+                genMapProc.stdout.flush()
+                for line in iter(genMapProc.stdout.readline, b''):
+                    outputLine = line.decode("ISO-8859-1")
+                    if "DFG node count: " in outputLine:
+                        dataS.append(int(outputLine.split("DFG node count: ")[1].split(";")[0]))
+                        dataS.append(int(outputLine.split("DFG edge count: ")[1].split(";")[0]))
+                    if "[RecMII: " in outputLine:
+                        dataS.append(int(outputLine.split("[RecMII: ")[1].split("]")[0]))
+                        dataS.extend([0]*(dictColumn-4))
+                        break
                     
     except eventlet.timeout.Timeout:
         dataS = [0]*(dictColumn)
@@ -507,11 +543,11 @@ def fig12GenerationKernel():
 #   main function in testT3forDVFS.py                                       /
 # ----------------------------------------------------------------------------
 
-def mainBaseline(Crows, Columns, uFactor, do_mapping = True):
+def mainBaseline(Crows, Columns, uFactor, doMapping = True):
     """
     This is a func to compile, run and map kernels under param_baseline.json.
 
-    Parameters: rows and columns of the mapped CGRA, unrollFactor
+    Parameters: rows and columns of the mapped CGRA, unrollFactor, doMapping (for showTableI())
 
     Returns: name of the cvs that collects information of mapped kernels 
     """
@@ -555,8 +591,10 @@ def mainBaseline(Crows, Columns, uFactor, do_mapping = True):
 
         with open(jsonName, "w") as outfile:
             outfile.write(json_object)
-
-        DVFSMap(kernels, df)
+        if doMapping:
+            DVFSMap(kernels, df)
+        else:
+            DVFSGen(kernels, df)
 
     df.to_csv(csvName)
     return csvName
