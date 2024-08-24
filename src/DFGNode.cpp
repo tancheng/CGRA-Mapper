@@ -201,6 +201,15 @@ bool DFGNode::isAdd() {
   return false;
 }
 
+// Only detect integer addition.
+bool DFGNode::isIadd() {
+  if (m_opcodeName.compare("getelementptr") == 0 or
+      m_opcodeName.compare("add") == 0  or
+      m_opcodeName.compare("sub") == 0)
+    return true;
+  return false;
+}
+
 bool DFGNode::isCmp() {
   if (m_opcodeName.compare("icmp") == 0 or m_opcodeName.compare("cmp") == 0)
     return true;
@@ -260,6 +269,7 @@ bool DFGNode::isDequantize() {
   return false;
 }
 
+// Convert the fp8/fp16 to fp32 or int8/int16 to int32.
 bool DFGNode::isConvert() {
   string op = getOpcodeName();
   if (m_opcodeName.compare("call") == 0 and (op.compare("fpConvert") == 0 or op.compare("intConvert") == 0))
@@ -267,12 +277,14 @@ bool DFGNode::isConvert() {
   return false;
 }
 
+// Divison can also be a special operation.
 bool DFGNode::isDiv() {
   if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
     return true;
   return false;
 }
 
+// Quantize the fp32 to fp8/fp16 or int32 to int8/int16.
 bool DFGNode::isQuantize() {
   string op = getOpcodeName();
   if (m_opcodeName.compare("call") == 0 and (op.compare("fpQuantize") == 0 or op.compare("intQuantize") == 0))
@@ -280,6 +292,9 @@ bool DFGNode::isQuantize() {
   return false;
 }
 
+// used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+// type indicates the type of the combined node. (e.g. 0 for alu+mul, 1 for icmp+br)
+// type=-1 means the node is combined with any type, which is used for general fusion.
 bool DFGNode::hasCombined(int type) {
   if (type < 0) return m_combined;
   else return m_combinedtype[type];
@@ -294,6 +309,9 @@ bool DFGNode::hasCombinedExceptMem() {
   return m_combined;
 }
 
+// used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+// type indicates the type of the combined node. (e.g. 0 for alu+mul, 1 for icmp+br)
+// type=-1 means the node is combined with any type, which is used for general fusion.
 
 void DFGNode::setCombine(int type) {
   m_combined = true;
@@ -357,7 +375,7 @@ string DFGNode::getOpcodeName() {
       else
         return "indirect call";
     }
-    // TODO: lut can be vectorized or not?
+    // for the special operations
     else if (m_opcodeName.compare("call") == 0) {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {

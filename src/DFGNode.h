@@ -80,6 +80,7 @@ class DFGNode {
     bool isBranch();
     bool isPhi();
     bool isAdd();
+    bool isIadd();                    // detect integer addition.
     bool isMul();
     bool isCmp();
     bool isBitcast();
@@ -90,15 +91,13 @@ class DFGNode {
     bool isOpt(string);
     bool isVectorized();
     bool isLut();
-    bool isDiv();
+    bool isDiv();                     // detect division.
     bool isQuantize();
     bool isDequantize();
-    bool isConvert();
+    bool isConvert();                 // convert fp or int to a uniform type. 
     bool hasCombined(int type=-1);
-    // bool hasCombinedType(int);    // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
     bool hasCombinedExceptMem();
-    // void setCombine();
-    void setCombine(int type=-1);     // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+    void setCombine(int type=-1);
     void addPatternPartner(DFGNode*);
     Instruction* getInst();
     StringRef getStringRef();
