@@ -52,6 +52,7 @@ class DFG {
     DFGEdge* getDFGEdge(DFGNode*, DFGNode*);
     void deleteDFGEdge(DFGNode*, DFGNode*);
     void replaceDFGEdge(DFGNode*, DFGNode*, DFGNode*, DFGNode*);
+    void replaceMultipleDFGEdge(DFGNode*, DFGNode*, DFGNode**, DFGNode**);
     bool hasDFGEdge(DFGNode*, DFGNode*);
     DFGEdge* getCtrlEdge(DFGNode*, DFGNode*);
     bool hasCtrlEdge(DFGNode*, DFGNode*);
@@ -60,9 +61,10 @@ class DFG {
     void tuneForBitcast();
     void tuneForLoad();
     void tuneForPattern();
+    void tuneDivPattern();
     void combineCmpBranch();
     void combineMulAdd(int type=-1);
-    void combineAddMul(int type=-1);
+    // void combineAddMul(int type=-1);
     void combineAddAdd(int type=-1);
     void combinePhiAdd(int type=-1);
     // void combine(string, string);

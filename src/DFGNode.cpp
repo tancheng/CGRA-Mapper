@@ -39,6 +39,33 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   initType();
 }
 
+DFGNode::DFGNode(int t_id, DFGNode* old_node) {
+  m_id = t_id;
+  m_precisionAware = old_node->m_precisionAware;
+  m_inst = old_node->m_inst;
+  m_stringRef = old_node->m_stringRef;
+  m_predNodes = old_node->m_predNodes;
+  m_succNodes = old_node->m_succNodes;
+  m_opcodeName = old_node->m_opcodeName;
+  m_isMapped = old_node->m_isMapped;
+  m_numConst = old_node->m_numConst;
+  m_optType = old_node->m_optType;
+  m_combined = old_node->m_combined;
+  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_combinedtype[i] = old_node->m_combinedtype[i];
+  m_isPatternRoot = old_node->m_isPatternRoot;
+  m_patternRoot = old_node->m_patternRoot;
+  m_critical = old_node->m_critical;
+  m_cycleID = old_node->m_cycleID;
+  m_level = old_node->m_level;
+  m_execLatency = old_node->m_execLatency;
+  m_pipelinable = old_node->m_pipelinable;
+  m_isPredicatee = old_node->m_isPredicatee;
+  m_predicatees = old_node->m_predicatees;
+  m_isPredicater = old_node->m_isPredicater;
+  m_patternNodes = old_node->m_patternNodes;
+  m_fuType = old_node->m_fuType;
+}
+
 int DFGNode::getID() {
   return m_id;
 }
@@ -140,6 +167,7 @@ bool DFGNode::isVectorized() {
   list<string> vectorPatterns = {"<2 x ", "<4 x ", "<8 x ", "<16 x ", "<32 x "};
   string instStr;
   raw_string_ostream(instStr) << *m_inst;
+  // if (isDiv()) return false;          
   for (const string & pattern : vectorPatterns) {
     if (instStr.find(pattern) != string::npos) {
       return true;
@@ -622,6 +650,14 @@ list<DFGNode*>* DFGNode::getSuccNodes() {
     m_succNodes->push_back(edge->getDst());
   }
   return m_succNodes;
+}
+
+void DFGNode::deleteSuccNode(DFGNode* node) {
+  getSuccNodes()->remove(node);
+}
+
+void DFGNode::deletePredNode(DFGNode* node) {
+  getPredNodes()->remove(node);
 }
 
 void DFGNode::setInEdge(DFGEdge* t_dfgEdge) {

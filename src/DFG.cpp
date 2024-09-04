@@ -24,7 +24,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 
   construct(t_F);
 //  tuneForBranch();
-//  tuneForBitcast();
+  tuneForBitcast();
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
@@ -40,7 +40,6 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 
 // Specilized fusion for the nonlinear operations.
 void DFG::nonlinear_combine() {
-
   combineMulAdd(2);
   combinePhiAdd(1);
   combine("fcmp", "select", 1);
@@ -48,6 +47,62 @@ void DFG::nonlinear_combine() {
   combine("icmp", "br", 2);
   // combine("fcmp", "br");
   tuneForPattern();
+  tuneDivPattern();
+}
+
+// For division, we regrad it as non-vectorized instructions, which is contradictory to LLVM Pass.
+// Thus we need to split a vectorization divison into multiple scalar divisions.
+void DFG::tuneDivPattern() {
+  list<DFGNode*>* removeNodes = new list<DFGNode*>();
+  list<DFGNode*>* splitNodes = new list<DFGNode*>();
+  int dfgNodeID = nodes.size();
+  for (DFGNode* dfgNode: nodes) {
+    cout << "tuneDivPattern:" << dfgNode->isDiv() << " " << dfgNode->isVectorized() << "\n";
+    if (dfgNode->isDiv() && dfgNode->isVectorized()) {
+      DFGNode* newNodes[4];
+      newNodes[0] = new DFGNode(dfgNode->getID(), dfgNode);
+      for (int i = 1; i < 4; i++) {
+        newNodes[i] = new DFGNode(dfgNodeID++, dfgNode);
+      }
+      for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
+        if (!(predNode == dfgNode or
+            predNode->isOneOfThem(dfgNode->getPatternNodes()))) {
+          if (predNode->hasCombined())
+            predNode = predNode->getPatternRoot();
+          DFGNode* predNodes[4];
+          for (int i = 0; i < 4; i++) {
+            predNodes[i] = predNode;
+          }
+          replaceMultipleDFGEdge(predNode, dfgNode, predNodes, newNodes);
+          predNode->deleteSuccNode(dfgNode);
+          continue;
+        }
+      }
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (!(succNode == dfgNode or
+            succNode->isOneOfThem(dfgNode->getPatternNodes()))) {
+          if (succNode->hasCombined())
+            succNode = succNode->getPatternRoot();
+          cout << succNode->getID() << "\n";
+          DFGNode* succNodes[4];
+          for (int i = 0; i < 4; i++) {
+            succNodes[i] = succNode;
+          }
+          replaceMultipleDFGEdge(dfgNode, succNode, newNodes, succNodes);
+          succNode->deletePredNode(dfgNode);
+          continue;
+        }
+      }
+      for (int i = 0; i < 4; i++) splitNodes->push_back(newNodes[i]);
+      removeNodes->push_back(dfgNode);
+    }
+  }
+  for (DFGNode* dfgNode: *removeNodes) {
+    nodes.remove(dfgNode);
+  }
+  for (DFGNode *dfgNode: *splitNodes) {
+    nodes.push_back(dfgNode);
+  }
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -1352,6 +1407,40 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
   }
 }
 
+void DFG::replaceMultipleDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
+                         DFGNode* t_new_src[4], DFGNode* t_new_dst[4]) {
+  DFGEdge* target = NULL;
+  cout<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<"\n";
+  for (DFGEdge* edge: m_DFGEdges) {
+    if (edge->getSrc() == t_old_src and
+        edge->getDst() == t_old_dst) {
+      target = edge;
+      break;
+    }
+  }
+  if (target == NULL) {
+    assert("ERROR cannot find the corresponding DFG edge.");
+    cout << "ERROR cannot find the corresponding DFG edge\n";
+    return;
+  }
+  int dfgEdgeID = m_DFGEdges.size();
+  m_DFGEdges.remove(target);
+  // Keeps the ctrl property of the original edge on the newly added edge.
+  for (int i = 0; i < 4; i++) {
+    DFGEdge* newEdge;
+    if (!i) {
+      newEdge = new DFGEdge(target->getID(), t_new_src[i], t_new_dst[i], target->isCtrlEdge());
+    }
+    else {
+      newEdge = new DFGEdge(dfgEdgeID++, t_new_src[i], t_new_dst[i], target->isCtrlEdge());
+    }
+    m_DFGEdges.push_back(newEdge);
+    if (newEdge->isCtrlEdge()){
+      m_ctrlEdges.push_back(newEdge);
+    }
+  }
+}
+
 void DFG::deleteDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
   if (!hasDFGEdge(t_src, t_dst)) return;
   m_DFGEdges.remove(getDFGEdge(t_src, t_dst));
@@ -1438,7 +1527,6 @@ void DFG::tuneForLoad() {
       DFGNode* firstLoadNode = NULL;
       for (DFGNode* succNode: *succNodes) {
         if (firstLoadNode == NULL and succNode->isLoad()) {
-          cout << "first load node: sahbiiiiiiiiiiiiiiiiiiiiiiiiiiii_________________________________" << succNode->getID() << "\n";
           firstLoadNode = succNode;
         } else if (firstLoadNode != NULL and succNode->isLoad()) {
           unnecessaryDFGNodes.push_back(succNode);

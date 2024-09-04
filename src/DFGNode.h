@@ -66,6 +66,7 @@ class DFGNode {
 
   public:
     DFGNode(int, bool, Instruction*, StringRef);
+    DFGNode(int, DFGNode* old_node);
     int getID();
     void setID(int);
     void setLevel(int);
@@ -104,6 +105,8 @@ class DFGNode {
     string getOpcodeName();
     list<DFGNode*>* getPredNodes();
     list<DFGNode*>* getSuccNodes();
+    void deleteSuccNode(DFGNode*);
+    void deletePredNode(DFGNode*);
     bool isSuccessorOf(DFGNode*);
     bool isPredecessorOf(DFGNode*);
     bool isOneOfThem(list<DFGNode*>*);
