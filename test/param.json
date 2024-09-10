@@ -25,6 +25,6 @@
                               "load" : [4],
                               "store": [4]
                             },
-  "incrementalMapping"    : true
+  "incrementalMapping"    : false
 }
 
