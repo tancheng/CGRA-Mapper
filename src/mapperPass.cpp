@@ -22,6 +22,7 @@
 using namespace llvm;
 using namespace std;
 using json = nlohmann::json;
+using namespace chrono;
 
 void addDefaultKernels(map<string, list<int>*>*);
 
@@ -57,7 +58,8 @@ namespace {
       bool diagonalVectorization    = false;
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
-      bool parameterizableCGRA      = false;
+      bool parameterizableCGRA      = false; 
+      bool incrementalMapping       = false;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -97,6 +99,7 @@ namespace {
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
+        paramKeys.insert("incrementalMapping");
 
 	try
         {
@@ -135,6 +138,7 @@ namespace {
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
+        incrementalMapping    = param["incrementalMapping"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -211,13 +215,26 @@ namespace {
       bool success = false;
       if (!isStaticElasticCGRA) {
         cout << "==================================\n";
+        typedef std::chrono::high_resolution_clock Clock;
+        auto t1 = Clock::now();
+
         if (heuristicMapping) {
-          cout << "[heuristic]\n";
-          II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+	  if(incrementalMapping){
+            II = mapper->incrementalMap(cgra, dfg, II);
+            cout << "[Incremental]\n";
+	  }
+	  else{
+            cout << "[heuristic]\n";
+            II = mapper->heuristicMap(cgra, dfg, II, isStaticElasticCGRA);
+          }
         } else {
           cout << "[exhaustive]\n";
           II = mapper->exhaustiveMap(cgra, dfg, II, isStaticElasticCGRA);
         }
+
+        auto t2 = Clock::now();
+        int elapsedTime = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000;
+        std::cout <<"Mapping algorithm elapsed time="<<elapsedTime <<"ms"<< '\n';
       }
 
       // Partially exhaustive search to try to map the DFG onto
@@ -238,7 +255,13 @@ namespace {
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
-        cout << "[Output Json]\n";
+	cout << "[Output Json]\n";
+
+	// save mapping results json file for possible incremental mapping
+        if(!incrementalMapping) {
+	  mapper->generateJSON4IncrementalMap(cgra, dfg);
+          cout << "[Output Json for Incremental Mapping]\n";
+        }
       }
       cout << "=================================="<<endl;
 

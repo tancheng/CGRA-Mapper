@@ -1346,3 +1346,223 @@ map<int, CGRANode*>* Mapper::getReorderPath(map<CGRANode*, int>* t_path) {
   return reorderPath;
 }
 
+
+// save the mapping results to json file for subsequent incremental mapping
+void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
+        ofstream jsonFile("increMapInput.json", ios::out);
+        jsonFile<<"{"<<endl;
+        jsonFile<<"     \"Opt2TileXY\":{"<<endl;
+        int idx = 0;
+        for (DFGNode* dfgNode: t_dfg->nodes) {
+                // write dfgnodeID, mapped CGRANode X and Y coordinates
+                jsonFile<<"             \""<<dfgNode->getID()<<"\": {"<<endl; // opt id
+                jsonFile<<"                     \"x\":"<<m_mapping[dfgNode]->getX()<<","<<endl; // opt mapped tile x coordinate
+                jsonFile<<"                     \"y\":"<<m_mapping[dfgNode]->getY()<<endl; // opt mapped tile y coordinate
+                idx += 1;
+                if(idx < t_dfg->nodes.size()) jsonFile<<"             },"<<endl;
+                else jsonFile<<"        }"<<endl;
+        }
+        jsonFile<<"     },"<<endl;
+
+        jsonFile<<"     \"Tile2Level\":{"<<endl;
+        // generate level informations of current mapping results
+        map<int, vector<CGRANode*>> FanIO_CGRANodes;
+        vector<int> FanIOs;
+        int numTiles = 0;
+        for (int i=0; i<t_cgra->getRows(); ++i) {
+                for (int j=0; j<t_cgra->getColumns(); ++j) {
+
+                        // record the number of FanIO for each tile. 
+                        CGRANode* currentCGRANode = t_cgra->nodes[i][j];
+                        if(currentCGRANode->getInLinks() == 0) continue; // only record tiles that have DFGNodes mapped
+                        int FanIO = max(currentCGRANode->getInLinks()->size(), currentCGRANode->getOutLinks()->size());
+                        FanIO_CGRANodes[FanIO].push_back(currentCGRANode);
+
+                        // record FanIO in the list if it appears for the first time
+                        if (find(FanIOs.begin(), FanIOs.end(), FanIO) == FanIOs.end()){
+                                FanIOs.push_back(FanIO);
+                        }
+
+                        numTiles++;
+                }
+        }
+        std::sort(FanIOs.rbegin(), FanIOs.rend()); // sort FanIOs from big to small
+        idx = 0;
+        for(int level = 0; level < FanIOs.size(); level++){
+                int FanIO = FanIOs[level];
+                vector<CGRANode*> tiles = FanIO_CGRANodes[FanIO];
+                for(auto tile : tiles){
+                        idx += 1;
+                        if(idx < numTiles) jsonFile<<"          \""<<tile->getID()<<"\":"<<level<<","<<endl;
+                        else jsonFile<<"             \""<<tile->getID()<<"\":"<<level<<endl;
+                }
+        }
+        jsonFile<<"     }"<<endl;
+
+        jsonFile<<"}"<<endl;
+}
+
+// read from the referenced mapping results json file and generates variables for incremental mapping
+int Mapper::readRefMapRes(CGRA* t_cgra, DFG* t_dfg){
+        ifstream refFile("./increMapInput.json");
+        if(!refFile.good()){
+                cout<<"Incremental mapping requires increMapInput.json in current directory!"<<endl;
+                return -1;
+        }
+        json refs;
+        refFile >> refs;
+        CGRANodeID2Level.clear();
+        for(list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin(); dfgNode != t_dfg->nodes.end(); ++dfgNode){
+                int dfgNodeID = (*dfgNode)->getID();
+                int x = refs["Opt2TileXY"][to_string(dfgNodeID)]["x"];
+                int y = refs["Opt2TileXY"][to_string(dfgNodeID)]["y"];
+                refMapRes[*dfgNode] = t_cgra->nodes[y][x];
+                int cgraNodeID = t_cgra->nodes[y][x]->getID();
+                CGRANodeID2Level[cgraNodeID] = refs["Tile2Level"][to_string(cgraNodeID)];
+        }
+
+        /*cout<<"Printing references read from increMapInput.json"<<endl;
+        for(map<DFGNode*, CGRANode*>::iterator iter = refMapRes.begin(); iter != refMapRes.end(); ++iter){
+                cout<<iter->first->getOpcodeName()<<iter->first->getID()<<"->Tile"<<iter->second->getID()<<", level="<<CGRANodeID2Level[iter->second->getID()]<<endl;
+        }
+        cout<<"Done..."<<endl;*/
+
+        return 0;
+}
+
+// generates variables for incremental mapping
+void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
+        map<int, vector<CGRANode*>> FanIO_CGRANodes;
+        vector<int> FanIOs;
+        int numTiles = 0;
+        for (int i=0; i<t_cgra->getRows(); ++i) {
+                for (int j=0; j<t_cgra->getColumns(); ++j) {
+
+                        // record the number of FanIO for each tile. 
+                        CGRANode* currentCGRANode = t_cgra->nodes[i][j];
+                        if(currentCGRANode->isDisabled()) continue; // only record tiles that have DFGNodes mapped
+                        int FanIO = max(currentCGRANode->getInLinks()->size(), currentCGRANode->getOutLinks()->size());
+                        FanIO_CGRANodes[FanIO].push_back(currentCGRANode);
+
+                        // record FanIO in the list if it appears for the first time
+                        if (find(FanIOs.begin(), FanIOs.end(), FanIO) == FanIOs.end()){
+                                FanIOs.push_back(FanIO);
+                        }
+
+                        numTiles++;
+                }
+        }
+        std::sort(FanIOs.rbegin(), FanIOs.rend()); // sort FanIOs from big to small
+
+        //cout<<"Generating vairable CGRANodes_sortedByLevel"<<endl;
+        CGRANodes_sortedByLevel.clear();
+        for(int level = 0; level < FanIOs.size(); level++){
+                int FanIO = FanIOs[level];
+                vector<CGRANode*> tiles = FanIO_CGRANodes[FanIO];
+                // for(auto tile:tiles) cout<<"Level"<<level<<": Tile"<<tile->getID()<<endl;
+                CGRANodes_sortedByLevel.push_back(tiles);
+        }
+        cout<<"Done..."<<endl;
+}
+
+// generates the placement recommendation list for current DFGNode by referencing its placement in the former mapping results
+// Two principles: RPT & MBO
+list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
+        list<CGRANode*> placementRecommList;
+        CGRANode* refCGRANode = refMapRes[t_dfgNode];
+        list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
+        int refLevel = CGRANodeID2Level[refCGRANode->getID()];
+        int level = refLevel;
+        int maxLevel = CGRANodes_sortedByLevel.size() - 1;
+        cout<<t_dfgNode->getOpcodeName()<<t_dfgNode->getID()<<" is mapped to Tile "<<refCGRANode->getID()<<" in the referenced mapping results, refLevel="<<refLevel<<endl;
+
+        int initLevel = level;
+        while(true){
+                map<int, vector<CGRANode*>> bypassNums_CGRANode;
+                int curX, curY, preX, preY;
+                int xdiff, ydiff;
+                for(auto curCGRANode : CGRANodes_sortedByLevel[level]){
+                        int numBypass = 0;
+                        for(DFGNode* pre: *predNodes){
+                                if(m_mapping.find(pre) != m_mapping.end()){
+                                        CGRANode* preCGRANode = m_mapping[pre];
+                                        xdiff = abs(curCGRANode->getX() - preCGRANode->getX());
+                                        ydiff = abs(curCGRANode->getY() - preCGRANode->getY());
+                                        numBypass += (xdiff + ydiff);
+                                }
+                                else continue;
+                        }
+                        bypassNums_CGRANode[numBypass].push_back(curCGRANode);
+                }
+
+                for (auto iter : bypassNums_CGRANode){ // map is sorted by key from smallest to largest by default, and tile with fewer bypass nodes has higher priority 
+                        for(auto tile : iter.second){
+                                placementRecommList.push_back(tile);
+                                //cout<<"Mapping on Tile"<<tile->getID()<<" requires "<<iter.first<<" bypassNodes"<<endl;
+                        }
+                }
+
+                level += 1;
+                if(level > maxLevel){
+                        level = 0; // go back to the highest level
+                }
+                if(level == initLevel) break;
+        }
+
+        // check placementRecommList
+/*        cout<<"The generated placementRecommList for "<<t_dfgNode->getOpcodeName()<<t_dfgNode->getID()<<" is {";
+        for(auto iter : placementRecommList){
+                cout<<"Tile"<<iter->getID()<<" ";
+        }
+        cout<<"}"<<endl;*/
+
+        return placementRecommList;
+}
+
+// incremental mapping functions
+int Mapper::incrementalMap(CGRA* t_cgra, DFG* t_dfg, int t_II){
+        if(readRefMapRes(t_cgra, t_dfg) == -1) return -1;
+        sortAllocTilesByLevel(t_cgra);
+
+        bool dfgNodeMapFailed;
+        while (1) {
+                cout<<"----------------------------------------\n";
+                cout<<"[DEBUG] start incremental mapping  with II="<<t_II<<"\n";
+                int cycle = 0;
+                constructMRRG(t_dfg, t_cgra, t_II);
+                for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin(); dfgNode!=t_dfg->nodes.end(); dfgNode++) {
+                        list<CGRANode*> placementRecommList = placementGen(t_cgra, *dfgNode);
+                        dfgNodeMapFailed = true;
+                        for(auto fu : placementRecommList){
+                                map<CGRANode*, int>* path = calculateCost(t_cgra, t_dfg, t_II, *dfgNode, fu);
+                                if(path == NULL){
+                                        cout<<"[DEBUG] no available path for DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
+                                        continue; // switch to next tile in placementRecommList
+                                }
+                                else{
+                                        if(schedule(t_cgra, t_dfg, t_II, *dfgNode, path, false)){
+                                                dfgNodeMapFailed = false;
+                                                break; // current DFGNode finishes mapping, move to next DFGNode
+                                        }
+                                        else{
+                                                cout<<"[DEBUG] no available path to schedule DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
+                                                continue; // switch to next tile in placementRecommList
+                                        }
+                                }
+                        }
+                        if(dfgNodeMapFailed) break; // current DFGNode fails mapping, increase II and restart
+                }
+
+                if(dfgNodeMapFailed){
+                        cout<<"[DEBUG] fail in schedule() under II: "<<t_II<<"\n";
+                        t_II++;
+                }
+                else{
+                        cout<<"[DEBUG] success in schedule() under II: "<<t_II<<"\n";
+                        return t_II;
+                }
+        }
+
+        return -1;
+}
+
