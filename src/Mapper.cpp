@@ -1348,44 +1348,44 @@ map<int, CGRANode*>* Mapper::getReorderPath(map<CGRANode*, int>* t_path) {
 
 // Saves the mapping results to json file for subsequent incremental mapping
 void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
-  ofstream jsonFile("increMapInput.json", ios::out);
-  jsonFile<<"{"<<endl;
-  jsonFile<<"     \"Opt2TileXY\":{"<<endl;
-  int idx = 0;
-  for (DFGNode* dfgNode: t_dfg->nodes) {
-	// Writes dfgnodeID, mapped CGRANode X and Y coordinates
-    jsonFile<<"             \""<<dfgNode->getID()<<"\": {"<<endl; // opt id
-    jsonFile<<"                     \"x\":"<<m_mapping[dfgNode]->getX()<<","<<endl; // opt mapped tile x coordinate
-    jsonFile<<"                     \"y\":"<<m_mapping[dfgNode]->getY()<<endl; // opt mapped tile y coordinate
-    idx += 1;
-    if (idx < t_dfg->nodes.size()) jsonFile<<"             },"<<endl;
-    else jsonFile<<"        }"<<endl;
-  }
-  jsonFile<<"     },"<<endl;
+	ofstream jsonFile("increMapInput.json", ios::out);
+	jsonFile<<"{"<<endl;
+	jsonFile<<"     \"Opt2TileXY\":{"<<endl;
+	int idx = 0;
+	for (DFGNode* dfgNode: t_dfg->nodes) {
+		// Writes dfgnodeID, mapped CGRANode X and Y coordinates
+		jsonFile<<"             \""<<dfgNode->getID()<<"\": {"<<endl; // opt id
+		jsonFile<<"                     \"x\":"<<m_mapping[dfgNode]->getX()<<","<<endl; // opt mapped tile x coordinate
+		jsonFile<<"                     \"y\":"<<m_mapping[dfgNode]->getY()<<endl; // opt mapped tile y coordinate
+		idx += 1;
+		if (idx < t_dfg->nodes.size()) jsonFile<<"             },"<<endl;
+		else jsonFile<<"        }"<<endl;
+	}
+	jsonFile<<"     },"<<endl;
 
-  jsonFile<<"     \"Tile2Level\":{"<<endl;      
+	jsonFile<<"     \"Tile2Level\":{"<<endl;      
 	// Generates level informations of current mapping results
 	map<int, vector<CGRANode*>> FanIO_CGRANodes;
 	vector<int> FanIOs;
 	int numTiles = 0;
 	for (int i=0; i<t_cgra->getRows(); ++i) {
-    for (int j=0; j<t_cgra->getColumns(); ++j) {
+		for (int j=0; j<t_cgra->getColumns(); ++j) {
 
-    // Records the number of FanIO for each tile. 
-		CGRANode* currentCGRANode = t_cgra->nodes[i][j];
-		if (currentCGRANode->getInLinks() == 0) continue; // Only records tiles that have DFGNodes mapped
-		int FanIO = max(currentCGRANode->getInLinks()->size(), currentCGRANode->getOutLinks()->size());
-		FanIO_CGRANodes[FanIO].push_back(currentCGRANode);
+			// Records the number of FanIO for each tile. 
+			CGRANode* currentCGRANode = t_cgra->nodes[i][j];
+			if (currentCGRANode->getInLinks() == 0) continue; // Only records tiles that have DFGNodes mapped
+			int FanIO = max(currentCGRANode->getInLinks()->size(), currentCGRANode->getOutLinks()->size());
+			FanIO_CGRANodes[FanIO].push_back(currentCGRANode);
 
-		// Records FanIO in the list if it appears for the first time
-		if (find(FanIOs.begin(), FanIOs.end(), FanIO) == FanIOs.end()) {
-			FanIOs.push_back(FanIO);
-		}
+			// Records FanIO in the list if it appears for the first time
+			if (find(FanIOs.begin(), FanIOs.end(), FanIO) == FanIOs.end()) {
+				FanIOs.push_back(FanIO);
+			}
 
-		numTiles++;
+			numTiles++;
 		}
 	}
-  std::sort(FanIOs.rbegin(), FanIOs.rend()); // Sorts FanIOs from big to small
+	std::sort(FanIOs.rbegin(), FanIOs.rend()); // Sorts FanIOs from big to small
 	idx = 0;
 	for (int level = 0; level < FanIOs.size(); level++) {
 		int FanIO = FanIOs[level];
