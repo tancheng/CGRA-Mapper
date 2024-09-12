@@ -102,14 +102,9 @@ Execution
   - [regConstraint](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L18): the number of registers used to temporarily hold the arrived data for later computation. Set as 8 by default.
   - [optLatency](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L19): used to support multi-cycle execution. If this field is not specified, every operation is done in one single-cycle. Note that there is currently no hardware support for this feature, which is supposed to be used for performance exploration only.
   - [optPipelined](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L23): used to enable pipelined execution of the multi-cycle operation (i.e., indicated in [optLatency](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L19)).
-<<<<<<< HEAD
   - [additionalFunc](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L24): used to enable specific functionalities on target tiles. Normally, we don't need to set this field as all the tiles already include most functionalities. By default, the `ld`/`st` is only enabled on the left most tiles. So if you wanna enable the memory access on the other tiles, this field needs to be provided. 
- 
-=======
-  - [additionalFunc](https://github.com/tancheng/CGRA-Mapper/blob/589fd61434966e4d4a44220b59854b1795bc7cde/test/param.json#L24): used to enable specific functionalities on target tiles. Normally, we don't need to set this field as all the tiles already include most functionalities. By default, the `ld`/`st` is only enabled on the left most tiles. So if you wanna enable the memory access on the other tiles, this field needs to be provided.
   - [incrementalMapping](https://github.com/yyan7223/CGRA-Mapper/blob/10aa217e9e995b6dfa4242e0ce121b79668e9995/test/param.json#L28C1-L28C33) `true` indicates incremental mapping while `false` indicates heuristic/exhaustive mapping. Incremental mapping re-utilizes the previous mapping results to accelerate current mapping.
   
->>>>>>> b9b4a106e781ac2f8506ceca4a29abded7a088da
 - Run:
 ```
  % opt -load ~/this repo/build/mapper/libmapperPass.so -mapperPass ~/target benchmark/target_kernel.bc
