@@ -1365,8 +1365,8 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
 
   jsonFile<<"     \"Tile2Level\":{"<<endl;      
   // Generates level informations of current mapping results
-  map<int, vector<CGRANode*>> FanIO_CGRANodes;
-  vector<int> FanIOs;
+  vector<int> FanIOs; // FanIO is the number of links of current CGRANode connected to other CGRANode.
+  map<int, vector<CGRANode*>> FanIO_CGRANodes; // FanIO_CGRANodes can help with querying the list of CGRANodes with the given FanIO
   int numTiles = 0;
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
@@ -1385,9 +1385,10 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
       numTiles++;
     }
   }
-  std::sort(FanIOs.rbegin(), FanIOs.rend()); // Sorts FanIOs from big to small
+
+  std::sort(FanIOs.rbegin(), FanIOs.rend()); // Sorts FanIOs from big to small helps automatically form the level
   idx = 0;
-  for (int level = 0; level < FanIOs.size(); level++) {
+  for (int level = 0; level < FanIOs.size(); level++) { // Level indicates the ranking of CGRA according to the FanIOs that CGRANode has, high level means higher FanIOs, CGRANodes within the same level have same FanIOs.
     int FanIO = FanIOs[level];
     vector<CGRANode*> tiles = FanIO_CGRANodes[FanIO];
     for (auto tile : tiles) {
@@ -1456,7 +1457,7 @@ void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
 }
 
 // Generates the placement recommendation list for current DFGNode by referencing its placement in the former mapping results
-// Two principles: RPT & MBO
+// Two principles: Reference Placement Tendency (RPT) & Minimize Bypass Operations (MBO)
 list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
   list<CGRANode*> placementRecommList;
   CGRANode* refCGRANode = refMapRes[t_dfgNode];
@@ -1468,7 +1469,7 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
 
   int initLevel = level;
   while (true) {
-    map<int, vector<CGRANode*>> bypassNums_CGRANode;
+    map<int, vector<CGRANode*>> bypassNums_CGRANode; // Sorts the CGRANodes with the number of bypass operations required to communicate with its predecessors.
     int curX, curY, preX, preY;
     int xdiff, ydiff;
     for (auto curCGRANode : CGRANodes_sortedByLevel[level]) {
