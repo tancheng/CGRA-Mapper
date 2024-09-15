@@ -1368,7 +1368,8 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
 
   jsonFile<<"     \"Tile2Level\":{"<<endl;      
   // Generates level informations of current mapping results.
-  // FanIO is the number of links of current CGRANode connected to other CGRANode, and FanIO_CGRANodes can help with querying the list of CGRANodes with the given FanIO.
+  // FanIO is the number of links of current CGRANode connected to other CGRANode, 
+  // and FanIO_CGRANodes can help with querying the list of CGRANodes with the given FanIO.
   vector<int> FanIOs;
   map<int, vector<CGRANode*>> FanIO_CGRANodes; 
   int numTiles = 0;
@@ -1392,7 +1393,8 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
   }
 
   // Sorts FanIOs from big to small helps automatically form the level.
-  // Level indicates the ranking of CGRA according to the FanIOs that CGRANode has, high level means higher FanIOs, CGRANodes within the same level have same FanIOs.
+  // Level indicates the ranking of CGRA according to the FanIOs that CGRANode has, 
+  // high level means higher FanIOs, CGRANodes within the same level have same FanIOs.
   std::sort(FanIOs.rbegin(), FanIOs.rend()); 
   idx = 0;
   for (int level = 0; level < FanIOs.size(); level++) { 
@@ -1465,7 +1467,8 @@ void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
   }
 }
 
-// Generates the placement recommendation list for current DFGNode by referencing its placement in the former mapping results.
+// Generates the placement recommendation list for current DFGNode 
+// by referencing its placement in the former mapping results.
 // Two principles: Reference Placement Tendency (RPT) & Minimize Bypass Operations (MBO).
 list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
   list<CGRANode*> placementRecommList;
@@ -1478,7 +1481,8 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
 
   int initLevel = level;
   while (true) {
-    // Sorts the CGRANodes with the number of bypass operations required to communicate with its predecessors.
+    // Sorts the CGRANodes with the number of bypass operations
+    // required to communicate with its predecessors.
     map<int, vector<CGRANode*>> bypassNums_CGRANode; 
     int curX, curY, preX, preY;
     int xdiff, ydiff;
@@ -1496,7 +1500,8 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
       bypassNums_CGRANode[numBypass].push_back(curCGRANode);
     }
 
-    // bypassNums_CGRANode is sorted by key from smallest to largest by default, and tile with fewer bypass nodes has higher priority.
+    // bypassNums_CGRANode is sorted by key from smallest to largest by default, 
+    // and tile with fewer bypass nodes has higher priority.
     for (auto iter : bypassNums_CGRANode) {  
       for (auto tile : iter.second) {
         placementRecommList.push_back(tile);
@@ -1531,24 +1536,24 @@ int Mapper::incrementalMap(CGRA* t_cgra, DFG* t_dfg, int t_II){
       for (auto fu : placementRecommList) {
         map<CGRANode*, int>* path = calculateCost(t_cgra, t_dfg, t_II, *dfgNode, fu);
         if (path == NULL) {
-          // Switches to next tile in placementRecommList.
+          // Switches to the next tile.
           cout<<"[DEBUG] no available path for DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
           continue; 
         }
         else {
           if (schedule(t_cgra, t_dfg, t_II, *dfgNode, path, false)) {
-            // Current DFGNode finishes mapping, move to next DFGNode.
+            // Current DFGNode is scheduled successfully, moves to the next DFGNode.
             dfgNodeMapFailed = false;
             break; 
           }
           else {
-            // Switches to next tile in placementRecommList.
+            // Switches to the next tile.
             cout<<"[DEBUG] no available path to schedule DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
             continue; 
           }
         }
       }
-      // Current DFGNode fails mapping, increase II and restart.
+      // Increases II and restart if current DFGNode fails the mapping.
       if (dfgNodeMapFailed) break; 
     }
 
