@@ -139,6 +139,7 @@ class CGRANode {
     void allocateReg(int, int, int, int);
     int* getRegsAllocation(int);
     void disable();
+    bool isDisabled();
     void disableAllFUs();
 };
 
