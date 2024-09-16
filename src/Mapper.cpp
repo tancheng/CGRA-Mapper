@@ -1474,6 +1474,9 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
   list<CGRANode*> placementRecommList;
   CGRANode* refCGRANode = refMapRes[t_dfgNode];
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
+  // The level is used to ordering the CGRANodes based on the FanIO. 
+  // Though FanIO of each CGRANode would change for different CGRA architectures, 
+  // the DFGNode prefers to being mapped onto the CGRANode with same level.
   int refLevel = CGRANodeID2Level[refCGRANode->getID()];
   int level = refLevel;
   int maxLevel = CGRANodes_sortedByLevel.size() - 1;
