@@ -1,0 +1,182 @@
+[
+  {
+    "fu"         : "Phi",
+    "id"         : 0,
+    "org_opt"    : "phi",
+    "JSON_opt"   : "OPT_PHI_CONST",
+    "in_const"   : [0],
+    "pre"         : [17,19],
+    "succ"       : [[1,3,9,11,17]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 1,
+    "org_opt"    : "getelementptr",
+    "JSON_opt"   : "OPT_ADD_CONST",
+    "in_const"   : [0],
+    "pre"         : [0],
+    "succ"       : [[2,8]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 9,
+    "org_opt"    : "getelementptr",
+    "JSON_opt"   : "OPT_ADD_CONST",
+    "in_const"   : [0],
+    "pre"         : [0],
+    "succ"       : [[10,16]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 17,
+    "org_opt"    : "add",
+    "JSON_opt"   : "OPT_ADD_CONST",
+    "in_const"   : [0],
+    "pre"         : [0],
+    "succ"       : [[0,18]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 2,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [1],
+    "succ"       : [[7]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 10,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [9],
+    "succ"       : [[15]]
+  },
+  {
+    "fu"         : "Comp",
+    "id"         : 18,
+    "org_opt"    : "cmp",
+    "JSON_opt"   : "OPT_EQ_CONST",
+    "in_const"   : [0],
+    "pre"         : [17],
+    "succ"       : [[19]]
+  },
+  {
+    "fu"         : "Branch",
+    "id"         : 19,
+    "org_opt"    : "br",
+    "JSON_opt"   : "OPT_BRH",
+    "in_const"   : [],
+    "pre"         : [18],
+    "succ"       : [[0,3,5,11,13]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 3,
+    "org_opt"    : "getelementptr",
+    "JSON_opt"   : "OPT_ADD_CONST",
+    "in_const"   : [0,1],
+    "pre"         : [0,19],
+    "succ"       : [[4]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 5,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [19],
+    "succ"       : [[6]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 11,
+    "org_opt"    : "getelementptr",
+    "JSON_opt"   : "OPT_ADD_CONST",
+    "in_const"   : [0,1],
+    "pre"         : [0,19],
+    "succ"       : [[12]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 13,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [19],
+    "succ"       : [[14]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 4,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [3],
+    "succ"       : [[6]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 12,
+    "org_opt"    : "load",
+    "JSON_opt"   : "OPT_LD",
+    "in_const"   : [],
+    "pre"         : [11],
+    "succ"       : [[14]]
+  },
+  {
+    "fu"         : "Mul",
+    "id"         : 6,
+    "org_opt"    : "mul",
+    "JSON_opt"   : "OPT_MUL",
+    "in_const"   : [],
+    "pre"         : [4,5],
+    "succ"       : [[7]]
+  },
+  {
+    "fu"         : "Mul",
+    "id"         : 14,
+    "org_opt"    : "mul",
+    "JSON_opt"   : "OPT_MUL",
+    "in_const"   : [],
+    "pre"         : [12,13],
+    "succ"       : [[15]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 7,
+    "org_opt"    : "add",
+    "JSON_opt"   : "OPT_ADD",
+    "in_const"   : [],
+    "pre"         : [2,6],
+    "succ"       : [[8]]
+  },
+  {
+    "fu"         : "Alu",
+    "id"         : 15,
+    "org_opt"    : "add",
+    "JSON_opt"   : "OPT_ADD",
+    "in_const"   : [],
+    "pre"         : [10,14],
+    "succ"       : [[16]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 8,
+    "org_opt"    : "store",
+    "JSON_opt"   : "OPT_STR",
+    "in_const"   : [],
+    "pre"         : [7,1],
+    "succ"       : [[]]
+  },
+  {
+    "fu"         : "MemUnit",
+    "id"         : 16,
+    "org_opt"    : "store",
+    "JSON_opt"   : "OPT_STR",
+    "in_const"   : [],
+    "pre"         : [15,9],
+    "succ"       : [[]]
+  }
+]

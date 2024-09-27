@@ -16,7 +16,7 @@
   "isStaticElasticCGRA"   : false,
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
-  "supportDVFS"           : true,
+  "supportDVFS"           : false,
   "optLatency"            : {
                               "load" : 2,
                               "store": 2
@@ -26,9 +26,8 @@
                               "load" : [4],
                               "store": [4]
                             },
-  "incrementalMapping"    : false
-  "DVFSIslandDim"         : 2,
-  "DVFSAwareMapping"      : true,
-  "enablePowerGating"     : true
+  "incrementalMapping"    : false,
+  "DVFSIslandDim"         : 1,
+  "DVFSAwareMapping"      : false,
+  "enablePowerGating"     : false
 }
-

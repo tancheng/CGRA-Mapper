@@ -1,0 +1,5 @@
+,kernels,DFG nodes,DFG edges,recMII,avg tile utilization,0% tiles u,avg tile frequency,0% tiles f,25% tiles f,50% tiles f,100% tiles f
+0,,,,,,,,,,,
+1,fir,12,16,4,68.0556,18,31.25,18,9,0,9
+2,conv,17,23,4,81.6667,21,23.6111,21,8,1,6
+3,histogram,15,17,4,82.1429,22,22.2222,22,8,0,6
