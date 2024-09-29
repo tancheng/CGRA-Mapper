@@ -158,7 +158,7 @@ def DVFSGen(kernel, df):
     dataS = []    # for get results from subprocess and output to pandas
     kernelsSource = (kernel.split("."))[0]
     dataS.append(kernelsSource)
-    dataSHead = 4   # the first 4 element of dataS is not empty: kernelsSource, DFG node count, DFG edge count, RecMII
+    DataSHead = 4   # the first 4 element of dataS is not empty: kernelsSource, DFG node count, DFG edge count, RecMII
 
     try:
         eventlet.monkey_patch()
@@ -739,54 +739,54 @@ def main():
     csvPath = "./example/exampleTable.csv"
     showTableI(csvPath, nameCsvBaseline)
 
-    # print("Replace testBenchs to generate Fig. 9, 10, 11.")
-    # fig091011GenerationKernel()
-    # CGRAsizes = [6]  # the mapped CGRA size = 6
-    # unrollFactors = [1, 2]   # unrolling factor = 1, 2
-    # nameCsvBaseline = []    
-    # nameCsvPertile = []   
-    # nameCsvIced = []    
-    # figPath = ""
-    # for CGRAsize in CGRAsizes:
-    #     for unrollFactor in unrollFactors:      
-    #         nameCsvBaseline.append(mainBaseline(CGRAsize, CGRAsize, unrollFactor))
-    #         nameCsvPertile.append(mainPertile(CGRAsize, CGRAsize, unrollFactor))
-    #         nameCsvIced.append(mainIced(CGRAsize, CGRAsize, unrollFactor))  
-    # print("Generating Fig. 9: Average utilization of tiles across different kernels")
-    # figPath = "./example/exampleFig9.png"
-    # showFig9(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)   
+    print("Replace testBenchs to generate Fig. 9, 10, 11.")
+    fig091011GenerationKernel()
+    CGRAsizes = [6]  # the mapped CGRA size = 6
+    unrollFactors = [1, 2]   # unrolling factor = 1, 2
+    nameCsvBaseline = []    
+    nameCsvPertile = []   
+    nameCsvIced = []    
+    figPath = ""
+    for CGRAsize in CGRAsizes:
+        for unrollFactor in unrollFactors:      
+            nameCsvBaseline.append(mainBaseline(CGRAsize, CGRAsize, unrollFactor))
+            nameCsvPertile.append(mainPertile(CGRAsize, CGRAsize, unrollFactor))
+            nameCsvIced.append(mainIced(CGRAsize, CGRAsize, unrollFactor))  
+    print("Generating Fig. 9: Average utilization of tiles across different kernels")
+    figPath = "./example/exampleFig9.png"
+    showFig9(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)   
 
-    # print("Generating Fig. 10: Average DVFS level across different kernels")
-    # figPath = "./example/exampleFig10.png"
-    # showFig10(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)   
+    print("Generating Fig. 10: Average DVFS level across different kernels")
+    figPath = "./example/exampleFig10.png"
+    showFig10(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)   
 
-    # print("Generating Fig. 11: Evaluation of energy-efficiency")
-    # figPath = "./example/exampleFig11.png"
-    # nameCsvBaseline = ["./tmp/t_6x6_unroll1_baseline.csv", 
-    # "./tmp/t_6x6_unroll2_baseline.csv"]
-    # nameCsvPertile = ["./tmp/t_6x6_unroll1_pertile.csv", 
-    # "./tmp/t_6x6_unroll2_pertile.csv"]
-    # nameCsvIced = ["./tmp/t_6x6_unroll1_iced.csv", 
-    # "./tmp/t_6x6_unroll2_iced.csv"] 
-    # showFig11(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
+    print("Generating Fig. 11: Evaluation of energy-efficiency")
+    figPath = "./example/exampleFig11.png"
+    nameCsvBaseline = ["./tmp/t_6x6_unroll1_baseline.csv", 
+    "./tmp/t_6x6_unroll2_baseline.csv"]
+    nameCsvPertile = ["./tmp/t_6x6_unroll1_pertile.csv", 
+    "./tmp/t_6x6_unroll2_pertile.csv"]
+    nameCsvIced = ["./tmp/t_6x6_unroll1_iced.csv", 
+    "./tmp/t_6x6_unroll2_iced.csv"] 
+    showFig11(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
 
-    # print("Replace testBenchs to generate Fig. 12.") 
-    # fig12GenerationKernel()
-    # CGRAsizes = [2, 4, 6, 8]  # the mapped CGRA size = 2, 4, 6, 8
-    # unrollFactors = [1, 2]   # unrolling factor = 1, 2
-    # nameCsvBaseline = []    
-    # nameCsvPertile = []   
-    # nameCsvIced = []    
-    # figPath = ""
-    # for CGRAsize in CGRAsizes:
-    #     for unrollFactor in unrollFactors: 
-    #         if (CGRAsize == 2 and unrollFactor == 2) or (CGRAsize == 4 and unrollFactor == 2):
-    #             continue             
-    #         nameCsvPertile.append(mainPertile(CGRAsize, CGRAsize, unrollFactor))
-    #         nameCsvIced.append(mainIced(CGRAsize, CGRAsize, unrollFactor))     
-    # print("Generating Fig. 12: Evaluation of scalability") 
-    # figPath = "./example/exampleFig12.png"
-    # showFig12(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
+    print("Replace testBenchs to generate Fig. 12.") 
+    fig12GenerationKernel()
+    CGRAsizes = [2, 4, 6, 8]  # the mapped CGRA size = 2, 4, 6, 8
+    unrollFactors = [1, 2]   # unrolling factor = 1, 2
+    nameCsvBaseline = []    
+    nameCsvPertile = []   
+    nameCsvIced = []    
+    figPath = ""
+    for CGRAsize in CGRAsizes:
+        for unrollFactor in unrollFactors: 
+            if (CGRAsize == 2 and unrollFactor == 2) or (CGRAsize == 4 and unrollFactor == 2):
+                continue             
+            nameCsvPertile.append(mainPertile(CGRAsize, CGRAsize, unrollFactor))
+            nameCsvIced.append(mainIced(CGRAsize, CGRAsize, unrollFactor))     
+    print("Generating Fig. 12: Evaluation of scalability") 
+    figPath = "./example/exampleFig12.png"
+    showFig12(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
 
     print("DONE. Time cost: ", time.time() - timeStart, "s")
 
