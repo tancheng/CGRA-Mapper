@@ -3,17 +3,22 @@
   "targetFunction"        : false,
   "targetNested"          : false,
   "targetLoopsID"         : [0],
-  "doCGRAMapping"         : false,
+  "doCGRAMapping"         : true,
   "row"                   : 4,
   "column"                : 4,
-  "diagonalVectorization" : true,
+  "diagonalVectorization" : false,
   "heterogeneity"         : false,
   "isTrimmedDemo"         : true,
-  "heuristicMapping"      : false,
+  "heuristicMapping"      : true,
+  "parameterizableCGRA"   : false,
   "bypassConstraint"      : 4,
   "isStaticElasticCGRA"   : false,
   "precisionAware"        : false,
   "ctrlMemConstraint"     : 200,
-  "regConstraint"         : 8
+  "regConstraint"         : 8,
+  "supportDVFS"           : false,
+  "DVFSIslandDim"         : 2,
+  "DVFSAwareMapping"      : false,
+  "enablePowerGating"     : false
 }
 

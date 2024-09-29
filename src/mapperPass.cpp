@@ -353,6 +353,10 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["kernel_gemm"]->push_back(0);
   (*t_functionWithLoop)["kernel"] = new list<int>();
   (*t_functionWithLoop)["kernel"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kerneli"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kerneli"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfPi"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfPi"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();

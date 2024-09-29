@@ -201,7 +201,11 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
     }
 
     // Consider the cost of the utilization of contrl memory.
-    cost += targetCGRANode->getCurrentCtrlMemItems()/2;
+    if (m_DVFSAwareMapping) {
+      cost += targetCGRANode->getCurrentCtrlMemItems() / 2;
+    } else {
+      cost += targetCGRANode->getCurrentCtrlMemItems();
+    }
 
     // Consider the cost of the outgoing ports.
     if (t_dfgNode->getSuccNodes()->size() > 1) {

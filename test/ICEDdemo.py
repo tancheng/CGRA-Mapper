@@ -155,10 +155,12 @@ def DVFSGen(kernel, df):
     """
     getMapCommand = "opt-12 -load ../build/src/libmapperPass.so -mapperPass kernel.bc"
     genMapProc = subprocess.Popen([getMapCommand, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    dataS = []    # for get results from subprocess and output to pandas
+    # Holds the results from subprocess and output to pandas.
+    dataS = []
     kernelsSource = (kernel.split("."))[0]
     dataS.append(kernelsSource)
-    DataSHead = 4   # the first 4 element of dataS is not empty: kernelsSource, DFG node count, DFG edge count, RecMII
+    # The first 4 element of dataS is not empty: kernelsSource, DFG node count, DFG edge count, RecMII.
+    kDataSHead = 4
 
     try:
         eventlet.monkey_patch()
@@ -172,7 +174,7 @@ def DVFSGen(kernel, df):
                         dataS.append(int(outputLine.split("DFG edge count: ")[1].split(";")[0]))
                     if "[RecMII: " in outputLine:
                         dataS.append(int(outputLine.split("[RecMII: ")[1].split("]")[0]))
-                        dataS.extend([0]*(dictColumn-dataSHead))
+                        dataS.extend([0]*(dictColumn-kDataSHead))
                         break
                     
     except eventlet.timeout.Timeout:
@@ -729,7 +731,7 @@ def main():
     timeStart = time.time()
     
     CGRAsizes = [6]  # the mapped CGRA size = 6
-    unrollFactors = [2]   # unrolling factor = 1, 2
+    unrollFactors = [1, 2]   # unrolling factor = 1, 2
     nameCsvBaseline = []    
     csvPath = ""
     for CGRAsize in CGRAsizes:
