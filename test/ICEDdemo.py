@@ -764,12 +764,6 @@ def main():
 
     print("Generating Fig. 11: Evaluation of energy-efficiency")
     figPath = "./example/exampleFig11.png"
-    nameCsvBaseline = ["./tmp/t_6x6_unroll1_baseline.csv", 
-    "./tmp/t_6x6_unroll2_baseline.csv"]
-    nameCsvPertile = ["./tmp/t_6x6_unroll1_pertile.csv", 
-    "./tmp/t_6x6_unroll2_pertile.csv"]
-    nameCsvIced = ["./tmp/t_6x6_unroll1_iced.csv", 
-    "./tmp/t_6x6_unroll2_iced.csv"] 
     showFig11(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
 
     print("Replace testBenchs to generate Fig. 12.") 
