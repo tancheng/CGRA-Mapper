@@ -24,7 +24,6 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 
   construct(t_F);
 //  tuneForBranch();
-  tuneForBitcast();
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
@@ -40,12 +39,14 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 
 // Specilized fusion for the nonlinear operations.
 void DFG::nonlinear_combine() {
+  tuneForBitcast();
   combineMulAdd(2);
   combinePhiAdd(1);
   combine("fcmp", "select", 1);
   combine("icmp", "select", 1);
   combine("icmp", "br", 2);
-  // combine("fcmp", "br");
+  combine("fcmp", "br", 2);
+  combineAddAdd(1);
   tuneForPattern();
   tuneDivPattern();
 }
@@ -58,7 +59,7 @@ void DFG::tuneDivPattern() {
   int dfgNodeID = nodes.size();
   for (DFGNode* dfgNode: nodes) {
     cout << "tuneDivPattern:" << dfgNode->isDiv() << " " << dfgNode->isVectorized() << "\n";
-    if (dfgNode->isDiv() && dfgNode->isVectorized()) {
+    if (dfgNode->isOpt("sdiv") && dfgNode->isVectorized()) {
       DFGNode* newNodes[4];
       newNodes[0] = new DFGNode(dfgNode->getID(), dfgNode);
       for (int i = 1; i < 4; i++) {
@@ -1587,7 +1588,6 @@ void DFG::tuneForBranch() {
     list<DFGNode*>* predNodes = right->getPredNodes();
     for (DFGNode* predNode: *predNodes) {
       DFGEdge* replaceDFGEdge = getDFGEdge(predNode, right);
-      if (replaceDFGEdge == NULL) cout << "shabi\n";
       DFGEdge* brDataDFGEdge = new DFGEdge(replaceDFGEdge->getID(), predNode, left);
       DFGEdge* brCtrlDFGEdge = new DFGEdge(newDFGEdgeID++, left, right);
       // FIXME: Only consider one predecessor for 'phi' node for now.

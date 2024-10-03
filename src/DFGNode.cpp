@@ -168,6 +168,7 @@ bool DFGNode::isVectorized() {
   string instStr;
   raw_string_ostream(instStr) << *m_inst;
   // if (isDiv()) return false;          
+  // std::cout << "instStr: " << instStr << std::endl;
   for (const string & pattern : vectorPatterns) {
     if (instStr.find(pattern) != string::npos) {
       return true;
