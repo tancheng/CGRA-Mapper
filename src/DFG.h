@@ -37,6 +37,7 @@ class DFG {
     bool m_precisionAware;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
+    int m_vectorFactor;
 
     //edges of data flow
     list<DFGEdge*> m_DFGEdges;
@@ -95,7 +96,7 @@ class DFG {
     void nonlinear_combine();
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);
+    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*, int t_vectorFactor=4);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;

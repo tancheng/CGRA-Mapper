@@ -58,6 +58,7 @@ namespace {
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false;
+      int vectorFactor              = 1;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -135,6 +136,8 @@ namespace {
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
+        if (param.find("vectorFactor") != param.end())
+          vectorFactor          = param["vectorFactor"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -168,7 +171,7 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt);
+                         heterogeneity, execLatency, pipelinedOpt, vectorFactor);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc);
       cgra->setRegConstraint(regConstraint);
@@ -376,6 +379,8 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["_Z6kernelPiS_ii"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_if"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfS_if"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"]->push_back(0);
 }
 
 

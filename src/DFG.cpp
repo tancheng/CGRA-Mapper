@@ -13,7 +13,7 @@
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
-         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt) {
+         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt, int t_vectorFactor) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -21,6 +21,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_CDFGFused = false;
   m_cycleNodeLists = new list<list<DFGNode*>*>();
   m_precisionAware = t_precisionAware;
+  m_vectorFactor = t_vectorFactor;
 
   construct(t_F);
 //  tuneForBranch();
@@ -60,9 +61,9 @@ void DFG::tuneDivPattern() {
   for (DFGNode* dfgNode: nodes) {
     cout << "tuneDivPattern:" << dfgNode->isDiv() << " " << dfgNode->isVectorized() << "\n";
     if (dfgNode->isOpt("sdiv") && dfgNode->isVectorized()) {
-      DFGNode* newNodes[4];
+      DFGNode* newNodes[m_vectorFactor];
       newNodes[0] = new DFGNode(dfgNode->getID(), dfgNode);
-      for (int i = 1; i < 4; i++) {
+      for (int i = 1; i < m_vectorFactor; i++) {
         newNodes[i] = new DFGNode(dfgNodeID++, dfgNode);
       }
       for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
@@ -70,8 +71,8 @@ void DFG::tuneDivPattern() {
             predNode->isOneOfThem(dfgNode->getPatternNodes()))) {
           if (predNode->hasCombined())
             predNode = predNode->getPatternRoot();
-          DFGNode* predNodes[4];
-          for (int i = 0; i < 4; i++) {
+          DFGNode* predNodes[m_vectorFactor];
+          for (int i = 0; i < m_vectorFactor; i++) {
             predNodes[i] = predNode;
           }
           replaceMultipleDFGEdge(predNode, dfgNode, predNodes, newNodes);
@@ -85,8 +86,8 @@ void DFG::tuneDivPattern() {
           if (succNode->hasCombined())
             succNode = succNode->getPatternRoot();
           cout << succNode->getID() << "\n";
-          DFGNode* succNodes[4];
-          for (int i = 0; i < 4; i++) {
+          DFGNode* succNodes[m_vectorFactor];
+          for (int i = 0; i < m_vectorFactor; i++) {
             succNodes[i] = succNode;
           }
           replaceMultipleDFGEdge(dfgNode, succNode, newNodes, succNodes);
@@ -94,7 +95,7 @@ void DFG::tuneDivPattern() {
           continue;
         }
       }
-      for (int i = 0; i < 4; i++) splitNodes->push_back(newNodes[i]);
+      for (int i = 0; i < m_vectorFactor; i++) splitNodes->push_back(newNodes[i]);
       removeNodes->push_back(dfgNode);
     }
   }
@@ -1408,9 +1409,13 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
   }
 }
 
+// used for the case of tuning division patterns
 void DFG::replaceMultipleDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
-                         DFGNode* t_new_src[4], DFGNode* t_new_dst[4]) {
+                         DFGNode** t_new_src, DFGNode** t_new_dst) {
+  cout << "replace multiple dfg edges" << "\n";
   DFGEdge* target = NULL;
+  // DFGNode *src[m_vectorFactor] = ((DFGNode *)[m_vectorFactor])t_new_src;
+  // DFGNode *dst[m_vectorFactor] = ((DFGNode *)[m_vectorFactor])t_new_dst;
   cout<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<"\n";
   for (DFGEdge* edge: m_DFGEdges) {
     if (edge->getSrc() == t_old_src and
@@ -1420,14 +1425,13 @@ void DFG::replaceMultipleDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
     }
   }
   if (target == NULL) {
-    assert("ERROR cannot find the corresponding DFG edge.");
     cout << "ERROR cannot find the corresponding DFG edge\n";
     return;
   }
   int dfgEdgeID = m_DFGEdges.size();
   m_DFGEdges.remove(target);
   // Keeps the ctrl property of the original edge on the newly added edge.
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < m_vectorFactor; i++) {
     DFGEdge* newEdge;
     if (!i) {
       newEdge = new DFGEdge(target->getID(), t_new_src[i], t_new_dst[i], target->isCtrlEdge());
