@@ -28,15 +28,21 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
+    // *************** testDualIssue *****************
+    combine("add", "phi");
+    // tuneForPattern();
+    dualIssue();
+    tuneForPattern();
+    tuneForDualIssue();
 //    combine("phi", "add");
-    combine("and", "xor");
+    // combine("and", "xor");
 //    combine("br", "phi");
 //    combine("add", "icmp");
 //    combine("xor", "add");
-    combineCmpBranch();
-    combine("icmp", "br");
-    combine("getelementptr", "load");
-    tuneForPattern();
+    // combineCmpBranch();
+    // combine("icmp", "br");
+    // combine("getelementptr", "load");
+    // tuneForPattern();
 
 //    calculateCycles();
 ////    combine("icmp", "br");
@@ -97,6 +103,25 @@ void DFG::tuneForPattern() {
   }
   for (DFGNode* dfgNode: *removeNodes) {
     nodes.remove(dfgNode);
+  }
+}
+
+void DFG::tuneForDualIssue() {
+  // tuneForDualIssue reconstruct the edge for dual issue after tuneForPattern().
+  // the edges between the same parent and the input DFGNodes will be combined into one edge.
+  // we need to confrim that the bit is 1 or 2 depends on whether they are in the same BB.
+  // tuneForPattern();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isBranch()) {
+      std::cout<<"[MMJ] dfgNode is " << dfgNode->getID() <<std::endl;
+      for (DFGNode* dualNode: *(dfgNode->getSuccNodes())) {
+        if (dualNode->hasCombined() and hasDFGEdge(dfgNode, dualNode)){
+          // FIXME delete all edges and add new one
+          m_DFGEdges.remove(getDFGEdge(dfgNode, dualNode));
+          std::cout<<"[MMJ] remove " << dualNode->getID() << "'s edge " << getDFGEdge(dfgNode, dualNode)->getID() <<std::endl;
+        }
+      }
+    }
   }
 }
 
@@ -260,6 +285,64 @@ void DFG::combineForUnroll(list<string>* t_targetPattern){
       currentFunc = t_targetPattern->begin();
       currentFunc++;
     }  
+  }
+}
+
+// combineSameSucc combines DFGNodes of same opcodeName with a same parent.
+// Note that the edges between the same parent and the input DFGNodes will be combined into one edge.
+void DFG::combineSameSucc(list<DFGNode*>* t_sameSuccNode){
+  DFGNode* headNode = t_sameSuccNode->front();
+  for (DFGNode* dfgNode: *t_sameSuccNode){
+    if(dfgNode != headNode and !dfgNode->hasCombined()){
+        headNode ->addPatternPartner(dfgNode);                  
+    }
+    dfgNode->setCombine();                       
+  }
+  // the handling of edges is in tuneForDualIssue()
+}
+
+// findSameSucc finds nodes that are the same after br
+bool DFG::findSameSucc(const list<DFGNode*>* t_succList) {
+  bool found = false;
+  map<string, list<DFGNode*>> opcodeNameMap;
+  // map succeed DFGNode with their operation name
+  for (DFGNode* succNode: *t_succList) {
+    if (!succNode->isBranch()){
+      // we don't accepect same br
+      opcodeNameMap[succNode->getOpcodeName()].push_back(succNode);
+    }
+  }
+  // combine succeed DFGNodes whose number > 1
+  for (auto& pair: opcodeNameMap) {
+      if (pair.second.size() > 1) {
+        // combine same succeed DFGNodes
+        combineSameSucc(&pair.second);
+        found = true;
+      }
+  }
+  return found;
+}
+
+// dualIssue is used to identify 'br' with multiple output, it combines the ouput together with the same control edge.
+// Note that the control edge is only one bit width since there is noly one 'br' input.
+// Note that dualIssue must be done after other combine operation.
+void DFG::dualIssue(){
+  // testBench: adpcmkernel's 'br-3phi'
+  // toBeMatchedDFGNodes is to store the DFG nodes after br
+  std::cout <<"[MMJ] dual Issue is running. "<<std::endl;
+  list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isBranch() and !dfgNode->hasCombined()) {
+      bool found = false;
+      // the for loop below is to find the target pattern after br
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (!succNode->hasCombined()){
+          toBeMatchedDFGNodes->push_back(succNode); 
+        }
+      }  
+      // finds nodes that are the same after br
+      found = findSameSucc(toBeMatchedDFGNodes);
+    }
   }
 }
 

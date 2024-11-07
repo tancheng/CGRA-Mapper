@@ -60,13 +60,16 @@ class DFG {
     void tuneForBitcast();
     void tuneForLoad();
     void tuneForPattern();
+    void tuneForDualIssue();
     void combineCmpBranch();
     void combineMulAdd();
     void combinePhiAdd();
     void combine(string, string);
     void combineForIter(list<string>*);
-    // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
     void combineForUnroll(list<string>*); 
+    void combineSameSucc(list<DFGNode*>*);
+    bool findSameSucc(const list<DFGNode*>*);
+    void dualIssue();
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
