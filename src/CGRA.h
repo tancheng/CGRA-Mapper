@@ -22,6 +22,8 @@ class CGRA {
     int m_LinkCount;
     int m_rows;
     int m_columns;
+    list<string>* m_supportComplex;
+    list<string>* m_supportCall;
     void disableSpecificConnections();
 
   public:
@@ -38,4 +40,6 @@ class CGRA {
     void setBypassConstraint(int);
     void setCtrlMemConstraint(int);
     void setRegConstraint(int);
+    list<string>* getSupportComplex();
+    list<string>* getSupportCall();
 };

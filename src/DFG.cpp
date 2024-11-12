@@ -41,18 +41,18 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 // Specilized fusion for the nonlinear operations.
 void DFG::nonlinear_combine() {
   tuneForBitcast();
-  combineMulAdd(2);
-  combinePhiAdd(1);
-  combine("fcmp", "select", 1);
-  combine("icmp", "select", 1);
-  combine("icmp", "br", 2);
-  combine("fcmp", "br", 2);
-  combineAddAdd(1);
+  combineMulAdd("CoT");
+  combinePhiAdd("BrT");
+  combine("fcmp", "select", "BrT");
+  combine("icmp", "select", "BrT");
+  combine("icmp", "br", "CoT");
+  combine("fcmp", "br", "CoT");
+  combineAddAdd("BrT");
   tuneForPattern();
   tuneDivPattern();
 }
 
-// For division, we regrad it as non-vectorized instructions, which is contradictory to LLVM Pass.
+// For division, we treat it as non-vectorized instructions, which is contradictory to LLVM Pass.
 // Thus we need to split a vectorization divison into multiple scalar divisions.
 void DFG::tuneDivPattern() {
   list<DFGNode*>* removeNodes = new list<DFGNode*>();
@@ -192,12 +192,15 @@ void DFG::combineCmpBranch() {
 }
 
 // Combine phi + iadd or phi + iadd + iadd where iadd is integer addition.
-void DFG::combinePhiAdd(int type) {
+void DFG::combinePhiAdd(string type) {
   // detect patterns (e.g., mul+alu)
   DFGNode* phiNode = NULL;
   DFGNode* addNode = NULL;
   DFGNode* addNode2 = NULL;
   bool found = false;
+  // TODO: When a phi has multiple iadd, it would simply pick the first one no matter 
+  // whether the second one has grandchild iadd, i.e., we may unfortunately skip the 
+  // best opportunities of maximum fusion. 
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
       found = false;
@@ -238,13 +241,14 @@ void DFG::combinePhiAdd(int type) {
   }
 }
 
-// Combine mul & add followed by add. The mul + add will also be combined.
-void DFG::combineMulAdd(int type) {
+// Combine add & mul followed by add. The mul + add will also be combined.
+void DFG::combineMulAdd(string type) {
   // detect patterns (e.g., mul+alu)
   DFGNode* mulNode = NULL;
   DFGNode* addNode = NULL;
   DFGNode* addNode2 = NULL;
   bool found = false;
+  // We first locate the latter addition node, then try to find its predecessor multiplication node and another addition node.
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
       found = false;
@@ -269,6 +273,7 @@ void DFG::combineMulAdd(int type) {
       }
     }
   }
+  // This loop is to fuse mul + add.
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isMul() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
@@ -284,8 +289,9 @@ void DFG::combineMulAdd(int type) {
     }
   }
 }
+
 // Combine add + add. 
-void DFG::combineAddAdd(int type) {
+void DFG::combineAddAdd(string type) {
   DFGNode* mulNode = NULL;
   DFGNode* addNode = NULL;
   DFGNode* addNode2 = NULL;
@@ -307,7 +313,7 @@ void DFG::combineAddAdd(int type) {
   }
 }
 
-void DFG::combine(string t_opt0, string t_opt1, int type) {
+void DFG::combine(string t_opt0, string t_opt1, string type) {
   DFGNode* opt0Node = NULL;
   DFGNode* opt1Node = NULL;
   bool found = false;
@@ -372,7 +378,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
 }
 
 // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-void DFG::combineForUnroll(list<string>* t_targetPattern, int type){
+void DFG::combineForUnroll(list<string>* t_targetPattern, string type){
   int patternSize = t_targetPattern->size();
   if (patternSize > 4){ 
     std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;
@@ -1414,8 +1420,6 @@ void DFG::replaceMultipleDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
                          DFGNode** t_new_src, DFGNode** t_new_dst) {
   cout << "replace multiple dfg edges" << "\n";
   DFGEdge* target = NULL;
-  // DFGNode *src[m_vectorFactor] = ((DFGNode *)[m_vectorFactor])t_new_src;
-  // DFGNode *dst[m_vectorFactor] = ((DFGNode *)[m_vectorFactor])t_new_dst;
   cout<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<"\n";
   for (DFGEdge* edge: m_DFGEdges) {
     if (edge->getSrc() == t_old_src and

@@ -50,7 +50,8 @@ class DFGNode {
     string m_optType;
     string m_fuType;
     bool m_combined;
-    bool m_combinedtype[MAXIMUM_COMBINED_TYPE];   // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+    // Used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+    string m_combinedtype;
     bool m_isPatternRoot;
     bool m_critical;
     int m_level;
@@ -77,11 +78,12 @@ class DFGNode {
     bool isLoad();
     bool isStore();
     bool isReturn();
-    bool isCall();
+    string isCall();
     bool isBranch();
     bool isPhi();
     bool isAdd();
-    bool isIadd();                    // detect integer addition.
+    // Detect integer addition.
+    bool isIadd();
     bool isMul();
     bool isCmp();
     bool isBitcast();
@@ -91,14 +93,11 @@ class DFGNode {
     bool isLogic();
     bool isOpt(string);
     bool isVectorized();
-    bool isLut();
-    bool isDiv();                     // detect division.
-    bool isQuantize();
-    bool isDequantize();
-    bool isConvert();                 // convert fp or int to a uniform type. 
-    bool hasCombined(int type=-1);
-    bool hasCombinedExceptMem();
-    void setCombine(int type=-1);
+    // Detect division.
+    bool isDiv();
+    string getComplexType();
+    bool hasCombined(string type="");
+    void setCombine(string type="");
     void addPatternPartner(DFGNode*);
     Instruction* getInst();
     StringRef getStringRef();

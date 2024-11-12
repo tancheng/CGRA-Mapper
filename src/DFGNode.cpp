@@ -24,7 +24,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_numConst = 0;
   m_optType = "";
   m_combined = false;
-  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_combinedtype[i] = false;
+  m_combinedtype = "";
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
@@ -39,6 +39,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   initType();
 }
 
+// used for the case of tuning division patterns
 DFGNode::DFGNode(int t_id, DFGNode* old_node) {
   m_id = t_id;
   m_precisionAware = old_node->m_precisionAware;
@@ -51,7 +52,7 @@ DFGNode::DFGNode(int t_id, DFGNode* old_node) {
   m_numConst = old_node->m_numConst;
   m_optType = old_node->m_optType;
   m_combined = old_node->m_combined;
-  for (int i = 0; i < MAXIMUM_COMBINED_TYPE; i++) m_combinedtype[i] = old_node->m_combinedtype[i];
+  m_combinedtype = old_node->m_combinedtype;
   m_isPatternRoot = old_node->m_isPatternRoot;
   m_patternRoot = old_node->m_patternRoot;
   m_critical = old_node->m_critical;
@@ -155,11 +156,11 @@ StringRef DFGNode::getStringRef() {
   return m_stringRef;
 }
 
-bool DFGNode::isCall() {
-  // only fp2fx int2fx can be regarded as call. other calls like lut/quantize should be treated as special functionalities.
-  if (m_opcodeName.compare("call") == 0 && !isVectorized() && !isLut() && !isQuantize())
-    return true;
-  return false;
+string DFGNode::isCall() {
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") != 0 || isVectorized() )
+    return "None";
+  return op;
 }
 
 bool DFGNode::isVectorized() {
@@ -167,8 +168,6 @@ bool DFGNode::isVectorized() {
   list<string> vectorPatterns = {"<2 x ", "<4 x ", "<8 x ", "<16 x ", "<32 x "};
   string instStr;
   raw_string_ostream(instStr) << *m_inst;
-  // if (isDiv()) return false;          
-  // std::cout << "instStr: " << instStr << std::endl;
   for (const string & pattern : vectorPatterns) {
     if (instStr.find(pattern) != string::npos) {
       return true;
@@ -178,7 +177,7 @@ bool DFGNode::isVectorized() {
 }
 
 bool DFGNode::isLoad() {
-  if (m_opcodeName.compare("load") == 0 || m_opcodeName.compare("getelementptrload") == 0)
+  if (m_opcodeName.compare("load") == 0)
     return true;
   return false;
 }
@@ -190,7 +189,7 @@ bool DFGNode::isReturn() {
 }
 
 bool DFGNode::isStore() {
-  if (m_opcodeName.compare("store") == 0 || m_opcodeName.compare("getelementptrstore") == 0)
+  if (m_opcodeName.compare("store") == 0)
     return true;
   return false;
 }
@@ -225,8 +224,9 @@ bool DFGNode::isAdd() {
       m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("fadd") == 0 or
       m_opcodeName.compare("sub") == 0  or
-      m_opcodeName.compare("fsub") == 0)
+      m_opcodeName.compare("fsub") == 0) {
     return true;
+  }
   return false;
 }
 
@@ -234,8 +234,9 @@ bool DFGNode::isAdd() {
 bool DFGNode::isIadd() {
   if (m_opcodeName.compare("getelementptr") == 0 or
       m_opcodeName.compare("add") == 0  or
-      m_opcodeName.compare("sub") == 0)
+      m_opcodeName.compare("sub") == 0) {
     return true;
+  }
   return false;
 }
 
@@ -284,28 +285,6 @@ bool DFGNode::isLogic() {
   return false;
 }
 
-bool DFGNode::isLut() {
-  string op = getOpcodeName();
-  if (m_opcodeName.compare("call") == 0 and op.compare("lut") == 0)
-    return true;
-  return false;
-}
-
-bool DFGNode::isDequantize() {
-  string op = getOpcodeName();
-  if (m_opcodeName.compare("call") == 0 and op.compare("Dequantize") == 0)
-    return true;
-  return false;
-}
-
-// Convert the fp8/fp16 to fp32 or int8/int16 to int32.
-bool DFGNode::isConvert() {
-  string op = getOpcodeName();
-  if (m_opcodeName.compare("call") == 0 and (op.compare("fpConvert") == 0 or op.compare("intConvert") == 0))
-    return true;
-  return false;
-}
-
 // Divison can also be a special operation.
 bool DFGNode::isDiv() {
   if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
@@ -313,38 +292,22 @@ bool DFGNode::isDiv() {
   return false;
 }
 
-// Quantize the fp32 to fp8/fp16 or int32 to int8/int16.
-bool DFGNode::isQuantize() {
-  string op = getOpcodeName();
-  if (m_opcodeName.compare("call") == 0 and (op.compare("fpQuantize") == 0 or op.compare("intQuantize") == 0))
-    return true;
-  return false;
-}
-
 // used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
-// type indicates the type of the combined node. (e.g. 0 for alu+mul, 1 for icmp+br)
-// type=-1 means the node is combined with any type, which is used for general fusion.
-bool DFGNode::hasCombined(int type) {
-  if (type < 0) return m_combined;
-  else return m_combinedtype[type];
+// type indicates the name of the combined node, which is specified by users. (e.g. ALU-MUL for alu+mul, CMP-BR for icmp+br)
+// type = "" means the node is combined a special type, which is used for general fusion and compatibility with previous codes.
+// general fusion: All complex nodes are in the same kind.
+bool DFGNode::hasCombined(string type) {
+  return m_combined && (m_combinedtype.compare(type) == 0);
 }
 
-// for getptr + load/store, we should not regard them as complex operations. 
-// in CGRA, getptr+l/s can be performed on the common tiles.
-// in DFG, it should be still regarded as complex nodes so that we will perform combining and tuning.
-bool DFGNode::hasCombinedExceptMem() {
-  if (isLoad() or isStore()) 
-    return false;
-  return m_combined;
+string DFGNode::getComplexType() {
+  if (m_combined) return m_combinedtype;
+  return "None";
 }
 
-// used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
-// type indicates the type of the combined node. (e.g. 0 for alu+mul, 1 for icmp+br)
-// type=-1 means the node is combined with any type, which is used for general fusion.
-
-void DFGNode::setCombine(int type) {
+void DFGNode::setCombine(string type) {
   m_combined = true;
-  if (type >= 0) m_combinedtype[type] = true;
+  m_combinedtype = type;
 }
 
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
@@ -409,26 +372,8 @@ string DFGNode::getOpcodeName() {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {
         string newName = func->getName().str();
-        // cout << "[DEBUG] demangle name: " << demangle(newName) << endl;
-        if (demangle(newName) == "lut(float)" || demangle(newName) == "lut(int)") {
-          return "lut";
-        }
-        if (demangle(newName) == "Quantize(float)") {
-          return "fpQuantize";
-        }
-        if (demangle(newName) == "intQuantize(int)") {
-          return "intQuantize";
-        }
-        if (demangle(newName) == "Dequantize(int)") {
-          return "Dequantize";
-        }
-        if (demangle(newName) == "fpConvert(float)") {
-          return "fpConvert";
-        }
-        if (demangle(newName) == "intConvert(int)") {
-          return "intConvert";
-        }
-        return newName;
+        newName = demangle(newName);
+        return newName.substr(0, newName.find("("));
       }
       else return "indirect call";
     }
@@ -599,13 +544,7 @@ void DFGNode::initType() {
 }
 
 list<DFGNode*>* DFGNode::getPredNodes() {
-  // cout << "now: " << getID() << endl;
   if (m_predNodes != NULL) {
-    // cout << "pred: ";
-  // for (DFGNode* predNode: *m_predNodes) {
-    // cout << predNode->getID() << " ";
-  // }
-  // cout << endl;
     return m_predNodes;
   }
     

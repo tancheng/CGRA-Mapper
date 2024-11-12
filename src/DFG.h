@@ -64,15 +64,15 @@ class DFG {
     void tuneForPattern();
     void tuneDivPattern();
     void combineCmpBranch();
-    void combineMulAdd(int type=-1);
-    // void combineAddMul(int type=-1);
-    void combineAddAdd(int type=-1);
-    void combinePhiAdd(int type=-1);
+    void combineMulAdd(string type="");
+    // void combineAddMul(string type="");
+    void combineAddAdd(string type="");
+    void combinePhiAdd(string type="");
     // void combine(string, string);
-    void combine(string, string, int type=-1);
+    void combine(string, string, string type="");
     void combineForIter(list<string>*);
     // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-    void combineForUnroll(list<string>*, int type=-1); 
+    void combineForUnroll(list<string>*, string type=""); 
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
@@ -109,8 +109,6 @@ class DFG {
     list<list<DFGEdge*>*>* calculateCycles();
     list<list<DFGNode*>*>* getCycleLists();
     int getID(DFGNode*);
-    bool isLoad(DFGNode*);
-    bool isStore(DFGNode*);
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
     void generateJSON();
