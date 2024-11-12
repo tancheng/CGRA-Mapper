@@ -26,6 +26,12 @@ class Mapper {
     bool DFSMap(CGRA*, DFG*, int, list<DFGNode*>*, list<map<CGRANode*, int>*>*, bool);
     list<map<CGRANode*, int>*>* getOrderedPotentialPaths(CGRA*, DFG*, int,
         DFGNode*, list<map<CGRANode*, int>*>*);
+    // The mapping relationship referenced by incrementalMap, read from increMapInput.json file
+    map<DFGNode*, CGRANode*> refMapRes; 
+    // One to one relationship between CGRANode and its level
+    map<int, int> CGRANodeID2Level; 
+    // The list of CGRANodes sorted by levels
+    vector<vector<CGRANode*>> CGRANodes_sortedByLevel; 
 
   public:
     Mapper(){}
@@ -40,4 +46,9 @@ class Mapper {
     bool schedule(CGRA*, DFG*, int, DFGNode*, map<CGRANode*, int>*, bool);
     void showSchedule(CGRA*, DFG*, int, bool, bool);
     void generateJSON(CGRA*, DFG*, int, bool);
+    void generateJSON4IncrementalMap(CGRA*, DFG*);
+    int readRefMapRes(CGRA*, DFG*);
+    void sortAllocTilesByLevel(CGRA*);
+    list<CGRANode*> placementGen(CGRA*, DFGNode*);
+    int incrementalMap(CGRA*, DFG*, int);
 };

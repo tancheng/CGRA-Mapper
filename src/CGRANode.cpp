@@ -616,3 +616,7 @@ void CGRANode::disableAllFUs() {
   m_supportComplex = false;
   m_supportVectorization = false;
 }
+
+bool CGRANode::isDisabled() {
+    return m_disabled;
+}
