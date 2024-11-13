@@ -296,8 +296,8 @@ bool DFGNode::isDiv() {
 // type indicates the name of the combined node, which is specified by users. (e.g. ALU-MUL for alu+mul, CMP-BR for icmp+br)
 // type = "" means the node is combined a special type, which is used for general fusion and compatibility with previous codes.
 // general fusion: All complex nodes are in the same kind.
-bool DFGNode::hasCombined(string type) {
-  return m_combined && (m_combinedtype.compare(type) == 0);
+bool DFGNode::hasCombined() {
+  return m_combined;
 }
 
 string DFGNode::getComplexType() {

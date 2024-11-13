@@ -425,13 +425,11 @@ bool CGRANode::enableFunctionality(string t_func) {
     string type;
     if (t_func.length() == 4) type = "none";
     else type = t_func.substr(t_func.find("call") + 5);
-    cout << type << endl;
     enableCall(type);
   } else if (t_func.find("complex") != string::npos) {
     string type;
     if (t_func.length() == 7) type = "none";
     else type = t_func.substr(t_func.find("complex") + 8);
-    cout << type << endl;
     enableComplex(type);
   } else if (t_func.compare("div") == 0) {
     enableDiv();

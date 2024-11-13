@@ -59,7 +59,6 @@ void DFG::tuneDivPattern() {
   list<DFGNode*>* splitNodes = new list<DFGNode*>();
   int dfgNodeID = nodes.size();
   for (DFGNode* dfgNode: nodes) {
-    cout << "tuneDivPattern:" << dfgNode->isDiv() << " " << dfgNode->isVectorized() << "\n";
     if (dfgNode->isOpt("sdiv") && dfgNode->isVectorized()) {
       DFGNode* newNodes[m_vectorFactor];
       newNodes[0] = new DFGNode(dfgNode->getID(), dfgNode);
@@ -85,7 +84,6 @@ void DFG::tuneDivPattern() {
             succNode->isOneOfThem(dfgNode->getPatternNodes()))) {
           if (succNode->hasCombined())
             succNode = succNode->getPatternRoot();
-          cout << succNode->getID() << "\n";
           DFGNode* succNodes[m_vectorFactor];
           for (int i = 0; i < m_vectorFactor; i++) {
             succNodes[i] = succNode;
@@ -255,7 +253,7 @@ void DFG::combineMulAdd(string type) {
       for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
         if (found) break;
         if (predNode->isMul() and !predNode->hasCombined()) {
-          for (DFGNode* predNode2: *(predNode->getPredNodes())) {
+          for (DFGNode* predNode2: *(dfgNode->getPredNodes())) {
             if (predNode2->isAdd() and !predNode2->hasCombined()) {
               mulNode = dfgNode;
               mulNode->setCombine(type);

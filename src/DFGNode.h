@@ -96,7 +96,7 @@ class DFGNode {
     // Detect division.
     bool isDiv();
     string getComplexType();
-    bool hasCombined(string type="");
+    bool hasCombined();
     void setCombine(string type="");
     void addPatternPartner(DFGNode*);
     Instruction* getInst();
