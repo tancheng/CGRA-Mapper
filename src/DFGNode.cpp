@@ -11,7 +11,7 @@
 #include "DFGNode.h"
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
-                 StringRef t_stringRef) {
+                 StringRef t_stringRef, string t_basicBlockName) {
   m_id = t_id;
   m_precisionAware = t_precisionAware;
   m_inst = t_inst;
@@ -19,6 +19,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_predNodes = NULL;
   m_succNodes = NULL;
   m_opcodeName = t_inst->getOpcodeName();
+  m_pathName = t_basicBlockName;
   m_isMapped = false;
   m_numConst = 0;
   m_optType = "";
@@ -311,6 +312,10 @@ string DFGNode::getOpcodeName() {
   }
 
   return m_opcodeName;
+}
+
+string DFGNode::getPathName(){
+  return m_pathName;
 }
 
 string DFGNode::getFuType() {

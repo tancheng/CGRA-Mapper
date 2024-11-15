@@ -29,11 +29,12 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   if (t_heterogeneity) {
     calculateCycles();
     // *************** testDualIssue *****************
-    combine("add", "phi");
+    // combine("add", "phi");
     // tuneForPattern();
-    dualIssue();
+    dualIssue(3);
     tuneForPattern();
     tuneForDualIssue();
+    // *************** testDualIssue *****************
 //    combine("phi", "add");
     // combine("and", "xor");
 //    combine("br", "phi");
@@ -109,16 +110,25 @@ void DFG::tuneForPattern() {
 void DFG::tuneForDualIssue() {
   // tuneForDualIssue reconstruct the edge for dual issue after tuneForPattern().
   // the edges between the same parent and the input DFGNodes will be combined into one edge.
-  // we need to confrim that the bit is 1 or 2 depends on whether they are in the same BB.
-  // tuneForPattern();
+  std::cout<<"[MMJ] tuneForDualIssue is running " <<std::endl;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isBranch()) {
+    if (dfgNode->isBranch() or dfgNode->isOpt("switch")) {
       std::cout<<"[MMJ] dfgNode is " << dfgNode->getID() <<std::endl;
       for (DFGNode* dualNode: *(dfgNode->getSuccNodes())) {
         if (dualNode->hasCombined() and hasDFGEdge(dfgNode, dualNode)){
-          // FIXME delete all edges and add new one
-          m_DFGEdges.remove(getDFGEdge(dfgNode, dualNode));
-          std::cout<<"[MMJ] remove " << dualNode->getID() << "'s edge " << getDFGEdge(dfgNode, dualNode)->getID() <<std::endl;
+          std::cout<<"[MMJ] dualNode is " << dualNode->getID() <<std::endl;
+          // delete all edges
+          DFGEdge* firstEdge = NULL;
+          while (hasDFGEdge(dfgNode, dualNode)){
+            if (firstEdge == NULL) {
+              firstEdge = getDFGEdge(dfgNode, dualNode);
+            }
+            deleteDFGEdge(dfgNode, dualNode);
+          }
+          // add the first edge back
+          if (firstEdge){
+            m_DFGEdges.push_back(firstEdge);
+          }
         }
       }
     }
@@ -288,35 +298,59 @@ void DFG::combineForUnroll(list<string>* t_targetPattern){
   }
 }
 
-// combineSameSucc combines DFGNodes of same opcodeName with a same parent.
+// combineSuccSame combines DFGNodes of same opcodeName with a same parent.
 // Note that the edges between the same parent and the input DFGNodes will be combined into one edge.
-void DFG::combineSameSucc(list<DFGNode*>* t_sameSuccNode){
-  DFGNode* headNode = t_sameSuccNode->front();
+// Note the pathName of DFGNodes must be different.
+void DFG::combineSuccSame(list<DFGNode*>* t_sameSuccNode, const int t_mergeSize){
+  std::cout <<"[MMJ] combineSuccSame is running "<< std::endl;
+  std::cout <<"[MMJ] combineSuccSame t_sameSuccNode: "<< std::endl;
+  // choose DFGNode in t_sameSuccNode with different pathName
+  list<DFGNode*> uniqueNodes;
+  map<string, list<DFGNode*>> pathNameMap;
   for (DFGNode* dfgNode: *t_sameSuccNode){
+    std::cout <<"[MMJ] t_sameSuccNode dfgNode "<< dfgNode->getID() << std::endl;
+    if (!pathNameMap.count(dfgNode->getPathName())){
+      pathNameMap[dfgNode->getPathName()].push_back(dfgNode);
+      uniqueNodes.push_back(dfgNode);
+    }
+  }
+
+  // merge uniqueNodes (size must > 1)
+  if (uniqueNodes.size() == 1){
+    std::cout <<"[MMJ] combineSuccSame uniqueNodes.size() == 1 " << std::endl;
+    return;
+  }
+  int mergeCount = 0;
+  DFGNode* headNode = uniqueNodes.front();
+  for (DFGNode* dfgNode: uniqueNodes){
     if(dfgNode != headNode and !dfgNode->hasCombined()){
         headNode ->addPatternPartner(dfgNode);                  
     }
-    dfgNode->setCombine();                       
+    dfgNode->setCombine(); 
+    std::cout <<"[MMJ] dual Issue combine "<< dfgNode->getID() << std::endl; 
+    mergeCount++;
+    if (mergeCount == t_mergeSize) {
+      // combined DFGNode number <= t_mergeSize
+      break;
+    }                   
   }
   // the handling of edges is in tuneForDualIssue()
 }
 
-// findSameSucc finds nodes that are the same after br
-bool DFG::findSameSucc(const list<DFGNode*>* t_succList) {
+// findOpSameSucc finds nodes that are the same after br, t_mergeSize decides the max number of nodes that can be combined
+bool DFG::findOpSameSucc(const list<DFGNode*>* t_succList, const int t_mergeSize) {
+  std::cout <<"[MMJ] findOpSameSucc is running "<< std::endl;
   bool found = false;
   map<string, list<DFGNode*>> opcodeNameMap;
+
   // map succeed DFGNode with their operation name
   for (DFGNode* succNode: *t_succList) {
-    if (!succNode->isBranch()){
-      // we don't accepect same br
-      opcodeNameMap[succNode->getOpcodeName()].push_back(succNode);
-    }
+    opcodeNameMap[succNode->getOpcodeName()].push_back(succNode);
   }
-  // combine succeed DFGNodes whose number > 1
+  // combine succeed DFGNodes with number <= t_mergeSize
   for (auto& pair: opcodeNameMap) {
       if (pair.second.size() > 1) {
-        // combine same succeed DFGNodes
-        combineSameSucc(&pair.second);
+        combineSuccSame(&pair.second, t_mergeSize);
         found = true;
       }
   }
@@ -326,23 +360,26 @@ bool DFG::findSameSucc(const list<DFGNode*>* t_succList) {
 // dualIssue is used to identify 'br' with multiple output, it combines the ouput together with the same control edge.
 // Note that the control edge is only one bit width since there is noly one 'br' input.
 // Note that dualIssue must be done after other combine operation.
-void DFG::dualIssue(){
+void DFG::dualIssue(const int t_mergeSize){
   // testBench: adpcmkernel's 'br-3phi'
   // toBeMatchedDFGNodes is to store the DFG nodes after br
   std::cout <<"[MMJ] dual Issue is running. "<<std::endl;
   list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>();
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isBranch() and !dfgNode->hasCombined()) {
+    // we support both br and switch
+    if ((dfgNode->isBranch() or dfgNode->isOpt("switch")) and !dfgNode->hasCombined()) {
       bool found = false;
-      // the for loop below is to find the target pattern after br
+      std::cout <<"[MMJ] dual Issue finds the br/switch "<< dfgNode->getID() << std::endl;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (!succNode->hasCombined()){
           toBeMatchedDFGNodes->push_back(succNode); 
         }
       }  
-      // finds nodes that are the same after br
-      found = findSameSucc(toBeMatchedDFGNodes);
+      // find nodes that are the same after br
+      found = findOpSameSucc(toBeMatchedDFGNodes, t_mergeSize);
     }
+    // clear toBeMatchedDFGNodes and find the next br/switch
+    toBeMatchedDFGNodes->clear();
   }
 }
 
@@ -465,6 +502,7 @@ void DFG::construct(Function& t_F) {
   int nodeID = 0;
   int ctrlEdgeID = 0;
   int dfgEdgeID = 0;
+  int blockCounter = 0;
 
   cout<<"*** current function: "<<t_F.getName().str()<<"\n";
 
@@ -476,6 +514,9 @@ void DFG::construct(Function& t_F) {
     for (BasicBlock* sucBB : successors(curBB)) {
       errs()<<"   ****** succ bb: "<<*sucBB->begin()<<"\n";
     }
+
+    string curBBName = curBB->getName().empty() ? std::to_string(blockCounter) : curBB->getName().str();
+    blockCounter++;
 
      // Construct DFG nodes.
     for (BasicBlock::iterator II=curBB->begin(),
@@ -493,7 +534,7 @@ void DFG::construct(Function& t_F) {
       if (hasNode(curII)) {
         dfgNode = getNode(curII);
       } else {
-        dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII));
+        dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), curBBName);
         nodes.push_back(dfgNode);
       }
       cout<<" (ID: "<<dfgNode->getID()<<")\n";
@@ -502,9 +543,12 @@ void DFG::construct(Function& t_F) {
 
     if (shouldIgnore(terminator))
       continue;
+
 //    DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
     for (BasicBlock* sucBB : successors(curBB)) {
       // TODO: get the live-in nodes rather than front() and connect them
+      string sucBBName = sucBB->getName().empty() ? std::to_string(blockCounter) : sucBB->getName().str();
+      blockCounter++;
       for (BasicBlock::iterator II=sucBB->begin(),
           IEnd=sucBB->end(); II!=IEnd; ++II) {
         Instruction* inst = &*II;
@@ -520,7 +564,7 @@ void DFG::construct(Function& t_F) {
           if (hasNode(inst)) {
             dfgNode = getNode(inst);
           } else {
-            dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst));
+            dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst), sucBBName);
             nodes.push_back(dfgNode);
           }
     //      Instruction* first = &*(sucBB->begin());
@@ -1470,7 +1514,7 @@ void DFG::tuneForBranch() {
       processedDFGBrNodes.push_back(left);
     } else {
       DFGNode* newDFGBrNode = new DFGNode(nodes.size(), m_precisionAware, left->getInst(),
-          getValueName(left->getInst()));
+          getValueName(left->getInst()), left->getPathName());  // FIXME
       for (DFGNode* predDFGNode: *(left->getPredNodes())) {
         DFGEdge* newDFGBrEdge = new DFGEdge(newDFGEdgeID++,
             predDFGNode, newDFGBrNode);

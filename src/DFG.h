@@ -67,9 +67,9 @@ class DFG {
     void combine(string, string);
     void combineForIter(list<string>*);
     void combineForUnroll(list<string>*); 
-    void combineSameSucc(list<DFGNode*>*);
-    bool findSameSucc(const list<DFGNode*>*);
-    void dualIssue();
+    void combineSuccSame(list<DFGNode*>*, const int);
+    bool findOpSameSucc(const list<DFGNode*>*, const int);
+    void dualIssue(const int);
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
