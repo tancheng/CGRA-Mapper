@@ -60,7 +60,7 @@ namespace {
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
       bool incrementalMapping       = false;
-      int vectorFactor              = 1;
+      int vectorFactorForIdiv               = 1;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -140,8 +140,8 @@ namespace {
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
         incrementalMapping    = param["incrementalMapping"];
-        if (param.find("vectorFactor") != param.end())
-          vectorFactor          = param["vectorFactor"];
+        if (param.find("vectorFactorForIdiv ") != param.end())
+          vectorFactorForIdiv           = param["vectorFactorForIdiv "];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -175,7 +175,7 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt, vectorFactor);
+                         heterogeneity, execLatency, pipelinedOpt, vectorFactorForIdiv );
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc);
       cgra->setRegConstraint(regConstraint);
