@@ -7,7 +7,7 @@
  * Author : Cheng Tan
  *   Date : Jan 9, 2023
  */
-
+ 
 #include <fstream>
 #include "CGRA.h"
 #include "json.hpp"
@@ -168,10 +168,35 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Enable the heterogeneity.
     if (t_heterogeneity) {
-      for (int r=0; r<t_rows; ++r) {
-        for (int c=0; c<t_columns; ++c) {
-          if(r%2==1 and c%2 == 1)
+      int t_heteNum = 3;
+      if (t_heteNum == 3){
+        // 3/4 tiles support heterogeneity
+        for (int r=0; r<t_rows; ++r) {
+          for (int c=0; c<t_columns; ++c) {
+            if(!(c%4 == 3)){
+              continue;
+            }
             nodes[r][c]->enableComplex();
+          }
+        }
+      } 
+      else if (t_heteNum == 2){
+        // 2/4 tiles support heterogeneity
+        for (int r=0; r<t_rows; ++r) {
+          for (int c=0; c<t_columns; ++c) {
+            if(c%2 == 1)
+              nodes[r][c]->enableComplex();
+          }
+        }
+      }
+      else if (t_heteNum == 1){
+        // 1/4 tiles support heterogeneity
+        for (int r=0; r<t_rows; ++r) {
+          for (int c=0; c<t_columns; ++c) {
+            if(c%4 == 0){
+              nodes[r][c]->enableComplex();
+            }
+          }
         }
       }
     }

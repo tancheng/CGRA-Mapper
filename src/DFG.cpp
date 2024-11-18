@@ -109,26 +109,42 @@ void DFG::tuneForPattern() {
 
 void DFG::tuneForDualIssue() {
   // tuneForDualIssue reconstruct the edge for dual issue after tuneForPattern().
-  // the edges between the same parent and the input DFGNodes will be combined into one edge.
+  // the edges between the dualIssue-combined DFGNodes and its parents/children must be combined into one edge only.
   std::cout<<"[MMJ] tuneForDualIssue is running " <<std::endl;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isBranch() or dfgNode->isOpt("switch")) {
+    if (dfgNode->hasCombined()){
+      // dfgNode->hasCombined() actually means dfgNode->hasDualIssueCombined()
       std::cout<<"[MMJ] dfgNode is " << dfgNode->getID() <<std::endl;
-      for (DFGNode* dualNode: *(dfgNode->getSuccNodes())) {
-        if (dualNode->hasCombined() and hasDFGEdge(dfgNode, dualNode)){
-          std::cout<<"[MMJ] dualNode is " << dualNode->getID() <<std::endl;
+      for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
+        if (!predNode->hasCombined()){
           // delete all edges
           DFGEdge* firstEdge = NULL;
-          while (hasDFGEdge(dfgNode, dualNode)){
+          while (hasDFGEdge(predNode, dfgNode)){
             if (firstEdge == NULL) {
-              firstEdge = getDFGEdge(dfgNode, dualNode);
+              firstEdge = getDFGEdge(predNode, dfgNode);
             }
-            deleteDFGEdge(dfgNode, dualNode);
-          }
+            deleteDFGEdge(predNode, dfgNode);
+          }     
           // add the first edge back
           if (firstEdge){
             m_DFGEdges.push_back(firstEdge);
-          }
+          }               
+        }
+      }
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (!succNode->hasCombined()){
+          // delete all edges
+          DFGEdge* firstEdge = NULL;
+          while (hasDFGEdge(dfgNode, succNode)){
+            if (firstEdge == NULL) {
+              firstEdge = getDFGEdge(dfgNode, succNode);
+            }
+            deleteDFGEdge(dfgNode, succNode);
+          }     
+          // add the first edge back
+          if (firstEdge){
+            m_DFGEdges.push_back(firstEdge);
+          }               
         }
       }
     }
