@@ -258,11 +258,11 @@ namespace {
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
-	cout << "[Output Json]\n";
+	      cout << "[Output Json]\n";
 
 	// save mapping results json file for possible incremental mapping
         if(!incrementalMapping) {
-	  mapper->generateJSON4IncrementalMap(cgra, dfg);
+	        mapper->generateJSON4IncrementalMap(cgra, dfg);
           cout << "[Output Json for Incremental Mapping]\n";
         }
       }

@@ -17,7 +17,7 @@
     "ctrlMemConstraint"     : 10,
     "regConstraint"         : 8,
     "incrementalMapping"    : false,
-    "vectorFactorForIdiv "  : 1, 
+    "vectorFactorForIdiv "  : 4, 
     "optLatency"            : {
                                 "load" : 2,
                                 "store": 2,

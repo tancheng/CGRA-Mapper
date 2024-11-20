@@ -1171,6 +1171,7 @@ void DFG::generateJSON() {
       jsonFile<<"  }\n";
   }
   jsonFile<<"]\n";
+  jsonFile.close();
 }
 
 void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
@@ -1179,10 +1180,14 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
 //  sys::fs::OpenFlags F_Excl;
   string func_name = t_F.getName().str();
   string file_name = func_name + ".dot";
-  StringRef fileName(file_name);
-  raw_fd_ostream file(fileName, error, sys::fs::F_None);
+  std::ofstream file;
+  file.open(file_name);
+  // StringRef fileName(file_name);
+  // raw_fd_ostream file(fileName, error, sys::fs::F_None);
 
-  file << "digraph \"DFG for'" + t_F.getName() + "\' function\" {\n";
+  // TODO: support t_isTrimmedDemo = false, i.e., fix bugs of raw_fd_ostream
+  assert(t_isTrimmedDemo == true);
+  file << "digraph \"DFG for'" + string(t_F.getName().data()) + "\' function\" {\n";
 
   //Dump DFG nodes.
   for (DFGNode* node: nodes) {
@@ -1190,8 +1195,8 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
     if (t_isTrimmedDemo) {
       file << "\tNode" << node->getID() << node->getOpcodeName() << "[shape=record, label=\"" << "(" << node->getID() << ") " << node->getOpcodeName() << "\"];\n";
     } else {
-      file << "\tNode" << node->getInst() << "[shape=record, label=\"" <<
-          changeIns2Str(node->getInst()) << "\"];\n";
+      // file << "\tNode" << node->getInst() << "[shape=record, label=\"" <<
+      //     changeIns2Str(node->getInst()) << "\"];\n";
     }
   }
   /*
@@ -1213,7 +1218,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       if (t_isTrimmedDemo) {
         file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
       } else {
-        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+        // file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
       }
     }
   }
@@ -1226,7 +1231,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       if (t_isTrimmedDemo) {
         file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
       } else {
-        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+        // file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
       }
     }
   }

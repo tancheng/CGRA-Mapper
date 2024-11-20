@@ -165,15 +165,8 @@ string DFGNode::isCall() {
 
 bool DFGNode::isVectorized() {
   // TODO: need a more robust way to recognize vectorized instructions.
-  list<string> vectorPatterns = {"<2 x ", "<4 x ", "<8 x ", "<16 x ", "<32 x "};
-  string instStr;
-  raw_string_ostream(instStr) << *m_inst;
-  for (const string & pattern : vectorPatterns) {
-    if (instStr.find(pattern) != string::npos) {
-      return true;
-    }
-  }
-  return false;
+  Value* psVal = cast<Value>(m_inst);
+  return psVal->getType()->isVectorTy();
 }
 
 bool DFGNode::isLoad() {
