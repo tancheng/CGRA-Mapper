@@ -56,7 +56,7 @@ def DVFSComp(fileName, uFactor):
 
     uCommand0 = "clang-12 -emit-llvm -fno-unroll-loops -O3 -o kernel.bc -c "    # no unroll, i.e. unroll = 1
     uCommand2 = "clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count=2 -O3 -o kernel.bc -c "    # unroll = 2
-    appCommand0 = "./kernels/"
+    appCommand0 = "../kernels/"
     generalCommand = fileSource + "/" + fileName
     compileCommand = ""
 
@@ -103,7 +103,7 @@ def DVFSMap(kernel,df):
 
     Returns: NULL
     """
-    getMapCommand = "opt-12 -load ../build/src/libmapperPass.so -mapperPass kernel.bc"
+    getMapCommand = "opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
     genMapProc = subprocess.Popen([getMapCommand, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     dataS = []    # for get results from subprocess and output to pandas
     kernelsSource = (kernel.split("."))[0]
@@ -153,7 +153,7 @@ def DVFSGen(kernel, df):
 
     Returns: NULL
     """
-    getMapCommand = "opt-12 -load ../build/src/libmapperPass.so -mapperPass kernel.bc"
+    getMapCommand = "opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
     genMapProc = subprocess.Popen([getMapCommand, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # Holds the results from subprocess and output to pandas.
     dataS = []
@@ -591,6 +591,7 @@ def mainBaseline(Rows, Columns, uFactor, doMapping = True):
             "isStaticElasticCGRA": False,
             "ctrlMemConstraint": 100,
             "regConstraint": 20,
+            "incrementalMapping": False,
             "supportDVFS": False,
             "DVFSIslandDim": 1,
             "DVFSAwareMapping": False,
@@ -648,6 +649,7 @@ def mainPertile(Rows, Columns, uFactor):
             "isStaticElasticCGRA": False,
             "ctrlMemConstraint": 100,
             "regConstraint": 20,
+            "incrementalMapping": False,
             "supportDVFS": True,
             "DVFSIslandDim": 1,
             "DVFSAwareMapping": False,
@@ -702,6 +704,7 @@ def mainIced(Rows, Columns, uFactor):
             "isStaticElasticCGRA": False,
             "ctrlMemConstraint": 100,
             "regConstraint": 20,
+            "incrementalMapping": False,
             "supportDVFS": True,
             "DVFSIslandDim": 2,
             "DVFSAwareMapping": True,
