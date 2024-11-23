@@ -423,13 +423,25 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableReturn();
   } else if (t_func.find("call") != string::npos) {
     string type;
-    if (t_func.length() == 4) type = "none";
-    else type = t_func.substr(t_func.find("call") + 5);
+    const int kLengthOfCall = 4;
+    if (t_func.length() == kLengthOfCall) {
+      // The case corresponds to "call" : [...], i.e., no specific function name.
+      type = "none";
+    } else {
+      // The case corresponds to "call-..." : [...], and the specific function name is provided.
+      type = t_func.substr(t_func.find("call") + kLengthOfCall + 1);
+    }
     enableCall(type);
   } else if (t_func.find("complex") != string::npos) {
     string type;
-    if (t_func.length() == 7) type = "none";
-    else type = t_func.substr(t_func.find("complex") + 8);
+    const int kLengthOfComplex = 7;
+    if (t_func.length() == kLengthOfComplex) {
+      // The case corresponds to "complex" : [...], i.e., no specific pattern name.
+      type = "none";
+    } else {
+      // The case corresponds to "complex-..." : [...], and the specific pattern name is provided.
+      type = t_func.substr(t_func.find("complex") + kLengthOfComplex + 1);
+    }
     enableComplex(type);
   } else if (t_func.compare("div") == 0) {
     enableDiv();
