@@ -13,7 +13,7 @@
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
-         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt) {
+         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt, int t_vectorFactorForIdiv) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -21,32 +21,88 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_CDFGFused = false;
   m_cycleNodeLists = new list<list<DFGNode*>*>();
   m_precisionAware = t_precisionAware;
+  m_vectorFactorForIdiv = t_vectorFactorForIdiv;
 
   construct(t_F);
 //  tuneForBranch();
-//  tuneForBitcast();
 //  tuneForLoad();
   if (t_heterogeneity) {
     calculateCycles();
-//    combine("phi", "add");
-    combine("and", "xor");
-//    combine("br", "phi");
-//    combine("add", "icmp");
-//    combine("xor", "add");
-    combineCmpBranch();
-    combine("icmp", "br");
-    combine("getelementptr", "load");
-    tuneForPattern();
-
+    nonlinear_combine();      // fusion for nonlinear ops
 //    calculateCycles();
-////    combine("icmp", "br");
-//    combine("xor", "add");
 //    tuneForPattern();
   }
 //  trimForStandalone();
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
 
+}
+
+// Specilized fusion for the nonlinear operations.
+void DFG::nonlinear_combine() {
+  tuneForBitcast();
+  combineMulAdd("CoT");
+  combinePhiAdd("BrT");
+  combine("fcmp", "select", "BrT");
+  combine("icmp", "select", "BrT");
+  combine("icmp", "br", "CoT");
+  combine("fcmp", "br", "CoT");
+  combineAddAdd("BrT");
+  tuneForPattern();
+  tuneDivPattern();
+}
+
+// For division, we treat it as non-vectorized instructions, which is contradictory to LLVM Pass.
+// Thus we need to split a vectorization divison into multiple scalar divisions.
+void DFG::tuneDivPattern() {
+  list<DFGNode*>* removeNodes = new list<DFGNode*>();
+  list<DFGNode*>* splitNodes = new list<DFGNode*>();
+  int dfgNodeID = nodes.size();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isOpt("sdiv") && dfgNode->isVectorized()) {
+      DFGNode* newNodes[m_vectorFactorForIdiv];
+      newNodes[0] = new DFGNode(dfgNode->getID(), dfgNode);
+      for (int i = 1; i < m_vectorFactorForIdiv; i++) {
+        newNodes[i] = new DFGNode(dfgNodeID++, dfgNode);
+      }
+      for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
+        if (!(predNode == dfgNode or
+            predNode->isOneOfThem(dfgNode->getPatternNodes()))) {
+          if (predNode->hasCombined())
+            predNode = predNode->getPatternRoot();
+          DFGNode* predNodes[m_vectorFactorForIdiv];
+          for (int i = 0; i < m_vectorFactorForIdiv; i++) {
+            predNodes[i] = predNode;
+          }
+          replaceMultipleDFGEdge(predNode, dfgNode, predNodes, newNodes);
+          predNode->deleteSuccNode(dfgNode);
+          continue;
+        }
+      }
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (!(succNode == dfgNode or
+            succNode->isOneOfThem(dfgNode->getPatternNodes()))) {
+          if (succNode->hasCombined())
+            succNode = succNode->getPatternRoot();
+          DFGNode* succNodes[m_vectorFactorForIdiv];
+          for (int i = 0; i < m_vectorFactorForIdiv; i++) {
+            succNodes[i] = succNode;
+          }
+          replaceMultipleDFGEdge(dfgNode, succNode, newNodes, succNodes);
+          succNode->deletePredNode(dfgNode);
+          continue;
+        }
+      }
+      for (int i = 0; i < m_vectorFactorForIdiv; i++) splitNodes->push_back(newNodes[i]);
+      removeNodes->push_back(dfgNode);
+    }
+  }
+  for (DFGNode* dfgNode: *removeNodes) {
+    nodes.remove(dfgNode);
+  }
+  for (DFGNode *dfgNode: *splitNodes) {
+    nodes.push_back(dfgNode);
+  }
 }
 
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
@@ -133,20 +189,49 @@ void DFG::combineCmpBranch() {
   }
 }
 
-void DFG::combineMulAdd() {
+// Combine phi + iadd or phi + iadd + iadd where iadd is integer addition.
+void DFG::combinePhiAdd(string type) {
   // detect patterns (e.g., mul+alu)
-  DFGNode* mulNode = NULL;
+  DFGNode* phiNode = NULL;
   DFGNode* addNode = NULL;
+  DFGNode* addNode2 = NULL;
   bool found = false;
+  // TODO: When a phi has multiple iadd, it would simply pick the first one no matter 
+  // whether the second one has grandchild iadd, i.e., we may unfortunately skip the 
+  // best opportunities of maximum fusion. 
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+    if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
+      found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isAdd() and !succNode->hasCombined()) {
-          mulNode = dfgNode;
-          mulNode->setCombine();
+        if (found) break;
+        if (succNode->isIadd() and !succNode->hasCombined()) {
+          for (DFGNode* succNode2: *(succNode->getSuccNodes())) {
+            if (succNode2->isIadd() and !succNode2->hasCombined()) {
+              phiNode = dfgNode;
+              phiNode->setCombine(type);
+              addNode = succNode;
+              phiNode->addPatternPartner(addNode);
+              addNode->setCombine(type);
+              addNode2 = succNode2;
+              phiNode->addPatternPartner(addNode2);
+              addNode2->setCombine(type);
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isIadd() and !succNode->hasCombined()) {
+          phiNode = dfgNode;
+          phiNode->setCombine(type);
           addNode = succNode;
-          mulNode->addPatternPartner(addNode);
-          addNode->setCombine();
+          phiNode->addPatternPartner(addNode);
+          addNode->setCombine(type);
           break;
         }
       }
@@ -154,7 +239,79 @@ void DFG::combineMulAdd() {
   }
 }
 
-void DFG::combine(string t_opt0, string t_opt1) {
+// Combine add & mul followed by add. The mul + add will also be combined.
+void DFG::combineMulAdd(string type) {
+  // detect patterns (e.g., mul+alu)
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  DFGNode* addNode2 = NULL;
+  bool found = false;
+  // We first locate the latter addition node, then try to find its predecessor multiplication node and another addition node.
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      found = false;
+      for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
+        if (found) break;
+        if (predNode->isMul() and !predNode->hasCombined()) {
+          for (DFGNode* predNode2: *(dfgNode->getPredNodes())) {
+            if (predNode2->isAdd() and !predNode2->hasCombined()) {
+              mulNode = dfgNode;
+              mulNode->setCombine(type);
+              addNode = predNode;
+              mulNode->addPatternPartner(addNode);
+              addNode->setCombine(type);
+              addNode2 = predNode2;
+              mulNode->addPatternPartner(addNode2);
+              addNode2->setCombine(type);
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  // This loop is to fuse mul + add.
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isMul() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine(type);
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine(type);
+          break;
+        }
+      }
+    }
+  }
+}
+
+// Combine add + add. 
+void DFG::combineAddAdd(string type) {
+  DFGNode* mulNode = NULL;
+  DFGNode* addNode = NULL;
+  DFGNode* addNode2 = NULL;
+  bool found = false;
+  
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode->isAdd() and !succNode->hasCombined()) {
+          mulNode = dfgNode;
+          mulNode->setCombine(type);
+          addNode = succNode;
+          mulNode->addPatternPartner(addNode);
+          addNode->setCombine(type);
+          break;
+        }
+      }
+    }
+  }
+}
+
+void DFG::combine(string t_opt0, string t_opt1, string type) {
   DFGNode* opt0Node = NULL;
   DFGNode* opt1Node = NULL;
   bool found = false;
@@ -164,10 +321,10 @@ void DFG::combine(string t_opt0, string t_opt1) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isOpt(t_opt1) and !succNode->hasCombined()) {
           opt0Node = dfgNode;
-          opt0Node->setCombine();
+          opt0Node->setCombine(type);
           opt1Node = succNode;
           opt0Node->addPatternPartner(opt1Node);
-          opt1Node->setCombine();
+          opt1Node->setCombine(type);
           break;
         }
       }
@@ -219,7 +376,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
 }
 
 // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-void DFG::combineForUnroll(list<string>* t_targetPattern){
+void DFG::combineForUnroll(list<string>* t_targetPattern, string type){
   int patternSize = t_targetPattern->size();
   if (patternSize > 4){ 
     std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;
@@ -1014,6 +1171,7 @@ void DFG::generateJSON() {
       jsonFile<<"  }\n";
   }
   jsonFile<<"]\n";
+  jsonFile.close();
 }
 
 void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
@@ -1022,10 +1180,14 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
 //  sys::fs::OpenFlags F_Excl;
   string func_name = t_F.getName().str();
   string file_name = func_name + ".dot";
-  StringRef fileName(file_name);
-  raw_fd_ostream file(fileName, error, sys::fs::F_None);
+  std::ofstream file;
+  file.open(file_name);
+  // StringRef fileName(file_name);
+  // raw_fd_ostream file(fileName, error, sys::fs::F_None);
 
-  file << "digraph \"DFG for'" + t_F.getName() + "\' function\" {\n";
+  // TODO: support t_isTrimmedDemo = false, i.e., fix bugs of raw_fd_ostream
+  assert(t_isTrimmedDemo == true);
+  file << "digraph \"DFG for'" + string(t_F.getName().data()) + "\' function\" {\n";
 
   //Dump DFG nodes.
   for (DFGNode* node: nodes) {
@@ -1033,8 +1195,8 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
     if (t_isTrimmedDemo) {
       file << "\tNode" << node->getID() << node->getOpcodeName() << "[shape=record, label=\"" << "(" << node->getID() << ") " << node->getOpcodeName() << "\"];\n";
     } else {
-      file << "\tNode" << node->getInst() << "[shape=record, label=\"" <<
-          changeIns2Str(node->getInst()) << "\"];\n";
+      // file << "\tNode" << node->getInst() << "[shape=record, label=\"" <<
+      //     changeIns2Str(node->getInst()) << "\"];\n";
     }
   }
   /*
@@ -1056,7 +1218,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       if (t_isTrimmedDemo) {
         file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
       } else {
-        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+        // file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
       }
     }
   }
@@ -1069,7 +1231,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       if (t_isTrimmedDemo) {
         file << "\tNode" << edge->getSrc()->getID() << edge->getSrc()->getOpcodeName() << " -> Node" << edge->getDst()->getID() << edge->getDst()->getOpcodeName() << "\n";
       } else {
-        file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
+        // file << "\tNode" << edge->getSrc()->getInst() << " -> Node" << edge->getDst()->getInst() << "\n";
       }
     }
   }
@@ -1242,14 +1404,52 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
       break;
     }
   }
-  if (target == NULL)
+  if (target == NULL) {
     assert("ERROR cannot find the corresponding DFG edge.");
+    cout << "ERROR cannot find the corresponding DFG edge\n";
+    return;
+  }
   m_DFGEdges.remove(target);
   // Keeps the ctrl property of the original edge on the newly added edge.
   DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst, target->isCtrlEdge());
   m_DFGEdges.push_back(newEdge);
   if (newEdge->isCtrlEdge()){
     m_ctrlEdges.push_back(newEdge);
+  }
+}
+
+// used for the case of tuning division patterns
+void DFG::replaceMultipleDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
+                         DFGNode** t_new_src, DFGNode** t_new_dst) {
+  cout << "replace multiple dfg edges" << "\n";
+  DFGEdge* target = NULL;
+  cout<<"replace edge: [delete] "<<t_old_src->getID()<<"->"<<t_old_dst->getID()<<"\n";
+  for (DFGEdge* edge: m_DFGEdges) {
+    if (edge->getSrc() == t_old_src and
+        edge->getDst() == t_old_dst) {
+      target = edge;
+      break;
+    }
+  }
+  if (target == NULL) {
+    cout << "ERROR cannot find the corresponding DFG edge\n";
+    return;
+  }
+  int dfgEdgeID = m_DFGEdges.size();
+  m_DFGEdges.remove(target);
+  // Keeps the ctrl property of the original edge on the newly added edge.
+  for (int i = 0; i < m_vectorFactorForIdiv; i++) {
+    DFGEdge* newEdge;
+    if (!i) {
+      newEdge = new DFGEdge(target->getID(), t_new_src[i], t_new_dst[i], target->isCtrlEdge());
+    }
+    else {
+      newEdge = new DFGEdge(dfgEdgeID++, t_new_src[i], t_new_dst[i], target->isCtrlEdge());
+    }
+    m_DFGEdges.push_back(newEdge);
+    if (newEdge->isCtrlEdge()){
+      m_ctrlEdges.push_back(newEdge);
+    }
   }
 }
 

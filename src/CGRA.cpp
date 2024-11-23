@@ -20,7 +20,27 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
+  m_supportComplex = new list<string>();
+  m_supportCall    = new list<string>();
   nodes = new CGRANode**[t_rows];
+
+  // Initialize the m_supportComplex & m_supportCall list.
+  for (auto x: *t_additionalFunc) {
+    string func = x.first;
+    if (func.find("call") != string::npos) {
+      if (func.length() == 4) {
+        m_supportCall->push_back("");
+      } else {
+        m_supportCall->push_back(func.substr(func.find("call") + 5));
+      }
+    } else if (func.find("complex") != string::npos) {
+      if (func.length() == 7) {
+        m_supportComplex->push_back("");
+      } else {
+        m_supportComplex->push_back(func.substr(func.find("complex") + 8));
+      }
+    }
+  }
 
   if (t_parameterizableCGRA) {
 
@@ -143,11 +163,11 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Some other basic operations that can be indicated in the param.json:
     // Enable the specialized 'call' functionality.
-    for (int r=0; r<t_rows; ++r) {
-      for (int c=0; c<t_columns; ++c) {
-        nodes[r][c]->enableCall();
-      }
-    }
+    // for (int r=0; r<t_rows; ++r) {
+    //   for (int c=0; c<t_columns; ++c) {
+    //     nodes[r][c]->enableCall();
+    //   }
+    // }
 
     // Enable the vectorization.
     if (t_diagonalVectorization) {
@@ -168,12 +188,12 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Enable the heterogeneity.
     if (t_heterogeneity) {
-      for (int r=0; r<t_rows; ++r) {
-        for (int c=0; c<t_columns; ++c) {
-          if(r%2==1 and c%2 == 1)
-            nodes[r][c]->enableComplex();
-        }
-      }
+      // for (int r=0; r<t_rows; ++r) {
+      //   for (int c=0; c<t_columns; ++c) {
+      //     // if(c == 0 || (r%2==1 and c%2 == 1))
+      //       nodes[r][c]->enableComplex();
+      //   }
+      // }
     }
 
     for (int r=0; r<t_rows; ++r) {
@@ -253,6 +273,14 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
   cout<<"[connection] diagonal."<<endl;
 */
 
+}
+
+list<string>* CGRA::getSupportComplex() { 
+    return m_supportComplex;
+}
+
+list<string>* CGRA::getSupportCall() { 
+    return m_supportCall;
 }
 
 void CGRA::disableSpecificConnections() {

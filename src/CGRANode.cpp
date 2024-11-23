@@ -30,19 +30,19 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canStore = false;
   m_canLoad = false;
   m_supportComplex = false;
+  m_supportComplexType = vector<string>();
+  // It's not necessary to support specific function on each tile.
+  m_canCall = vector<string>();
+
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
   m_occupiableInLinks = NULL;
   m_occupiableOutLinks = NULL;
-  // new list<list<pair<DFGNode*, int>>*>();//DFGNode*[1];
-  // m_dfgNodes = new DFGNode*[1];
-  // m_fuOccupied = new int[1];
   m_regs_duration = NULL;
   m_regs_timing = NULL;
 
   // used for parameterizable CGRA functional units
-  m_canCall   = true;
   m_canAdd    = true;
   m_canMul    = true;
   m_canShift  = true;
@@ -185,12 +185,18 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   if (m_disabled) 
     return false;
   // Check whether this CGRA node supports the required functionality.
+  string call_f = t_opt->isCall();
+  if (call_f.compare("None") && !canCall(call_f)) {
+    return false;
+  }
+  string complex_f = t_opt->getComplexType();
+  if (complex_f.compare("None") && !supportComplex(complex_f)) {
+    return false;
+  }
   if ((t_opt->isLoad()       and !canLoad())  or
       (t_opt->isStore()      and !canStore()) or
       (t_opt->isReturn()     and !canReturn()) or
-      (t_opt->isCall()       and !canCall())  or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->hasCombined()  and !supportComplex()) or
       (t_opt->isAdd()        and !canAdd()) or 
       (t_opt->isMul()        and !canMul()) or 
       (t_opt->isPhi()        and !canPhi()) or 
@@ -198,7 +204,9 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isMAC()        and !canMAC()) or 
       (t_opt->isLogic()      and !canLogic()) or 
       (t_opt->isBranch()     and !canBr()) or 
-      (t_opt->isCmp()        and !canCmp()) ){ 
+      (t_opt->isCmp()        and !canCmp()) or
+      (t_opt->isDiv()        and !canDiv())
+      ) { 
     return false;
   }
   return true;
@@ -413,11 +421,32 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableLoad();
   } else if (t_func.compare("return") == 0) {
     enableReturn();
-  } else if (t_func.compare("call") == 0) {
-    enableCall();
-  } else if (t_func.compare("complex") == 0) {
-    enableComplex();
-  } else {
+  } else if (t_func.find("call") != string::npos) {
+    string type;
+    const int kLengthOfCall = 4;
+    if (t_func.length() == kLengthOfCall) {
+      // The case corresponds to "call" : [...], i.e., no specific function name.
+      type = "none";
+    } else {
+      // The case corresponds to "call-..." : [...], and the specific function name is provided.
+      type = t_func.substr(t_func.find("call") + kLengthOfCall + 1);
+    }
+    enableCall(type);
+  } else if (t_func.find("complex") != string::npos) {
+    string type;
+    const int kLengthOfComplex = 7;
+    if (t_func.length() == kLengthOfComplex) {
+      // The case corresponds to "complex" : [...], i.e., no specific pattern name.
+      type = "none";
+    } else {
+      // The case corresponds to "complex-..." : [...], and the specific pattern name is provided.
+      type = t_func.substr(t_func.find("complex") + kLengthOfComplex + 1);
+    }
+    enableComplex(type);
+  } else if (t_func.compare("div") == 0) {
+    enableDiv();
+  } 
+  else {
     return false;
   }
   return true;
@@ -435,12 +464,13 @@ void CGRANode::enableLoad() {
   m_canLoad = true;
 }
 
-void CGRANode::enableCall() {
-  m_canCall = true;
+void CGRANode::enableCall(string t_func) {
+  m_canCall.push_back(t_func);
 }
 
-void CGRANode::enableComplex() {
-  m_supportComplex = true;
+void CGRANode::enableComplex(string type) {
+  if (type == "") m_supportComplex = true;
+  else m_supportComplexType.push_back(type);
 }
 
 void CGRANode::enableVectorization() {
@@ -483,17 +513,29 @@ void CGRANode::enableBr() {
   m_canBr = true;
 }
 
+void CGRANode::enableDiv() {
+  m_canDiv = true;
+}
 
-bool CGRANode::supportComplex() {
-  return m_supportComplex;
+bool CGRANode::supportComplex(string type) {
+  if (type == "") return m_supportComplex;
+  for (string t: m_supportComplexType) {
+    if (t.compare(type) == 0) return true;
+  }
+  return false;
 }
 
 bool CGRANode::supportVectorization() {
   return m_supportVectorization;
 }
 
-bool CGRANode::canCall() {
-  return m_canCall;
+bool CGRANode::canCall(string t_func) {
+  for (string func: m_canCall) {
+    if (func.compare(t_func) == 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool CGRANode::canReturn() {
@@ -544,6 +586,10 @@ bool CGRANode::canBr() {
   return m_canBr;
 }
 
+bool CGRANode::canDiv() {
+  return m_canDiv;
+}
+
 int CGRANode::getX() {
   return m_x;
 }
@@ -566,7 +612,8 @@ void CGRANode::disableAllFUs() {
   m_canReturn = false;
   m_canStore = false;
   m_canLoad = false;
-  m_canCall = false;
+  m_canCall = vector<string>();
+  m_supportComplexType = vector<string>();
   m_canAdd = false;
   m_canMul = false;
   m_canShift = false;

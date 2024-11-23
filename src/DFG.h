@@ -37,6 +37,7 @@ class DFG {
     bool m_precisionAware;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
+    int m_vectorFactorForIdiv;
 
     //edges of data flow
     list<DFGEdge*> m_DFGEdges;
@@ -52,6 +53,7 @@ class DFG {
     DFGEdge* getDFGEdge(DFGNode*, DFGNode*);
     void deleteDFGEdge(DFGNode*, DFGNode*);
     void replaceDFGEdge(DFGNode*, DFGNode*, DFGNode*, DFGNode*);
+    void replaceMultipleDFGEdge(DFGNode*, DFGNode*, DFGNode**, DFGNode**);
     bool hasDFGEdge(DFGNode*, DFGNode*);
     DFGEdge* getCtrlEdge(DFGNode*, DFGNode*);
     bool hasCtrlEdge(DFGNode*, DFGNode*);
@@ -60,13 +62,17 @@ class DFG {
     void tuneForBitcast();
     void tuneForLoad();
     void tuneForPattern();
+    void tuneDivPattern();
     void combineCmpBranch();
-    void combineMulAdd();
-    void combinePhiAdd();
-    void combine(string, string);
+    void combineMulAdd(string type="");
+    // void combineAddMul(string type="");
+    void combineAddAdd(string type="");
+    void combinePhiAdd(string type="");
+    // void combine(string, string);
+    void combine(string, string, string type="");
     void combineForIter(list<string>*);
     // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-    void combineForUnroll(list<string>*); 
+    void combineForUnroll(list<string>*, string type=""); 
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
@@ -86,9 +92,11 @@ class DFG {
     void initExecLatency(map<string, int>*);
     void initPipelinedOpt(list<string>*);
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
+    // target nonlinear ops
+    void nonlinear_combine();
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*);
+    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*, int t_vectorFactorForIdiv=4);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
@@ -101,8 +109,6 @@ class DFG {
     list<list<DFGEdge*>*>* calculateCycles();
     list<list<DFGNode*>*>* getCycleLists();
     int getID(DFGNode*);
-    bool isLoad(DFGNode*);
-    bool isStore(DFGNode*);
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
     void generateJSON();

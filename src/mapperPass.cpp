@@ -19,6 +19,8 @@
 #include "json.hpp"
 #include "Mapper.h"
 
+extern int opcode_offset;
+
 using namespace llvm;
 using namespace std;
 using json = nlohmann::json;
@@ -60,6 +62,7 @@ namespace {
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
       bool incrementalMapping       = false;
+      int vectorFactorForIdiv               = 1;
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -99,7 +102,7 @@ namespace {
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
-        paramKeys.insert("incrementalMapping");
+  paramKeys.insert("incrementalMapping");
 
 	try
         {
@@ -112,7 +115,7 @@ namespace {
         catch (json::out_of_range& e)
         {
           cout<<"Please include related parameter in param.json: "<<e.what()<<endl;
-	  exit(0);
+	        exit(0);
         }
 
         (*functionWithLoop)[param["kernel"]] = new list<int>();
@@ -139,6 +142,10 @@ namespace {
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
         incrementalMapping    = param["incrementalMapping"];
+        if (param.find("vectorFactorForIdiv ") != param.end())
+          vectorFactorForIdiv           = param["vectorFactorForIdiv "];
+        if (param.find("opcodeOffset") != param.end())
+          opcode_offset = param["opcodeOffset"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -172,7 +179,7 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt);
+                         heterogeneity, execLatency, pipelinedOpt, vectorFactorForIdiv );
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc);
       cgra->setRegConstraint(regConstraint);
@@ -255,11 +262,11 @@ namespace {
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
-	cout << "[Output Json]\n";
+	      cout << "[Output Json]\n";
 
 	// save mapping results json file for possible incremental mapping
         if(!incrementalMapping) {
-	  mapper->generateJSON4IncrementalMap(cgra, dfg);
+	        mapper->generateJSON4IncrementalMap(cgra, dfg);
           cout << "[Output Json for Incremental Mapping]\n";
         }
       }
@@ -333,6 +340,8 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["kernel_gemm"]->push_back(0);
   (*t_functionWithLoop)["kernel"] = new list<int>();
   (*t_functionWithLoop)["kernel"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
@@ -382,6 +391,23 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   // nested
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
+
+  (*t_functionWithLoop)["_Z6kernelPiS_i"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_i"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_f"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_f"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_ff"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_ff"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_ii"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_ii"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_if"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_if"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"]->push_back(0);
 }
 
 

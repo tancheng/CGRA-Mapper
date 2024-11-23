@@ -54,7 +54,6 @@ class CGRANode {
     bool m_canReturn;
     bool m_canStore;
     bool m_canLoad;
-    bool m_canCall;
     bool m_canAdd;
     bool m_canMul;
     bool m_canShift;
@@ -64,11 +63,14 @@ class CGRANode {
     bool m_canMAC;
     bool m_canLogic;
     bool m_canBr;
+    bool m_canDiv;
     bool m_supportComplex;
     bool m_supportVectorization;
     int** m_regs_duration;
     int** m_regs_timing;
     vector<list<pair<DFGNode*, int>>*> m_dfgNodesWithOccupyStatus;
+    vector<string> m_canCall;
+    vector<string> m_supportComplexType;
 
   public:
     CGRANode(int, int, int);
@@ -82,8 +84,8 @@ class CGRANode {
     void enableReturn();
     void enableStore();
     void enableLoad();
-    void enableCall();
-    void enableComplex();
+    void enableCall(string t_func="");
+    void enableComplex(string t_func="");
     void enableVectorization();
     void enableAdd();
     void enableMul();
@@ -94,6 +96,7 @@ class CGRANode {
     void enableMAC();
     void enableLogic();
     void enableBr();
+    void enableDiv();
 
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
@@ -121,8 +124,8 @@ class CGRANode {
     bool canReturn();
     bool canStore();
     bool canLoad();
-    bool canCall();
-    bool supportComplex();
+    bool canCall(string t_func="");
+    bool supportComplex(string type="");
     bool supportVectorization();
     bool canAdd();
     bool canMul();
@@ -133,6 +136,7 @@ class CGRANode {
     bool canMAC();
     bool canLogic();
     bool canBr();
+    bool canDiv();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);
