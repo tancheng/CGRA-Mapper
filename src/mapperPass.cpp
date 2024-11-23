@@ -19,6 +19,8 @@
 #include "json.hpp"
 #include "Mapper.h"
 
+extern int opcode_offset;
+
 using namespace llvm;
 using namespace std;
 using json = nlohmann::json;
@@ -142,6 +144,8 @@ namespace {
         incrementalMapping    = param["incrementalMapping"];
         if (param.find("vectorFactorForIdiv ") != param.end())
           vectorFactorForIdiv           = param["vectorFactorForIdiv "];
+        if (param.find("opcodeOffset") != param.end())
+          opcode_offset = param["opcodeOffset"];
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;

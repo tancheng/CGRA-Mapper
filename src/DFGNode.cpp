@@ -11,6 +11,9 @@
 #include "DFGNode.h"
 #include "llvm/Demangle/Demangle.h"
 
+int opcode_offset = 0;
+string getOpcodeNameHelper(Instruction* inst);
+
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
                  StringRef t_stringRef) {
   m_id = t_id;
@@ -19,7 +22,11 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_stringRef = t_stringRef;
   m_predNodes = NULL;
   m_succNodes = NULL;
-  m_opcodeName = t_inst->getOpcodeName();
+  if (opcode_offset == 0) {
+    m_opcodeName = t_inst->getOpcodeName();
+  } else {
+    m_opcodeName = getOpcodeNameHelper(t_inst);
+  }
   m_isMapped = false;
   m_numConst = 0;
   m_optType = "";
@@ -647,4 +654,41 @@ void DFGNode::removeConst() {
 
 int DFGNode::getNumConst() {
   return m_numConst;
+}
+
+string getOpcodeNameHelper(Instruction* inst) {
+
+  unsigned opcode = inst->getOpcode();
+  opcode -= opcode_offset;
+  if (opcode == Instruction::Mul) return "mul";
+  if (opcode == Instruction::FMul) return "fmul";
+  if (opcode == Instruction::Add) return "add";
+  if (opcode == Instruction::FAdd) return "fadd";
+  if (opcode == Instruction::Sub) return "sub";
+  if (opcode == Instruction::FSub) return "fsub";
+  if (opcode == Instruction::Xor) return "xor";
+  if (opcode == Instruction::Or) return "or";
+  if (opcode == Instruction::And) return "and";
+  if (opcode == Instruction::SDiv) return "sdiv";
+  if (opcode == Instruction::UDiv) return "udiv";
+  if (opcode == Instruction::SRem) return "srem";
+  if (opcode == Instruction::URem) return "urem";
+  if (opcode == Instruction::Trunc) return "trunc";
+  if (opcode == Instruction::ZExt) return "zext";
+  if (opcode == Instruction::SExt) return "sext";
+  if (opcode == Instruction::LShr) return "lshr";
+  if (opcode == Instruction::AShr) return "ashr";
+  if (opcode == Instruction::Load) return "load"; 
+  if (opcode == Instruction::Store) return "store";
+  if (opcode == Instruction::Br) return "br";
+  if (opcode == Instruction::PHI) return "phi";
+  if (opcode == Instruction::ICmp) return "icmp";
+  if (opcode == Instruction::FCmp) return "fcmp";
+  if (opcode == Instruction::BitCast) return "bitcast";
+  if (opcode == Instruction::GetElementPtr) return "getelementptr";
+  if (opcode == Instruction::Select) return "select";
+  if (opcode == Instruction::ExtractElement) return "extractelement";
+  if (opcode == Instruction::Call) return "call";
+  
+  return "unknown";
 }
