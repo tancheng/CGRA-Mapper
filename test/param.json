@@ -17,6 +17,7 @@
   "ctrlMemConstraint"     : 10,
   "regConstraint"         : 8,
   "supportDVFS"           : false,
+  "opcodeOffset"          : 2,  
   "optLatency"            : {
                               "load" : 2,
                               "store": 2

@@ -25,6 +25,8 @@ class CGRA {
     bool m_supportDVFS;
     int m_DVFSIslandDim;
     map<int, vector<CGRANode*>> m_DVFSIslands;
+    list<string>* m_supportComplex;
+    list<string>* m_supportCall;
     void disableSpecificConnections();
 
   public:
@@ -45,4 +47,7 @@ class CGRA {
     // Aligns all the CGRA nodes within the same DVFS island to the
     // same DVFS level based on the DVFS level of the given CGRA node.
     void syncDVFSIsland(CGRANode*);
+    list<string>* getSupportComplex();
+    list<string>* getSupportCall();
 };
+

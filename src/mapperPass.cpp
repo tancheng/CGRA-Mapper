@@ -19,6 +19,10 @@
 #include "json.hpp"
 #include "Mapper.h"
 
+// Used to walkaround the mis-interpret of LLVM opcode in github
+// testing infra: https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2495202802
+extern int testing_opcode_offset;
+
 using namespace llvm;
 using namespace std;
 using json = nlohmann::json;
@@ -59,11 +63,21 @@ namespace {
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
+
+      // Incremental mapping related:
+      // https://github.com/tancheng/CGRA-Mapper/pull/24
       bool incrementalMapping       = false;
+
+      // DVFS-related options.
       bool supportDVFS              = false;
       bool DVFSAwareMapping         = false;
       int DVFSIslandDim             = 2;
       bool enablePowerGating        = false;
+
+      // Option used to split one integer division into 4.
+      // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
+      int vectorFactorForIdiv               = 1;
+
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -103,11 +117,6 @@ namespace {
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
-        paramKeys.insert("incrementalMapping");
-	paramKeys.insert("supportDVFS");
-	paramKeys.insert("DVFSAwareMapping");
-	paramKeys.insert("DVFSIslandDim");
-	paramKeys.insert("enablePowerGating");
 
 	try
         {
@@ -120,7 +129,7 @@ namespace {
         catch (json::out_of_range& e)
         {
           cout<<"Please include related parameter in param.json: "<<e.what()<<endl;
-	  exit(0);
+	        exit(0);
         }
 
         (*functionWithLoop)[param["kernel"]] = new list<int>();
@@ -146,11 +155,28 @@ namespace {
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
-        incrementalMapping    = param["incrementalMapping"];
-        supportDVFS           = param["supportDVFS"];
-        DVFSAwareMapping      = param["DVFSAwareMapping"];
-        DVFSIslandDim         = param["DVFSIslandDim"];
-        enablePowerGating     = param["enablePowerGating"];
+
+        if (param.find("incrementalMapping") != param.end()) {
+          incrementalMapping = param["incrementalMapping"];
+	}
+        if (param.find("supportDVFS") != param.end()) {
+          supportDVFS = param["supportDVFS"];
+	}
+        if (param.find("DVFSAwareMapping") != param.end()) {
+          DVFSAwareMapping = param["DVFSAwareMapping"];
+	}
+        if (param.find("DVFSIslandDim") != param.end()) {
+          DVFSIslandDim = param["DVFSIslandDim"];
+	}
+        if (param.find("enablePowerGating") != param.end()) {
+          enablePowerGating = param["enablePowerGating"];
+	}
+        if (param.find("vectorFactorForIdiv ") != param.end()) {
+          vectorFactorForIdiv = param["vectorFactorForIdiv "];
+        }
+        if (param.find("testingOpcodeOffset") != param.end()) {
+          testing_opcode_offset = param["testingOpcodeOffset"];
+	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -185,7 +211,7 @@ namespace {
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          heterogeneity, execLatency, pipelinedOpt, supportDVFS,
-			 DVFSAwareMapping);
+			 DVFSAwareMapping, vectorFactorForIdiv);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
 			    DVFSIslandDim);
@@ -275,11 +301,11 @@ namespace {
         mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
-	cout << "[Output Json]\n";
+	      cout << "[Output Json]\n";
 
 	// save mapping results json file for possible incremental mapping
         if(!incrementalMapping) {
-	  mapper->generateJSON4IncrementalMap(cgra, dfg);
+	        mapper->generateJSON4IncrementalMap(cgra, dfg);
           cout << "[Output Json for Incremental Mapping]\n";
         }
       }
@@ -357,6 +383,8 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["_Z6kerneli"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfPi"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfPi"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kerneliPPiS_S_S_"] = new list<int>();
@@ -406,6 +434,23 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   // nested
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();
   // (*t_functionWithLoop)["_Z6kernelPfS_S_"]->push_back(0);
+
+  (*t_functionWithLoop)["_Z6kernelPiS_i"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_i"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_f"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_f"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_ff"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_ff"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_ii"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_ii"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfS_if"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfS_if"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPiS_S_"]->push_back(0);
 }
 
 

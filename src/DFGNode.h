@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include "DFGEdge.h"
+#define MAXIMUM_COMBINED_TYPE 100
 
 using namespace llvm;
 using namespace std;
@@ -49,6 +50,8 @@ class DFGNode {
     string m_optType;
     string m_fuType;
     bool m_combined;
+    // Used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+    string m_combinedtype;
     bool m_isPatternRoot;
     bool m_critical;
     int m_level;
@@ -67,6 +70,7 @@ class DFGNode {
 
   public:
     DFGNode(int, bool, Instruction*, StringRef, bool);
+    DFGNode(int, DFGNode* old_node);
     int getID();
     void setID(int);
     void setLevel(int);
@@ -77,11 +81,13 @@ class DFGNode {
     bool isLoad();
     bool isStore();
     bool isReturn();
-    bool isCall();
+    string isCall();
     bool isBranch();
     bool isPhi();
     bool isAdd();
     bool isScalarAdd();
+    // Detect integer addition.
+    bool isIadd();
     bool isMul();
     bool isCmp();
     bool isBitcast();
@@ -91,14 +97,19 @@ class DFGNode {
     bool isLogic();
     bool isOpt(string);
     bool isVectorized();
+    // Detect division.
+    bool isDiv();
+    string getComplexType();
     bool hasCombined();
-    void setCombine();
+    void setCombine(string type="");
     void addPatternPartner(DFGNode*);
     Instruction* getInst();
     StringRef getStringRef();
     string getOpcodeName();
     list<DFGNode*>* getPredNodes();
     list<DFGNode*>* getSuccNodes();
+    void deleteSuccNode(DFGNode*);
+    void deletePredNode(DFGNode*);
     bool isSuccessorOf(DFGNode*);
     bool isPredecessorOf(DFGNode*);
     bool isOneOfThem(list<DFGNode*>*);

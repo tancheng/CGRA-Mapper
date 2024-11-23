@@ -1759,6 +1759,7 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
   jsonFile<<"     }"<<endl;
 
   jsonFile<<"}"<<endl;
+  jsonFile.close();
 }
 
 // Reads from the referenced mapping results json file and generates variables for incremental mapping.

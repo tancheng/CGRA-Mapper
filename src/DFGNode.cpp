@@ -9,6 +9,10 @@
  */
 
 #include "DFGNode.h"
+#include "llvm/Demangle/Demangle.h"
+
+int testing_opcode_offset = 0;
+string getOpcodeNameHelper(Instruction* inst);
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
                  StringRef t_stringRef, bool t_supportDVFS) {
@@ -18,11 +22,16 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_stringRef = t_stringRef;
   m_predNodes = NULL;
   m_succNodes = NULL;
-  m_opcodeName = t_inst->getOpcodeName();
+  if (testing_opcode_offset == 0) {
+    m_opcodeName = t_inst->getOpcodeName();
+  } else {
+    m_opcodeName = getOpcodeNameHelper(t_inst);
+  }
   m_isMapped = false;
   m_numConst = 0;
   m_optType = "";
   m_combined = false;
+  m_combinedtype = "";
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
@@ -41,6 +50,34 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   // if (!isPhi() and !isCmp() and !isScalarAdd() and !isBranch()) {
   //   m_DVFSLatencyMultiple = 2;
   // }
+}
+
+// used for the case of tuning division patterns
+DFGNode::DFGNode(int t_id, DFGNode* old_node) {
+  m_id = t_id;
+  m_precisionAware = old_node->m_precisionAware;
+  m_inst = old_node->m_inst;
+  m_stringRef = old_node->m_stringRef;
+  m_predNodes = old_node->m_predNodes;
+  m_succNodes = old_node->m_succNodes;
+  m_opcodeName = old_node->m_opcodeName;
+  m_isMapped = old_node->m_isMapped;
+  m_numConst = old_node->m_numConst;
+  m_optType = old_node->m_optType;
+  m_combined = old_node->m_combined;
+  m_combinedtype = old_node->m_combinedtype;
+  m_isPatternRoot = old_node->m_isPatternRoot;
+  m_patternRoot = old_node->m_patternRoot;
+  m_critical = old_node->m_critical;
+  m_cycleID = old_node->m_cycleID;
+  m_level = old_node->m_level;
+  m_execLatency = old_node->m_execLatency;
+  m_pipelinable = old_node->m_pipelinable;
+  m_isPredicatee = old_node->m_isPredicatee;
+  m_predicatees = old_node->m_predicatees;
+  m_isPredicater = old_node->m_isPredicater;
+  m_patternNodes = old_node->m_patternNodes;
+  m_fuType = old_node->m_fuType;
 }
 
 int DFGNode::getID() {
@@ -132,23 +169,17 @@ StringRef DFGNode::getStringRef() {
   return m_stringRef;
 }
 
-bool DFGNode::isCall() {
-  if (m_opcodeName.compare("call") == 0 && !isVectorized())
-    return true;
-  return false;
+string DFGNode::isCall() {
+  string op = getOpcodeName();
+  if (m_opcodeName.compare("call") != 0 || isVectorized() )
+    return "None";
+  return op;
 }
 
 bool DFGNode::isVectorized() {
   // TODO: need a more robust way to recognize vectorized instructions.
-  list<string> vectorPatterns = {"<2 x ", "<4 x ", "<8 x ", "<16 x ", "<32 x "};
-  string instStr;
-  raw_string_ostream(instStr) << *m_inst;
-  for (const string & pattern : vectorPatterns) {
-    if (instStr.find(pattern) != string::npos) {
-      return true;
-    }
-  }
-  return false;
+  Value* psVal = cast<Value>(m_inst);
+  return psVal->getType()->isVectorTy();
 }
 
 bool DFGNode::isLoad() {
@@ -199,8 +230,19 @@ bool DFGNode::isAdd() {
       m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("fadd") == 0 or
       m_opcodeName.compare("sub") == 0  or
-      m_opcodeName.compare("fsub") == 0)
+      m_opcodeName.compare("fsub") == 0) {
     return true;
+  }
+  return false;
+}
+
+// Only detect integer addition.
+bool DFGNode::isIadd() {
+  if (m_opcodeName.compare("getelementptr") == 0 or
+      m_opcodeName.compare("add") == 0  or
+      m_opcodeName.compare("sub") == 0) {
+    return true;
+  }
   return false;
 }
 
@@ -257,12 +299,29 @@ bool DFGNode::isLogic() {
   return false;
 }
 
+// Divison can also be a special operation.
+bool DFGNode::isDiv() {
+  if (m_opcodeName.compare("fdiv") == 0 or m_opcodeName.compare("div") == 0)
+    return true;
+  return false;
+}
+
+// used for specialized fusion (e.g. alu+mul and icmp+br can be regared as two kinds of complex nodes, so there are different tiles to support them)
+// type indicates the name of the combined node, which is specified by users. (e.g. ALU-MUL for alu+mul, CMP-BR for icmp+br)
+// type = "" means the node is combined a special type, which is used for general fusion and compatibility with previous codes.
+// general fusion: All complex nodes are in the same kind.
 bool DFGNode::hasCombined() {
   return m_combined;
 }
 
-void DFGNode::setCombine() {
+string DFGNode::getComplexType() {
+  if (m_combined) return m_combinedtype;
+  return "None";
+}
+
+void DFGNode::setCombine(string type) {
   m_combined = true;
+  m_combinedtype = type;
 }
 
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
@@ -309,18 +368,28 @@ string DFGNode::getOpcodeName() {
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
       if (func) {
         string newName = func->getName().str();
-	string removingPattern = "llvm.vector.";
-	int pos = newName.find(removingPattern);
-	if (pos == -1)
-	  pos = newName.find("llvm.");
-	newName.erase(pos, removingPattern.length());
+        string removingPattern = "llvm.vector.";
+        int pos = newName.find(removingPattern);
+        if (pos == -1)
+        pos = newName.find("llvm.");
+	      newName.erase(pos, removingPattern.length());
         string delimiter = ".v";
         newName = newName.substr(0, newName.find(delimiter));
-	replace(newName.begin(), newName.end(), '.', '_');
-	return newName;
+	      replace(newName.begin(), newName.end(), '.', '_');
+        return newName;
       }
       else
         return "indirect call";
+    }
+    // for the special operations
+    else if (m_opcodeName.compare("call") == 0) {
+      Function *func = ((CallInst*)m_inst)->getCalledFunction();
+      if (func) {
+        string newName = func->getName().str();
+        newName = demangle(newName);
+        return newName.substr(0, newName.find("("));
+      }
+      else return "indirect call";
     }
   }
 
@@ -493,15 +562,28 @@ void DFGNode::initType() {
   } else if (m_opcodeName.compare("ashr") == 0) {
     m_optType = "OPT_ASR";
     m_fuType = "Shift";
-  } else {
+  } // TODO: cooperate with RTL
+  else if (getOpcodeName() == "lut") {
+    m_optType = "OPT_LUT";
+    m_fuType = "LUT";
+  } else if (m_opcodeName.compare("fpQuantize") == 0) {
+    m_optType = "OPT_Quantize";
+    m_fuType = "Quantize";
+  } else if (m_opcodeName.compare("intQuantize") == 0) {
+    m_optType = "OPT_Quantize";
+    m_fuType = "Quantize";
+  } 
+  else {
     m_optType = "Unfamiliar: " + m_opcodeName;
     m_fuType = "Unknown";
   }
 }
 
 list<DFGNode*>* DFGNode::getPredNodes() {
-  if (m_predNodes != NULL)
+  if (m_predNodes != NULL) {
     return m_predNodes;
+  }
+    
 
   m_predNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_inEdges) {
@@ -528,8 +610,15 @@ list<DFGNode*>* DFGNode::getPredNodes() {
 }
 
 list<DFGNode*>* DFGNode::getSuccNodes() {
-  if (m_succNodes != NULL)
+  if (m_succNodes != NULL) {
+  //   cout << "succ: ";
+  // for (DFGNode* predNode: *m_succNodes) {
+  //   cout << predNode->getID() << " ";
+  // }
+  // cout << endl;
     return m_succNodes;
+  }
+    
 
   m_succNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_outEdges) {
@@ -537,6 +626,14 @@ list<DFGNode*>* DFGNode::getSuccNodes() {
     m_succNodes->push_back(edge->getDst());
   }
   return m_succNodes;
+}
+
+void DFGNode::deleteSuccNode(DFGNode* node) {
+  getSuccNodes()->remove(node);
+}
+
+void DFGNode::deletePredNode(DFGNode* node) {
+  getPredNodes()->remove(node);
 }
 
 void DFGNode::setInEdge(DFGEdge* t_dfgEdge) {
@@ -593,4 +690,41 @@ void DFGNode::removeConst() {
 
 int DFGNode::getNumConst() {
   return m_numConst;
+}
+
+string getOpcodeNameHelper(Instruction* inst) {
+
+  unsigned opcode = inst->getOpcode();
+  opcode -= testing_opcode_offset;
+  if (opcode == Instruction::Mul) return "mul";
+  if (opcode == Instruction::FMul) return "fmul";
+  if (opcode == Instruction::Add) return "add";
+  if (opcode == Instruction::FAdd) return "fadd";
+  if (opcode == Instruction::Sub) return "sub";
+  if (opcode == Instruction::FSub) return "fsub";
+  if (opcode == Instruction::Xor) return "xor";
+  if (opcode == Instruction::Or) return "or";
+  if (opcode == Instruction::And) return "and";
+  if (opcode == Instruction::SDiv) return "sdiv";
+  if (opcode == Instruction::UDiv) return "udiv";
+  if (opcode == Instruction::SRem) return "srem";
+  if (opcode == Instruction::URem) return "urem";
+  if (opcode == Instruction::Trunc) return "trunc";
+  if (opcode == Instruction::ZExt) return "zext";
+  if (opcode == Instruction::SExt) return "sext";
+  if (opcode == Instruction::LShr) return "lshr";
+  if (opcode == Instruction::AShr) return "ashr";
+  if (opcode == Instruction::Load) return "load"; 
+  if (opcode == Instruction::Store) return "store";
+  if (opcode == Instruction::Br) return "br";
+  if (opcode == Instruction::PHI) return "phi";
+  if (opcode == Instruction::ICmp) return "icmp";
+  if (opcode == Instruction::FCmp) return "fcmp";
+  if (opcode == Instruction::BitCast) return "bitcast";
+  if (opcode == Instruction::GetElementPtr) return "getelementptr";
+  if (opcode == Instruction::Select) return "select";
+  if (opcode == Instruction::ExtractElement) return "extractelement";
+  if (opcode == Instruction::Call) return "call";
+  
+  return "unknown";
 }
