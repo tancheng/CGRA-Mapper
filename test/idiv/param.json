@@ -18,7 +18,7 @@
     "regConstraint"         : 8,
     "incrementalMapping"    : false,
     "vectorFactorForIdiv "  : 4, 
-    "opcodeOffset"          : 2,  
+    "testingOpcodeOffset"   : 2,  
     "optLatency"            : {
                                 "load" : 2,
                                 "store": 2,
