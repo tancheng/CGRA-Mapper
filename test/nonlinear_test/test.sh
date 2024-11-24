@@ -8,3 +8,4 @@ else
     echo "Nonlinear Test Fail! icmpbr, phigetelementptr, fp2fx, faddmuladd should be 1, but got $icmpbr, $phigetelementptr, $fp2fx, $faddmuladd."
     exit 1
 fi
+
