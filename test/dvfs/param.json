@@ -5,7 +5,7 @@
     "targetLoopsID": [
         0
     ],
-    "doCGRAMapping": false,
+    "doCGRAMapping": true,
     "row": 6,
     "column": 6,
     "precisionAware": false,
@@ -19,8 +19,8 @@
     "ctrlMemConstraint": 100,
     "regConstraint": 20,
     "incrementalMapping": false,
-    "supportDVFS": false,
-    "DVFSIslandDim": 1,
-    "DVFSAwareMapping": false,
-    "enablePowerGating": false
+    "supportDVFS": true,
+    "DVFSIslandDim": 2,
+    "DVFSAwareMapping": true,
+    "enablePowerGating": true
 }
