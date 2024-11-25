@@ -53,6 +53,17 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canLogic  = true;
   m_canBr     = true;
   m_canReturn = true;
+
+  // supportDVFS should be leveraged with the optLatency (i.e., multi-
+  // cycle execution) to mimic the operations running on the low
+  // frequency.
+  m_supportDVFS = false;
+
+  // Indicates whether this CGRA node has already been mapped
+  // with at least one operation.
+  m_mapped = false;
+  m_DVFSLatencyMultiple = 1;
+  m_synced = false;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -122,6 +133,45 @@ void CGRANode::setID(int t_id) {
 void CGRANode::setLocation(int t_x, int t_y) {
   m_x = t_x;
   m_y = t_y;
+}
+
+void CGRANode::enableDVFS() {
+  m_supportDVFS = true;
+}
+
+bool CGRANode::isDVFSEnabled() {
+  return m_supportDVFS;
+}
+
+void CGRANode::setDVFSIsland(int t_x, int t_y, int t_id) {
+  m_DVFSIslandX = t_x;
+  m_DVFSIslandY = t_y;
+  m_DVFSIslandId = t_id;
+}
+
+int CGRANode::getDVFSIslandX() {
+  return m_DVFSIslandX;
+}
+
+int CGRANode::getDVFSIslandY() {
+  return m_DVFSIslandY;
+}
+
+int CGRANode::getDVFSIslandID() {
+  return m_DVFSIslandId;
+}
+
+void CGRANode::setDVFSLatencyMultiple(int t_DVFSLatencyMultiple) {
+  assert(t_DVFSLatencyMultiple == 1 || t_DVFSLatencyMultiple == 2 || t_DVFSLatencyMultiple == 4);
+  m_DVFSLatencyMultiple = t_DVFSLatencyMultiple;
+}
+
+bool CGRANode::isFrequencyLowered() {
+  return (m_DVFSLatencyMultiple != 1);
+}
+
+int CGRANode::getDVFSLatencyMultiple() {
+  return m_DVFSLatencyMultiple;
 }
 
 int CGRANode::getID() {
@@ -226,8 +276,21 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
     return false;
   }
 
+  // Handles DVFS-based execution.
+  if (isDVFSEnabled()) {
+    if (t_opt->getDVFSLatencyMultiple() < getDVFSLatencyMultiple()) {
+      // Cannot occupy if the operation required DVFS frequency is higher
+      // than the available one in tile. Note that DVFSLatencyMultile as 1
+      // indicates the highest frequency.
+      return false;
+    }
+    if (getDVFSLatencyMultiple() > 1 and t_cycle%t_II%getDVFSLatencyMultiple() != 0) {
+      return false;
+    }
+  }
+
   // Handle multi-cycle execution and pipelinable operations.
-  if (not t_opt->isMultiCycleExec()) {
+  if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
     // Single-cycle opt:
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
@@ -241,8 +304,16 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
       // Check start cycle.
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+	// Cannot occupy/overlap by/with other operation if DVFS is enabled.
+	if (isDVFSEnabled() and
+	    (p.second == SINGLE_OCCUPY or
+	     p.second == START_PIPE_OCCUPY or
+	     p.second == IN_PIPE_OCCUPY or
+	     p.second == END_PIPE_OCCUPY)) {
+	  return false;
+	}
         // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
-        if (p.second == SINGLE_OCCUPY) {
+	else if (p.second == SINGLE_OCCUPY) {
           return false;
         } 
         // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
@@ -256,11 +327,11 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
           return false;
         }
       }
-      if (cycle+t_opt->getExecLatency()-1 >= m_cycleBoundary) {
+      if (cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1 >= m_cycleBoundary) {
         break;
       }
       // Check end cycle.
-      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency()-1])) {
+      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1])) {
         // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
         if (p.second == SINGLE_OCCUPY) {
           return false;
@@ -285,13 +356,59 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
 bool CGRANode::isOccupied(int t_cycle, int t_II) {
   for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
     for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
-      // if (m_fuOccupied[cycle])
-      if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY) {
+      // If DVFS is supported, the entire tile is occupied before the current multi-cycle operation
+      // completes. Otherwise, the next operation can start before the current one completes.
+      if (p.second == START_PIPE_OCCUPY or p.second == SINGLE_OCCUPY or m_supportDVFS) {
         return true;
       }
     }
   }
   return false;
+}
+
+bool CGRANode::isStartOrInPipe(int t_cycle, int t_II) {
+  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+    for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+      if (p.second == START_PIPE_OCCUPY or p.second == IN_PIPE_OCCUPY) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool CGRANode::isInOrEndPipe(int t_cycle, int t_II) {
+  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+    for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+      if (p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool CGRANode::isEndPipe(int t_cycle, int t_II) {
+  for (int cycle=t_cycle; cycle<m_cycleBoundary; cycle+=t_II) {
+    for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+      if (p.second == END_PIPE_OCCUPY) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool CGRANode::isSynced() {
+  return m_synced;
+}
+
+void CGRANode::syncDVFS() {
+  m_synced = true;
+}
+
+bool CGRANode::isMapped() {
+  return m_mapped;
 }
 
 void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
@@ -300,17 +417,23 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
   if (t_isStaticElasticCGRA) {
     interval = 1;
   }
+  m_mapped = true;
+  if (isDVFSEnabled()) {
+    if (not m_synced) {
+      setDVFSLatencyMultiple(t_opt->getDVFSLatencyMultiple());
+    }
+  }
   for (int cycle=t_cycle%interval; cycle<m_cycleBoundary; cycle+=interval) {
-    if (not t_opt->isMultiCycleExec()) {
+    if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, SINGLE_OCCUPY));
     } else {
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, START_PIPE_OCCUPY));
-      for (int i=1; i<t_opt->getExecLatency()-1; ++i) {
+      for (int i=1; i<t_opt->getExecLatency(getDVFSLatencyMultiple())-1; ++i) {
         if (cycle+i < m_cycleBoundary) {
           m_dfgNodesWithOccupyStatus[cycle+i]->push_back(make_pair(t_opt, IN_PIPE_OCCUPY));
         }
       }
-      int lastCycle = cycle+t_opt->getExecLatency()-1;
+      int lastCycle = cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1;
       if (lastCycle < m_cycleBoundary) {
         m_dfgNodesWithOccupyStatus[lastCycle]->push_back(make_pair(t_opt, END_PIPE_OCCUPY));
       }

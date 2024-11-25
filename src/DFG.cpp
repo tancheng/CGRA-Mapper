@@ -13,7 +13,9 @@
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
-         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt, int t_vectorFactorForIdiv) {
+         map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
+	 bool t_supportDVFS, bool t_DVFSAwareMapping,
+	 int t_vectorFactorForIdiv) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -21,6 +23,8 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_CDFGFused = false;
   m_cycleNodeLists = new list<list<DFGNode*>*>();
   m_precisionAware = t_precisionAware;
+  m_supportDVFS = t_supportDVFS;
+  m_DVFSAwareMapping = t_DVFSAwareMapping;
   m_vectorFactorForIdiv = t_vectorFactorForIdiv;
 
   construct(t_F);
@@ -36,6 +40,130 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
 
+  // Pre-assigns the DVFS levels to each DFG node.
+  // This needs to be done after construct function
+  // as we need assign the highest frequency to the
+  // nodes on the critical path in the DFG.
+}
+
+void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
+		                  int t_numTiles) {
+  list<list<DFGNode*>*>* cycles = getCycleLists();
+  float max_cycle_length = 1.0;
+  for (list<DFGNode*>* cycle: *cycles) {
+    if (cycle->size() > max_cycle_length) {
+      max_cycle_length = cycle->size();
+    }
+  }
+  set<DFGNode*> assigned_dvfs_nodes;
+  int high_dvfs_dfg_nodes = 0;
+  int mid_dvfs_dfg_nodes = 0;
+  int low_dvfs_dfg_nodes = 0;
+  // TODO: might need to assign DVFS level based on the
+  // number of available CGRA nodes/resources.
+  for (list<DFGNode*>* cycle: *cycles) {
+    if (cycle->size() > max_cycle_length / 2) {
+      for (auto dfg_node : *cycle) {
+        dfg_node->setDVFSLatencyMultiple(1);
+	assigned_dvfs_nodes.insert(dfg_node);
+	high_dvfs_dfg_nodes += 1;
+      }
+    } else {
+      for (auto dfg_node : *cycle) {
+	if (assigned_dvfs_nodes.count(dfg_node) == 0) {
+          dfg_node->setDVFSLatencyMultiple(2);
+	  assigned_dvfs_nodes.insert(dfg_node);
+	  mid_dvfs_dfg_nodes += 1;
+	}
+      }
+    }
+  }
+
+  int num_tiles_in_island = t_DVFSIslandDim * t_DVFSIslandDim;
+  int unused_high_dvfs_cgra_tiles_across_II =
+        t_II * num_tiles_in_island *
+	((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+        high_dvfs_dfg_nodes;
+  int unused_mid_dvfs_cgra_tiles_across_II =
+        (t_II * num_tiles_in_island *
+	 ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+         mid_dvfs_dfg_nodes * 2) / 2;
+  int unused_low_dvfs_cgra_tiles_across_II =
+        (t_II * t_numTiles -
+          (t_II * num_tiles_in_island *
+            ((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island)) -
+	  (t_II * num_tiles_in_island *
+            ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island))
+        ) / 4;
+  cout << "[debug] unused_high_dvfs_cgra_tiles_across_II: " << unused_high_dvfs_cgra_tiles_across_II << endl;
+  cout << "[debug] unused_mid_dvfs_cgra_tiles_across_II: " << unused_mid_dvfs_cgra_tiles_across_II << endl;
+  cout << "[debug] unused_low_dvfs_cgra_tiles_across_II: " << unused_low_dvfs_cgra_tiles_across_II << endl;
+
+  int unlabeled_dfg_nodes = 0;
+  for (auto node : nodes) {
+    if (assigned_dvfs_nodes.count(node) == 0) {
+      unlabeled_dfg_nodes += 1;
+    }
+  }
+  if (unlabeled_dfg_nodes > unused_low_dvfs_cgra_tiles_across_II) {
+    int min_reserved_low_dvfs_tiles_across_II = unused_low_dvfs_cgra_tiles_across_II / 4.5;
+    int num_low_dvfs_dfg_nodes = 0;
+    for (auto node : nodes) {
+      if (assigned_dvfs_nodes.count(node) == 0) {
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+        num_low_dvfs_dfg_nodes += 1;
+        if (num_low_dvfs_dfg_nodes >= min_reserved_low_dvfs_tiles_across_II) {
+          unused_low_dvfs_cgra_tiles_across_II -= num_low_dvfs_dfg_nodes;
+          break;
+        }
+      }
+    }
+  } else {
+    for (auto node : nodes) {
+      if (assigned_dvfs_nodes.count(node) == 0) {
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+      }
+    }
+    unused_low_dvfs_cgra_tiles_across_II -= unlabeled_dfg_nodes;
+  }
+
+  for (auto node : nodes) {
+    if (assigned_dvfs_nodes.count(node) == 0) {
+      if (unused_high_dvfs_cgra_tiles_across_II > 0) {
+        // High DVFS islands have the highest priority as we don't want to
+	// waste it.
+        node->setDVFSLatencyMultiple(1);
+        assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 1;
+	unused_mid_dvfs_cgra_tiles_across_II -= 1;
+	unused_low_dvfs_cgra_tiles_across_II -= 1;
+      } else if (unused_mid_dvfs_cgra_tiles_across_II > 0) {
+        // Then try to allocate the DFG node into the mid DVFS island if the
+	// high DVFS islands are used up.
+        node->setDVFSLatencyMultiple(2);
+        assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 2;
+        unused_mid_dvfs_cgra_tiles_across_II -= 1;
+        unused_low_dvfs_cgra_tiles_across_II -= 1;
+      } else if (unused_low_dvfs_cgra_tiles_across_II > 0) {
+        // Low DVFS islands have the lowest priority.
+        node->setDVFSLatencyMultiple(4);
+        assigned_dvfs_nodes.insert(node);
+        unused_high_dvfs_cgra_tiles_across_II -= 4;
+        unused_mid_dvfs_cgra_tiles_across_II -= 2;
+        unused_low_dvfs_cgra_tiles_across_II -= 1;
+      } else {
+	// If all the islands assuming the optimal II are used up, label
+	// the left DFG nodes with highest DVFS level as we don't want
+	// to dramatically increase the II unnecessarily, which would
+	// lead to bad performance.
+        node->setDVFSLatencyMultiple(1);
+        assigned_dvfs_nodes.insert(node);
+      }
+    }
+  }
 }
 
 // Specilized fusion for the nonlinear operations.
@@ -109,7 +237,6 @@ void DFG::tuneDivPattern() {
 //        since these two are the most common patterns across all
 //        the kernels.
 void DFG::tuneForPattern() {
-
   // reconstruct connected DFG by modifying m_DFGEdge
   list<DFGNode*>* removeNodes = new list<DFGNode*>();
   for (DFGNode* dfgNode: nodes) {
@@ -567,7 +694,7 @@ void DFG::construct(Function& t_F) {
       if (hasNode(curII)) {
         dfgNode = getNode(curII);
       } else {
-        dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII));
+        dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
         nodes.push_back(dfgNode);
       }
       cout<<" (ID: "<<dfgNode->getID()<<")\n";
@@ -594,7 +721,7 @@ void DFG::construct(Function& t_F) {
           if (hasNode(inst)) {
             dfgNode = getNode(inst);
           } else {
-            dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst));
+            dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst), m_supportDVFS);
             nodes.push_back(dfgNode);
           }
     //      Instruction* first = &*(sucBB->begin());
@@ -1587,7 +1714,7 @@ void DFG::tuneForBranch() {
       processedDFGBrNodes.push_back(left);
     } else {
       DFGNode* newDFGBrNode = new DFGNode(nodes.size(), m_precisionAware, left->getInst(),
-          getValueName(left->getInst()));
+          getValueName(left->getInst()), m_supportDVFS);
       for (DFGNode* predDFGNode: *(left->getPredNodes())) {
         DFGEdge* newDFGBrEdge = new DFGEdge(newDFGEdgeID++,
             predDFGNode, newDFGBrNode);

@@ -21,6 +21,10 @@
 //#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+Mapper::Mapper(bool t_DVFSAwareMapping) {
+  m_DVFSAwareMapping = t_DVFSAwareMapping;
+}
+
 int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
   int ResMII = ceil(float(t_dfg->getNodeCount()) / t_cgra->getFUCount());
   return ResMII;
@@ -65,7 +69,7 @@ map<CGRANode*, int>* Mapper::dijkstra_search(CGRA* t_cgra, DFG* t_dfg,
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = m_mappingTiming[t_srcDFGNode];
-      timing[node] += t_srcDFGNode->getExecLatency() - 1;
+      timing[node] += t_srcDFGNode->getExecLatency(node->getDVFSLatencyMultiple()) - 1;
 //      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
 //        timing[node] += 1;
 //      }
@@ -197,7 +201,11 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
     }
 
     // Consider the cost of the utilization of contrl memory.
-    cost += targetCGRANode->getCurrentCtrlMemItems()/2;
+    if (m_DVFSAwareMapping) {
+      cost += targetCGRANode->getCurrentCtrlMemItems() / 2;
+    } else {
+      cost += targetCGRANode->getCurrentCtrlMemItems();
+    }
 
     // Consider the cost of the outgoing ports.
     if (t_dfgNode->getSuccNodes()->size() > 1) {
@@ -213,6 +221,25 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
           if (m_mapping[predDFGNode] == targetCGRANode)
             cost -= 0.5;
         }
+      }
+    }
+
+    // Considers the island for DVFS.
+    // Better to put the DFGNode inside the CGRA island with the
+    // matched DVFS level. A special case is by default the DVFS
+    // level is 1, but the island mapped with DFG node has the
+    // real DVFS level 1, which has the highest priority. The unmapped
+    // island has lower priority though its DVFS level is also shown
+    // as 1.
+    if (m_DVFSAwareMapping) {
+      if (targetCGRANode->isMapped()) {
+        cost -= 0.3;
+      }
+      if (targetCGRANode->isSynced() and
+          targetCGRANode->getDVFSLatencyMultiple() == t_dfgNode->getDVFSLatencyMultiple()) {
+        cost -= 1.0;
+      } else if (!targetCGRANode->isSynced()) {
+        cost -= 0.2;
       }
     }
 
@@ -394,7 +421,20 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   // Map the DFG node onto the CGRA nodes across cycles.
   m_mapping[t_dfgNode] = fu;
+
+  // FIXME: Checks DVFS-related stuff around the canOccupy(). 1. Make sure the same island has
+  // the same DVFS level. 2. The level matches the targeting DFG node. 3. Or no DFG node in the
+  // island yet.
+
+  // FIXME: Asserts DVFS-related stuff here.
+  if (fu->isDVFSEnabled()) {
+    // assert(t_dfgNode->getDVFSLatencyMultiple() == fu->getDVFSLatencyMultiple());
+  }
   fu->setDFGNode(t_dfgNode, (*t_path)[fu], t_II, t_isStaticElasticCGRA);
+
+  // FIXME: Handles DVFS-related stuff here.
+  t_cgra->syncDVFSIsland(fu);
+  
   m_mappingTiming[t_dfgNode] = (*t_path)[fu];
 
   // Route the dataflow onto the CGRA links across cycles.
@@ -481,6 +521,316 @@ int Mapper::getMaxMappingCycle() {
   return m_maxMappingCycle;
 }
 
+void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
+		             bool t_isStaticElasticCGRA,
+			     bool t_enablePowerGating) {
+
+  // Indicates the busy cycles of the functional units inside the
+  // tile.
+  map<int, int> tile_fu_busy_cycles; 
+  // Indicates the busy cycles of the crossbar inside the tile.
+  map<int, int> tile_xbar_busy_cycles;;
+  // Indicates the busy cycles of both the functional units and
+  // crossbar inside the tile. Note that this is not simply the
+  // sum of `tile_fu_busy_cycles` and the `tile_xbar_busy_cycles`
+  // as both the fu and xbar can be busy at the same cycle.
+  map<int, int> tile_overall_busy_cycles; 
+
+  map<int, float> tile_fu_utilization; 
+  map<int, float> tile_xbar_utilization;
+  map<int, float> tile_overall_utilization; 
+
+  for (int i=0; i<t_cgra->getRows(); ++i) {
+    for (int j=0; j<t_cgra->getColumns(); ++j) {
+      auto tile = t_cgra->nodes[i][j];
+      for (int cycle = 0; cycle < t_II; ++cycle) {
+	bool is_tile_busy = false;
+        if (t_cgra->nodes[i][j]->isOccupied(cycle, t_II)) {
+          if (tile_fu_busy_cycles.find(tile->getID()) ==
+	      tile_fu_busy_cycles.end()) {
+            tile_fu_busy_cycles[tile->getID()] = 0;
+          }
+          // Xbar is always busy if the fu is busy. This is because the
+	  // output of the fu would always go through the xbar no matter
+	  // where is the destination (even towards itself, constrained
+	  // by the hardware architecture).
+	  // TODO: xbar may not be in busy if the fu is in use with a
+	  // multi-cycle non-pipelined execution.
+          if (tile_xbar_busy_cycles.find(tile->getID()) ==
+	      tile_xbar_busy_cycles.end()) {
+            tile_xbar_busy_cycles[tile->getID()] = 0;
+          }
+          tile_fu_busy_cycles[tile->getID()] += 1;
+          tile_xbar_busy_cycles[tile->getID()] += 1;
+	  is_tile_busy = true;
+        } else {
+	  // Don't need to check the out links as out links is the in
+	  // links of the destination tiles.
+	  for (auto inLink : *(tile->getInLinks())) {
+	    if (inLink->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+              if (tile_xbar_busy_cycles.find(tile->getID()) ==
+    	          tile_xbar_busy_cycles.end()) {
+                tile_xbar_busy_cycles[tile->getID()] = 0;
+	      }
+              tile_xbar_busy_cycles[tile->getID()] += 1;
+	      is_tile_busy = true;
+	      // Only needs to set the xbar busy once.
+	      break;
+  	    }
+	  }
+	}
+	// Increments busy cycle of the tile either its fu or xbar
+	// is busy.
+	if (is_tile_busy) {
+          if (tile_overall_busy_cycles.find(tile->getID()) ==
+    	      tile_overall_busy_cycles.end()) {
+            tile_overall_busy_cycles[tile->getID()] = 0;
+	  }
+	  tile_overall_busy_cycles[tile->getID()] += 1;
+	}
+      }
+      tile_fu_utilization[tile->getID()] =
+        ((float)tile_fu_busy_cycles[tile->getID()]) / t_II;
+      tile_xbar_utilization[tile->getID()] =
+        ((float)tile_xbar_busy_cycles[tile->getID()]) / t_II;
+      tile_overall_utilization[tile->getID()] =
+        ((float)tile_overall_busy_cycles[tile->getID()]) / t_II;
+    }
+  }
+
+//    if (cycle < t_II and t_parameterizableCGRA) {
+//      for (int i=0; i<t_cgra->getLinkCount(); ++i) {
+//	CGRALink* link = t_cgra->links[i];
+//        if (link->isOccupied(cycle, t_II, t_isStaticElasticCGRA)) {
+//          string strSrcNodeID = to_string(link->getSrc()->getID());
+//          string strDstNodeID = to_string(link->getDst()->getID());
+//          if (jsonLinks.find(strSrcNodeID) == jsonLinks.end()) {
+//            map<string, vector<int>> jsonLinkDsts;
+//            jsonLinks[strSrcNodeID] = jsonLinkDsts;
+//          }
+//          if (jsonLinks[strSrcNodeID].find(strDstNodeID) == jsonLinks[strSrcNodeID].end()) {
+//            vector<int> jsonLinkDstCycles;
+//            jsonLinks[strSrcNodeID][strDstNodeID] = jsonLinkDstCycles;
+//          }
+//          jsonLinks[strSrcNodeID][strDstNodeID].push_back(cycle);
+//	}
+//      }
+//    }
+
+//   // Islandize the CGRA nodes. In the prototype, each set of 2x2 nodes are
+//   // grouped as one island. For example, a 4x4 CGRA has 2x2 islands, the
+//   // tiles of (0, 2), (0, 3), (1, 2), (1, 3) are viewd as the (0, 1) island.
+//   std::map<int, vector<CGRANode>> island_map;
+//   constexpr int kIslandDim = 2;
+//   for (int i=0; i<t_cgra->getRows(); ++i) {
+//     for (int j=0; j<t_cgra->getColumns(); ++j) {
+//       auto tile = t_cgra->nodes[i][j];
+//       const int tile_x = tile->getX();
+//       const int tile_y = tile->getY();
+//       const int island_x = tile_x / kIslandDim;
+//       const int island_y = tile_y / kIslandDim;
+//       auto island_location = std::make_tuple(island_x, island_y);
+// 
+//       if (island_map.find(island_location) != island_map.end()) {
+//         island_map[island_location].push_back(*tile);
+//       } else {
+// 	std::vector<CGRANode> tiles{*tile};
+//         island_map[island_location] = tiles;
+//       }
+//     }
+//   }
+
+  // TODO: should ignore the disabled tiles.
+  int total_active_tiles = 0;
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    if (t_enablePowerGating && tile_overall_utilization[tile] == 0) {
+      continue;
+    }
+    total_active_tiles += 1;
+  }
+  float avg_tile_overall_utilization = 0.0;
+  float avg_tile_fu_utilization = 0.0;
+  float avg_tile_xbar_utilization = 0.0;
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    avg_tile_overall_utilization += tile_overall_utilization[tile];
+    avg_tile_fu_utilization += tile_fu_utilization[tile];
+    avg_tile_xbar_utilization += tile_xbar_utilization[tile];
+    // cout << "tile[" << tile << "] fu utilization: " << tile_fu_utilization[tile] << "; xbar utilization: " << tile_xbar_utilization[tile] << "; overall utilization: " << tile_overall_utilization[tile] << endl;
+  }
+  avg_tile_overall_utilization /= total_active_tiles;
+  avg_tile_fu_utilization /= total_active_tiles;
+  avg_tile_xbar_utilization /= total_active_tiles;
+
+  cout << "tile avg fu utilization: " << avg_tile_fu_utilization*100 << "%; avg xbar utilization: " << avg_tile_xbar_utilization*100 << "%; avg overall utilization: " << avg_tile_overall_utilization*100 << "%" << endl;
+
+  // Collects the histogram of tiles' utilization.
+  // Histogram for the number of tiles that have utilization of 0%.
+  int tile_count_0 = 0;
+  // Histogram for the number of tiles that have utilization in (0%, 25%].
+  int tile_count_0_to_25 = 0;
+  // Histogram for the number of tiles that have utilization in (25%, 50%].
+  int tile_count_25_to_50 = 0;
+  // Histogram for the number of tiles that have utilization in (50%, 100%].
+  int tile_count_50_to_100 = 0;
+  for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    if (tile_overall_utilization[tile] == 0) {
+      tile_count_0 += 1;
+    } else if (tile_overall_utilization[tile] <= 0.25) {
+      tile_count_0_to_25 += 1;
+    } else if (tile_overall_utilization[tile] <= 0.5) {
+      tile_count_25_to_50 += 1;
+    } else {
+      tile_count_50_to_100 += 1;
+    }
+  }
+
+  // Assembles utilization of islands.
+  std::map<int, float> island_utilizations;
+  for (auto const& island_tiles : t_cgra->getDVFSIslands()) {
+    float max_utilization_within_island = 0.0f;
+    for (auto tile : island_tiles.second) {
+      if (max_utilization_within_island < tile_overall_utilization[tile->getID()]) {
+        max_utilization_within_island = tile_overall_utilization[tile->getID()];
+      }
+    }
+    island_utilizations[island_tiles.first] = max_utilization_within_island;
+    // std::cout << "island (" << island_tiles.first
+    //           << ") utilization: " << max_utilization_within_island << endl;
+  }
+
+  // Collects the histogram of islands' utilization.
+  // Histogram for the number of islands that have utilization in [0%, 25%].
+  int island_count_0_to_25 = 0;
+  // Histogram for the number of islands that have utilization in (25%, 50%].
+  int island_count_25_to_50 = 0;
+  // Histogram for the number of islands that have utilization in (50%, 100%].
+  int island_count_50_to_100 = 0;
+  for (auto const& island_utilization : island_utilizations) {
+    if (island_utilization.second <= 0.25) {
+      island_count_0_to_25 += 1;
+    } else if (island_utilization.second <= 0.5) {
+      island_count_25_to_50 += 1;
+    } else {
+      island_count_50_to_100 += 1;
+    }
+  }
+
+  std::cout << "histogram 0% tile utilization: " << tile_count_0 << endl;
+  std::cout << "histogram (0%, 25%] tile utilization: " << tile_count_0_to_25 << endl;
+  std::cout << "histogram (25%, 50%] tile utilization: " << tile_count_25_to_50 << endl;
+  std::cout << "histogram (50%, 100%] tile utilization: " << tile_count_50_to_100 << endl;
+
+  // std::cout << "histogram [0%, 25%] island utilization: " << island_count_0_to_25 << endl;
+  // std::cout << "histogram (25%, 50%] island utilization: " << island_count_25_to_50 << endl;
+  // std::cout << "histogram (50%, 100%] island utilization: " << island_count_50_to_100 << endl;
+
+  std::map<int, float> island_dvfs_ratio;
+  std::map<int, float> tile_dvfs_ratio;
+  for (auto const& island_tiles : t_cgra->getDVFSIslands()) {
+    float island_ratio = 0.0;
+    int unused_tiles = 0;
+    for (auto tile : island_tiles.second) {
+      float tile_ratio = 0.0;
+      bool isMapped = tile->isMapped();
+      if (!isMapped) {
+        for (auto outLink : *(tile->getOutLinks())) {
+          if (outLink->isMapped()) {
+  	    isMapped = true;
+	    break;
+	  }
+  	}
+      }
+      if (!isMapped) {
+        for (auto inLink : *(tile->getInLinks())) {
+          if (inLink->isMapped()) {
+            isMapped = true;
+            break;
+          }
+        }
+      }
+      if (!isMapped) {
+        if (t_enablePowerGating) {
+          tile_ratio = 0.0;
+	  unused_tiles += 1;
+	} else {
+          tile_ratio = 0.25;
+          // cout << "tile " << tile->getID() << " DVFS multiple: 0; frequency level: 25%" << endl;
+	}
+      } else {
+        tile_ratio = (1.0 / tile->getDVFSLatencyMultiple());
+        // cout << "tile " << tile->getID() << " DVFS multiple: " << tile->getDVFSLatencyMultiple() << "; frequency level: " << tile_ratio * 100 << "%" << endl;
+      }
+      if (tile_ratio > island_ratio) {
+        island_ratio = tile_ratio;
+      }
+    }
+    island_dvfs_ratio[island_tiles.first] = island_ratio * (island_tiles.second.size() - unused_tiles) / island_tiles.second.size();
+
+    for (auto tile : island_tiles.second) {
+      if (t_enablePowerGating and tile_overall_utilization[tile->getID()] == 0) {
+        tile_dvfs_ratio[tile->getID()] = 0;
+      } else {
+        tile_dvfs_ratio[tile->getID()] = island_ratio;
+      }
+    }
+  }
+
+  // for (auto const& island_ratio : island_dvfs_ratio) {
+  //   cout << "island " << island_ratio.first << " frequency level: " << island_ratio.second * 100 << "%" << endl;
+  // }
+
+  float avg_tile_dvfs_ratio = 0.0;
+  for (auto const& tile_ratio : tile_dvfs_ratio) {
+    avg_tile_dvfs_ratio += tile_ratio.second;
+    cout << "tile " << tile_ratio.first << " DVFS frequency level: " << tile_ratio.second * 100 << "%" << endl;
+  }
+
+  if (avg_tile_dvfs_ratio == 0) {
+    if (t_enablePowerGating) {
+      cout << "tile average DVFS frequency level: 0%" << endl;
+    } else {
+      // Indicates DVFS mode is not enabled and no power gating.
+      // Then, by default, the DVFS level is 100%.
+      cout << "tile average DVFS frequency level: 100%" << endl;
+    }
+  } else {
+    avg_tile_dvfs_ratio /= t_cgra->getFUCount();
+    cout << "tile average DVFS frequency level: " << avg_tile_dvfs_ratio * 100 << "%" << endl;
+  }
+
+  // Collects the histogram of tiles' frequency ratio.
+  // Histogram for the number of tiles that have frequency ratio of 0%.
+  int tile_count_dvfs_ratio_0 = 0;
+  // Histogram for the number of tiles that have frequency ratio of 25%.
+  int tile_count_dvfs_ratio_25 = 0;
+  // Histogram for the number of tiles that have frequency ratio of 50%.
+  int tile_count_dvfs_ratio_50 = 0;
+  // Histogram for the number of tiles that have frequency ratio of 100%.
+  int tile_count_dvfs_ratio_100 = 0;
+  for (auto const& tile_ratio : tile_dvfs_ratio) {
+    if (tile_ratio.second == 0) {
+      tile_count_dvfs_ratio_0 += 1;
+    } else if (tile_ratio.second <= 0.25) {
+      tile_count_dvfs_ratio_25 += 1;
+    } else if (tile_ratio.second <= 0.5) {
+      tile_count_dvfs_ratio_50 += 1;
+    } else {
+      tile_count_dvfs_ratio_100 += 1;
+    }
+  }
+
+  std::cout << "histogram 0% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_0 << endl;
+  std::cout << "histogram 25% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_25 << endl;
+  std::cout << "histogram 50% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_50 << endl;
+  if (avg_tile_dvfs_ratio == 0) {
+    // Indicates DVFS mode is not enabled. Then, by default, the DVFS level is 100% for all the tiles.
+    // I don't think this will be executed.
+    std::cout << "histogram 100% tile DVFS frequency ratio: " << t_cgra->getFUCount() << endl;
+  } else {
+    std::cout << "histogram 100% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_100 << endl;
+  }
+}
+ 
 void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA, bool t_parameterizableCGRA) {
 
@@ -1032,7 +1382,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
       CGRANode* node = t_cgra->nodes[i][j];
       distance[node] = m_maxMappingCycle;
       timing[node] = timing[t_srcCGRANode];
-      timing[node] += t_srcDFGNode->getExecLatency() - 1;
+      timing[node] += t_srcDFGNode->getExecLatency(node->getDVFSLatencyMultiple()) - 1;
 //      if (t_srcDFGNode->isLoad() or t_srcDFGNode->isStore()) {
 //        timing[node] += 1;
 //      }

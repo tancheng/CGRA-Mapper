@@ -65,8 +65,11 @@ class DFGNode {
     DFGNode* m_patternRoot;
     void setPatternRoot(DFGNode*);
 
+    int m_DVFSLatencyMultiple;
+    bool m_supportDVFS;
+
   public:
-    DFGNode(int, bool, Instruction*, StringRef);
+    DFGNode(int, bool, Instruction*, StringRef, bool);
     DFGNode(int, DFGNode* old_node);
     int getID();
     void setID(int);
@@ -82,6 +85,7 @@ class DFGNode {
     bool isBranch();
     bool isPhi();
     bool isAdd();
+    bool isScalarAdd();
     // Detect integer addition.
     bool isIadd();
     bool isMul();
@@ -133,11 +137,14 @@ class DFGNode {
     bool isPredicater();
     bool shareSameCycle(DFGNode*);
     void setExecLatency(int);
-    bool isMultiCycleExec();
-    int getExecLatency();
+    bool isMultiCycleExec(int);
+    int getExecLatency(int);
     void setPipelinable();
     bool isPipelinable();
     bool shareFU(DFGNode*);
+    void setDVFSLatencyMultiple(int);
+    int getDVFSLatencyMultiple();
+
 };
 
 #endif

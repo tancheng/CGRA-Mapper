@@ -19,7 +19,9 @@
 #include "json.hpp"
 #include "Mapper.h"
 
-extern int opcode_offset;
+// Used to walkaround the mis-interpret of LLVM opcode in github
+// testing infra: https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2495202802
+extern int testing_opcode_offset;
 
 using namespace llvm;
 using namespace std;
@@ -61,8 +63,21 @@ namespace {
       bool heterogeneity            = false;
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
+
+      // Incremental mapping related:
+      // https://github.com/tancheng/CGRA-Mapper/pull/24
       bool incrementalMapping       = false;
+
+      // DVFS-related options.
+      bool supportDVFS              = false;
+      bool DVFSAwareMapping         = false;
+      int DVFSIslandDim             = 2;
+      bool enablePowerGating        = false;
+
+      // Option used to split one integer division into 4.
+      // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
       int vectorFactorForIdiv               = 1;
+
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
@@ -102,7 +117,6 @@ namespace {
 	paramKeys.insert("heterogeneity");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
-  paramKeys.insert("incrementalMapping");
 
 	try
         {
@@ -141,11 +155,28 @@ namespace {
         heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
-        incrementalMapping    = param["incrementalMapping"];
-        if (param.find("vectorFactorForIdiv ") != param.end())
-          vectorFactorForIdiv           = param["vectorFactorForIdiv "];
-        if (param.find("opcodeOffset") != param.end())
-          opcode_offset = param["opcodeOffset"];
+
+        if (param.find("incrementalMapping") != param.end()) {
+          incrementalMapping = param["incrementalMapping"];
+	}
+        if (param.find("supportDVFS") != param.end()) {
+          supportDVFS = param["supportDVFS"];
+	}
+        if (param.find("DVFSAwareMapping") != param.end()) {
+          DVFSAwareMapping = param["DVFSAwareMapping"];
+	}
+        if (param.find("DVFSIslandDim") != param.end()) {
+          DVFSIslandDim = param["DVFSIslandDim"];
+	}
+        if (param.find("enablePowerGating") != param.end()) {
+          enablePowerGating = param["enablePowerGating"];
+	}
+        if (param.find("vectorFactorForIdiv ") != param.end()) {
+          vectorFactorForIdiv = param["vectorFactorForIdiv "];
+        }
+        if (param.find("testingOpcodeOffset") != param.end()) {
+          testing_opcode_offset = param["testingOpcodeOffset"];
+	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -179,13 +210,15 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt, vectorFactorForIdiv );
+                         heterogeneity, execLatency, pipelinedOpt, supportDVFS,
+			 DVFSAwareMapping, vectorFactorForIdiv);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
-		            parameterizableCGRA, additionalFunc);
+		            parameterizableCGRA, additionalFunc, supportDVFS,
+			    DVFSIslandDim);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);
-      mapper = new Mapper();
+      mapper = new Mapper(DVFSAwareMapping);
 
       // Show the count of different opcodes (IRs).
       cout << "==================================\n";
@@ -210,8 +243,12 @@ namespace {
       cout << "==================================\n";
       cout << "[RecMII: " << RecMII << "]\n";
       int II = ResMII;
-      if(II < RecMII)
+      if (II < RecMII)
         II = RecMII;
+
+      if (supportDVFS) {
+        dfg->initDVFSLatencyMultiple(II, DVFSIslandDim, cgra->getFUCount());
+      }
 
       if (!doCGRAMapping) {
         cout << "==================================\n";
@@ -258,8 +295,10 @@ namespace {
         cout << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
-        cout << "==================================\n";
         cout << "[Mapping Success]\n";
+        cout << "==================================\n";
+        cout << "[Utilization & DVFS stats]\n";
+        mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";
         mapper->generateJSON(cgra, dfg, II, isStaticElasticCGRA);
 	      cout << "[Output Json]\n";
@@ -340,6 +379,10 @@ void addDefaultKernels(map<string, list<int>*>* t_functionWithLoop) {
   (*t_functionWithLoop)["kernel_gemm"]->push_back(0);
   (*t_functionWithLoop)["kernel"] = new list<int>();
   (*t_functionWithLoop)["kernel"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kerneli"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kerneli"]->push_back(0);
+  (*t_functionWithLoop)["_Z6kernelPfPi"] = new list<int>();
+  (*t_functionWithLoop)["_Z6kernelPfPi"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_"] = new list<int>();
   (*t_functionWithLoop)["_Z6kernelPfS_"]->push_back(0);
   (*t_functionWithLoop)["_Z6kernelPfS_S_"] = new list<int>();

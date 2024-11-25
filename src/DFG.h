@@ -43,6 +43,9 @@ class DFG {
     list<DFGEdge*> m_DFGEdges;
     list<DFGEdge*> m_ctrlEdges;
 
+    bool m_supportDVFS;
+    bool m_DVFSAwareMapping;
+
     string changeIns2Str(Instruction* ins);
     //get value's name or inst's content
     StringRef getValueName(Value* v);
@@ -96,7 +99,8 @@ class DFG {
     void nonlinear_combine();
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*, list<string>*, int t_vectorFactorForIdiv=4);
+    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
+        list<string>*, bool, bool, int t_vectorFactorForIdiv=4);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
@@ -112,4 +116,5 @@ class DFG {
     void showOpcodeDistribution();
     void generateDot(Function&, bool);
     void generateJSON();
+    void initDVFSLatencyMultiple(int, int, int);
 };

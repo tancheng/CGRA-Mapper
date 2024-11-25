@@ -1,0 +1,15 @@
+{
+  "kernel"              : "_Z3firPfS_S_",
+  "targetNested"        : true,
+  "targetLoopsID"       : [0],
+  "row"                 : 4,
+  "column"              : 4,
+  "heterogeneity"       : false,
+  "isTrimmedDemo"       : true,
+  "heuristicMapping"    : true,
+  "bypassConstraint"    : 4,
+  "isStaticElasticCGRA" : false,
+  "ctrlMemConstraint"   : 200,
+  "regConstraint"       : 8
+}
+
