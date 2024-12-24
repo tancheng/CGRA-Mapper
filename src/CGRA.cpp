@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
-	   bool t_heterogeneity, bool t_parameterizableCGRA,
+	   bool t_heterogeneity, bool t_parameterizableCGRA, int t_pathSupportDim,
 	   map<string, list<int>*>* t_additionalFunc) {
   m_rows = t_rows;
   m_columns = t_columns;
@@ -36,7 +36,7 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       }
     }
 
-    ifstream paramCGRA("./paramCGRA.json");
+    ifstream paramCGRA("./param.json");
     if (!paramCGRA.good()) {
       cout<<"Parameterizable CGRA design/mapping requires paramCGRA.json"<<endl;
       return;
@@ -168,34 +168,12 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Enable the heterogeneity.
     if (t_heterogeneity) {
-      int t_heteNum = 3;
-      if (t_heteNum == 3){
-        // 3/4 tiles support heterogeneity
-        for (int r=0; r<t_rows; ++r) {
-          for (int c=0; c<t_columns; ++c) {
-            if(!(c%4 == 3)){
-              continue;
-            }
+      for (int r=0; r<t_rows; ++r) {
+        for (int c=0; c<t_columns; ++c) {
+          if (((r*t_columns)+(c+1)) <= t_pathSupportDim){
+            std::cout<< "[MMJ] "<< t_pathSupportDim << "support fuse and merge." <<std::endl;
             nodes[r][c]->enableComplex();
-          }
-        }
-      } 
-      else if (t_heteNum == 2){
-        // 2/4 tiles support heterogeneity
-        for (int r=0; r<t_rows; ++r) {
-          for (int c=0; c<t_columns; ++c) {
-            if(c%2 == 1)
-              nodes[r][c]->enableComplex();
-          }
-        }
-      }
-      else if (t_heteNum == 1){
-        // 1/4 tiles support heterogeneity
-        for (int r=0; r<t_rows; ++r) {
-          for (int c=0; c<t_columns; ++c) {
-            if(c%4 == 0){
-              nodes[r][c]->enableComplex();
-            }
+            nodes[r][c]->enablePathDim();
           }
         }
       }

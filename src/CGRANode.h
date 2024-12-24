@@ -65,6 +65,7 @@ class CGRANode {
     bool m_canLogic;
     bool m_canBr;
     bool m_supportComplex;
+    bool m_supportPathDim;
     bool m_supportVectorization;
     int** m_regs_duration;
     int** m_regs_timing;
@@ -84,6 +85,7 @@ class CGRANode {
     void enableLoad();
     void enableCall();
     void enableComplex();
+    void enablePathDim();
     void enableVectorization();
     void enableAdd();
     void enableMul();
@@ -123,6 +125,7 @@ class CGRANode {
     bool canLoad();
     bool canCall();
     bool supportComplex();
+    bool supportPathDim();
     bool supportVectorization();
     bool canAdd();
     bool canMul();

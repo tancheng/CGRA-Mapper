@@ -1,5 +1,5 @@
 {
-  "kernel"                : "_Z6kernelPfS_S_",
+  "kernel"                : "_Z8nwkernelPcS_S_S_PiS_",
   "targetFunction"        : false,
   "targetNested"          : false,
   "targetLoopsID"         : [0],
@@ -7,7 +7,8 @@
   "row"                   : 4,
   "column"                : 4,
   "precisionAware"        : false,
-  "heterogeneity"         : false,
+  "heterogeneity"         : true,
+  "PathSupportDim"        : 16,
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,
   "parameterizableCGRA"   : false,

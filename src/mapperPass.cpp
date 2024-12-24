@@ -57,6 +57,7 @@ namespace {
       bool precisionAware           = false;
       bool diagonalVectorization    = false;
       bool heterogeneity            = false;
+      int  PathSupportDim           = 16;
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
       bool incrementalMapping       = false;
@@ -136,6 +137,7 @@ namespace {
         precisionAware        = param["precisionAware"];
         diagonalVectorization = param["diagonalVectorization"];
         heterogeneity         = param["heterogeneity"];
+        PathSupportDim        = param["PathSupportDim"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
         incrementalMapping    = param["incrementalMapping"];
@@ -174,7 +176,7 @@ namespace {
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          heterogeneity, execLatency, pipelinedOpt);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
-		            parameterizableCGRA, additionalFunc);
+		            parameterizableCGRA, PathSupportDim, additionalFunc);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);

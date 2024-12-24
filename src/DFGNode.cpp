@@ -24,6 +24,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_numConst = 0;
   m_optType = "";
   m_combined = false;
+  m_merged = false;
   m_isPatternRoot = false;
   m_patternRoot = NULL;
   m_critical = false;
@@ -252,7 +253,16 @@ void DFGNode::setCombine() {
   m_combined = true;
 }
 
+bool DFGNode::hasMerged() {
+  return m_merged;
+}
+
+void DFGNode::setMerge() {
+  m_merged = true;
+}
+
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
+  // setCombine() and setMerge() use the same addPatternPartner
   m_isPatternRoot = true;
   m_patternRoot = this;
   m_patternNodes->push_back(t_patternNode);

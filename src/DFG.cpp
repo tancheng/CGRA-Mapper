@@ -27,13 +27,39 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForBitcast();
 //  tuneForLoad();
   if (t_heterogeneity) {
-    calculateCycles();
+    //calculateCycles();
     // *************** testDualIssue *****************
-    // combine("add", "phi");
+    // list<string>* targetPattern1 = new list<string>();
+    // targetPattern1->push_back("br");
+    // targetPattern1->push_back("phi");
+    // targetPattern1->push_back("add");
+    // targetPattern1->push_back("icmp");
+    // combineForIter(targetPattern1);
+    // list<string>* targetPattern1 = new list<string>();
+    // targetPattern1->push_back("phi");
+    // targetPattern1->push_back("icmp");
+    // targetPattern1->push_back("or");
+    // targetPattern1->push_back("br");
+    // targetPattern1->push_back("phi");
+    // combineForIter(targetPattern1);
+    // list<string>* targetPattern1 = new list<string>();
+    // targetPattern1->push_back("br");
+    // targetPattern1->push_back("xor");
+    // targetPattern1->push_back("phi");
+    // targetPattern1->push_back("icmp");
+    // targetPattern1->push_back("br");
+    // combineForIter(targetPattern1);
+    // list<string>* targetPattern1 = new list<string>();
+    // targetPattern1->push_back("add");
+    // targetPattern1->push_back("phi");
+    // targetPattern1->push_back("or");
+    // targetPattern1->push_back("br");
+    // combineForUnroll(targetPattern1);
+    // combine("icmp", "br");
+    // combine("getelementptr", "load");
     // tuneForPattern();
-    dualIssue(3);
-    tuneForPattern();
-    tuneForDualIssue();
+    // ESCORT();
+    calculateCycles();
     // *************** testDualIssue *****************
 //    combine("phi", "add");
     // combine("and", "xor");
@@ -107,48 +133,93 @@ void DFG::tuneForPattern() {
   }
 }
 
-void DFG::tuneForDualIssue() {
-  // tuneForDualIssue reconstruct the edge for dual issue after tuneForPattern().
+void DFG::tuneForDualIssueAfter() {
+  // tuneForDualIssueAfter reconstruct the edge for dual issue after tuneForPattern().
   // the edges between the dualIssue-combined DFGNodes and its parents/children must be combined into one edge only.
-  std::cout<<"[MMJ] tuneForDualIssue is running " <<std::endl;
+  std::cout<<"[MMJ] tuneForDualIssueAfter is running " <<std::endl;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->hasCombined()){
-      // dfgNode->hasCombined() actually means dfgNode->hasDualIssueCombined()
+    if (dfgNode->hasMerged() and !dfgNode->hasCombined()){
       std::cout<<"[MMJ] dfgNode is " << dfgNode->getID() <<std::endl;
       for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
-        if (!predNode->hasCombined()){
-          // delete all edges
-          DFGEdge* firstEdge = NULL;
-          while (hasDFGEdge(predNode, dfgNode)){
-            if (firstEdge == NULL) {
-              firstEdge = getDFGEdge(predNode, dfgNode);
-            }
-            deleteDFGEdge(predNode, dfgNode);
-          }     
-          // add the first edge back
-          if (firstEdge){
-            m_DFGEdges.push_back(firstEdge);
-          }               
-        }
-      }
-      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (!succNode->hasCombined()){
-          // delete all edges
-          DFGEdge* firstEdge = NULL;
-          while (hasDFGEdge(dfgNode, succNode)){
-            if (firstEdge == NULL) {
-              firstEdge = getDFGEdge(dfgNode, succNode);
-            }
-            deleteDFGEdge(dfgNode, succNode);
-          }     
-          // add the first edge back
-          if (firstEdge){
-            m_DFGEdges.push_back(firstEdge);
-          }               
-        }
+        // delete all edges between predNode and merged dfgNode
+        DFGEdge* firstEdge = NULL;
+        while (hasDFGEdge(predNode, dfgNode)){
+          if (firstEdge == NULL) {
+            firstEdge = getDFGEdge(predNode, dfgNode);
+          }
+          deleteDFGEdge(predNode, dfgNode);
+        }     
+        // add the first edge back
+        if (firstEdge){
+          m_DFGEdges.push_back(firstEdge);
+        }               
       }
     }
   }
+}
+
+void DFG::tuneForDualIssue() {
+  // tuneForDualIssue reconstruct the edge for dual issue without tuneForPattern()
+  // the edges between the merged DFGNodes and its parents/children must be combined into one edge only.
+  // reconstruct connected DFG by modifying m_DFGEdge
+  std::cout<<"[MMJ] tuneForDualIssue is running " <<std::endl;
+  list<DFGNode*>* removeNodes = new list<DFGNode*>();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->hasMerged() and !dfgNode->hasCombined()) {
+      if (dfgNode->isPatternRoot()) {
+        std::cout<<"[MMJ] dfgNode is " << dfgNode->getID() <<std::endl;
+        for (DFGNode* patternNode: *(dfgNode->getPatternNodes())) {
+          std::cout<<"[MMJ] patternNode is " << patternNode->getID() <<std::endl;
+          if (hasDFGEdge(dfgNode, patternNode))
+            m_DFGEdges.remove(getDFGEdge(dfgNode, patternNode));
+
+          for (DFGNode* predNode: *(patternNode->getPredNodes())) {
+            // we only keep one edge between dfgNode and predNode
+            if (predNode == dfgNode or
+                predNode->isOneOfThem(dfgNode->getPatternNodes())) {
+              deleteDFGEdge(predNode, patternNode);
+              continue;
+            }
+            DFGNode* newPredNode = NULL;
+            if (predNode->hasMerged() or predNode->hasCombined())
+              newPredNode = predNode->getPatternRoot();
+            else
+              newPredNode = predNode;
+            replaceDFGEdge(predNode, patternNode, newPredNode, dfgNode);              
+          }
+
+          for (DFGNode* succNode: *(patternNode->getSuccNodes())) {
+            std::cout<<"[MMJ] succNode is " << succNode->getID() <<std::endl;
+            if (succNode == dfgNode or
+                succNode->isOneOfThem(dfgNode->getPatternNodes())) {
+              deleteDFGEdge(patternNode, succNode);
+              continue;
+            }
+            DFGNode* newSuccNode = NULL;
+            if (succNode->hasMerged() or succNode->hasCombined())
+              newSuccNode = succNode->getPatternRoot();
+            else
+              newSuccNode = succNode;
+            replaceDFGEdge(patternNode, succNode, dfgNode, newSuccNode);
+          }
+        }
+      } else {
+        removeNodes->push_back(dfgNode);
+      }
+    }
+  }
+  for (DFGNode* dfgNode: *removeNodes) {
+    nodes.remove(dfgNode);
+  }
+}
+
+void DFG::ESCORT() {
+  dualIssueNew(2,100);
+  // If dualIssueNew fails
+  dualIssue(3,100);
+  tuneForDualIssue();
+  tuneForDualIssueAfter();
+  return;
 }
 
 void DFG::combineCmpBranch() {
@@ -228,6 +299,7 @@ void DFG::combine(string t_opt0, string t_opt1) {
 
 // Combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
 void DFG::combineForIter(list<string>* t_targetPattern){  
+  cout << "[MMJ] combineForIter is running" << endl;
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
   list<string>::iterator currentFunc = t_targetPattern->begin();
@@ -237,6 +309,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isOpt(headOpt) and !dfgNode->hasCombined()) {
       toBeMatchedDFGNodes->push_back(dfgNode);
+      cout << "[MMJ] toBeMatchedDFGNodes is " << dfgNode->getID() << endl;
       // the for loop below is to find the target pattern under specific dfgNode
       for (int i = 1; i < patternSize; i++, currentFunc++){
         string t_opt = *currentFunc;
@@ -317,32 +390,35 @@ void DFG::combineForUnroll(list<string>* t_targetPattern){
 // combineSuccSame combines DFGNodes of same opcodeName with a same parent.
 // Note that the edges between the same parent and the input DFGNodes will be combined into one edge.
 // Note the pathName of DFGNodes must be different.
-void DFG::combineSuccSame(list<DFGNode*>* t_sameSuccNode, const int t_mergeSize){
+void DFG::combineSuccSame(const list<DFGNode*>* t_sameSuccNode, const int t_mergeSize){
   std::cout <<"[MMJ] combineSuccSame is running "<< std::endl;
-  std::cout <<"[MMJ] combineSuccSame t_sameSuccNode: "<< std::endl;
   // choose DFGNode in t_sameSuccNode with different pathName
-  list<DFGNode*> uniqueNodes;
+  list<DFGNode*>* uniqueNodes;
   map<string, list<DFGNode*>> pathNameMap;
   for (DFGNode* dfgNode: *t_sameSuccNode){
     std::cout <<"[MMJ] t_sameSuccNode dfgNode "<< dfgNode->getID() << std::endl;
     if (!pathNameMap.count(dfgNode->getPathName())){
       pathNameMap[dfgNode->getPathName()].push_back(dfgNode);
-      uniqueNodes.push_back(dfgNode);
+      uniqueNodes->push_back(dfgNode);
+      std::cout <<"[MMJ] uniqueNodes dfgNode "<< dfgNode->getID() << std::endl;
     }
   }
 
   // merge uniqueNodes (size must > 1)
-  if (uniqueNodes.size() == 1){
+  if (uniqueNodes->size() == 1){
     std::cout <<"[MMJ] combineSuccSame uniqueNodes.size() == 1 " << std::endl;
     return;
   }
+
   int mergeCount = 0;
-  DFGNode* headNode = uniqueNodes.front();
-  for (DFGNode* dfgNode: uniqueNodes){
-    if(dfgNode != headNode and !dfgNode->hasCombined()){
+  DFGNode* headNode = uniqueNodes->front();
+  std::cout <<"[MMJ] headNode"<< headNode->getID() << std::endl;
+  for (DFGNode* dfgNode: *uniqueNodes){
+    std::cout <<"[MMJ] uniqueNodes next"<< dfgNode->getID() << std::endl;
+    if(dfgNode != headNode and !dfgNode->hasMerged() and !dfgNode->hasCombined()){
         headNode ->addPatternPartner(dfgNode);                  
     }
-    dfgNode->setCombine(); 
+    dfgNode->setMerge(); 
     std::cout <<"[MMJ] dual Issue combine "<< dfgNode->getID() << std::endl; 
     mergeCount++;
     if (mergeCount == t_mergeSize) {
@@ -350,7 +426,9 @@ void DFG::combineSuccSame(list<DFGNode*>* t_sameSuccNode, const int t_mergeSize)
       break;
     }                   
   }
+  uniqueNodes->clear();
   // the handling of edges is in tuneForDualIssue()
+  return;
 }
 
 // findOpSameSucc finds nodes that are the same after br, t_mergeSize decides the max number of nodes that can be combined
@@ -373,31 +451,158 @@ bool DFG::findOpSameSucc(const list<DFGNode*>* t_succList, const int t_mergeSize
   return found;
 }
 
+// findOpSucc finds nodes br which means the nodes are from different paths, t_mergeSize decides the max number of nodes that can be combined
+void DFG::findOpSucc(const list<DFGNode*>* t_succList, const int t_mergeSize) {
+  // std::cout <<"[MMJ] findOpSucc is running "<< std::endl;
+  // list<DFGNode*>* uniqueNodes;
+  // list<DFGNode*> succUniqueNodes;
+  // uniqueNodes = combineSuccSame(t_succList, t_mergeSize);
+  // // after merge nodes after br, we merge succeed nodes of the merged nodes
+  // while (true){
+  //   for (DFGNode* dfgNode: *uniqueNodes){
+  //     for (DFGNode* succNode: *(dfgNode->getSuccNodes())){
+  //       if (succNode->getPathName() == dfgNode->getPathName()){
+  //         // find succNodes of uniqueNodes and succNodes must in the same path with uniqueNodes
+  //         succUniqueNodes.push_back(succNode);
+  //       }
+  //     }
+  //   }
+  //   uniqueNodes =  combineSuccSame(&succUniqueNodes, t_mergeSize);
+  //   succUniqueNodes.clear();
+  //   if (uniqueNodes == NULL){
+  //     // finish if no uniqueNodes to be combined
+  //     std::cout <<"[MMJ] break the  findOpSucc"<< std::endl;
+  //     break;
+  //   }
+  // }
+  return;
+}
+
 // dualIssue is used to identify 'br' with multiple output, it combines the ouput together with the same control edge.
 // Note that the control edge is only one bit width since there is noly one 'br' input.
 // Note that dualIssue must be done after other combine operation.
-void DFG::dualIssue(const int t_mergeSize){
+void DFG::dualIssue(const int t_mergeSize, const int t_mergeCount){
   // testBench: adpcmkernel's 'br-3phi'
   // toBeMatchedDFGNodes is to store the DFG nodes after br
   std::cout <<"[MMJ] dual Issue is running. "<<std::endl;
   list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>();
+  int countPartialMerge = 1;
   for (DFGNode* dfgNode: nodes) {
+    if(countPartialMerge > t_mergeCount){
+      return;
+    }
     // we support both br and switch
-    if ((dfgNode->isBranch() or dfgNode->isOpt("switch")) and !dfgNode->hasCombined()) {
+    if ((dfgNode->isBranch() or dfgNode->isOpt("switch")) and !dfgNode->hasMerged()) {
       bool found = false;
       std::cout <<"[MMJ] dual Issue finds the br/switch "<< dfgNode->getID() << std::endl;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (!succNode->hasCombined()){
+        if (!succNode->hasMerged() and !succNode->hasCombined()){
           toBeMatchedDFGNodes->push_back(succNode); 
         }
       }  
       // find nodes that are the same after br
       found = findOpSameSucc(toBeMatchedDFGNodes, t_mergeSize);
+      countPartialMerge++;
     }
     // clear toBeMatchedDFGNodes and find the next br/switch
     toBeMatchedDFGNodes->clear();
   }
 }
+
+
+// findIFELPath finds succeed nodes after br with different path
+void DFG::findIFELPath(list<DFGNode*>* t_succList, const int t_mergeSize) {
+  std::cout <<"[MMJ] findIFELPath is running "<< std::endl;
+  map<string, list<DFGNode*>> pathNameMap;
+  for (DFGNode* dfgNode: *t_succList){
+    std::cout <<"[MMJ] t_succList dfgNode "<< dfgNode->getID() << std::endl;
+    if (!dfgNode->hasMerged() and !dfgNode->hasCombined()){
+      pathNameMap[dfgNode->getPathName()].push_back(dfgNode);
+    }
+  }
+
+  for (auto& pair: pathNameMap) {
+    // sort every path by name to make similar names adjacent
+    pair.second.sort([](DFGNode* a, DFGNode* b) {
+        return a->getOpcodeName() < b->getOpcodeName(); 
+    });
+  }
+
+  list<DFGNode*> diffPathNode;
+  while(true){
+    for (auto& pair: pathNameMap) {
+      if (pair.second.empty()){
+        // if there is no node in this path, pass
+        continue;
+      }
+      diffPathNode.push_back(pair.second.front());
+      pair.second.pop_front();
+    }
+    if (diffPathNode.empty()){
+      std::cout <<"[MMJ] findIFELPath is finished "<<  std::endl;
+      return;
+    }
+    pathMerge(&diffPathNode, t_mergeSize);
+    diffPathNode.clear();
+  } 
+}
+
+// pathMerge is used to merge exclusive pathes
+void DFG::pathMerge(list<DFGNode*>* t_diffPathNode, const int t_mergeSize){
+  std::cout <<"[MMJ] pathMerge is running "<< std::endl;
+  // choose DFGNode in t_sameSuccNode with different pathName
+  if (t_diffPathNode->size() < 2){
+    // pathMerge is finished.
+    std::cout <<"[MMJ] pathMerge is finished "<< std::endl;
+    return;
+  }
+  list<DFGNode*> pathSucc;
+  for (DFGNode* dfgNode: *t_diffPathNode){
+    for (DFGNode* succNode: *(dfgNode->getSuccNodes())){
+      if ((succNode->getPathName() == dfgNode->getPathName()) and !succNode->hasMerged() and !succNode->hasCombined()){
+        // only add one succNode that is along the path of current dfgNode
+        pathSucc.push_back(succNode);
+        break;
+      }
+    }
+  }
+  int mergeCount = 0;
+  DFGNode* headNode = t_diffPathNode->front();
+  for (DFGNode* dfgNode: *t_diffPathNode){
+    if(dfgNode != headNode and !dfgNode->hasMerged() and !dfgNode->hasCombined()){
+        headNode ->addPatternPartner(dfgNode);                  
+    }
+    dfgNode->setMerge(); 
+    std::cout <<"[MMJ] dual Issue combine "<< dfgNode->getID() << std::endl; 
+    mergeCount++;
+    if (mergeCount == t_mergeSize) {
+      // combined DFGNode number <= t_mergeSize
+      break;
+    }                   
+  }
+  pathMerge(&pathSucc, t_mergeSize);
+  pathSucc.clear();
+}
+
+// dualIssueNew is used to identify 'br' with multiple output, it combines the ouput together with the same control edge.
+// Note that the control edge is only one bit width since there is noly one 'br' input.
+// Note that dualIssue must be done after other combine operation.
+void DFG::dualIssueNew(const int t_mergeSize, const int t_mergeCount){
+  // testBench: nwkernel's 'add-sext-ge'
+  // toBeMatchedDFGNodes is to store the DFG nodes after br
+  std::cout <<"[MMJ] dualIssueNew is running. "<<std::endl;
+  int countPartialMerge = 1;
+  for (DFGNode* dfgNode: nodes) {
+    if (countPartialMerge > t_mergeCount){
+      return;
+    }
+    if ((dfgNode->isBranch() or dfgNode->isOpt("switch")) and !dfgNode->hasMerged()) {
+      findIFELPath(dfgNode->getSuccNodes(), t_mergeSize);
+      countPartialMerge++;
+    }
+  }
+}
+
 
 bool DFG::shouldIgnore(Instruction* t_inst) {
   if (m_targetFunction) {
@@ -518,7 +723,6 @@ void DFG::construct(Function& t_F) {
   int nodeID = 0;
   int ctrlEdgeID = 0;
   int dfgEdgeID = 0;
-  int blockCounter = 0;
 
   cout<<"*** current function: "<<t_F.getName().str()<<"\n";
 
@@ -531,8 +735,7 @@ void DFG::construct(Function& t_F) {
       errs()<<"   ****** succ bb: "<<*sucBB->begin()<<"\n";
     }
 
-    string curBBName = curBB->getName().empty() ? std::to_string(blockCounter) : curBB->getName().str();
-    blockCounter++;
+    string curBBName = curBB->getName().str();
 
      // Construct DFG nodes.
     for (BasicBlock::iterator II=curBB->begin(),
@@ -563,8 +766,8 @@ void DFG::construct(Function& t_F) {
 //    DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
     for (BasicBlock* sucBB : successors(curBB)) {
       // TODO: get the live-in nodes rather than front() and connect them
-      string sucBBName = sucBB->getName().empty() ? std::to_string(blockCounter) : sucBB->getName().str();
-      blockCounter++;
+      string sucBBName = sucBB->getName().str();
+      errs()<<"[MMJ] "<<sucBB->getName()<<"\n";
       for (BasicBlock::iterator II=sucBB->begin(),
           IEnd=sucBB->end(); II!=IEnd; ++II) {
         Instruction* inst = &*II;
@@ -1385,8 +1588,11 @@ void DFG::replaceDFGEdge(DFGNode* t_old_src, DFGNode* t_old_dst,
       break;
     }
   }
-  if (target == NULL)
-    assert("ERROR cannot find the corresponding DFG edge.");
+  if (target == NULL) {
+    // assert("ERROR cannot find the corresponding DFG edge.");
+    cout << "ERROR cannot find the corresponding DFG edge\n";
+    return;
+  }
   m_DFGEdges.remove(target);
   // Keeps the ctrl property of the original edge on the newly added edge.
   DFGEdge* newEdge = new DFGEdge(target->getID(), t_new_src, t_new_dst, target->isCtrlEdge());

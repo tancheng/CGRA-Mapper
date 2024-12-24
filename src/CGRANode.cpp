@@ -30,6 +30,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canStore = false;
   m_canLoad = false;
   m_supportComplex = false;
+  m_supportPathDim = false;
   m_x = t_x;
   m_y = t_y;
   m_neighbors = NULL;
@@ -191,6 +192,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isCall()       and !canCall())  or
       (t_opt->isVectorized() and !supportVectorization()) or
       (t_opt->hasCombined()  and !supportComplex()) or
+      (t_opt->hasMerged()    and !supportPathDim()) or
       (t_opt->isAdd()        and !canAdd()) or 
       (t_opt->isMul()        and !canMul()) or 
       (t_opt->isPhi()        and !canPhi()) or 
@@ -443,6 +445,10 @@ void CGRANode::enableComplex() {
   m_supportComplex = true;
 }
 
+void CGRANode::enablePathDim() {
+  m_supportPathDim = true;
+}
+
 void CGRANode::enableVectorization() {
   m_supportVectorization = true;
 }
@@ -486,6 +492,10 @@ void CGRANode::enableBr() {
 
 bool CGRANode::supportComplex() {
   return m_supportComplex;
+}
+
+bool CGRANode::supportPathDim() {
+  return m_supportPathDim;
 }
 
 bool CGRANode::supportVectorization() {
@@ -577,6 +587,7 @@ void CGRANode::disableAllFUs() {
   m_canLogic = false;
   m_canBr = false;
   m_supportComplex = false;
+  m_supportPathDim = false;
   m_supportVectorization = false;
 }
 
