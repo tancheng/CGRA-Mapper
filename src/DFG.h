@@ -97,6 +97,7 @@ class DFG {
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
     // target nonlinear ops
     void nonlinear_combine();
+    void splitNodes();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,

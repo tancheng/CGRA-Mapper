@@ -33,17 +33,64 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   if (t_heterogeneity) {
     calculateCycles();
     nonlinear_combine();      // fusion for nonlinear ops
-//    calculateCycles();
+    // calculateCycles();
 //    tuneForPattern();
   }
 //  trimForStandalone();
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
+  splitNodes();
+  calculateCycles();
 
   // Pre-assigns the DVFS levels to each DFG node.
   // This needs to be done after construct function
   // as we need assign the highest frequency to the
   // nodes on the critical path in the DFG.
+}
+
+void DFG::splitNodes() {
+  list<DFGNode*>* add_nodes = new list<DFGNode*>();
+  for (DFGNode* dfgNode: nodes) {
+    if (dfgNode->isLoad() || dfgNode->isStore()) {
+      int ExecLatency = dfgNode->getExecLatency(1);
+      dfgNode->setExecLatency(1);
+      int dfgNodeID = nodes.size();
+      DFGNode* nowNode = dfgNode;
+      DFGNode* stNode;
+      for (int i = 1; i < ExecLatency; i++) {
+        DFGNode* newNode = new DFGNode(dfgNodeID++, dfgNode);
+        int dfgEdgeID = m_DFGEdges.size();
+        DFGEdge* newEdge = new DFGEdge(dfgEdgeID++, nowNode, newNode);
+        newNode->setExecLatency(1);
+        m_DFGEdges.push_back(newEdge);
+        // nodes.push_back(newNode);
+        add_nodes->push_back(newNode);
+        // Update the pred and succ nodes of nods.
+        newNode->deleteAllPredNodes();
+        newNode->deleteAllSuccNodes();
+        nowNode->addSuccNode(newNode);
+        newNode->addPredNode(nowNode);
+        nowNode = newNode;
+        if (i == 1) stNode = nowNode;
+      }
+      // change the successors of dfgNode to nowNode;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode == stNode) continue;
+        replaceDFGEdge(dfgNode, succNode, nowNode, succNode);
+        // dfgNode->deleteSuccNode(succNode);
+        nowNode->addSuccNode(succNode);
+        succNode->deletePredNode(dfgNode);
+        succNode->addPredNode(nowNode);
+      }
+      dfgNode->deleteAllSuccNodes();
+      dfgNode->addSuccNode(stNode);
+    }
+  }
+
+  for (DFGNode* dfgNode: *add_nodes) {
+    nodes.push_back(dfgNode);
+  }
+
 }
 
 void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
@@ -1147,7 +1194,7 @@ void DFG::initExecLatency(map<string, int>* t_execLatency) {
 }
 
 void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
-  set<string> targetOpt;
+  set<string> targetOpt;    // set 去重？作用是看有没有剩下的 pipeline opt（只能给 DFG 里有的）
   for (string opt: *t_pipelinedOpt) {
     targetOpt.insert(opt);
   }

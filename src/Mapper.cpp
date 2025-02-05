@@ -352,6 +352,8 @@ map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
   int latest = -1;
   bool isAnyPredDFGNodeMapped = false;
+  // 找之前 pred 节点已经 map 了的，map 之后找一个 cost（即间隔 cycle 最短的）
+  // 作为 path
   for(DFGNode* pre: *predNodes) {
 //      cout<<"[DEBUG] how dare to pre node: "<<pre->getID()<<"; CGRA node: "<<t_fu->getID()<<endl;
     if(m_mapping.find(pre) != m_mapping.end()) {
@@ -1525,6 +1527,7 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
         dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
       list<map<CGRANode*, int>*> paths;
+      // 枚举所有，可能映射的 cgra node（dijkstra？）
       for (int i=0; i<t_cgra->getRows(); ++i) {
         for (int j=0; j<t_cgra->getColumns(); ++j) {
           CGRANode* fu = t_cgra->nodes[i][j];
@@ -1543,6 +1546,7 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
         map<CGRANode*, int>* optimalPath =
             getPathWithMinCostAndConstraints(t_cgra, t_dfg, t_II, *dfgNode, &paths);
         if (optimalPath->size() != 0) {
+          // 尝试将这条 path 安排过去
           if (!schedule(t_cgra, t_dfg, t_II, *dfgNode, optimalPath,
               t_isStaticElasticCGRA)) {
             cout<<"[DEBUG] fail1 in schedule() II: "<<t_II<<"\n";

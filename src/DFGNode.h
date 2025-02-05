@@ -110,6 +110,10 @@ class DFGNode {
     list<DFGNode*>* getSuccNodes();
     void deleteSuccNode(DFGNode*);
     void deletePredNode(DFGNode*);
+    void deleteAllSuccNodes();
+    void deleteAllPredNodes();
+    void addSuccNode(DFGNode*);
+    void addPredNode(DFGNode*);
     bool isSuccessorOf(DFGNode*);
     bool isPredecessorOf(DFGNode*);
     bool isOneOfThem(list<DFGNode*>*);
