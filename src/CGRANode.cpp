@@ -64,6 +64,10 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_mapped = false;
   m_DVFSLatencyMultiple = 1;
   m_synced = false;
+
+  // Indicates whether this CGRA node can execute multiple operations
+  // simultaneously. (e.g.,  single-cycle overlaps with multi-cycle)
+  m_canMultipleOps = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -262,6 +266,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   return true;
 }
 
+// t_cycle, t_II 是什么？
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (m_disabled) 
     return false;
@@ -293,8 +298,16 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
     // Single-cycle opt:
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      if (!canMultipleOps() && !m_dfgNodesWithOccupyStatus[cycle]->empty()) {
+        // printf("no overlap!!!\n");
+        return false;
+      }
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
         if (p.second != IN_PIPE_OCCUPY) {
+          // 如果这段时间有 cycle 的 fu 被其他 multi-cycle op 占（而且是开始或者结束），就不对？
+          // 只能是其他 multi-cycle 中间？（why?）
+          // multi-cycle 中间可以和其他的 sharing（因为不用占输入输出？
+          // 起始和结束不行
           return false;
         }
       }
@@ -302,6 +315,18 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   } else {
     // Multi-cycle opt.
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      // Can not support simultaneous execution of multiple operations.
+      if (!canMultipleOps()) {
+        int exec_latency = t_opt->getExecLatency(getDVFSLatencyMultiple());
+        for (int duration=0; duration < exec_latency; duration++) {
+          if (!m_dfgNodesWithOccupyStatus[cycle+duration]->empty()) {
+            // printf("no overlap!!!!!!!\n");
+            return false;
+          }
+        }
+        return true;
+      }
+
       // Check start cycle.
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
 	// Cannot occupy/overlap by/with other operation if DVFS is enabled.
@@ -320,6 +345,8 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
         else if (p.second == START_PIPE_OCCUPY) {
           return false;
         }
+        // 两个要使用同一个 FU（假设这个 FU 是可以 pipeline 的）
+        // TODO: 如果是 basic FU 组合起来的 multi-cycle（例如 fusion），如何和其他复用？
         // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
         else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
                  (t_opt->shareFU(p.first))   and
@@ -640,6 +667,11 @@ void CGRANode::enableDiv() {
   m_canDiv = true;
 }
 
+void CGRANode::disableMultipleOps() {
+  printf("disabling multiple ops\n");
+  m_canMultipleOps = false;
+}
+
 bool CGRANode::supportComplex(string type) {
   if (type == "") return m_supportComplex;
   for (string t: m_supportComplexType) {
@@ -711,6 +743,10 @@ bool CGRANode::canBr() {
 
 bool CGRANode::canDiv() {
   return m_canDiv;
+}
+
+bool CGRANode::canMultipleOps() {
+  return m_canMultipleOps;
 }
 
 int CGRANode::getX() {

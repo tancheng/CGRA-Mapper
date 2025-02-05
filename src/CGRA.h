@@ -30,7 +30,7 @@ class CGRA {
     void disableSpecificConnections();
 
   public:
-    CGRA(int, int, bool, bool, bool, map<string, list<int>*>*, bool, int);
+    CGRA(int, int, bool, bool, bool, map<string, list<int>*>*, bool, int, bool=true);
     CGRANode ***nodes;
     CGRALink **links;
     int getFUCount();

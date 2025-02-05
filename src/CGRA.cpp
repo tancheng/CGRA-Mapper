@@ -17,7 +17,7 @@ using json = nlohmann::json;
 CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 	   bool t_heterogeneity, bool t_parameterizableCGRA,
 	   map<string, list<int>*>* t_additionalFunc,
-	   bool t_supportDVFS, int t_DVFSIslandDim) {
+	   bool t_supportDVFS, int t_DVFSIslandDim, bool enableMultipleOps) {
   m_rows = t_rows;
   m_columns = t_columns;
   m_FUCount = t_rows * t_columns;
@@ -53,6 +53,9 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       nodes[i] = new CGRANode*[t_columns];
       for (int j=0; j<t_columns; ++j) {
         nodes[i][j] = new CGRANode(node_id, j, i);
+        if (!enableMultipleOps) {
+          nodes[i][j]->disableMultipleOps();
+        }
 	// nodes[i][j]->disableAllFUs();
 	id2Node[node_id] = nodes[i][j];
 	node_id += 1;
@@ -118,6 +121,9 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       nodes[i] = new CGRANode*[t_columns];
       for (int j=0; j<t_columns; ++j) {
         nodes[i][j] = new CGRANode(node_id++, j, i);
+        if (!enableMultipleOps) {
+          nodes[i][j]->disableMultipleOps();
+        }
       }
     }
 
