@@ -84,10 +84,11 @@ class DFGNode {
     string isCall();
     bool isBranch();
     bool isPhi();
-    bool isAdd();
-    bool isScalarAdd();
+    bool isAddSub();
+    bool isScalarAddSub();
+    bool isConstantAddSub();
     // Detect integer addition.
-    bool isIadd();
+    bool isIaddIsub();
     bool isMul();
     bool isCmp();
     bool isBitcast();

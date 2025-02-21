@@ -81,6 +81,7 @@ namespace {
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
+      map<string, list<string>*>* fusionPattern = new map<string, list<string>*>();
 
       // Set the target function and loop.
       map<string, list<int>*>* functionWithLoop = new map<string, list<int>*>();
@@ -196,6 +197,16 @@ namespace {
           }
           cout<<endl;
         }
+        cout<<"Finding fusion pattern for DFG: "<<endl;
+        for (auto& opt : param["fusionPattern"].items()) {
+          (*fusionPattern)[opt.key()] = new list<string>();
+          cout<<opt.key()<<" : "<<opt.value()<<": ";
+          for (int i=0; i<opt.value().size(); ++i) {
+            (*fusionPattern)[opt.key()]->push_back(opt.value()[i]);
+            cout<<opt.value()[i]<<" ";
+          }
+          cout<<endl;
+        }
       }
 
       // Check existance.
@@ -210,7 +221,7 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt, supportDVFS,
+                         heterogeneity, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
 			 DVFSAwareMapping, vectorFactorForIdiv);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc, supportDVFS,

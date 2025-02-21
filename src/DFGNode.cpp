@@ -212,7 +212,7 @@ bool DFGNode::isPhi() {
   return false;
 }
 
-bool DFGNode::isOpt(string t_opt) {
+bool DFGNode::isOpt(string t_opt) {   
   if (m_opcodeName.compare(t_opt) == 0)
     return true;
   return false;
@@ -225,7 +225,7 @@ bool DFGNode::isMul() {
   return false;
 }
 
-bool DFGNode::isAdd() {
+bool DFGNode::isAddSub() {
   if (m_opcodeName.compare("getelementptr") == 0 or
       m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("fadd") == 0 or
@@ -237,7 +237,7 @@ bool DFGNode::isAdd() {
 }
 
 // Only detect integer addition.
-bool DFGNode::isIadd() {
+bool DFGNode::isIaddIsub() {
   if (m_opcodeName.compare("getelementptr") == 0 or
       m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("sub") == 0) {
@@ -247,10 +247,21 @@ bool DFGNode::isIadd() {
 }
 
 // Checks whether the operation is a scalar addition.
-bool DFGNode::isScalarAdd() {
+bool DFGNode::isScalarAddSub() {
   if (m_opcodeName.compare("add") == 0 or
       m_opcodeName.compare("sub") == 0)
     return true;
+  return false;
+} 
+
+bool DFGNode::isConstantAddSub() {
+  if (auto* addInst = dyn_cast<BinaryOperator>(m_inst)) {
+      if (addInst->getOpcode() == Instruction::Add) {
+          Value* op1 = addInst->getOperand(0);
+          Value* op2 = addInst->getOperand(1);
+          return isa<ConstantInt>(op1) && isa<ConstantInt>(op2);
+      }
+  }
   return false;
 }
 

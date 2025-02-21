@@ -14,8 +14,9 @@
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
          map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
-	 bool t_supportDVFS, bool t_DVFSAwareMapping,
-	 int t_vectorFactorForIdiv) {
+         map<string, list<string>*>* t_fusionPattern, 
+	      bool t_supportDVFS, bool t_DVFSAwareMapping,
+	      int t_vectorFactorForIdiv) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -31,9 +32,9 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForBranch();
 //  tuneForLoad();
   if (t_heterogeneity) {
-    calculateCycles();
     nonlinear_combine();      // fusion for nonlinear ops
-//    calculateCycles();
+    // ctrlFlow_combine(t_fusionPattern); // fusion for control flows
+    calculateCycles();
 //    tuneForPattern();
   }
 //  trimForStandalone();
@@ -233,6 +234,17 @@ void DFG::tuneDivPattern() {
   }
 }
 
+// Fusion for control flows using t_fusionPattern.
+void DFG::ctrlFlow_combine(map<string, list<string>*>* t_fusionPattern) {
+  for (map<string, list<string>*>::iterator iter=t_fusionPattern->begin();
+          iter!=t_fusionPattern->end(); ++iter) {
+          combineForIter(iter->second, "BrT");
+        }
+  // combineForUnroll only resloves "phi-ConstantAdd-ConstantAdd-..." 
+  combineForUnroll();
+  tuneForPattern();
+}
+
 // FIXME: only combine operations of mul+alu and alu+cmp for now,
 //        since these two are the most common patterns across all
 //        the kernels.
@@ -290,7 +302,7 @@ void DFG::combineCmpBranch() {
   DFGNode* brhNode = NULL;
   bool found = false;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+    if (dfgNode->isAddSub() and !dfgNode->hasCombined()) {
       found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (succNode->isCmp() and !succNode->hasCombined()) {
@@ -331,9 +343,9 @@ void DFG::combinePhiAdd(string type) {
       found = false;
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
         if (found) break;
-        if (succNode->isIadd() and !succNode->hasCombined()) {
+        if (succNode->isIaddIsub() and !succNode->hasCombined()) {
           for (DFGNode* succNode2: *(succNode->getSuccNodes())) {
-            if (succNode2->isIadd() and !succNode2->hasCombined()) {
+            if (succNode2->isIaddIsub() and !succNode2->hasCombined()) {
               phiNode = dfgNode;
               phiNode->setCombine(type);
               addNode = succNode;
@@ -353,7 +365,7 @@ void DFG::combinePhiAdd(string type) {
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isIadd() and !succNode->hasCombined()) {
+        if (succNode->isIaddIsub() and !succNode->hasCombined()) {
           phiNode = dfgNode;
           phiNode->setCombine(type);
           addNode = succNode;
@@ -375,13 +387,13 @@ void DFG::combineMulAdd(string type) {
   bool found = false;
   // We first locate the latter addition node, then try to find its predecessor multiplication node and another addition node.
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+    if (dfgNode->isAddSub() and !dfgNode->hasCombined()) {
       found = false;
       for (DFGNode* predNode: *(dfgNode->getPredNodes())) {
         if (found) break;
         if (predNode->isMul() and !predNode->hasCombined()) {
           for (DFGNode* predNode2: *(dfgNode->getPredNodes())) {
-            if (predNode2->isAdd() and !predNode2->hasCombined()) {
+            if (predNode2->isAddSub() and !predNode2->hasCombined()) {
               mulNode = dfgNode;
               mulNode->setCombine(type);
               addNode = predNode;
@@ -402,7 +414,7 @@ void DFG::combineMulAdd(string type) {
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isMul() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isAdd() and !succNode->hasCombined()) {
+        if (succNode->isAddSub() and !succNode->hasCombined()) {
           mulNode = dfgNode;
           mulNode->setCombine(type);
           addNode = succNode;
@@ -423,9 +435,9 @@ void DFG::combineAddAdd(string type) {
   bool found = false;
   
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isAdd() and !dfgNode->hasCombined()) {
+    if (dfgNode->isAddSub() and !dfgNode->hasCombined()) {
       for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
-        if (succNode->isAdd() and !succNode->hasCombined()) {
+        if (succNode->isAddSub() and !succNode->hasCombined()) {
           mulNode = dfgNode;
           mulNode->setCombine(type);
           addNode = succNode;
@@ -460,7 +472,7 @@ void DFG::combine(string t_opt0, string t_opt1, string type) {
 }
 
 // Combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
-void DFG::combineForIter(list<string>* t_targetPattern){  
+void DFG::combineForIter(list<string>* t_targetPattern, string type) {  
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
   list<string>::iterator currentFunc = t_targetPattern->begin();
@@ -483,7 +495,7 @@ void DFG::combineForIter(list<string>* t_targetPattern){
                 if(optNode != dfgNode){
                    dfgNode ->addPatternPartner(optNode);                  
                 }
-                optNode->setCombine();                       
+                optNode->setCombine();                   
               }
               break;
             } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
@@ -502,48 +514,44 @@ void DFG::combineForIter(list<string>* t_targetPattern){
   }
 }
 
-// combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-void DFG::combineForUnroll(list<string>* t_targetPattern, string type){
-  int patternSize = t_targetPattern->size();
-  if (patternSize > 4){ 
-    std::cout<<"[ERROR] we currently only support pattern with length less than 5." <<std::endl;
-    // the longest length can be combined is 4
-    return;
-  }
-  string headOpt = string(t_targetPattern->front());
-  list<string>::iterator currentFunc = t_targetPattern->begin();
-  currentFunc++;
-  // toBeMatchedDFGNodes is to store the DFG nodes that match the pattern
-  list<DFGNode*>* toBeMatchedDFGNodes = new list<DFGNode*>[patternSize];
+// combineForUnroll is used to reconstruct "phi-ConstantAdd-ConstantAdd-..." alike circles with a limited length 4.
+void DFG::combineForUnroll(string type) {
+  bool combineDone = false;
+  bool foundNext = false;
+  int limitedSize = 4;
+  list<DFGNode*> currentPath;
   for (DFGNode* dfgNode: nodes) {
-    if (dfgNode->isOpt(headOpt) and !dfgNode->hasCombined() and dfgNode->getID() != 1) {
-      toBeMatchedDFGNodes->push_back(dfgNode);
-      // the for loop below is to find the target pattern under specific dfgNode
-      for (int i = 1; i < patternSize; i++, currentFunc++){
-        string t_opt = *currentFunc;
-        DFGNode* tailNode = toBeMatchedDFGNodes->back();
+    if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
+      currentPath.push_back(dfgNode);
+      // the for loop below is to find ConstantAdd under specific phi dfgNode
+      for (int i = 1; i < limitedSize; i++) {
+        DFGNode* tailNode = currentPath.back();
         for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
-          if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
-            if (i == (patternSize-1)){
-              toBeMatchedDFGNodes->push_back(succNode);
-              for(DFGNode* optNode: *toBeMatchedDFGNodes){
+          if (succNode->isConstantAddSub() and !succNode->hasCombined()) {
+            currentPath.push_back(succNode);
+            foundNext = true;
+            if (dfgNode->isSuccessorOf(succNode)) { 
+              // must be a circle
+              for(DFGNode* optNode: currentPath){
                 if(optNode != dfgNode){
                    dfgNode ->addPatternPartner(optNode);                  
                 }
                 optNode->setCombine();                       
               }
-              break;
-            } else{
-              toBeMatchedDFGNodes->push_back(succNode);
-              break;
+              combineDone = true;   
             }
+            break;
           }
-        }        
+        }
+        // if can't find any avaible succNode, then break
+        if (!foundNext) break;
+        // if combine is done, then break
+        if (combineDone) break;
       }
-      toBeMatchedDFGNodes->clear();
-      currentFunc = t_targetPattern->begin();
-      currentFunc++;
-    }  
+      currentPath.clear();
+      combineDone = false;
+      foundNext = false;
+    }
   }
 }
 
