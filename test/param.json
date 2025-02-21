@@ -7,7 +7,7 @@
   "row"                   : 4,
   "column"                : 4,
   "precisionAware"        : false,
-  "heterogeneity"         : false,
+  "heterogeneity"         : true,
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,
   "parameterizableCGRA"   : false,
@@ -30,5 +30,8 @@
   "incrementalMapping"    : false,
   "DVFSIslandDim"         : 1,
   "DVFSAwareMapping"      : false,
-  "enablePowerGating"     : false
+  "enablePowerGating"     : false,
+  "fusionPattern"         : {
+                              "4" : ["phi", "add", "icmp", "br"]
+                            }
 }
