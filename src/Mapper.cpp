@@ -36,8 +36,14 @@ int Mapper::getRecMII(DFG* t_dfg) {
   list<list<DFGNode*>*>* cycles = t_dfg->getCycleLists();//calculateCycles();
   cout<<"... number of cycles: "<<cycles->size()<<" ..."<<endl;
   // TODO: RecMII = MAX (delay(c) / distance(c))
+  // print all the cycles
   for( list<DFGNode*>* cycle: *cycles) {
     temp_RecMII = float(cycle->size()) / 1.0;
+    cout << "... [MMJ] cycle length " << temp_RecMII << "..." <<endl;
+    for (DFGNode* dfgNode: *cycle){
+      cout << "... [MMJ] cycle nodes " << dfgNode->getID() << " "<< dfgNode->getOpcodeName() << " ";
+    }
+    cout << endl;
     if(temp_RecMII > RecMII)
       RecMII = temp_RecMII;
   }

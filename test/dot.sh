@@ -1,1 +1,2 @@
-dot -Tpng _Z6kernelPfS_S_.dot -o kernel.png
+dot -Tpng _Z11nwkernelMMJPcS_S_S_PiS_.dot -o kernel.png
+

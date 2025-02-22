@@ -1,0 +1,1059 @@
+Initialize opt latency for DFG nodes: 
+load : 2
+store : 2
+Initialize additional functionality on CGRA nodes: 
+load : [4]: 4 
+store : [4]: 4 
+Finding fusion pattern for DFG: 
+4 : ["phi","add","icmp","br"]: "phi" "add" "icmp" "br" 
+[function 'main' is not in our target list]
+Initialize opt latency for DFG nodes: 
+load : 2
+store : 2
+Initialize additional functionality on CGRA nodes: 
+load : [4]: 4 
+store : [4]: 4 
+Finding fusion pattern for DFG: 
+4 : ["phi","add","icmp","br"]: "phi" "add" "icmp" "br" 
+==================================
+[function '_Z6kernelPfS_S_' is one of our targets]
+*** current function: _Z6kernelPfS_S_
+ (ID: 0)
+ (ID: 1)
+ (ID: 2)
+ (ID: 3)
+ (ID: 4)
+ (ID: 5)
+ (ID: 6)
+ (ID: 7)
+ (ID: 8)
+ (ID: 9)
+ (ID: 10)
+ (ID: 11)
+==================================
+==================================
+==================================
+[reorder DFG along with the longest path]
+[MMJDEBUG] combineForIter is running
+[MMJDEBUG] patternSize is 4
+[MMJDEBUG] currentFunc is add
+[MMJDEBUG] currentFunc is icmp
+[MMJDEBUG] currentFunc is br
+[MMJDEBUG] setCombine 1
+[MMJDEBUG] setCombine 9
+[MMJDEBUG] setCombine 10
+[MMJDEBUG] setCombine 11
+[MMJDEBUG] currentFunc is add
+[MMJDEBUG] currentFunc is icmp
+[MMJDEBUG] currentFunc is br
+replace edge: [delete] 11->0 [new] 1->0
+==================================
+==================================
+[show opcode count]
+add : 1
+getelementptr : 2
+load : 2
+mul : 1
+phi : 1
+phiaddcmpbr : 1
+store : 1
+DFG node count: 9; DFG edge count: 11; SIMD node count: 0
+==================================
+[generate dot for DFG]
+==================================
+[generate JSON for DFG]
+==================================
+[ResMII: 1]
+... number of cycles: 1 ...
+==================================
+[RecMII: 2]
+==================================
+[heuristic]
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=2
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 2; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 2; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 2.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=3
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 3; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 3; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 3.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=4
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 4; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 4; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 4.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=5
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 5; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 5; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 5.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=6
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 6; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 6; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 6.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=7
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 7; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 7; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 7.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=8
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 8; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 8; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 8.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=9
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 9; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 9; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 9.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=10
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 10; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 10; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 10.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=11
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 11; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 11; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 11.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=12
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 12; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 12; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 12.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=13
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 13; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 13; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 13.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=14
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 14; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 14; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 14.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=15
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 15; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 15; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 15.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=16
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 16; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 16; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 16.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=17
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 17; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 17; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 17.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=18
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 18; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 18; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 18.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=19
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 19; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 19; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 19.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=20
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 20; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 20; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 20.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=21
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 21; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 21; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 21.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=22
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 22; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 22; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 22.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=23
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 23; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 23; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 23.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=24
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 24; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 24; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 24.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=25
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 25; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 25; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 25.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=26
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 26; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 26; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 26.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=27
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 27; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 27; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 27.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=28
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 28; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 28; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 28.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=29
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 29; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 29; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 29.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=30
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 30; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 30; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 30.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=31
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 31; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 31; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 31.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=32
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 32; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 32; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 32.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=33
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 33; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 33; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 33.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=34
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 34; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 34; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 34.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=35
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 35; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 35; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 35.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=36
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 36; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 36; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 36.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=37
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 37; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 37; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 37.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=38
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 38; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 38; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 38.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=39
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 39; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 39; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 39.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=40
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 40; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 40; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 40.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=41
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 41; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 41; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 41.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=42
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 42; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 42; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 42.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=43
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 43; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 43; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 43.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=44
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 44; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 44; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 44.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=45
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 45; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 45; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 45.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=46
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 46; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 46; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 46.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=47
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 47; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 47; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 47.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=48
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 48; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 48; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 48.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=49
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 49; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 49; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 49.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=50
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 50; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 50; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 50.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=51
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 51; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 51; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 51.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=52
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 52; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 52; path size: 0.
+[DEBUG] *else* no available path for DFG node 1 within II 52.
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=53
+[DEBUG] no available path for DFG node 1 on CGRA node 0 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 1 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 2 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 3 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 4 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 5 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 6 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 7 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 8 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 9 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 10 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 11 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 12 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 13 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 14 within II 53; path size: 0.
+[DEBUG] no available path for DFG node 1 on CGRA node 15 within II 53; path size: 0.
+[DEBUG] *else* no available path for DFG

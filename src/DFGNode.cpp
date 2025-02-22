@@ -335,7 +335,16 @@ void DFGNode::setCombine(string type) {
   m_combinedtype = type;
 }
 
+bool DFGNode::hasMerged() {
+  return m_merged;
+}
+
+void DFGNode::setMerge() {
+  m_merged = true;
+}
+
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
+  // setCombine() and setMerge() use the same addPatternPartner
   m_isPatternRoot = true;
   m_patternRoot = this;
   m_patternNodes->push_back(t_patternNode);
@@ -405,6 +414,10 @@ string DFGNode::getOpcodeName() {
   }
 
   return m_opcodeName;
+}
+
+string DFGNode::getPathName(){
+  return m_pathName;
 }
 
 string DFGNode::getFuType() {

@@ -596,6 +596,10 @@ void CGRANode::enableComplex(string type) {
   else m_supportComplexType.push_back(type);
 }
 
+void CGRANode::enablePathDim() {
+  m_supportPathDim = true;
+}
+
 void CGRANode::enableVectorization() {
   m_supportVectorization = true;
 }
@@ -646,6 +650,10 @@ bool CGRANode::supportComplex(string type) {
     if (t.compare(type) == 0) return true;
   }
   return false;
+}
+
+bool CGRANode::supportPathDim() {
+  return m_supportPathDim;
 }
 
 bool CGRANode::supportVectorization() {
@@ -747,6 +755,7 @@ void CGRANode::disableAllFUs() {
   m_canLogic = false;
   m_canBr = false;
   m_supportComplex = false;
+  m_supportPathDim = false;
   m_supportVectorization = false;
 }
 

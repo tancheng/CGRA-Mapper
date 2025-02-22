@@ -65,6 +65,7 @@ class CGRANode {
     bool m_canBr;
     bool m_canDiv;
     bool m_supportComplex;
+    bool m_supportPathDim;
     bool m_supportVectorization;
     int** m_regs_duration;
     int** m_regs_timing;

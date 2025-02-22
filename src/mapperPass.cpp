@@ -61,6 +61,7 @@ namespace {
       bool precisionAware           = false;
       bool diagonalVectorization    = false;
       bool heterogeneity            = false;
+      int  PathSupportDim           = 16;
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false; 
 
@@ -154,6 +155,7 @@ namespace {
         precisionAware        = param["precisionAware"];
         diagonalVectorization = param["diagonalVectorization"];
         heterogeneity         = param["heterogeneity"];
+        PathSupportDim        = param["PathSupportDim"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
 

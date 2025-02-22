@@ -1,5 +1,5 @@
 {
-  "kernel"                : "_Z8nwkernelPcS_S_S_PiS_",
+  "kernel"                : "_Z6kernelPfS_S_",
   "targetFunction"        : false,
   "targetNested"          : false,
   "targetLoopsID"         : [0],
