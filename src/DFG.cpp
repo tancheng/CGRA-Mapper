@@ -1170,6 +1170,23 @@ void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
 }
 
 bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
+  // Consider br related ctrl flow.
+  if(t_inst == &(t_bb->front())) {
+    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
+    return true;
+  }
+
+  // Consider phi related ctrl flow.
+  string tempInstOpcodeName = t_inst->getOpcodeName();
+  if(tempInstOpcodeName == "phi") {
+    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
+    return true;
+  }
+
+  return false;
+
+  // CHANGED.
+  /*
   if (t_inst == &(t_bb->front())) {
     errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
     return true;
@@ -1192,6 +1209,7 @@ bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
 
   errs()<<"ctrl to: "<<*t_inst<<"; ";
   return true;
+  */
 }
 
 bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) {
