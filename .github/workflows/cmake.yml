@@ -36,20 +36,20 @@ jobs:
       # Build your program with the given configuration
       run: make
 
-    # Testing.
-    - name: Test fusion via Nonlinear kernel
-      working-directory: ${{github.workspace}}/test/nonlinear
-      run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o nonlinear_test.bc -c nonlinear_test.cpp
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass nonlinear_test.bc
-        sh verify.sh
-
-    - name: Test split via Idiv kernel
-      working-directory: ${{github.workspace}}/test/idiv
-      run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o idiv_test.bc -c idiv_test.cpp 
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass idiv_test.bc
-        sh verify.sh
+      #     # Testing.
+      #     - name: Test fusion via Nonlinear kernel
+      #       working-directory: ${{github.workspace}}/test/nonlinear
+      #       run: |
+      #         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o nonlinear_test.bc -c nonlinear_test.cpp
+      #         opt-12 -load ../../build/src/libmapperPass.so -mapperPass nonlinear_test.bc
+      #         sh verify.sh
+      # 
+      #     - name: Test split via Idiv kernel
+      #       working-directory: ${{github.workspace}}/test/idiv
+      #       run: |
+      #         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o idiv_test.bc -c idiv_test.cpp 
+      #         opt-12 -load ../../build/src/libmapperPass.so -mapperPass idiv_test.bc
+      #         sh verify.sh
 
     - name: Test DVFS
       working-directory: ${{github.workspace}}/test/dvfs

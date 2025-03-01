@@ -66,7 +66,7 @@ class DFG {
     void tuneForLoad();
     void tuneForPattern();
     void tuneDivPattern();
-    void combineCmpBranch();
+    void combineAddCmpBranch();
     void combineMulAdd(string type="");
     // void combineAddMul(string type="");
     void combineAddAdd(string type="");
@@ -97,6 +97,7 @@ class DFG {
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
     // target nonlinear ops
     void nonlinear_combine();
+    void ctrl_combine();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,

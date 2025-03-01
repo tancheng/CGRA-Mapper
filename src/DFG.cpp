@@ -31,10 +31,10 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 //  tuneForBranch();
 //  tuneForLoad();
   if (t_heterogeneity) {
+    // nonlinear_combine();      // fusion for nonlinear ops
+    ctrl_combine();      // fusion for nonlinear ops
     calculateCycles();
-    nonlinear_combine();      // fusion for nonlinear ops
 //    calculateCycles();
-//    tuneForPattern();
   }
 //  trimForStandalone();
   initExecLatency(t_execLatency);
@@ -180,6 +180,17 @@ void DFG::nonlinear_combine() {
   tuneDivPattern();
 }
 
+void DFG::ctrl_combine() {
+  // combinePhiAdd("Ctrl");
+  combine("phi", "add", "Ctrl");
+  combine("phi", "fadd", "Ctrl");
+  combine("fcmp", "select", "Ctrl");
+  combine("icmp", "select", "Ctrl");
+  combine("icmp", "br", "Ctrl");
+  combine("fcmp", "br", "Ctrl");
+  tuneForPattern();
+}
+
 // For division, we treat it as non-vectorized instructions, which is contradictory to LLVM Pass.
 // Thus we need to split a vectorization divison into multiple scalar divisions.
 void DFG::tuneDivPattern() {
@@ -283,8 +294,8 @@ void DFG::tuneForPattern() {
   }
 }
 
-void DFG::combineCmpBranch() {
-  // detect patterns (e.g., cmp+branch)
+void DFG::combineAddCmpBranch() {
+  // detect patterns (i.e., add+cmp+branch)
   DFGNode* addNode = NULL;
   DFGNode* cmpNode = NULL;
   DFGNode* brhNode = NULL;
@@ -296,7 +307,7 @@ void DFG::combineCmpBranch() {
         if (succNode->isCmp() and !succNode->hasCombined()) {
           for (DFGNode* succSuccNode: *(succNode->getSuccNodes())) {
             if (succSuccNode->isBranch() and !succSuccNode->hasCombined() and
-                succSuccNode->isSuccessorOf(dfgNode)) {
+                succSuccNode->isSuccessorOf(succNode)) {
               addNode = dfgNode;
               addNode->setCombine();
               cmpNode = succNode;
@@ -318,7 +329,6 @@ void DFG::combineCmpBranch() {
 
 // Combine phi + iadd or phi + iadd + iadd where iadd is integer addition.
 void DFG::combinePhiAdd(string type) {
-  // detect patterns (e.g., mul+alu)
   DFGNode* phiNode = NULL;
   DFGNode* addNode = NULL;
   DFGNode* addNode2 = NULL;
