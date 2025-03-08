@@ -675,11 +675,11 @@ void DFG::construct(Function& t_F) {
   for (Function::iterator BB=t_F.begin(), BEnd=t_F.end(); BB!=BEnd; ++BB) {
     BasicBlock *curBB = &*BB;
     bool isTargetBB = false;
-    outs()<<"  *** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n";
+    errs()<<"  *** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n";
     for (BasicBlock::iterator II=curBB->begin(), IEnd=curBB->end(); II!=IEnd; ++II) { 
       Instruction* curII = &*II;
       if (shouldIgnore(curII)) {
-        outs()<<"    *** ignored by pass because instruction \""<<*curII<<"\" is out of the scope (target loop)."<<"\n";
+        errs()<<"    *** ignored by pass because instruction \""<<*curII<<"\" is out of the scope (target loop)."<<"\n";
         continue;
       }
       else {
@@ -692,16 +692,16 @@ void DFG::construct(Function& t_F) {
           dfgNode->setBBID(bbID);
           nodes.push_back(dfgNode);
 //        }
-        outs()<<"    +++ \""<<*curII<<"\" (ID: "<<dfgNode->getID()<<")"<<"\n";
+        errs()<<"    +++ \""<<*curII<<"\" (ID: "<<dfgNode->getID()<<")"<<"\n";
       }
     }
     if(isTargetBB) {
-      outs()<<"  +++ basic block \""<<curBB->getName().str()<<"\" got ID: "<<bbID<<"\n\n";
+      errs()<<"  +++ basic block \""<<curBB->getName().str()<<"\" got ID: "<<bbID<<"\n\n";
       m_targetBBs.push_back(curBB);
       bbID += 1;
     }
     else{
-      outs()<<"  *** ignored by pass because basic block \""<<curBB->getName().str()<<"\" is out of the scope (target loop)."<<"\n\n";
+      errs()<<"  *** ignored by pass because basic block \""<<curBB->getName().str()<<"\" is out of the scope (target loop)."<<"\n\n";
     }
   }
 
@@ -711,27 +711,27 @@ void DFG::construct(Function& t_F) {
   // 2. pointed to "lonely inst"(i.e. an inst without any flow pointed to it)
   // 3. pointed to an inst without [intra-iteration & intra-basicblock] data flow pointed to it.
   for (BasicBlock* curBB : m_targetBBs) {
-    outs()<<"\n";
-    outs()<<"  *** curBB: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n";
+    errs()<<"\n";
+    errs()<<"  *** curBB: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n";
     Instruction* terminator = curBB->getTerminator();
     if(shouldIgnore(terminator)) {
-      outs()<<"    *** ignore terminator instruction \""<<*terminator<<"\""<<"\n\n";
+      errs()<<"    *** ignore terminator instruction \""<<*terminator<<"\""<<"\n\n";
       continue;
     }
     else {
-      outs()<<"    *** find terminator instruction of curBB: "<<*terminator<<"\n";
+      errs()<<"    *** find terminator instruction of curBB: "<<*terminator<<"\n";
       for(BasicBlock* sucBB : successors(curBB)) {
         auto it = find(m_targetBBs.begin(), m_targetBBs.end(), sucBB);
         if(it == m_targetBBs.end()) {
-          outs()<<"  *** ignore sucBB \""<<sucBB->getName().str()<<"\""<<"\n\n";
+          errs()<<"  *** ignore sucBB \""<<sucBB->getName().str()<<"\""<<"\n\n";
           continue;
         }
         else {
-          outs()<<"  *** into sucBB \""<<sucBB->getName().str()<<"\""<<"\n";
+          errs()<<"  *** into sucBB \""<<sucBB->getName().str()<<"\""<<"\n";
           for(BasicBlock::iterator II = sucBB->begin(), IEnd = sucBB->end(); II != IEnd; ++II) {
             Instruction* instruction = &*II;
             if(isLiveInInst(sucBB,instruction)) {
-              outs()<<"    +++ construct ctrl flow: "<<*terminator<<"->"<<*instruction<<"\n";
+              errs()<<"    +++ construct ctrl flow: "<<*terminator<<"->"<<*instruction<<"\n";
               DFGEdge* ctrlEdge;
               if (hasCtrlEdge(getNode(terminator), getNode(instruction))) {
                 ctrlEdge = getCtrlEdge(getNode(terminator), getNode(instruction));
@@ -1322,17 +1322,17 @@ void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
 
 bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
   // FOR DEBUG
-//  outs()<<"[FOR DEBUG] "<<"current inst: "<<*t_inst<<"\n";
-//  outs()<<"            "<<"op used:"<<"\n";
+//  errs()<<"[FOR DEBUG] "<<"current inst: "<<*t_inst<<"\n";
+//  errs()<<"            "<<"op used:"<<"\n";
 //  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
 //    Value *operand = *op;
 //    if(operand->hasName()) {
-//      outs()<<"            "<<operand->getName()<<"\n";
+//      errs()<<"            "<<operand->getName()<<"\n";
 //    }
 //    else {
-//      outs()<<"            ";
-//      operand->print(outs());
-//      outs()<<"\n";
+//      errs()<<"            ";
+//      operand->print(errs());
+//      errs()<<"\n";
 //    }
 //    Instruction* tempInst = dyn_cast<Instruction>(*op);
 //    if(tempInst) {
@@ -1346,8 +1346,8 @@ bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
 
   // type 1
   if(t_inst == &(t_bb->front())) {
-    outs()<<"        Type: first inst of a BB."<<"\n";
-    outs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    errs()<<"        Type: first inst of a BB."<<"\n";
+    errs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
     return true;
   }
  
@@ -1364,13 +1364,13 @@ bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
     }
   }
   if(isLonelyInst) {
-    outs()<<"        Type: lonely inst."<<"\n";
-    outs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    errs()<<"        Type: lonely inst."<<"\n";
+    errs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
     return true;
   }
   else if(!isUsingIntraIterationData) {
-    outs()<<"        Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
-    outs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    errs()<<"        Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
+    errs()<<"        ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
     return true;
   }
 
