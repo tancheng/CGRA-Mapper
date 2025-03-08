@@ -590,7 +590,7 @@ list<DFGNode*>* DFGNode::getPredNodes() {
     assert(edge->getDst() == this);
     m_predNodes->push_back(edge->getSrc());
   }
-  if (isBranch()) {
+  if (isBranch()) { // 如果当前DFGNode对应的指令为br，则执行以下内容
     list<DFGNode*>* m_tempNodes = new list<DFGNode*>();
     for (DFGNode* node: *m_predNodes) {
       // make sure the CMP node is the last one in the predecessors,
@@ -727,4 +727,12 @@ string getOpcodeNameHelper(Instruction* inst) {
   if (opcode == Instruction::Call) return "call";
   
   return "unknown";
+}
+
+void DFGNode::setBBID(int t_bbID) {
+  m_bbID = t_bbID;
+}
+
+int DFGNode::getBBID() {
+  return m_bbID;
 }
