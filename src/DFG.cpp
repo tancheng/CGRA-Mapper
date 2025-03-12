@@ -659,8 +659,8 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
 // extract DFG from specific function
 void DFG::construct(Function& t_F) {
 
-  m_DFGEdges.clear(); // .clear()，清空list<>
-  nodes.clear(); // 清空list<DFGNode>* nodes
+  m_DFGEdges.clear(); 
+  nodes.clear(); 
   m_ctrlEdges.clear();
   m_targetBBs.clear();
 
@@ -751,20 +751,20 @@ void DFG::construct(Function& t_F) {
   // FIXME: eleminate duplicated edges.
   /*
   for (Function::iterator BB=t_F.begin(), BEnd=t_F.end();
-      BB!=BEnd; ++BB) { // BB用于迭代t_F中的基本块（Basic Block）
-    BasicBlock *curBB = &*BB; // &*BB等价于(&(*BB))
-    errs()<<"*** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n"; // 打印curBB中第一条指令
-    for (BasicBlock* sucBB : successors(curBB)) { // successors(BasicBlock*)用于返回基本块的后继基本块列表（LLVM中通过跳转指令连接基本块）
-      errs()<<"   ****** succ bb: "<<sucBB->getName().str()<<"; First Inst: "<<*sucBB->begin()<<"\n"; // 打印sucBB中第一条指令
+      BB!=BEnd; ++BB) {
+    BasicBlock *curBB = &*BB; 
+    errs()<<"*** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n"; 
+    for (BasicBlock* sucBB : successors(curBB)) { 
+      errs()<<"   ****** succ bb: "<<sucBB->getName().str()<<"; First Inst: "<<*sucBB->begin()<<"\n"; 
     }
 
     // Construct DFG nodes.
     for (BasicBlock::iterator II=curBB->begin(),
-        IEnd=curBB->end(); II!=IEnd; ++II) { // II用于迭代BasicBlock中的指令（Instruction）
+        IEnd=curBB->end(); II!=IEnd; ++II) {
       Instruction* curII = &*II;
 
       // Ignore this IR if it is out of the scope.
-      if (shouldIgnore(curII)) { // entry等Basic Block中的命令是应该被Ignore掉的，尽管这个基本块和我们所要的循环同属于一个函数内
+      if (shouldIgnore(curII)) {
         errs()<<*curII<<" *** ignored by pass due to that the BB is out "<<
             "of the scope (target loop)\n";
         continue; // Jump to the next II
@@ -780,31 +780,15 @@ void DFG::construct(Function& t_F) {
       }
       cout<<" (ID: "<<dfgNode->getID()<<")\n";
     }
-    Instruction* terminator = curBB->getTerminator(); // 记录终结curBB的指令terminator
+    Instruction* terminator = curBB->getTerminator();
 
-    if (shouldIgnore(terminator)) { // 筛选出是loop本体的curBB
-      // FOR DEBUG
-      cout<<endl;
-      cout<<"EXIT"<<endl;
-      cout<<endl;
-      //
+    if (shouldIgnore(terminator)) { 
       continue; // Jump to the next BB
     }
     
-    // FOR DEBUG
-    cout<<endl;
-    cout<<"IN LOOP"<<endl;
-    cout<<endl;
-    //
 
     // DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
-    for (BasicBlock* sucBB : successors(curBB)) { //此时curBB是loop的本体，sucBB为curBB的后继块
-      // FOR DEBUG
-      cout<<endl;
-      errs()<<"curBB: "<<curBB->getName().str()<<"\n";
-      errs()<<"sucBB: "<<sucBB->getName().str()<<"\n";
-      cout<<endl;
-      //
+    for (BasicBlock* sucBB : successors(curBB)) { 
       // TODO: get the live-in nodes rather than front() and connect them
       for (BasicBlock::iterator II=sucBB->begin(),
           IEnd=sucBB->end(); II!=IEnd; ++II) {
@@ -968,12 +952,12 @@ void DFG::construct(Function& t_F) {
   for (DFGNode* node: nodes) {
 //    nodes.push_back(Node(curII, getValueName(curII)));
     Instruction* curII = node->getInst();
-    assert(node == getNode(curII)); // 开发阶段使用assert语句进行追踪，发行时编译器会移除assert语句
-    switch (curII->getOpcode()) { // getOpcode用于获取curII的操作码，从而知道curII是哪种指令（如加减乘除、分支跳转...）
+    assert(node == getNode(curII)); 
+    switch (curII->getOpcode()) { 
       // The load/store instruction is special
       case llvm::Instruction::Load: {
         LoadInst* linst = dyn_cast<LoadInst>(curII);
-        Value* loadValPtr = linst->getPointerOperand(); // 获取linst中的指针操作数（即内存加载操作的目标地址）
+        Value* loadValPtr = linst->getPointerOperand(); 
 
         // FOR DEBUG
         //errs()<<"[FOR DEBUG] A load inst: "<<*curII<<"\n";
@@ -987,9 +971,9 @@ void DFG::construct(Function& t_F) {
         }
         DFGEdge* dfgEdge;
         if (hasDFGEdge(getNode(loadValPtr), node))
-          dfgEdge = getDFGEdge(getNode(loadValPtr), node); //
+          dfgEdge = getDFGEdge(getNode(loadValPtr), node); 
         else {
-          dfgEdge = new DFGEdge(dfgEdgeID++, getNode(loadValPtr), node); // 不带最后一个bool参数，则默认m_isCtrlEdge = false
+          dfgEdge = new DFGEdge(dfgEdgeID++, getNode(loadValPtr), node);
           m_DFGEdges.push_back(dfgEdge);
         }
 //        getNode(loadValPtr)->setOutEdge(dfgEdge);
@@ -998,8 +982,8 @@ void DFG::construct(Function& t_F) {
       }
       case llvm::Instruction::Store: {
         StoreInst* sinst = dyn_cast<StoreInst>(curII);
-        Value* storeValPtr = sinst->getPointerOperand(); // 获取sinst中的指针操作数（即内存存储操作的目标地址）
-        Value* storeVal = sinst->getValueOperand();  // 获取sinst中操作数的值（即要存储的数据的值）
+        Value* storeValPtr = sinst->getPointerOperand(); 
+        Value* storeVal = sinst->getValueOperand();  
         DFGEdge* dfgEdge1; // for storeVal
         DFGEdge* dfgEdge2; // for storeValPtr
 
@@ -1034,8 +1018,8 @@ void DFG::construct(Function& t_F) {
         }
         break;
       }
-      default: { // 对于非load也非store的Instruction
-        for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) { // 遍历curII中的操作数
+      default: { 
+        for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) { 
           Instruction* tempInst = dyn_cast<Instruction>(*op);
           if (tempInst and !shouldIgnore(tempInst)) {
 //            if(node->isBranch()) {
@@ -1056,7 +1040,7 @@ void DFG::construct(Function& t_F) {
           } else {
             // Original Branch node will take three
             // predecessors (i.e., condi, true, false).
-            if(!node->isBranch()) // 判断当前node（DFGNode）对应的Instruction是否为跳转指令
+            if(!node->isBranch()) 
               node->addConst();
           } 
         }
@@ -1147,15 +1131,6 @@ void DFG::reorderInLongest() {
     visited->clear();
     reorderDFS(visited, longestPath, currentPath, node);
   }
-
-  // FOR DEBUG
-  cout<<endl;
-  cout<<"[the longest path]"<<endl;
-  for(DFGNode* node: *longestPath) {
-    cout<<"node ID: "<<node->getID()<<endl;
-  }
-  cout<<endl;
-  //
 
   visited->clear();
   int level = 0;
@@ -1375,38 +1350,9 @@ bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
   }
 
   return false;
-
-  // CHANGED.
-  /*
-  if (t_inst == &(t_bb->front())) { 
-    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
-    return true;
-  }
-
-  
-  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) { // 迭代t_inst中的操作数
-    Instruction* tempInst = dyn_cast<Instruction>(*op); // dyn_cast<Instruction>(*op)用于把*op转为Instruction*类型，如果失败则返回nullptr
-    if (tempInst and !containsInst(t_bb, tempInst)) { // 这里如果tempInst指向nullptr，则为false
-      errs()<<"ctrl to: "<<*t_inst<<"; containsInst(t_bb, tempInst): "<<containsInst(t_bb, tempInst)<<"; ";
-      return true;
-    }
-  }
-  
-
-  // The first (lower ID) IR with only in-block dependency is also treated as live-in.
-  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
-    Instruction* tempInst = dyn_cast<Instruction>(*op);
-    if (tempInst and getInstID(t_bb, t_inst) > getInstID(t_bb, tempInst)) {
-      return false;
-    }
-  }
-
-  errs()<<"ctrl to: "<<*t_inst<<"; ";
-  return true;
-  */
 }
 
-bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) { // 判断t_bb中是否包含t_inst
+bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) { 
 
   for (BasicBlock::iterator II=t_bb->begin(),
        IEnd=t_bb->end(); II!=IEnd; ++II) {
@@ -1449,8 +1395,8 @@ void DFG::connectDFGNodes() {
   for (DFGEdge* edge: m_DFGEdges) {
     DFGNode* left = edge->getSrc();
     DFGNode* right = edge->getDst();
-    left->setOutEdge(edge); // 填写list<DFGEdge*> m_outEdges
-    right->setInEdge(edge); // 填写list<DFGEdge*> m_inEdges
+    left->setOutEdge(edge); 
+    right->setInEdge(edge);
   }
 
 //  for (DFGEdge* edge: m_ctrlEdges) {
@@ -1705,11 +1651,8 @@ DFGNode* DFG::getNode(Value* t_value) {
 }
 
 bool DFG::hasNode(Value* t_value) {
-  for (DFGNode* node: nodes) { // 遍历list<DFGNode *> nodes中所有的DFGNode
+  for (DFGNode* node: nodes) { 
     if (node->getInst() == t_value) {
-      // FOR DEBUG
-      //errs()<<"[FOR DEBUG] In hasNode function, node->getInst(): "<<*(node->getInst())<<"\n";
-      //
       return true;
     }
   }
@@ -1730,7 +1673,7 @@ DFGEdge* DFG::getCtrlEdge(DFGNode* t_src, DFGNode* t_dst) {
 bool DFG::hasCtrlEdge(DFGNode* t_src, DFGNode* t_dst) {
   for (DFGEdge* edge: m_ctrlEdges) {
     if (edge->getSrc() == t_src and
-        edge->getDst() == t_dst) { // src=source dst=destination
+        edge->getDst() == t_dst) { 
       return true;
     }
   }
@@ -1817,7 +1760,7 @@ void DFG::deleteDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
 bool DFG::hasDFGEdge(DFGNode* t_src, DFGNode* t_dst) {
   for (DFGEdge* edge: m_DFGEdges) {
     if (edge->getSrc() == t_src and
-        edge->getDst() == t_dst) { // src=source dst=destination
+        edge->getDst() == t_dst) { 
       return true;
     }
   }
