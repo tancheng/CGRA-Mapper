@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -56,5 +57,12 @@ jobs:
       run: |
         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o kernel.bc -c kernel.cpp
         opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
+        sh verify.sh
+
+    - name: Test inter edges
+      working-directory: ${{github.workspace}}/test/inter_edge
+      run: |
+        sh compile.sh
+        sh run.sh
         sh verify.sh
 

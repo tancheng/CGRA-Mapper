@@ -68,6 +68,9 @@ class DFGNode {
     int m_DVFSLatencyMultiple;
     bool m_supportDVFS;
 
+    // "m_bbID" is used to specify which basicblock does this DFGNode in.
+    int m_bbID;
+
   public:
     DFGNode(int, bool, Instruction*, StringRef, bool);
     DFGNode(int, DFGNode* old_node);
@@ -144,6 +147,12 @@ class DFGNode {
     bool shareFU(DFGNode*);
     void setDVFSLatencyMultiple(int);
     int getDVFSLatencyMultiple();
+
+    // set m_bbID.
+    void setBBID(int);
+
+    //read m_bbID.
+    int getBBID();
 
 };
 

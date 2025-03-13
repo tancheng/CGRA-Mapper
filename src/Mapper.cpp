@@ -211,7 +211,7 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
     if (t_dfgNode->getSuccNodes()->size() > 1) {
       cost += 4 - targetCGRANode->getOutLinks()->size() +
           abs(t_cgra->getColumns()/2-targetCGRANode->getX()) +
-          abs(t_cgra->getRows()/2-targetCGRANode->getX());
+          abs(t_cgra->getRows()/2-targetCGRANode->getY());
     }
     if (t_dfgNode->getPredNodes()->size() > 0) {
       list<DFGNode*>* tempPredNodes = t_dfgNode->getPredNodes();
