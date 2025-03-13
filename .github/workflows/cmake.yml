@@ -59,3 +59,10 @@ jobs:
         opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
         sh verify.sh
 
+    - name: Test inter edges
+      working-directory: ${{github.workspace}}/test/inter_edge
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
+
