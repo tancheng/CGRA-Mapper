@@ -590,7 +590,7 @@ list<DFGNode*>* DFGNode::getPredNodes() {
     assert(edge->getDst() == this);
     m_predNodes->push_back(edge->getSrc());
   }
-  if (isBranch()) { 
+  if (isBranch()) {
     list<DFGNode*>* m_tempNodes = new list<DFGNode*>();
     for (DFGNode* node: *m_predNodes) {
       // make sure the CMP node is the last one in the predecessors,
