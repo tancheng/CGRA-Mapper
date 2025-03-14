@@ -28,7 +28,7 @@ class DFGEdge
     DFGNode *m_dst;
     bool m_isCtrlEdge;
 
-    // To specify whether this DFGEdge trnasfers inter-basicblock or inter-iteration data.
+    // "m_isInterEdge" is used to specify whether this DFGEdge trnasfers inter-basicblock or inter-iteration data.
     bool m_isInterEdge;
 
   public:
@@ -42,10 +42,10 @@ class DFGEdge
     DFGNode* getConnectedNode(DFGNode*);
     bool isCtrlEdge();
     
-    // set m_isInterEdge.
+    // Sets m_isInterEdge = true/false.
     void setInterEdge(bool);
 
-    // read m_isInterEdge.
+    // Reads m_isInterEdge.
     bool isInterEdge();
 };
 
