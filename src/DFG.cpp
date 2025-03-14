@@ -14,8 +14,8 @@
  DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
           bool t_precisionAware, bool t_heterogeneity,
           map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
-    bool t_supportDVFS, bool t_DVFSAwareMapping,
-    int t_vectorFactorForIdiv) {
+          bool t_supportDVFS, bool t_DVFSAwareMapping,
+          int t_vectorFactorForIdiv) {
    m_num = 0;
    m_targetFunction = t_targetFunction;
    m_targetLoops = t_loops;
@@ -65,16 +65,16 @@
      if (cycle->size() > max_cycle_length / 2) {
        for (auto dfg_node : *cycle) {
          dfg_node->setDVFSLatencyMultiple(1);
-   assigned_dvfs_nodes.insert(dfg_node);
-   high_dvfs_dfg_nodes += 1;
+         assigned_dvfs_nodes.insert(dfg_node);
+         high_dvfs_dfg_nodes += 1;
        }
      } else {
        for (auto dfg_node : *cycle) {
-   if (assigned_dvfs_nodes.count(dfg_node) == 0) {
+         if (assigned_dvfs_nodes.count(dfg_node) == 0) {
            dfg_node->setDVFSLatencyMultiple(2);
-     assigned_dvfs_nodes.insert(dfg_node);
-     mid_dvfs_dfg_nodes += 1;
-   }
+           assigned_dvfs_nodes.insert(dfg_node);
+           mid_dvfs_dfg_nodes += 1;
+         }
        }
      }
    }
@@ -82,17 +82,17 @@
    int num_tiles_in_island = t_DVFSIslandDim * t_DVFSIslandDim;
    int unused_high_dvfs_cgra_tiles_across_II =
          t_II * num_tiles_in_island *
-   ((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+         ((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
          high_dvfs_dfg_nodes;
    int unused_mid_dvfs_cgra_tiles_across_II =
          (t_II * num_tiles_in_island *
-    ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
+         ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island) -
           mid_dvfs_dfg_nodes * 2) / 2;
    int unused_low_dvfs_cgra_tiles_across_II =
          (t_II * t_numTiles -
            (t_II * num_tiles_in_island *
              ((high_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island)) -
-     (t_II * num_tiles_in_island *
+           (t_II * num_tiles_in_island *
              ((mid_dvfs_dfg_nodes + num_tiles_in_island - 1) / num_tiles_in_island))
          ) / 4;
    cout << "[debug] unused_high_dvfs_cgra_tiles_across_II: " << unused_high_dvfs_cgra_tiles_across_II << endl;
@@ -133,7 +133,7 @@
      if (assigned_dvfs_nodes.count(node) == 0) {
        if (unused_high_dvfs_cgra_tiles_across_II > 0) {
          // High DVFS islands have the highest priority as we don't want to
-   // waste it.
+         // waste it.
          node->setDVFSLatencyMultiple(1);
          assigned_dvfs_nodes.insert(node);
          unused_high_dvfs_cgra_tiles_across_II -= 1;
@@ -141,7 +141,7 @@
    unused_low_dvfs_cgra_tiles_across_II -= 1;
        } else if (unused_mid_dvfs_cgra_tiles_across_II > 0) {
          // Then try to allocate the DFG node into the mid DVFS island if the
-   // high DVFS islands are used up.
+         // high DVFS islands are used up.
          node->setDVFSLatencyMultiple(2);
          assigned_dvfs_nodes.insert(node);
          unused_high_dvfs_cgra_tiles_across_II -= 2;
@@ -155,10 +155,10 @@
          unused_mid_dvfs_cgra_tiles_across_II -= 2;
          unused_low_dvfs_cgra_tiles_across_II -= 1;
        } else {
-   // If all the islands assuming the optimal II are used up, label
-   // the left DFG nodes with highest DVFS level as we don't want
-   // to dramatically increase the II unnecessarily, which would
-   // lead to bad performance.
+         // If all the islands assuming the optimal II are used up, label
+         // the left DFG nodes with highest DVFS level as we don't want
+         // to dramatically increase the II unnecessarily, which would
+         // lead to bad performance.
          node->setDVFSLatencyMultiple(1);
          assigned_dvfs_nodes.insert(node);
        }
@@ -685,13 +685,9 @@
        else {
          isTargetBB = true;
          DFGNode* dfgNode;
- //        if (hasNode(curII)) {
- //          dfgNode = getNode(curII);
- //        } else {
-           dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
-           dfgNode->setBBID(bbID);
-           nodes.push_back(dfgNode);
- //        }
+         dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
+         dfgNode->setBBID(bbID);
+         nodes.push_back(dfgNode);
          errs()<<"│   └── +++ \""<<*curII<<"\" (ID: "<<dfgNode->getID()<<")"<<"\n";
        }
      }
@@ -747,177 +743,6 @@
      }
    }
    
-   // construct data flows.
-   // FIXME: eleminate duplicated edges.
-   /*
-   for (Function::iterator BB=t_F.begin(), BEnd=t_F.end();
-       BB!=BEnd; ++BB) {
-     BasicBlock *curBB = &*BB; 
-     errs()<<"*** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n"; 
-     for (BasicBlock* sucBB : successors(curBB)) { 
-       errs()<<"   ****** succ bb: "<<sucBB->getName().str()<<"; First Inst: "<<*sucBB->begin()<<"\n"; 
-     }
- 
-     // Construct DFG nodes.
-     for (BasicBlock::iterator II=curBB->begin(),
-         IEnd=curBB->end(); II!=IEnd; ++II) {
-       Instruction* curII = &*II;
- 
-       // Ignore this IR if it is out of the scope.
-       if (shouldIgnore(curII)) {
-         errs()<<*curII<<" *** ignored by pass due to that the BB is out "<<
-             "of the scope (target loop)\n";
-         continue; // Jump to the next II
-       }
-       errs()<<*curII;
-       DFGNode* dfgNode;
-       if (hasNode(curII)) {
-         dfgNode = getNode(curII);
-       } else {
-         dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
-         dfgNode->setBBID(bbID);
-         nodes.push_back(dfgNode);
-       }
-       cout<<" (ID: "<<dfgNode->getID()<<")\n";
-     }
-     Instruction* terminator = curBB->getTerminator();
- 
-     if (shouldIgnore(terminator)) { 
-       continue; // Jump to the next BB
-     }
-     
- 
-     // DFGNode* dfgNodeTerm = new DFGNode(nodeID++, terminator, getValueName(terminator));
-     for (BasicBlock* sucBB : successors(curBB)) { 
-       // TODO: get the live-in nodes rather than front() and connect them
-       for (BasicBlock::iterator II=sucBB->begin(),
-           IEnd=sucBB->end(); II!=IEnd; ++II) {
-         Instruction* inst = &*II;
- 
-         // Ignore this IR if it is out of the scope.
-         if (shouldIgnore(inst))
-           continue;
- 
-         if (isLiveInInst(sucBB, inst)) {
-           errs()<<" check inst: "<<*inst<<"\n";
- 
-           DFGNode* dfgNode;
-           if (hasNode(inst)) {
-             dfgNode = getNode(inst);
-           } else {
-             dfgNode = new DFGNode(nodeID++, m_precisionAware, inst, getValueName(inst), m_supportDVFS);
-             dfgNode->setBBID(bbID);
-             nodes.push_back(dfgNode);
-           }
-     //      Instruction* first = &*(sucBB->begin());
-     //      if (!getNode(inst)->isPhi()) {
-     //
-     //        cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
-     //        continue;
-     //      }
-     
-           errs()<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
-     
-           // Construct contrl flow edges.
-           DFGEdge* ctrlEdge;
-           if (hasCtrlEdge(getNode(terminator), dfgNode)) {
-             ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
-           }
-           else {
-             ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode, true);
-             m_ctrlEdges.push_back(ctrlEdge);
-           }
- 
-         }
-       }
-     }
-   }
-   */
- //      Instruction* inst = &(sucBB->front());
- ////    for (Instruction* inst: sucBB) {
- //      // Ignore this IR if it is out of the scope.
- //      if (shouldIgnore(inst))
- //        continue;
- //      DFGNode* dfgNode;
- //      if (hasNode(inst)) {
- //        dfgNode = getNode(inst);
- //      } else {
- //        dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
- //        nodes.push_back(dfgNode);
- //      }
- ////      Instruction* first = &*(sucBB->begin());
- ////      if (!getNode(inst)->isPhi()) {
- ////
- ////        cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
- ////        continue;
- ////      }
- //
- //      cout<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
- //
- //      // Construct contrl flow edges.
- //      DFGEdge* ctrlEdge;
- //      if (hasCtrlEdge(getNode(terminator), dfgNode)) {
- //        ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
- //      }
- //      else {
- //        ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
- //        m_ctrlEdges.push_back(ctrlEdge);
- //      }
- //    }
- //  }
-  
- //      for (BasicBlock::iterator II=sucBB->begin(),
- //          IEnd=sucBB->end(); II!=IEnd; ++II) {
- //        Instruction* inst = &*II;
- ////      for (Instruction* inst: sucBB) {
- //        // Ignore this IR if it is out of the scope.
- //        if (shouldIgnore(inst))
- //          continue;
- //        DFGNode* dfgNode;
- //        if (hasNode(inst)) {
- //          dfgNode = getNode(inst);
- //        } else {
- //          dfgNode = new DFGNode(nodeID++, inst, getValueName(inst));
- //          nodes.push_back(dfgNode);
- //        }
- ////        Instruction* first = &*(sucBB->begin());
- //        if (!getNode(inst)->isPhi()) {
- //
- //          cout<<"!!!!!!! [avoid as a phi] construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
- //          continue;
- //        }
- //
- //        cout<<"!!!!!!! construct ctrl flow: "<<*terminator<<"->"<<*inst<<"\n";
- //
- //        // Construct contrl flow edges.
- //        DFGEdge* ctrlEdge;
- //        if (hasCtrlEdge(getNode(terminator), dfgNode)) {
- //          ctrlEdge = getCtrlEdge(getNode(terminator), dfgNode);
- //        }
- //        else {
- //          ctrlEdge = new DFGEdge(ctrlEdgeID++, getNode(terminator), dfgNode);
- //          m_ctrlEdges.push_back(ctrlEdge);
- //        }
- //      }
- //    }
- //  }
- 
- //  // Construct contrl flow forward edges.
- //  for (list<DFGNode*>::iterator nodeItr=nodes.begin();
- //      nodeItr!=nodes.end(); ++nodeItr) {
- //    list<DFGNode*>::iterator next = nodeItr;
- //    ++next;
- //    if (next != nodes.end()) {
- //      DFGEdge* ctrlEdge;
- //      if (hasCtrlEdge(*nodeItr, *next))
- //        ctrlEdge = getCtrlEdge(*nodeItr, *next);
- //      else {
- //        ctrlEdge = new DFGEdge(ctrlEdgeID++, *nodeItr, *next);
- //        m_ctrlEdges.push_back(ctrlEdge);
- //      }
- //    }
- //  }
- 
    // construct data flow edges.
    for (DFGNode* node: nodes) {
      Instruction* curII = node->getInst();
@@ -932,8 +757,10 @@
            else {
              dfgEdge = new DFGEdge(dfgEdgeID++, getNode(tempInst), node);
              if ((dfgEdge->getSrc()->getBBID() != dfgEdge->getDst()->getBBID()) 
-             or ((dfgEdge->getSrc()->getBBID() == dfgEdge->getDst()->getBBID()) 
-                  and (dfgEdge->getSrc()->getID()) > (dfgEdge->getDst()->getID()))) {
+                 or 
+                 ((dfgEdge->getSrc()->getBBID() == dfgEdge->getDst()->getBBID()) 
+                  and 
+                  (dfgEdge->getSrc()->getID()) > (dfgEdge->getDst()->getID()))) {
                dfgEdge->setInterEdge(true);
              }
              m_DFGEdges.push_back(dfgEdge);
@@ -947,115 +774,7 @@
      }
      }
    }
-   // Construct data flow edges.
-   /*
-   for (DFGNode* node: nodes) {
- //    nodes.push_back(Node(curII, getValueName(curII)));
-     Instruction* curII = node->getInst();
-     assert(node == getNode(curII)); 
-     switch (curII->getOpcode()) { 
-       // The load/store instruction is special
-       case llvm::Instruction::Load: {
-         LoadInst* linst = dyn_cast<LoadInst>(curII);
-         Value* loadValPtr = linst->getPointerOperand(); 
- 
-         // FOR DEBUG
-         //errs()<<"[FOR DEBUG] A load inst: "<<*curII<<"\n";
-         //
-         // Parameter of the loop or the basic block, invisible in DFG.
-         if (!hasNode(loadValPtr)) {
-           // FOR DEBUG
-           //cout<<"            "<<"hasNode(loadValPtr) = false"<<endl;
-           //
-           break;
-         }
-         DFGEdge* dfgEdge;
-         if (hasDFGEdge(getNode(loadValPtr), node))
-           dfgEdge = getDFGEdge(getNode(loadValPtr), node); 
-         else {
-           dfgEdge = new DFGEdge(dfgEdgeID++, getNode(loadValPtr), node);
-           m_DFGEdges.push_back(dfgEdge);
-         }
- //        getNode(loadValPtr)->setOutEdge(dfgEdge);
- //        (*nodeItr)->setInEdge(dfgEdge);
-         break;
-       }
-       case llvm::Instruction::Store: {
-         StoreInst* sinst = dyn_cast<StoreInst>(curII);
-         Value* storeValPtr = sinst->getPointerOperand(); 
-         Value* storeVal = sinst->getValueOperand();  
-         DFGEdge* dfgEdge1; // for storeVal
-         DFGEdge* dfgEdge2; // for storeValPtr
- 
-         // TODO: need to figure out storeVal and storeValPtr
-         if (hasNode(storeVal)) {
-           if (hasDFGEdge(getNode(storeVal), node))
-             dfgEdge1 = getDFGEdge(getNode(storeVal), node);
-           else {
-             dfgEdge1 = new DFGEdge(dfgEdgeID++, getNode(storeVal), node);
-             if (dfgEdge->getSrc()->getBBID() != dfgEdge->getDst()->getBBID()) {
-               dfgEdge->setInterEdge(true);
-             }
-             m_DFGEdges.push_back(dfgEdge1);
-           }
- //          getNode(storeVal)->setOutEdge(dfgEdge1);
- //          (*nodeItr)->setInEdge(dfgEdge1);
-         }
-         if (hasNode(storeValPtr)) {
- //          if (hasDFGEdge(*nodeItr, getNode(storeValPtr)))
-           if (hasDFGEdge(getNode(storeValPtr), node))
- //            dfgEdge2 = getDFGEdge(*nodeItr, getNode(storeValPtr));
-             dfgEdge2 = getDFGEdge(getNode(storeValPtr), node);
-           else {
- //            dfgEdge2 = new DFGEdge(dfgEdgeID++, *nodeItr, getNode(storeValPtr));
-             dfgEdge2 = new DFGEdge(dfgEdgeID++, getNode(storeValPtr), node);
-             m_DFGEdges.push_back(dfgEdge2);
-           }
- //          getNode(storeValPtr)->setOutEdge(dfgEdge2);
- //          (*nodeItr)->setInEdge(dfgEdge2);
- //          (*nodeItr)->setOutEdge(dfgEdge2);
- //          getNode(storeValPtr)->setInEdge(dfgEdge2);
-         }
-         break;
-       }
-       default: { 
-         for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) { 
-           Instruction* tempInst = dyn_cast<Instruction>(*op);
-           if (tempInst and !shouldIgnore(tempInst)) {
- //            if(node->isBranch()) {
- //              cout<<"  the real branch's pred: "<<*tempInst<<"\n";
- //              int numSuccs = tempInst->getNumSuccessors();
- //            }
-             DFGEdge* dfgEdge;
-             if (hasNode(tempInst)) {
-               if (hasDFGEdge(getNode(tempInst), node))
-                 dfgEdge = getDFGEdge(getNode(tempInst), node);
-               else {
-                 dfgEdge = new DFGEdge(dfgEdgeID++, getNode(tempInst), node);
-                 m_DFGEdges.push_back(dfgEdge);
-               }
- //              getNode(tempInst)->setOutEdge(dfgEdge);
- //              (*nodeItr)->setInEdge(dfgEdge);
-             }
-           } else {
-             // Original Branch node will take three
-             // predecessors (i.e., condi, true, false).
-             if(!node->isBranch()) 
-               node->addConst();
-           } 
-         }
- //        if(node->isBranch()) {
- //          int numSuccs = curII->getNumSuccessors();
- //          cout<<"the succ of the branch: "<<*curII<<"; ("<<numSuccs<<")\n";
- //          for(int i=0; i<numSuccs; ++i) {
- //            BasicBlock* bb
- //          }
- //        }
-         break;
-       }
-     } // end of switch
-   }
-   */
+
    connectDFGNodes();
  
    calculateCycles();
