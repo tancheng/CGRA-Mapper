@@ -31,8 +31,8 @@
  //  tuneForBranch();
  //  tuneForLoad();
    if (t_heterogeneity) { // parameter t_hetrogeneity is deprecated
-     calculateCycles();
      nonlinear_combine();      // fusion for nonlinear ops
+     calculateCycles();
  //    calculateCycles();
  //    tuneForPattern();
    }
