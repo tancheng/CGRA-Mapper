@@ -22,6 +22,7 @@
 #include <set>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 #include "DFGNode.h"
 #include "DFGEdge.h"
@@ -37,6 +38,7 @@ class DFG {
     bool m_precisionAware;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
+    list<BasicBlock*> m_targetBBs;
     int m_vectorFactorForIdiv;
 
     //edges of data flow

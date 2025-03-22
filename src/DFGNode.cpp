@@ -727,3 +727,11 @@ string getOpcodeNameHelper(Instruction* inst) {
   
   return "unknown";
 }
+
+void DFGNode::setBBID(int t_bbID) {
+  m_bbID = t_bbID;
+}
+
+int DFGNode::getBBID() {
+  return m_bbID;
+}
