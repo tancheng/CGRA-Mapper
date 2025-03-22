@@ -38,6 +38,7 @@ class Mapper {
     Mapper(bool);
     int getResMII(DFG*, CGRA*);
     int getRecMII(DFG*);
+    int getExpandableII(DFG*, int);
     void constructMRRG(DFG*, CGRA*, int);
     int heuristicMap(CGRA*, DFG*, int, bool);
     int exhaustiveMap(CGRA*, DFG*, int, bool);

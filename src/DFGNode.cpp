@@ -238,8 +238,7 @@ bool DFGNode::isAdd() {
 
 // Only detect integer addition.
 bool DFGNode::isIadd() {
-  if (m_opcodeName.compare("getelementptr") == 0 or
-      m_opcodeName.compare("add") == 0  or
+  if (m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("sub") == 0) {
     return true;
   }
