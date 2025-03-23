@@ -44,7 +44,7 @@ void kernel(float input, float *output, float coefficient[16],
 
   top = input;
   q_coef = coefficient[0];
-  //#pragma clang loop unroll_count(4)
+  // #pragma clang loop unroll_count(4)
   for (i = 0; i < ORDER; i++) {
     k_coef = coefficient[2*i];
     left = top;
