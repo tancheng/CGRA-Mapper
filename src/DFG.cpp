@@ -28,26 +28,21 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_vectorFactorForIdiv = t_vectorFactorForIdiv;
 
   construct(t_F);
-  // tuneForBranch();
-  // tuneForLoad();
   if (t_heterogeneity) {
-    // fuses nonlinear ops.
-    // nonlinear_combine();
     // Fuses ctrl-related ops.
     ctrl_combine();
+    // Fuses nonlinear ops.
+    nonlinear_combine();
     calculateCycles();
-    // calculateCycles();
   }
-  // trimForStandalone();
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
-
-  // Pre-assigns the DVFS levels to each DFG node.
-  // This needs to be done after construct function
-  // as we need assign the highest frequency to the
-  // nodes on the critical path in the DFG.
 }
 
+// Pre-assigns the DVFS levels to each DFG node.
+// This needs to be done after construct function
+// as we need assign the highest frequency to the
+// nodes on the critical path in the DFG.
 void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
 		                  int t_numTiles) {
   list<list<DFGNode*>*>* cycles = getCycleLists();
@@ -67,16 +62,16 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
     if (cycle->size() > max_cycle_length / 2) {
       for (auto dfg_node : *cycle) {
         dfg_node->setDVFSLatencyMultiple(1);
-	      assigned_dvfs_nodes.insert(dfg_node);
-	      high_dvfs_dfg_nodes += 1;
+        assigned_dvfs_nodes.insert(dfg_node);
+        high_dvfs_dfg_nodes += 1;
       }
     } else {
       for (auto dfg_node : *cycle) {
-	      if (assigned_dvfs_nodes.count(dfg_node) == 0) {
+        if (assigned_dvfs_nodes.count(dfg_node) == 0) {
           dfg_node->setDVFSLatencyMultiple(2);
-	        assigned_dvfs_nodes.insert(dfg_node);
-	        mid_dvfs_dfg_nodes += 1;
-	      }
+          assigned_dvfs_nodes.insert(dfg_node);
+          mid_dvfs_dfg_nodes += 1;
+        }
       }
     }
   }
@@ -134,15 +129,15 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
     if (assigned_dvfs_nodes.count(node) == 0) {
       if (unused_high_dvfs_cgra_tiles_across_II > 0) {
         // High DVFS islands have the highest priority as we don't want to
-	      // waste it.
+        // waste it.
         node->setDVFSLatencyMultiple(1);
         assigned_dvfs_nodes.insert(node);
         unused_high_dvfs_cgra_tiles_across_II -= 1;
-	      unused_mid_dvfs_cgra_tiles_across_II -= 1;
-	      unused_low_dvfs_cgra_tiles_across_II -= 1;
+        unused_mid_dvfs_cgra_tiles_across_II -= 1;
+        unused_low_dvfs_cgra_tiles_across_II -= 1;
       } else if (unused_mid_dvfs_cgra_tiles_across_II > 0) {
         // Then try to allocate the DFG node into the mid DVFS island if the
-	      // high DVFS islands are used up.
+        // high DVFS islands are used up.
         node->setDVFSLatencyMultiple(2);
         assigned_dvfs_nodes.insert(node);
         unused_high_dvfs_cgra_tiles_across_II -= 2;
@@ -156,10 +151,10 @@ void DFG::initDVFSLatencyMultiple(int t_II, int t_DVFSIslandDim,
         unused_mid_dvfs_cgra_tiles_across_II -= 2;
         unused_low_dvfs_cgra_tiles_across_II -= 1;
       } else {
-	      // If all the islands assuming the optimal II are used up, label
-	      // the left DFG nodes with highest DVFS level as we don't want
-	      // to dramatically increase the II unnecessarily, which would
-	      // lead to bad performance.
+        // If all the islands assuming the optimal II are used up, label
+        // the left DFG nodes with highest DVFS level as we don't want
+        // to dramatically increase the II unnecessarily, which would
+        // lead to bad performance.
         node->setDVFSLatencyMultiple(1);
         assigned_dvfs_nodes.insert(node);
       }
@@ -283,7 +278,6 @@ void DFG::tuneForPattern() {
               newSuccNode = succNode;
             replaceDFGEdge(patternNode, succNode, dfgNode, newSuccNode);
           }
-
         }
       } else {
         removeNodes->push_back(dfgNode);
