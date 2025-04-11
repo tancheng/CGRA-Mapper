@@ -39,30 +39,37 @@ jobs:
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
-      working-directory: ${{github.workspace}}/test/nonlinear
+      working-directory: ${{github.workspace}}/tools/nonlinear
       run: |
         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o nonlinear_test.bc -c nonlinear_test.cpp
         sed -i 's/\("testingOpcodeOffset"[[:space:]]*:[[:space:]]*\)0,/\12,/' param.json
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass nonlinear_test.bc
+        opt-12 -load ../build/src/libmapperPass.so -mapperPass nonlinear_test.bc
         sh verify.sh
 
     - name: Test split via Idiv kernel
-      working-directory: ${{github.workspace}}/test/idiv
+      working-directory: ${{github.workspace}}/tools/idiv
       run: |
         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o idiv_test.bc -c idiv_test.cpp
         sed -i 's/\("testingOpcodeOffset"[[:space:]]*:[[:space:]]*\)0,/\12,/' param.json
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass idiv_test.bc
+        opt-12 -load ../build/src/libmapperPass.so -mapperPass idiv_test.bc
         sh verify.sh
 
     - name: Test DVFS
-      working-directory: ${{github.workspace}}/test/dvfs
+      working-directory: ${{github.workspace}}/tools/dvfs
       run: |
         clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o kernel.bc -c kernel.cpp
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
+        opt-12 -load ../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
         sh verify.sh
 
     - name: Test inter edges
-      working-directory: ${{github.workspace}}/test/inter_edge
+      working-directory: ${{github.workspace}}/tools/inter_edge
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
+
+    - name: Test expandable mapping
+      working-directory: ${{github.workspace}}/tools/expandable
       run: |
         sh compile.sh
         sh run.sh
