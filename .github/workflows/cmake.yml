@@ -30,10 +30,11 @@ jobs:
     - name: Install LLVM tools (including llvm-symbolizer)
       run: |
         sudo apt-get update && sudo apt-get install -y llvm-12
-        which llvm-symbolizer || echo "llvm-symbolizer not found"
+        which llvm-symbolizer-12 || echo "llvm-symbolizer not found"
+        ls /usr/lib/llvm-12/bin/*
   
     - name: Export llvm-symbolizer path
-      run: echo "LLVM_SYMBOLIZER_PATH=/usr/lib/llvm-12/bin/llvm-symbolizer" >> $GITHUB_ENV
+      run: echo "LLVM_SYMBOLIZER_PATH=/usr/lib/llvm-12/bin/llvm-symbolizer-12" >> $GITHUB_ENV
   
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
