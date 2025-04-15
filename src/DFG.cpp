@@ -1088,15 +1088,15 @@ void DFG::combineAddAdd(string type) {
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
-     std::string Str1, Str2;
-     llvm::raw_string_ostream OS1(Str1), OS2(Str2);
-     inst->print(OS1);
-     t_inst->print(OS2);
+     // std::string Str1, Str2;
+     // llvm::raw_string_ostream OS1(Str1), OS2(Str2);
+     // inst->print(OS1);
+     // t_inst->print(OS2);
 
-     OS1.flush();
-     OS2.flush();
+     // OS1.flush();
+     // OS2.flush();
 
-     return Str1 == Str2;
+     // return Str1 == Str2;
      if ((inst) == (t_inst)) {
        return true;
      }
