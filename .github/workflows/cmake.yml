@@ -34,7 +34,7 @@ jobs:
         ls /usr/lib/llvm-12/bin/*
   
     - name: Export llvm-symbolizer path
-      run: echo "LLVM_SYMBOLIZER_PATH=/usr/lib/llvm-12/bin/llvm-symbolizer-12" >> $GITHUB_ENV
+      run: echo "LLVM_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-12" >> $GITHUB_ENV
   
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
