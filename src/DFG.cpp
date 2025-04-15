@@ -1061,9 +1061,10 @@ void DFG::combineAddAdd(string type) {
      // if(isa<Instruction>(op)) {
      if(isa<Instruction>(operand)) {
        // Instruction* tempInst = dyn_cast<Instruction>(*op);
-       Instruction* tempInst = dyn_cast<Instruction>(operand);
+       Instruction* tempInst = llvm::dyn_cast<Instruction>(operand);
        isLonelyInst = false;
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
+       errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
        if(containsInst(t_bb, tempInst)) {
          errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
          errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
