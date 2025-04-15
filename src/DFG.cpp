@@ -1044,8 +1044,8 @@ void DFG::combineAddAdd(string type) {
  
    // type 1
    if(t_inst == &(t_bb->front())) {
-     errs()<<"│   │   ├── Type: first inst of a BB."<<"\n";
-     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    //  errs()<<"│   │   ├── Type: first inst of a BB."<<"\n";
+    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
   
@@ -1062,13 +1062,13 @@ void DFG::combineAddAdd(string type) {
      }
    }
    if(isLonelyInst) {
-     errs()<<"│   │   ├── Type: lonely inst."<<"\n";
-     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    //  errs()<<"│   │   ├── Type: lonely inst."<<"\n";
+    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
    else if(!isUsingIntraIterationData) {
-     errs()<<"│   │   ├── Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
-     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+    //  errs()<<"│   │   ├── Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
+    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
  
