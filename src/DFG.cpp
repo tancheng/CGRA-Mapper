@@ -1088,7 +1088,23 @@ void DFG::combineAddAdd(string type) {
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
-     return inst->isIdenticalTo(t_inst);
+  //    bool areSame = (inst->getOpcode() == t_inst->getOpcode()) &&
+	 //       (inst->getType() == t_inst->getType()) &&
+	 //       (inst->getNumOperands() == t_inst->getNumOperands());
+
+  //    // Then compare operands if needed
+  //    for (unsigned i = 0; i < inst->getNumOperands(); ++i) {
+  //      if (inst->getOperand(i) != t_inst->getOperand(i)) {
+	 // areSame = false;
+	 // break;
+  //      }
+  //    }
+  //    if (areSame) {
+  //      return true;
+  //    }
+     if (inst->isIdenticalTo(t_inst)) {
+       return true;
+     }
      // std::string Str1, Str2;
      // llvm::raw_string_ostream OS1(Str1), OS2(Str2);
      // inst->print(OS1);
