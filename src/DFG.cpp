@@ -1052,7 +1052,7 @@ void DFG::combineAddAdd(string type) {
   
    // type 2 & 3
    bool isLonelyInst = true;
-   bool isUsingIntraIterationData = false;
+   bool isUsingIntraIterationData = true;
    // for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
    //   if(isa<Instruction>(op)) {
    //     Instruction* tempInst = dyn_cast<Instruction>(*op);
@@ -1063,20 +1063,22 @@ void DFG::combineAddAdd(string type) {
        // Instruction* tempInst = dyn_cast<Instruction>(*op);
        Instruction* tempInst = llvm::dyn_cast<Instruction>(operand);
        isLonelyInst = false;
-       errs()<<"[DEBUG] operand: " << *operand << "\n";
-       errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
-       // errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
-       if(containsInst(t_bb, tempInst)) {
-         errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
-         errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
-       } else {
-	 errs()<<"[DEBUG] an inst that is not within the BB \n";
-       }
-       if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
-         isUsingIntraIterationData = true;
-       }
      }
    }
+  //      errs()<<"[DEBUG] operand: " << *operand << "\n";
+  //      errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
+  //      // errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
+  //      if(containsInst(t_bb, tempInst)) {
+  //        errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
+  //        errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
+  //      } else {
+	 // errs()<<"[DEBUG] an inst that is not within the BB \n";
+  //      }
+  //      if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
+  //        isUsingIntraIterationData = true;
+  //      }
+  //    }
+  //  }
    if(isLonelyInst) {
      errs()<<"│   │   ├── Type: lonely inst."<<"\n";
      errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
