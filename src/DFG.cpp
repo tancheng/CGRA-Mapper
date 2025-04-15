@@ -1053,9 +1053,15 @@ void DFG::combineAddAdd(string type) {
    // type 2 & 3
    bool isLonelyInst = true;
    bool isUsingIntraIterationData = false;
-   for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
-     if(isa<Instruction>(op)) {
-       Instruction* tempInst = dyn_cast<Instruction>(*op);
+   // for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+   //   if(isa<Instruction>(op)) {
+   //     Instruction* tempInst = dyn_cast<Instruction>(*op);
+   for (int i = 0; i < t_inst->getNumOperands(); ++i) {
+     Value *operand = t_inst->getOperand(i);
+     // if(isa<Instruction>(op)) {
+     if(isa<Instruction>(operand)) {
+       // Instruction* tempInst = dyn_cast<Instruction>(*op);
+       Instruction* tempInst = dyn_cast<Instruction>(operand);
        isLonelyInst = false;
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
        if(containsInst(t_bb, tempInst)) {
