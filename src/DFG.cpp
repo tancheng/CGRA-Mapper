@@ -1063,6 +1063,7 @@ void DFG::combineAddAdd(string type) {
        // Instruction* tempInst = dyn_cast<Instruction>(*op);
        Instruction* tempInst = llvm::dyn_cast<Instruction>(operand);
        isLonelyInst = false;
+       errs()<<"[DEBUG] operand: " << *operand << "\n";
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
        // errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
        if(containsInst(t_bb, tempInst)) {
