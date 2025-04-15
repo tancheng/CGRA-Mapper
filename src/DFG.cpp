@@ -1064,7 +1064,7 @@ void DFG::combineAddAdd(string type) {
        Instruction* tempInst = llvm::dyn_cast<Instruction>(operand);
        isLonelyInst = false;
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
-       errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
+       // errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
        if(containsInst(t_bb, tempInst)) {
          errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
          errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
@@ -1099,7 +1099,7 @@ void DFG::combineAddAdd(string type) {
 	       (inst->getType() == t_inst->getType()) &&
 	       (inst->getNumOperands() == t_inst->getNumOperands());
 
-     errs() << "[DEBUG] comparing " << *inst << " <- with -> " << *t_inst << "\n";
+     // errs() << "[DEBUG] comparing " << *inst << " <- with -> " << *t_inst << "\n";
      // Then compare operands if needed
      if (areSame) {
        for (unsigned i = 0; i < inst->getNumOperands(); ++i) {
