@@ -1092,6 +1092,7 @@ void DFG::combineAddAdd(string type) {
 	       (inst->getType() == t_inst->getType()) &&
 	       (inst->getNumOperands() == t_inst->getNumOperands());
 
+     errs() << "[DEBUG] comparing " << *inst << " <- with -> " << *t_inst << "\n";
      // Then compare operands if needed
      if (areSame) {
        for (unsigned i = 0; i < inst->getNumOperands(); ++i) {
@@ -1102,6 +1103,7 @@ void DFG::combineAddAdd(string type) {
        }
 
        if (areSame) {
+	 errs() << "[DEBUG] same..\n";
          return true;
        }
      }
@@ -1121,6 +1123,7 @@ void DFG::combineAddAdd(string type) {
        return true;
      }
    }
+   errs() << "[DEBUG] NOT same..\n";
    return false;
  }
  
