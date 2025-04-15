@@ -1057,7 +1057,6 @@ void DFG::combineAddAdd(string type) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        isLonelyInst = false;
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
-       errs()<<"[DEBUG] t_bb: " << *t_bb << "\n";
        if(containsInst(t_bb, tempInst)) {
          errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
          errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
@@ -1084,7 +1083,7 @@ void DFG::combineAddAdd(string type) {
  }
  
  bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) { 
- 
+   return t_inst->getParent() == t_bb;
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
