@@ -1088,6 +1088,7 @@ void DFG::combineAddAdd(string type) {
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
+     return inst->isIdenticalTo(t_inst);
      // std::string Str1, Str2;
      // llvm::raw_string_ostream OS1(Str1), OS2(Str2);
      // inst->print(OS1);
