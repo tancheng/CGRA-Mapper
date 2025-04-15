@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include "DFG.h"
+#include "llvm/Support/raw_ostream.h"
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
@@ -1083,10 +1084,19 @@ void DFG::combineAddAdd(string type) {
  }
  
  bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) { 
-   return t_inst->getParent() == t_bb;
+   // return t_inst->getParent() == t_bb;
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
+     std::string Str1, Str2;
+     llvm::raw_string_ostream OS1(Str1), OS2(Str2);
+     inst->print(OS1);
+     t_inst->print(OS2);
+
+     OS1.flush();
+     OS2.flush();
+
+     return Str1 == Str2;
      if ((inst) == (t_inst)) {
        return true;
      }
