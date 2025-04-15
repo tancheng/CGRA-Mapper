@@ -752,7 +752,7 @@ void DFG::combineAddAdd(string type) {
    for (DFGNode* node: nodes) {
      Instruction* curII = node->getInst();
      for (Instruction::op_iterator op = curII->op_begin(), opEnd = curII->op_end(); op != opEnd; ++op) {
-       if (op) {
+       if (*op) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        if (tempInst and !shouldIgnore(tempInst)) {
          DFGEdge* dfgEdge;
