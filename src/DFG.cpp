@@ -1057,6 +1057,7 @@ void DFG::combineAddAdd(string type) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        isLonelyInst = false;
        errs()<<"[DEBUG] t_inst: " << *t_inst << "\n";
+       errs()<<"[DEBUG] t_bb: " << *t_bb << "\n";
        if(containsInst(t_bb, tempInst)) {
          errs()<<"[DEBUG] tempInst: " << *tempInst << "\n";
          errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
@@ -1078,7 +1079,7 @@ void DFG::combineAddAdd(string type) {
      errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
- 
+   errs() << "[DEBUG] return false...\n";
    return false;
  }
  
