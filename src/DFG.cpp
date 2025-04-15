@@ -1093,14 +1093,17 @@ void DFG::combineAddAdd(string type) {
 	       (inst->getNumOperands() == t_inst->getNumOperands());
 
      // Then compare operands if needed
-     for (unsigned i = 0; i < inst->getNumOperands(); ++i) {
-       if (inst->getOperand(i) != t_inst->getOperand(i)) {
-	 areSame = false;
-	 break;
-       }
-     }
      if (areSame) {
-       return true;
+       for (unsigned i = 0; i < inst->getNumOperands(); ++i) {
+         if (inst->getOperand(i) != t_inst->getOperand(i)) {
+	   areSame = false;
+	   break;
+         }
+       }
+
+       if (areSame) {
+         return true;
+       }
      }
      // if (inst->isIdenticalTo(t_inst)) {
      //   return true;
