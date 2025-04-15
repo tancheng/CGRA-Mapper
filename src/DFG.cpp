@@ -1059,7 +1059,7 @@ void DFG::combineAddAdd(string type) {
    for (int i = 0; i < t_inst->getNumOperands(); ++i) {
      Value *operand = t_inst->getOperand(i);
      // if(isa<Instruction>(op)) {
-     if(isa<Instruction>(operand)) {
+     if(operand && isa<Instruction>(operand)) {
        // Instruction* tempInst = dyn_cast<Instruction>(*op);
        Instruction* tempInst = llvm::dyn_cast<Instruction>(operand);
        isLonelyInst = false;
