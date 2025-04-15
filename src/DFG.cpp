@@ -1056,9 +1056,9 @@ void DFG::combineAddAdd(string type) {
      if(isa<Instruction>(op)) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        isLonelyInst = false;
+       errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
        if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
          isUsingIntraIterationData = true;
-	 errs()<<"[DEBUG] getNode(tempInst)->getID(): " << getNode(tempInst)->getID() << "; getNode(t_inst)->getID(): " << getNode(t_inst)->getID() << "\n";
        }
      }
    }
