@@ -1056,7 +1056,7 @@ void DFG::combineAddAdd(string type) {
      if(isa<Instruction>(*op)) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        errs() << "[MMJ DEBUG] op "<< op << "\n";
-       errs() << "[MMJ DEBUG] tempInst "<< getTypeName(tempInst->getValueID()) << "\n";
+       errs() << "[MMJ DEBUG] tempInst "<< tempInst->getTypeName() << "\n";
        isLonelyInst = false;
        if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
          isUsingIntraIterationData = true;
