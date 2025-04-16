@@ -1044,8 +1044,8 @@ void DFG::combineAddAdd(string type) {
  
    // type 1
    if(t_inst == &(t_bb->front())) {
-    //  errs()<<"│   │   ├── Type: first inst of a BB."<<"\n";
-    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     errs()<<"│   │   ├── Type: first inst of a BB."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
   
@@ -1055,7 +1055,7 @@ void DFG::combineAddAdd(string type) {
    for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
      if(isa<Instruction>(op)) {
        Instruction* tempInst = dyn_cast<Instruction>(*(op + 2));
-       errs() << "[MMJ DEBUG] *op + 2"<< op + 2 << "\n";
+       errs() << "[MMJ DEBUG] *op + 2 "<< op + 2 << "\n";
        isLonelyInst = false;
        if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
          isUsingIntraIterationData = true;
@@ -1063,13 +1063,13 @@ void DFG::combineAddAdd(string type) {
      }
    }
    if(isLonelyInst) {
-    //  errs()<<"│   │   ├── Type: lonely inst."<<"\n";
-    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     errs()<<"│   │   ├── Type: lonely inst."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
    else if(!isUsingIntraIterationData) {
-    //  errs()<<"│   │   ├── Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
-    //  errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     errs()<<"│   │   ├── Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
      return true;
    }
  
@@ -1081,9 +1081,9 @@ void DFG::combineAddAdd(string type) {
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
+     errs() << "[MMJ DEBUG] inst" << inst << "\n";
+     errs() << "[MMJ DEBUG] t_inst" << t_inst << "\n";
      if ((inst) == (t_inst)) {
-        errs() << "[MMJ DEBUG] inst" << inst << "\n";
-        errs() << "[MMJ DEBUG] t_inst" << t_inst << "\n";
        return true;
      }
    }
