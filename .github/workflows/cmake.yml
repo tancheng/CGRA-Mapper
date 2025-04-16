@@ -24,17 +24,17 @@ jobs:
     - name: Install LLVM and Clang
       uses: egor-tensin/setup-clang@v1
       with:
-        version: 12
+        version: 14
         platform: x64
-        
+
     - name: Install LLVM tools (including llvm-symbolizer)
       run: |
-        sudo apt-get update && sudo apt-get install -y llvm-12
+        sudo apt-get update && sudo apt-get install -y llvm-14
         which llvm-symbolizer || echo "llvm-symbolizer not found"
-        which clang-12 || echo "clang-12 not found"
+        which clang-14 || echo "clang-14 not found"
   
     - name: Export llvm-symbolizer path
-      run: echo "LLVM_SYMBOLIZER_PATH=/usr/lib/llvm-12/bin/llvm-symbolizer" >> $GITHUB_ENV
+      run: echo "LLVM_SYMBOLIZER_PATH=/usr/lib/llvm-14/bin/llvm-symbolizer" >> $GITHUB_ENV
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
