@@ -689,7 +689,6 @@ void DFG::combineAddAdd(string type) {
        else {
          isTargetBB = true;
          DFGNode* dfgNode;
-         errs()<<"[MMJ DEBUG] nodeID " << nodeID+1 << " inst " << curII <<"\n";
          dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
          dfgNode->setBBID(bbID);
          nodes.push_back(dfgNode);
@@ -1056,8 +1055,6 @@ void DFG::combineAddAdd(string type) {
    for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
      if(isa<Instruction>(*op)) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
-       errs() << "[MMJ DEBUG] op "<< op << "\n";
-       errs() << "[MMJ DEBUG] tempInst "<< getNode(tempInst)->getID() << "\n";
        isLonelyInst = false;
        if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
          isUsingIntraIterationData = true;
@@ -1083,8 +1080,6 @@ void DFG::combineAddAdd(string type) {
    for (BasicBlock::iterator II=t_bb->begin(),
         IEnd=t_bb->end(); II!=IEnd; ++II) {
      Instruction* inst = &*II;
-     errs() << "[MMJ DEBUG] inst " << inst << "\n";
-     errs() << "[MMJ DEBUG] t_inst " << t_inst << "\n";
      if ((inst) == (t_inst)) {
        return true;
      }
