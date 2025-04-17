@@ -689,6 +689,7 @@ void DFG::combineAddAdd(string type) {
        else {
          isTargetBB = true;
          DFGNode* dfgNode;
+         errs()<<"[MMJ DEBUG] nodeID " << nodeID++ << " inst " << curII <<"\n";
          dfgNode = new DFGNode(nodeID++, m_precisionAware, curII, getValueName(curII), m_supportDVFS);
          dfgNode->setBBID(bbID);
          nodes.push_back(dfgNode);
