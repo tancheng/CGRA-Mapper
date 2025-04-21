@@ -6,29 +6,6 @@ Initialize additional functionality on CGRA nodes:
 ==================================
 [function '_Z6kernelPfS_S_' is one of our targets]
 *** current function: _Z6kernelPfS_S_
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is Instruction type.
-            This op is not Instruction type.
-            This op is not Instruction type.
 ==================================
 ==================================
 ==================================
@@ -63,17 +40,17 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] start heuristic algorithm with II=4
 [DEBUG] schedule dfg node[9] onto fu[21] at cycle 0 within II: 4
 [DEBUG] setDFGNode 9 onto CGRANode 21 at cycle: 0
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] success in schedule()
 [DEBUG] schedule dfg node[10] onto fu[15] at cycle 1 within II: 4
 [DEBUG] setDFGNode 10 onto CGRANode 15 at cycle: 1
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] in allocateReg() t_cycle: 0; i: 0 CGRA node: 15; link: 0 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[21]-->[15] (bypass:0) dfgNode: 9 at cycle 0
@@ -81,10 +58,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] success in schedule()
 [DEBUG] schedule dfg node[11] onto fu[21] at cycle 2 within II: 4
 [DEBUG] setDFGNode 11 onto CGRANode 21 at cycle: 2
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] in allocateReg() t_cycle: 1; i: 0 CGRA node: 21; link: 1 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[15]-->[21] (bypass:0) dfgNode: 10 at cycle 1
@@ -92,10 +69,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] success in schedule()
 [DEBUG] schedule dfg node[1] onto fu[15] at cycle 3 within II: 4
 [DEBUG] setDFGNode 1 onto CGRANode 15 at cycle: 3
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] in allocateReg() t_cycle: 2; i: 0 CGRA node: 15; link: 0 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[21]-->[15] (bypass:0) dfgNode: 11 at cycle 2
@@ -118,10 +95,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] success in schedule()
 [DEBUG] schedule dfg node[2] onto fu[9] at cycle 4 within II: 4
 [DEBUG] setDFGNode 2 onto CGRANode 9 at cycle: 4
-[cheng] synced for node: 2; check synced: 1; addr: 0x9665d00
-[cheng] synced for node: 3; check synced: 1; addr: 0x9665e50
-[cheng] synced for node: 8; check synced: 1; addr: 0x96664e0
-[cheng] synced for node: 9; check synced: 1; addr: 0x9666630
+[cheng] synced for node: 2; check synced: 1; addr: 0x26a093d0
+[cheng] synced for node: 3; check synced: 1; addr: 0x26a09520
+[cheng] synced for node: 8; check synced: 1; addr: 0x26a09bb0
+[cheng] synced for node: 9; check synced: 1; addr: 0x26a09d00
 [DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 9; link: 0 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[15]-->[9] (bypass:0) dfgNode: 1 at cycle 3
@@ -130,10 +107,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 4 on CGRA node 9 within II 4; path size: 9.
 [DEBUG] schedule dfg node[4] onto fu[16] at cycle 4 within II: 4
 [DEBUG] setDFGNode 4 onto CGRANode 16 at cycle: 4
-[cheng] synced for node: 16; check synced: 1; addr: 0x9666f60
-[cheng] synced for node: 17; check synced: 1; addr: 0x96670b0
-[cheng] synced for node: 22; check synced: 1; addr: 0x9667740
-[cheng] synced for node: 23; check synced: 1; addr: 0x9667890
+[cheng] synced for node: 16; check synced: 1; addr: 0x26a0a630
+[cheng] synced for node: 17; check synced: 1; addr: 0x26a0a780
+[cheng] synced for node: 22; check synced: 1; addr: 0x26a0ae10
+[cheng] synced for node: 23; check synced: 1; addr: 0x26a0af60
 [DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 16; link: 2 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[15]-->[16] (bypass:0) dfgNode: 1 at cycle 3
@@ -171,10 +148,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 3 on CGRA node 35 within II 4; path size: 6.
 [DEBUG] schedule dfg node[3] onto fu[12] at cycle 11 within II: 4
 [DEBUG] setDFGNode 3 onto CGRANode 12 at cycle: 11
-[cheng] synced for node: 12; check synced: 1; addr: 0x9666a20
-[cheng] synced for node: 13; check synced: 1; addr: 0x9666b70
-[cheng] synced for node: 18; check synced: 1; addr: 0x9667200
-[cheng] synced for node: 19; check synced: 1; addr: 0x9667350
+[cheng] synced for node: 12; check synced: 1; addr: 0x26a0a0f0
+[cheng] synced for node: 13; check synced: 1; addr: 0x26a0a240
+[cheng] synced for node: 18; check synced: 1; addr: 0x26a0a8d0
+[cheng] synced for node: 19; check synced: 1; addr: 0x26a0aa20
 [DEBUG] occupy link[9]-->[15] (bypass:1) dfgNode: 2 at cycle 7
 [DEBUG] occupy link[15]-->[14] (bypass:1) dfgNode: 2 at cycle 8
 [DEBUG] occupy link[14]-->[13] (bypass:1) dfgNode: 2 at cycle 9
@@ -216,10 +193,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 5 on CGRA node 35 within II 4; path size: 5.
 [DEBUG] schedule dfg node[5] onto fu[24] at cycle 14 within II: 4
 [DEBUG] setDFGNode 5 onto CGRANode 24 at cycle: 14
-[cheng] synced for node: 24; check synced: 1; addr: 0x96679e0
-[cheng] synced for node: 25; check synced: 1; addr: 0x9667b30
-[cheng] synced for node: 30; check synced: 1; addr: 0x96681c0
-[cheng] synced for node: 31; check synced: 1; addr: 0x9668310
+[cheng] synced for node: 24; check synced: 1; addr: 0x26a0b0b0
+[cheng] synced for node: 25; check synced: 1; addr: 0x26a0b200
+[cheng] synced for node: 30; check synced: 1; addr: 0x26a0b890
+[cheng] synced for node: 31; check synced: 1; addr: 0x26a0b9e0
 [DEBUG] occupy link[16]-->[15] (bypass:1) dfgNode: 4 at cycle 7
 [DEBUG] in allocateReg() t_cycle: 8; i: 0 CGRA node: 14; link: 3 duration 2
 [DEBUG] done reg allocation
@@ -238,10 +215,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 6 on CGRA node 24 within II 4; path size: 21.
 [DEBUG] schedule dfg node[6] onto fu[26] at cycle 22 within II: 4
 [DEBUG] setDFGNode 6 onto CGRANode 26 at cycle: 22
-[cheng] synced for node: 26; check synced: 1; addr: 0x9667c80
-[cheng] synced for node: 27; check synced: 1; addr: 0x9667dd0
-[cheng] synced for node: 32; check synced: 1; addr: 0x9668460
-[cheng] synced for node: 33; check synced: 1; addr: 0x96685b0
+[cheng] synced for node: 26; check synced: 1; addr: 0x26a0b350
+[cheng] synced for node: 27; check synced: 1; addr: 0x26a0b4a0
+[cheng] synced for node: 32; check synced: 1; addr: 0x26a0bb30
+[cheng] synced for node: 33; check synced: 1; addr: 0x26a0bc80
 [DEBUG] in allocateReg() t_cycle: 17; i: 0 CGRA node: 25; link: 2 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[24]-->[25] (bypass:0) dfgNode: 5 at cycle 17
@@ -287,10 +264,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 7 on CGRA node 33 within II 4; path size: 14.
 [DEBUG] schedule dfg node[7] onto fu[20] at cycle 26 within II: 4
 [DEBUG] setDFGNode 7 onto CGRANode 20 at cycle: 26
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] in allocateReg() t_cycle: 25; i: 1 CGRA node: 20; link: 0 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[26]-->[20] (bypass:0) dfgNode: 6 at cycle 25
@@ -318,10 +295,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 0 on CGRA node 33 within II 4; path size: 14.
 [DEBUG] schedule dfg node[0] onto fu[14] at cycle 27 within II: 4
 [DEBUG] setDFGNode 0 onto CGRANode 14 at cycle: 27
-[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
-[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
-[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
-[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[cheng] synced for node: 14; check synced: 1; addr: 0x26a0a390
+[cheng] synced for node: 15; check synced: 1; addr: 0x26a0a4e0
+[cheng] synced for node: 20; check synced: 1; addr: 0x26a0ab70
+[cheng] synced for node: 21; check synced: 1; addr: 0x26a0acc0
 [DEBUG] in allocateReg() t_cycle: 26; i: 0 CGRA node: 14; link: 0 duration 1
 [DEBUG] done reg allocation
 [DEBUG] occupy link[20]-->[14] (bypass:0) dfgNode: 7 at cycle 26
@@ -377,10 +354,10 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] no available path for DFG node 8 on CGRA node 35 within II 4; path size: 4.
 [DEBUG] schedule dfg node[8] onto fu[6] at cycle 31 within II: 4
 [DEBUG] setDFGNode 8 onto CGRANode 6 at cycle: 31
-[cheng] synced for node: 0; check synced: 1; addr: 0x9665a60
-[cheng] synced for node: 1; check synced: 1; addr: 0x9665bb0
-[cheng] synced for node: 6; check synced: 1; addr: 0x9666240
-[cheng] synced for node: 7; check synced: 1; addr: 0x9666390
+[cheng] synced for node: 0; check synced: 1; addr: 0x26a09130
+[cheng] synced for node: 1; check synced: 1; addr: 0x26a09280
+[cheng] synced for node: 6; check synced: 1; addr: 0x26a09910
+[cheng] synced for node: 7; check synced: 1; addr: 0x26a09a60
 [DEBUG] occupy link[20]-->[14] (bypass:1) dfgNode: 7 at cycle 26
 [DEBUG] in allocateReg() t_cycle: 27; i: 0 CGRA node: 8; link: 0 duration 0
 [DEBUG] done reg allocation
@@ -391,7 +368,7 @@ DFG node count: 12; DFG edge count: 16; SIMD node count: 0
 [DEBUG] occupy link[7]-->[6] (bypass:0) dfgNode: 7 at cycle 30
 [DEBUG] skip predecessor routing -- dfgNode: 7
 [DEBUG] success in schedule()
-Mapping algorithm elapsed time=327ms
+Mapping algorithm elapsed time=332ms
 --------------------------- cycle:0 ---------------------------
 [     ]   [     ]   [     ]   [     ]   [     ]   [     ]
                                                        
