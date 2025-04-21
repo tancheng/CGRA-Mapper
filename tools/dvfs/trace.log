@@ -1,595 +1,0 @@
-Initialize opt latency for DFG nodes: 
-Initialize additional functionality on CGRA nodes: 
-[function 'main' is not in our target list]
-Initialize opt latency for DFG nodes: 
-Initialize additional functionality on CGRA nodes: 
-==================================
-[function '_Z6kernelPfS_S_' is one of our targets]
-*** current function: _Z6kernelPfS_S_
-==================================
-==================================
-==================================
-[reorder DFG along with the longest path]
-Without customization in param.json, we enable store functionality on the left most column.
-Without customization in param.json, we enable load functionality on the left most column.
-==================================
-[show opcode count]
-add : 2
-br : 1
-cmp : 1
-getelementptr : 2
-load : 2
-mul : 1
-phi : 2
-store : 1
-DFG node count: 12; DFG edge count: 16; SIMD node count: 0
-==================================
-[generate dot for DFG]
-==================================
-[generate JSON for DFG]
-==================================
-[ResMII: 1]
-==================================
-[RecMII: 4]
-[debug] unused_high_dvfs_cgra_tiles_across_II: 12
-[debug] unused_mid_dvfs_cgra_tiles_across_II: 4
-[debug] unused_low_dvfs_cgra_tiles_across_II: 8
-==================================
-[heuristic]
-----------------------------------------
-[DEBUG] start heuristic algorithm with II=4
-[DEBUG] schedule dfg node[9] onto fu[10] at cycle 0 within II: 4
-[DEBUG] setDFGNode 9 onto CGRANode 10 at cycle: 0
-[cheng] synced for node: 10; check synced: 1; addr: 0x2ad8def0
-[cheng] synced for node: 11; check synced: 1; addr: 0x2ad8e040
-[cheng] synced for node: 14; check synced: 1; addr: 0x2ad8e460
-[cheng] synced for node: 15; check synced: 1; addr: 0x2ad8e5b0
-[DEBUG] success in schedule()
-[DEBUG] schedule dfg node[10] onto fu[11] at cycle 1 within II: 4
-[DEBUG] setDFGNode 10 onto CGRANode 11 at cycle: 1
-[cheng] synced for node: 10; check synced: 1; addr: 0x2ad8def0
-[cheng] synced for node: 11; check synced: 1; addr: 0x2ad8e040
-[cheng] synced for node: 14; check synced: 1; addr: 0x2ad8e460
-[cheng] synced for node: 15; check synced: 1; addr: 0x2ad8e5b0
-[DEBUG] in allocateReg() t_cycle: 0; i: 0 CGRA node: 11; link: 2 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[10]-->[11] (bypass:0) dfgNode: 9 at cycle 0
-[DEBUG] skip predecessor routing -- dfgNode: 9
-[DEBUG] success in schedule()
-[DEBUG] schedule dfg node[11] onto fu[10] at cycle 2 within II: 4
-[DEBUG] setDFGNode 11 onto CGRANode 10 at cycle: 2
-[cheng] synced for node: 10; check synced: 1; addr: 0x2ad8def0
-[cheng] synced for node: 11; check synced: 1; addr: 0x2ad8e040
-[cheng] synced for node: 14; check synced: 1; addr: 0x2ad8e460
-[cheng] synced for node: 15; check synced: 1; addr: 0x2ad8e5b0
-[DEBUG] in allocateReg() t_cycle: 1; i: 0 CGRA node: 10; link: 3 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[11]-->[10] (bypass:0) dfgNode: 10 at cycle 1
-[DEBUG] skip predecessor routing -- dfgNode: 10
-[DEBUG] success in schedule()
-[DEBUG] schedule dfg node[1] onto fu[6] at cycle 3 within II: 4
-[DEBUG] setDFGNode 1 onto CGRANode 6 at cycle: 3
-[cheng] synced for node: 2; check synced: 1; addr: 0x2ad8d410
-[cheng] synced for node: 3; check synced: 1; addr: 0x2ad8d560
-[cheng] synced for node: 6; check synced: 1; addr: 0x2ad8d980
-[cheng] synced for node: 7; check synced: 1; addr: 0x2ad8dad0
-[DEBUG] in allocateReg() t_cycle: 2; i: 0 CGRA node: 6; link: 0 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[10]-->[6] (bypass:0) dfgNode: 11 at cycle 2
-[DEBUG] tryToRoute -- srcDFGNode: 9, srcCGRANode: 10; dstDFGNode: 1, dstCGRANode: 6; backEdge: 0
-[DEBUG] in shareSameCycle is true: node 1
-[DEBUG] check route size: 2
-[DEBUG] reset duration: 3 t_dstCycle: 3 previous: 0 II: 4
-[DEBUG] in allocateReg() t_cycle: 0; i: 1 CGRA node: 6; link: 0 duration 3
-[DEBUG] done reg allocation
-[DEBUG] occupy link[10]-->[6] (bypass:0) dfgNode: 9 at cycle 0
-[DEBUG] skip predecessor routing -- dfgNode: 11
-[DEBUG] in shareSameCycle is true: node 1
-[DEBUG] tryToRoute -- srcDFGNode: 1, srcCGRANode: 6; dstDFGNode: 9, dstCGRANode: 10; backEdge: 1
-[DEBUG] in shareSameCycle is true: node 9
-[DEBUG] check route size: 2
-[DEBUG] reset duration: 1 t_dstCycle: 0 previous: 3 II: 4
-[DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 10; link: 1 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[6]-->[10] (bypass:0) dfgNode: 1 at cycle 3
-[DEBUG] success in schedule()
-[DEBUG] schedule dfg node[2] onto fu[5] at cycle 4 within II: 4
-[DEBUG] setDFGNode 2 onto CGRANode 5 at cycle: 4
-[cheng] synced for node: 0; check synced: 1; addr: 0x2ad8d170
-[cheng] synced for node: 1; check synced: 1; addr: 0x2ad8d2c0
-[cheng] synced for node: 4; check synced: 1; addr: 0x2ad8d6e0
-[cheng] synced for node: 5; check synced: 1; addr: 0x2ad8d830
-[DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 5; link: 3 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[6]-->[5] (bypass:0) dfgNode: 1 at cycle 3
-[DEBUG] skip predecessor routing -- dfgNode: 1
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 4 on CGRA node 5 within II 4; path size: 5.
-[DEBUG] schedule dfg node[4] onto fu[9] at cycle 5 within II: 4
-[DEBUG] setDFGNode 4 onto CGRANode 9 at cycle: 5
-[cheng] synced for node: 8; check synced: 1; addr: 0x2ad8dc50
-[cheng] synced for node: 9; check synced: 1; addr: 0x2ad8dda0
-[cheng] synced for node: 12; check synced: 1; addr: 0x2ad8e1c0
-[cheng] synced for node: 13; check synced: 1; addr: 0x2ad8e310
-[DEBUG] occupy link[6]-->[5] (bypass:1) dfgNode: 1 at cycle 3
-[DEBUG] in allocateReg() t_cycle: 4; i: 0 CGRA node: 9; link: 1 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[5]-->[9] (bypass:0) dfgNode: 1 at cycle 4
-[DEBUG] skip predecessor routing -- dfgNode: 1
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 3 on CGRA node 1 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 3 on CGRA node 2 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 3 on CGRA node 3 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 3 on CGRA node 5 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 3 on CGRA node 6 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 3 on CGRA node 7 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 3 on CGRA node 9 within II 4; path size: 3.
-[DEBUG] no available path for DFG node 3 on CGRA node 10 within II 4; path size: 3.
-[DEBUG] no available path for DFG node 3 on CGRA node 11 within II 4; path size: 3.
-[DEBUG] no available path for DFG node 3 on CGRA node 13 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 3 on CGRA node 14 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 3 on CGRA node 15 within II 4; path size: 4.
-[DEBUG] schedule dfg node[3] onto fu[4] at cycle 12 within II: 4
-[DEBUG] setDFGNode 3 onto CGRANode 4 at cycle: 12
-[cheng] synced for node: 0; check synced: 1; addr: 0x2ad8d170
-[cheng] synced for node: 1; check synced: 1; addr: 0x2ad8d2c0
-[cheng] synced for node: 4; check synced: 1; addr: 0x2ad8d6e0
-[cheng] synced for node: 5; check synced: 1; addr: 0x2ad8d830
-[DEBUG] in allocateReg() t_cycle: 7; i: 0 CGRA node: 4; link: 3 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[5]-->[4] (bypass:0) dfgNode: 2 at cycle 7
-[DEBUG] skip predecessor routing -- dfgNode: 2
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 5 on CGRA node 1 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 2 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 3 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 4 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 5 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 6 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 7 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 5 on CGRA node 9 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 5 on CGRA node 10 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 5 on CGRA node 11 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 5 on CGRA node 13 within II 4; path size: 3.
-[DEBUG] no available path for DFG node 5 on CGRA node 14 within II 4; path size: 3.
-[DEBUG] no available path for DFG node 5 on CGRA node 15 within II 4; path size: 3.
-[DEBUG] schedule dfg node[5] onto fu[8] at cycle 12 within II: 4
-[DEBUG] setDFGNode 5 onto CGRANode 8 at cycle: 12
-[cheng] synced for node: 8; check synced: 1; addr: 0x2ad8dc50
-[cheng] synced for node: 9; check synced: 1; addr: 0x2ad8dda0
-[cheng] synced for node: 12; check synced: 1; addr: 0x2ad8e1c0
-[cheng] synced for node: 13; check synced: 1; addr: 0x2ad8e310
-[DEBUG] in allocateReg() t_cycle: 8; i: 0 CGRA node: 8; link: 3 duration 0
-[DEBUG] done reg allocation
-[DEBUG] occupy link[9]-->[8] (bypass:0) dfgNode: 4 at cycle 8
-[DEBUG] skip predecessor routing -- dfgNode: 4
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 6 on CGRA node 4 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 6 on CGRA node 5 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 6 on CGRA node 8 within II 4; path size: 6.
-[DEBUG] no available path for DFG node 6 on CGRA node 9 within II 4; path size: 6.
-[DEBUG] schedule dfg node[6] onto fu[10] at cycle 19 within II: 4
-[DEBUG] setDFGNode 6 onto CGRANode 10 at cycle: 19
-[cheng] synced for node: 10; check synced: 1; addr: 0x2ad8def0
-[cheng] synced for node: 11; check synced: 1; addr: 0x2ad8e040
-[cheng] synced for node: 14; check synced: 1; addr: 0x2ad8e460
-[cheng] synced for node: 15; check synced: 1; addr: 0x2ad8e5b0
-[DEBUG] in allocateReg() t_cycle: 15; i: 0 CGRA node: 5; link: 2 duration 0
-[DEBUG] done reg allocation
-[DEBUG] occupy link[4]-->[5] (bypass:0) dfgNode: 3 at cycle 15
-[DEBUG] occupy link[5]-->[6] (bypass:1) dfgNode: 3 at cycle 17
-[DEBUG] in allocateReg() t_cycle: 18; i: 0 CGRA node: 10; link: 1 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[6]-->[10] (bypass:0) dfgNode: 3 at cycle 18
-[DEBUG] skip predecessor routing -- dfgNode: 3
-[DEBUG] tryToRoute -- srcDFGNode: 5, srcCGRANode: 8; dstDFGNode: 6, dstCGRANode: 10; backEdge: 0
-[DEBUG] check route size: 3
-[DEBUG] reset duration: 0 t_dstCycle: 19 previous: 15 II: 4
-[DEBUG] reset duration is 0...
-[DEBUG] in allocateReg() t_cycle: 15; i: 1 CGRA node: 9; link: 2 duration 4
-[DEBUG] done reg allocation
-[DEBUG] occupy link[8]-->[9] (bypass:0) dfgNode: 5 at cycle 15
-[DEBUG] reset duration: 2 t_dstCycle: 19 previous: 17 II: 4
-[DEBUG] in allocateReg() t_cycle: 17; i: 1 CGRA node: 10; link: 2 duration 2
-[DEBUG] done reg allocation
-[DEBUG] occupy link[9]-->[10] (bypass:0) dfgNode: 5 at cycle 17
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 7 on CGRA node 0 within II 4; path size: 0.
-[DEBUG] no available path for DFG node 7 on CGRA node 1 within II 4; path size: 0.
-[DEBUG] no available path for DFG node 7 on CGRA node 4 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 7 on CGRA node 5 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 7 on CGRA node 8 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 7 on CGRA node 9 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 7 on CGRA node 12 within II 4; path size: 6.
-[DEBUG] no available path for DFG node 7 on CGRA node 13 within II 4; path size: 6.
-[DEBUG] schedule dfg node[7] onto fu[6] at cycle 20 within II: 4
-[DEBUG] setDFGNode 7 onto CGRANode 6 at cycle: 20
-[cheng] synced for node: 2; check synced: 1; addr: 0x2ad8d410
-[cheng] synced for node: 3; check synced: 1; addr: 0x2ad8d560
-[cheng] synced for node: 6; check synced: 1; addr: 0x2ad8d980
-[cheng] synced for node: 7; check synced: 1; addr: 0x2ad8dad0
-[DEBUG] in allocateReg() t_cycle: 19; i: 0 CGRA node: 6; link: 0 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[10]-->[6] (bypass:0) dfgNode: 6 at cycle 19
-[DEBUG] skip predecessor routing -- dfgNode: 6
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 0 on CGRA node 0 within II 4; path size: 0.
-[DEBUG] no available path for DFG node 0 on CGRA node 1 within II 4; path size: 0.
-[DEBUG] no available path for DFG node 0 on CGRA node 4 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 0 on CGRA node 5 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 0 on CGRA node 8 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 0 on CGRA node 9 within II 4; path size: 4.
-[DEBUG] no available path for DFG node 0 on CGRA node 12 within II 4; path size: 6.
-[DEBUG] no available path for DFG node 0 on CGRA node 13 within II 4; path size: 6.
-[DEBUG] schedule dfg node[0] onto fu[2] at cycle 21 within II: 4
-[DEBUG] setDFGNode 0 onto CGRANode 2 at cycle: 21
-[cheng] synced for node: 2; check synced: 1; addr: 0x2ad8d410
-[cheng] synced for node: 3; check synced: 1; addr: 0x2ad8d560
-[cheng] synced for node: 6; check synced: 1; addr: 0x2ad8d980
-[cheng] synced for node: 7; check synced: 1; addr: 0x2ad8dad0
-[DEBUG] in allocateReg() t_cycle: 20; i: 0 CGRA node: 2; link: 0 duration 1
-[DEBUG] done reg allocation
-[DEBUG] occupy link[6]-->[2] (bypass:0) dfgNode: 7 at cycle 20
-[DEBUG] skip predecessor routing -- dfgNode: 7
-[DEBUG] tryToRoute -- srcDFGNode: 11, srcCGRANode: 10; dstDFGNode: 0, dstCGRANode: 2; backEdge: 0
-[DEBUG] check route size: 3
-[DEBUG] occupy link[10]-->[6] (bypass:1) dfgNode: 11 at cycle 2
-[DEBUG] reset duration: 2 t_dstCycle: 21 previous: 3 II: 4
-[DEBUG] in allocateReg() t_cycle: 3; i: 1 CGRA node: 2; link: 0 duration 2
-[DEBUG] done reg allocation
-[DEBUG] occupy link[6]-->[2] (bypass:0) dfgNode: 11 at cycle 3
-[DEBUG] in shareSameCycle is true: node 0
-[DEBUG] tryToRoute -- srcDFGNode: 0, srcCGRANode: 2; dstDFGNode: 7, dstCGRANode: 6; backEdge: 1
-[DEBUG] in shareSameCycle is true: node 7
-[DEBUG] check route size: 2
-[DEBUG] reset duration: 3 t_dstCycle: 20 previous: 21 II: 4
-[DEBUG] in allocateReg() t_cycle: 21; i: 2 CGRA node: 6; link: 1 duration 3
-[DEBUG] done reg allocation
-[DEBUG] occupy link[2]-->[6] (bypass:0) dfgNode: 0 at cycle 21
-[DEBUG] success in schedule()
-[DEBUG] no available path for DFG node 8 on CGRA node 1 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 2 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 3 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 4 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 5 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 6 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 7 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 8 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 9 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 10 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 11 within II 4; path size: 1.
-[DEBUG] no available path for DFG node 8 on CGRA node 13 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 8 on CGRA node 14 within II 4; path size: 2.
-[DEBUG] no available path for DFG node 8 on CGRA node 15 within II 4; path size: 2.
-[DEBUG] schedule dfg node[8] onto fu[0] at cycle 32 within II: 4
-[DEBUG] setDFGNode 8 onto CGRANode 0 at cycle: 32
-[cheng] synced for node: 0; check synced: 1; addr: 0x2ad8d170
-[cheng] synced for node: 1; check synced: 1; addr: 0x2ad8d2c0
-[cheng] synced for node: 4; check synced: 1; addr: 0x2ad8d6e0
-[cheng] synced for node: 5; check synced: 1; addr: 0x2ad8d830
-[DEBUG] occupy link[6]-->[2] (bypass:1) dfgNode: 7 at cycle 20
-[DEBUG] in allocateReg() t_cycle: 21; i: 0 CGRA node: 1; link: 3 duration 3
-[DEBUG] done reg allocation
-[DEBUG] occupy link[2]-->[1] (bypass:0) dfgNode: 7 at cycle 21
-[DEBUG] in allocateReg() t_cycle: 25; i: 0 CGRA node: 0; link: 3 duration 3
-[DEBUG] done reg allocation
-[DEBUG] occupy link[1]-->[0] (bypass:0) dfgNode: 7 at cycle 25
-[DEBUG] skip predecessor routing -- dfgNode: 7
-[DEBUG] success in schedule()
-Mapping algorithm elapsed time=35ms
---------------------------- cycle:0 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[     ]   [     ]   [     ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:1 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [     ]   [     ]
---------------------------- cycle:2 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:3 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [     ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:4 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[     ]   [  2  ]   [     ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:5 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [     ]   [     ]
---------------------------- cycle:6 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:7 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [     ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:8 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[     ]   [  2  ]   [     ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:9 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [     ]   [     ]
---------------------------- cycle:10 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:11 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [     ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:12 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [     ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:13 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [     ]   [     ]
---------------------------- cycle:14 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:15 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [     ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:16 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [     ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:17 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [     ]   [     ]
---------------------------- cycle:18 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:19 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [  6  ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:20 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [  7  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:21 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [  0  ]   [     ]
---------------------------- cycle:22 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:23 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [  6  ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:24 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [  7  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:25 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [  0  ]   [     ]
---------------------------- cycle:26 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:27 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [  6  ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:28 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [  7  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:29 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [  4  ] ‚Üí [     ] ‚Üê [ 10  ]
-                                   
-[     ]   [     ] ‚Üí [     ]   [     ]
-                       ‚Üë           
-[     ] ‚Üê [     ] ‚Üê [  0  ]   [     ]
---------------------------- cycle:30 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [ 11  ]   [     ]
-                       ‚áÖ           
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:31 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[     ] ‚Üí [     ]   [  6  ]   [     ]
-                       ‚áÖ           
-[     ] ‚áÑ [     ] ‚Üê [  1  ]   [     ]
-                       ‚Üì           
-[     ]   [     ]   [     ]   [     ]
---------------------------- cycle:32 ---------------------------
-[     ]   [     ]   [     ]   [     ]
-                                   
-[  5  ] ‚Üê [     ]   [  9  ] ‚Üí [     ]
-             ‚Üë         ‚Üì           
-[  3  ]   [  2  ]   [  7  ]   [     ]
-                       ‚Üì           
-[  8  ]   [     ]   [     ]   [     ]
-[Mapping II: 4]
-[Mapping Success]
-==================================
-[ExpandableII: 4]
-==================================
-[Utilization & DVFS stats]
-tile avg fu utilization: 67.5%; avg xbar utilization: 85%; avg overall utilization: 85%
-histogram 0% tile utilization: 6
-histogram (0%, 25%] tile utilization: 1
-histogram (25%, 50%] tile utilization: 1
-histogram (50%, 100%] tile utilization: 8
-tile 0 DVFS frequency level: 25%
-tile 1 DVFS frequency level: 25%
-tile 2 DVFS frequency level: 100%
-tile 3 DVFS frequency level: 0%
-tile 4 DVFS frequency level: 25%
-tile 5 DVFS frequency level: 25%
-tile 6 DVFS frequency level: 100%
-tile 7 DVFS frequency level: 0%
-tile 8 DVFS frequency level: 25%
-tile 9 DVFS frequency level: 25%
-tile 10 DVFS frequency level: 100%
-tile 11 DVFS frequency level: 100%
-tile 12 DVFS frequency level: 0%
-tile 13 DVFS frequency level: 0%
-tile 14 DVFS frequency level: 0%
-tile 15 DVFS frequency level: 0%
-tile average DVFS frequency level: 34.375%
-histogram 0% tile DVFS frequency ratio: 6
-histogram 25% tile DVFS frequency ratio: 6
-histogram 50% tile DVFS frequency ratio: 0
-histogram 100% tile DVFS frequency ratio: 4
-==================================
-[DEBUG] inside roi for CGRA node 2...
-[DEBUG] inside roi for CGRA node 6...
-[DEBUG] inside roi for CGRA node 6...
-[DEBUG] inside roi for CGRA node 5...
-[DEBUG] inside roi for CGRA node 2...
-[Output Json]
-[Output Json for Incremental Mapping]
-==================================
-BC¿ﬁ5     b0$JYæfm˚¥OQÄL   !  É  !       Å#ëA»I29íÑ%ãbÄEBíBÑ28K
-2BàHpƒ!#DáåAíd»± CFà …2BÑ*(*ê1|∞\ë ƒ»   â      2"	 dÖ"§Ñ"„Ñ°êLàåÑÑL83 	s`PÇ! (Ñ›·@¿(LÃ Q  ê   R&¯ˇˇˇˇ  	¿rHáyq`árhzát`á6áp`vò¿¬ÅÊ° ¬‰!⁄°⁄ ﬁ!‹Å A wxw(Ä`áròáyhxêárátòárhsÄávr Ã!ÿa  ⁄!‹°ÿ°Œ!ÿ°Ï°∆ÅﬁA⁄‡“ÅË 8 wxá6Hw0áyhsÄá6háp†t Ã!ÿa  ‹·⁄@Í°‡°Ë!ƒÅ a svòár wxá6páppáyhsÄá6háp†t Ã!ÿa  ‹·⁄`“·‹°»°Ù°‰·Ê°Ã⁄†¬Å–0áp`áy(ÄpáwhzêápÄxHw8á6háp†t ËAÍ° bË!∆a⁄ ‰·Ë°∆ÅﬁA⁄@Í¡Ã°‰°Ê!Ù° < zy8ár†á6x® ¿⁄¿Ë  Ë!‰· Å⁄¿ !Ë°‰°ÊXÉq¿<`É50|òy`É5háv¿6XÉyòár`É5òáy(9`É5¿<∏Ä†ázpárhÉqÄáz Œ°‹°‰!∆ Í¡Ê!Ã°⁄¿‡°⁄!Ë svòár àzòárhÉyxs†á60vxáp†¿¬ÅÊ°ÄÜ Pm X6ƒ ,@ I     Ç`&|¿;¯;†É6ÄáqhvHw®|hÉspázÿ`
-Â–Ì†Â– w z0r†s m rpq†s z0r– w z`t†v@mêv@z`t–ÊÄp†q x–ÓÄzv†s z`t–≥rÄJí@Üå4BVQà®!_xûPÇ     AÏê
-#†  @   
-`á¥0Åp     @P C™ã           
-`Hµ=    Ä    @Hl(|(  ê   .   2òLêå	&G∆CäÄ±¿ A˝@˘A¡@·Aê˛@Ip A‘?AÙA‰?¡@Cp AÑ?A˙A$¡APˇ@—Aêˇ@O0 A¡A˛@ÈAêA˝AD?A˛A<¡ A0A¯A§?A@ıè¶
-Åv    ±  ó   3Äƒ·f=àC8Ñ√åBÄyxsòqÊ ÌÙÄ3B¬¡Œ°f0=àC8ÑÉÃ=»C=å=Ãxåtp{yHáppzpvxáp áÃÏê·0n0„P3ƒﬁ!ÿ!¬af0â;ºÉ;–C9¥<ºÉ<Ñ;Ãv`{h7hárh7Äápêáp`v(v¯vxáwÄá_áqáròáyòÅ,ÓÓ‡ı¿Ï0b»°‰°Ã°‰°‹a !ƒÅ a÷êC9»C9òC9»C9∏√8îC8à;î√/ºÉ<¸Ç;‘;∞√«iápXárpÉthx`átát†áŒSÓ ÚP‰ê„@· ÏP3 (‹¡¬A“!‹Å‹‡‰·ÍfQ8∞C:úÉ;ÃP$v`{h7`áwxxòQLÙêP3j aË!ﬁ¡~‰°Ã!aTÖÉ8Ã√;∞C=–C9¸¬<‰C;à√;∞√å≈
-áyòáwátz(ròÅ\„Ï¿ÂPÛ0#¡“A‰·ÿ·ﬁfH;∞É=¥ÉÑ√8åC9Ã√<∏¡9»√;‘<ÃH¥qv`qáqXá€∆Ï`Ì‡ Â0Â ˆPn„0Â0Û‡È‡‰P¯0#‚Ïa¬Åÿ·Ï!Ê!ƒ!ÿ!Ë!f ù;ºC=∏9îÉ9ÃXºppwxzzHáwp  y   B   rH Cà	r2H #Ååëë—D†(d<12Béê!£x /
-œca  wchar_sizeUbuntu clang version 12.0.0-3ubuntu1~20.04.5floatomnipotent charSimple C++ TBAAllvm.loop.mustprogressllvm.loop.unroll.disable #√1Ç0 #K2≈∞H”$3¬A1√@8 √(3§Ã3áå&(#66ª6ó∂7≤:∂23∂∞≥πQÇ%66ª6ó4≤27∫Q  ©     
-r(áwÄzXpòC=∏√8∞C9–√ÇÊ∆°ËA¬¡Ê!Ë!ﬁ¡4„`ÁP· ‰@· ÁPÙ∞ÄÅy(áp`vxáqz(rXpú√8¥;§É=î   —     Ã<§É;ú;î=†É<îC8ê√   a   $   C,      tCÅ,…í–ñ@—å  D@ô%* xÇÅä≈û†«!0zë2P „Ü@Ó ÜfÑ 6 û° ñ	à      [ Ä∂E mé ⁄20í≤eh   !1     Ü ∏@Ü (       a   &   C,      ¥%P@    D¿ò%* xÇÅäû†ÉÄ¿Ë  0n‰é Üà& <n0òeÇ@b     [ Ä∂E mé ⁄2(¥eh$   !1  	   Ü ∏DÜ p–,8 à"Y0¿2aÄ        q      2"ÑπHM     e  7   î∞      *      L      X       X      –       0      C   
-          –                              ˇˇˇˇ $              ˇˇˇˇ $                ˇˇˇˇ               ˇˇˇˇ               ˇˇˇˇ       ]     î≠    inputoutputcoefficientsmain_Z6kernelPfS_S_12.0.0x86_64-pc-linux-gnukernel.cpp       

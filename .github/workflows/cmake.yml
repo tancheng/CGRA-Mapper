@@ -48,35 +48,35 @@ jobs:
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
-      working-directory: ${{github.workspace}}/tools/nonlinear
+      working-directory: ${{github.workspace}}/test/nonlinear
       run: |
         sh compile.sh
         sh run.sh
         sh verify.sh
 
     - name: Test split via Idiv kernel
-      working-directory: ${{github.workspace}}/tools/idiv
+      working-directory: ${{github.workspace}}/test/idiv
       run: |
         sh compile.sh
         sh run.sh
         sh verify.sh
 
     - name: Test DVFS
-      working-directory: ${{github.workspace}}/tools/dvfs
+      working-directory: ${{github.workspace}}/test/dvfs
       run: |
         sh compile.sh
         sh run.sh
         sh verify.sh
 
     - name: Test inter edges
-      working-directory: ${{github.workspace}}/tools/inter_edge
+      working-directory: ${{github.workspace}}/test/inter_edge
       run: |
         sh compile.sh
         sh run.sh
         sh verify.sh
 
     - name: Test expandable mapping
-      working-directory: ${{github.workspace}}/tools/expandable
+      working-directory: ${{github.workspace}}/test/expandable
       run: |
         sh compile.sh
         sh run.sh
