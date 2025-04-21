@@ -4,7 +4,17 @@ dvfs_no_effect=$(grep -o 'tile average DVFS frequency level: 100%' trace.log | w
 if [ "$mapping_success" -eq 1 ] && [ "$dvfs_enabled" -eq 1 ] && [ "$dvfs_no_effect" -eq 0 ]; then
     echo "DVFS Test Pass!"
 else
-    echo "DVFS Test Fail!"
+    error_message="DVFS Test Fail! "
+    if [ "$mapping_success" -ne 1 ]; then
+        error_message+="mapping_success is not equal to 1. "
+    fi
+    if [ "$dvfs_enabled" -ne 1 ]; then
+        error_message+="dvfs_enabled is not equal to 1. "
+    fi
+    if [ "$dvfs_no_effect" -ne 0 ]; then
+        error_message+="dvfs_no_effect is not equal to 0. "
+    fi
+    echo "$error_message"
     exit 1
 fi
 
