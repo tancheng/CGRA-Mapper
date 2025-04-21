@@ -1,1 +1,1 @@
-opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
+opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc

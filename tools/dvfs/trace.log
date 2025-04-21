@@ -1,0 +1,1351 @@
+Initialize opt latency for DFG nodes: 
+Initialize additional functionality on CGRA nodes: 
+[function 'main' is not in our target list]
+Initialize opt latency for DFG nodes: 
+Initialize additional functionality on CGRA nodes: 
+==================================
+[function '_Z6kernelPfS_S_' is one of our targets]
+*** current function: _Z6kernelPfS_S_
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is Instruction type.
+            This op is not Instruction type.
+            This op is not Instruction type.
+==================================
+==================================
+==================================
+[reorder DFG along with the longest path]
+Without customization in param.json, we enable store functionality on the left most column.
+Without customization in param.json, we enable load functionality on the left most column.
+==================================
+[show opcode count]
+add : 2
+br : 1
+cmp : 1
+getelementptr : 2
+load : 2
+mul : 1
+phi : 2
+store : 1
+DFG node count: 12; DFG edge count: 16; SIMD node count: 0
+==================================
+[generate dot for DFG]
+==================================
+[generate JSON for DFG]
+==================================
+[ResMII: 1]
+==================================
+[RecMII: 4]
+[debug] unused_high_dvfs_cgra_tiles_across_II: 12
+[debug] unused_mid_dvfs_cgra_tiles_across_II: 4
+[debug] unused_low_dvfs_cgra_tiles_across_II: 28
+==================================
+[heuristic]
+----------------------------------------
+[DEBUG] start heuristic algorithm with II=4
+[DEBUG] schedule dfg node[9] onto fu[21] at cycle 0 within II: 4
+[DEBUG] setDFGNode 9 onto CGRANode 21 at cycle: 0
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] success in schedule()
+[DEBUG] schedule dfg node[10] onto fu[15] at cycle 1 within II: 4
+[DEBUG] setDFGNode 10 onto CGRANode 15 at cycle: 1
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] in allocateReg() t_cycle: 0; i: 0 CGRA node: 15; link: 0 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[21]-->[15] (bypass:0) dfgNode: 9 at cycle 0
+[DEBUG] skip predecessor routing -- dfgNode: 9
+[DEBUG] success in schedule()
+[DEBUG] schedule dfg node[11] onto fu[21] at cycle 2 within II: 4
+[DEBUG] setDFGNode 11 onto CGRANode 21 at cycle: 2
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] in allocateReg() t_cycle: 1; i: 0 CGRA node: 21; link: 1 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[21] (bypass:0) dfgNode: 10 at cycle 1
+[DEBUG] skip predecessor routing -- dfgNode: 10
+[DEBUG] success in schedule()
+[DEBUG] schedule dfg node[1] onto fu[15] at cycle 3 within II: 4
+[DEBUG] setDFGNode 1 onto CGRANode 15 at cycle: 3
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] in allocateReg() t_cycle: 2; i: 0 CGRA node: 15; link: 0 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[21]-->[15] (bypass:0) dfgNode: 11 at cycle 2
+[DEBUG] tryToRoute -- srcDFGNode: 9, srcCGRANode: 21; dstDFGNode: 1, dstCGRANode: 15; backEdge: 0
+[DEBUG] in shareSameCycle is true: node 1
+[DEBUG] check route size: 2
+[DEBUG] reset duration: 3 t_dstCycle: 3 previous: 0 II: 4
+[DEBUG] in allocateReg() t_cycle: 0; i: 1 CGRA node: 15; link: 0 duration 3
+[DEBUG] done reg allocation
+[DEBUG] occupy link[21]-->[15] (bypass:0) dfgNode: 9 at cycle 0
+[DEBUG] skip predecessor routing -- dfgNode: 11
+[DEBUG] in shareSameCycle is true: node 1
+[DEBUG] tryToRoute -- srcDFGNode: 1, srcCGRANode: 15; dstDFGNode: 9, dstCGRANode: 21; backEdge: 1
+[DEBUG] in shareSameCycle is true: node 9
+[DEBUG] check route size: 2
+[DEBUG] reset duration: 1 t_dstCycle: 0 previous: 3 II: 4
+[DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 21; link: 1 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[21] (bypass:0) dfgNode: 1 at cycle 3
+[DEBUG] success in schedule()
+[DEBUG] schedule dfg node[2] onto fu[9] at cycle 4 within II: 4
+[DEBUG] setDFGNode 2 onto CGRANode 9 at cycle: 4
+[cheng] synced for node: 2; check synced: 1; addr: 0x9665d00
+[cheng] synced for node: 3; check synced: 1; addr: 0x9665e50
+[cheng] synced for node: 8; check synced: 1; addr: 0x96664e0
+[cheng] synced for node: 9; check synced: 1; addr: 0x9666630
+[DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 9; link: 0 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[9] (bypass:0) dfgNode: 1 at cycle 3
+[DEBUG] skip predecessor routing -- dfgNode: 1
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 4 on CGRA node 9 within II 4; path size: 9.
+[DEBUG] schedule dfg node[4] onto fu[16] at cycle 4 within II: 4
+[DEBUG] setDFGNode 4 onto CGRANode 16 at cycle: 4
+[cheng] synced for node: 16; check synced: 1; addr: 0x9666f60
+[cheng] synced for node: 17; check synced: 1; addr: 0x96670b0
+[cheng] synced for node: 22; check synced: 1; addr: 0x9667740
+[cheng] synced for node: 23; check synced: 1; addr: 0x9667890
+[DEBUG] in allocateReg() t_cycle: 3; i: 0 CGRA node: 16; link: 2 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[16] (bypass:0) dfgNode: 1 at cycle 3
+[DEBUG] skip predecessor routing -- dfgNode: 1
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 3 on CGRA node 1 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 3 on CGRA node 2 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 3 on CGRA node 3 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 3 on CGRA node 4 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 3 on CGRA node 5 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 3 on CGRA node 7 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 3 on CGRA node 8 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 3 on CGRA node 9 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 3 on CGRA node 10 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 3 on CGRA node 11 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 3 on CGRA node 13 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 3 on CGRA node 14 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 3 on CGRA node 15 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 3 on CGRA node 16 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 3 on CGRA node 17 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 3 on CGRA node 19 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 3 on CGRA node 20 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 3 on CGRA node 21 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 3 on CGRA node 22 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 3 on CGRA node 23 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 3 on CGRA node 25 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 3 on CGRA node 26 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 3 on CGRA node 27 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 3 on CGRA node 28 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 3 on CGRA node 29 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 3 on CGRA node 31 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 3 on CGRA node 32 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 3 on CGRA node 33 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 3 on CGRA node 34 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 3 on CGRA node 35 within II 4; path size: 6.
+[DEBUG] schedule dfg node[3] onto fu[12] at cycle 11 within II: 4
+[DEBUG] setDFGNode 3 onto CGRANode 12 at cycle: 11
+[cheng] synced for node: 12; check synced: 1; addr: 0x9666a20
+[cheng] synced for node: 13; check synced: 1; addr: 0x9666b70
+[cheng] synced for node: 18; check synced: 1; addr: 0x9667200
+[cheng] synced for node: 19; check synced: 1; addr: 0x9667350
+[DEBUG] occupy link[9]-->[15] (bypass:1) dfgNode: 2 at cycle 7
+[DEBUG] occupy link[15]-->[14] (bypass:1) dfgNode: 2 at cycle 8
+[DEBUG] occupy link[14]-->[13] (bypass:1) dfgNode: 2 at cycle 9
+[DEBUG] in allocateReg() t_cycle: 10; i: 0 CGRA node: 12; link: 3 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[13]-->[12] (bypass:0) dfgNode: 2 at cycle 10
+[DEBUG] skip predecessor routing -- dfgNode: 2
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 5 on CGRA node 1 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 5 on CGRA node 2 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 5 on CGRA node 3 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 5 on CGRA node 4 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 5 on CGRA node 5 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 5 on CGRA node 7 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 8 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 9 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 10 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 11 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 12 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 13 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 14 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 15 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 16 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 17 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 5 on CGRA node 19 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 5 on CGRA node 20 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 5 on CGRA node 21 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 5 on CGRA node 22 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 5 on CGRA node 23 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 5 on CGRA node 25 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 5 on CGRA node 26 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 5 on CGRA node 27 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 5 on CGRA node 28 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 5 on CGRA node 29 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 5 on CGRA node 31 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 5 on CGRA node 32 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 5 on CGRA node 33 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 5 on CGRA node 34 within II 4; path size: 5.
+[DEBUG] no available path for DFG node 5 on CGRA node 35 within II 4; path size: 5.
+[DEBUG] schedule dfg node[5] onto fu[24] at cycle 14 within II: 4
+[DEBUG] setDFGNode 5 onto CGRANode 24 at cycle: 14
+[cheng] synced for node: 24; check synced: 1; addr: 0x96679e0
+[cheng] synced for node: 25; check synced: 1; addr: 0x9667b30
+[cheng] synced for node: 30; check synced: 1; addr: 0x96681c0
+[cheng] synced for node: 31; check synced: 1; addr: 0x9668310
+[DEBUG] occupy link[16]-->[15] (bypass:1) dfgNode: 4 at cycle 7
+[DEBUG] in allocateReg() t_cycle: 8; i: 0 CGRA node: 14; link: 3 duration 2
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[14] (bypass:0) dfgNode: 4 at cycle 8
+[DEBUG] occupy link[14]-->[20] (bypass:1) dfgNode: 4 at cycle 10
+[DEBUG] occupy link[20]-->[26] (bypass:1) dfgNode: 4 at cycle 11
+[DEBUG] occupy link[26]-->[25] (bypass:1) dfgNode: 4 at cycle 12
+[DEBUG] in allocateReg() t_cycle: 13; i: 0 CGRA node: 24; link: 3 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[25]-->[24] (bypass:0) dfgNode: 4 at cycle 13
+[DEBUG] skip predecessor routing -- dfgNode: 4
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 6 on CGRA node 9 within II 4; path size: 9.
+[DEBUG] no available path for DFG node 6 on CGRA node 12 within II 4; path size: 11.
+[DEBUG] no available path for DFG node 6 on CGRA node 16 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 6 on CGRA node 24 within II 4; path size: 21.
+[DEBUG] schedule dfg node[6] onto fu[26] at cycle 22 within II: 4
+[DEBUG] setDFGNode 6 onto CGRANode 26 at cycle: 22
+[cheng] synced for node: 26; check synced: 1; addr: 0x9667c80
+[cheng] synced for node: 27; check synced: 1; addr: 0x9667dd0
+[cheng] synced for node: 32; check synced: 1; addr: 0x9668460
+[cheng] synced for node: 33; check synced: 1; addr: 0x96685b0
+[DEBUG] in allocateReg() t_cycle: 17; i: 0 CGRA node: 25; link: 2 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[24]-->[25] (bypass:0) dfgNode: 5 at cycle 17
+[DEBUG] in allocateReg() t_cycle: 21; i: 0 CGRA node: 26; link: 2 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[25]-->[26] (bypass:0) dfgNode: 5 at cycle 21
+[DEBUG] tryToRoute -- srcDFGNode: 3, srcCGRANode: 12; dstDFGNode: 6, dstCGRANode: 26; backEdge: 0
+[DEBUG] check route size: 7
+[DEBUG] occupy link[12]-->[6] (bypass:1) dfgNode: 3 at cycle 14
+[DEBUG] occupy link[6]-->[7] (bypass:1) dfgNode: 3 at cycle 15
+[DEBUG] occupy link[7]-->[8] (bypass:1) dfgNode: 3 at cycle 16
+[DEBUG] occupy link[8]-->[14] (bypass:1) dfgNode: 3 at cycle 17
+[DEBUG] reset duration: 0 t_dstCycle: 22 previous: 18 II: 4
+[DEBUG] reset duration is 0...
+[DEBUG] in allocateReg() t_cycle: 18; i: 0 CGRA node: 20; link: 1 duration 4
+[DEBUG] done reg allocation
+[DEBUG] occupy link[14]-->[20] (bypass:0) dfgNode: 3 at cycle 18
+[DEBUG] reset duration: 2 t_dstCycle: 22 previous: 20 II: 4
+[DEBUG] in allocateReg() t_cycle: 20; i: 1 CGRA node: 26; link: 1 duration 2
+[DEBUG] done reg allocation
+[DEBUG] occupy link[20]-->[26] (bypass:0) dfgNode: 3 at cycle 20
+[DEBUG] skip predecessor routing -- dfgNode: 5
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 7 on CGRA node 2 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 7 on CGRA node 3 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 7 on CGRA node 8 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 7 on CGRA node 9 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 7 on CGRA node 12 within II 4; path size: 8.
+[DEBUG] no available path for DFG node 7 on CGRA node 13 within II 4; path size: 8.
+[DEBUG] no available path for DFG node 7 on CGRA node 16 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 7 on CGRA node 17 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 7 on CGRA node 18 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 7 on CGRA node 19 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 7 on CGRA node 22 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 23 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 24 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 25 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 26 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 27 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 7 on CGRA node 30 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 7 on CGRA node 31 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 7 on CGRA node 32 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 7 on CGRA node 33 within II 4; path size: 14.
+[DEBUG] schedule dfg node[7] onto fu[20] at cycle 26 within II: 4
+[DEBUG] setDFGNode 7 onto CGRANode 20 at cycle: 26
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] in allocateReg() t_cycle: 25; i: 1 CGRA node: 20; link: 0 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[26]-->[20] (bypass:0) dfgNode: 6 at cycle 25
+[DEBUG] skip predecessor routing -- dfgNode: 6
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 0 on CGRA node 2 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 0 on CGRA node 3 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 0 on CGRA node 8 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 0 on CGRA node 9 within II 4; path size: 6.
+[DEBUG] no available path for DFG node 0 on CGRA node 12 within II 4; path size: 8.
+[DEBUG] no available path for DFG node 0 on CGRA node 13 within II 4; path size: 8.
+[DEBUG] no available path for DFG node 0 on CGRA node 16 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 0 on CGRA node 17 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 0 on CGRA node 18 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 0 on CGRA node 19 within II 4; path size: 10.
+[DEBUG] no available path for DFG node 0 on CGRA node 22 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 23 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 24 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 25 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 26 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 27 within II 4; path size: 12.
+[DEBUG] no available path for DFG node 0 on CGRA node 30 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 0 on CGRA node 31 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 0 on CGRA node 32 within II 4; path size: 14.
+[DEBUG] no available path for DFG node 0 on CGRA node 33 within II 4; path size: 14.
+[DEBUG] schedule dfg node[0] onto fu[14] at cycle 27 within II: 4
+[DEBUG] setDFGNode 0 onto CGRANode 14 at cycle: 27
+[cheng] synced for node: 14; check synced: 1; addr: 0x9666cc0
+[cheng] synced for node: 15; check synced: 1; addr: 0x9666e10
+[cheng] synced for node: 20; check synced: 1; addr: 0x96674a0
+[cheng] synced for node: 21; check synced: 1; addr: 0x96675f0
+[DEBUG] in allocateReg() t_cycle: 26; i: 0 CGRA node: 14; link: 0 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[20]-->[14] (bypass:0) dfgNode: 7 at cycle 26
+[DEBUG] skip predecessor routing -- dfgNode: 7
+[DEBUG] tryToRoute -- srcDFGNode: 11, srcCGRANode: 21; dstDFGNode: 0, dstCGRANode: 14; backEdge: 0
+[DEBUG] check route size: 3
+[DEBUG] occupy link[21]-->[15] (bypass:1) dfgNode: 11 at cycle 2
+[DEBUG] reset duration: 0 t_dstCycle: 27 previous: 3 II: 4
+[DEBUG] reset duration is 0...
+[DEBUG] in allocateReg() t_cycle: 3; i: 1 CGRA node: 14; link: 3 duration 4
+[DEBUG] done reg allocation
+[DEBUG] occupy link[15]-->[14] (bypass:0) dfgNode: 11 at cycle 3
+[DEBUG] in shareSameCycle is true: node 0
+[DEBUG] tryToRoute -- srcDFGNode: 0, srcCGRANode: 14; dstDFGNode: 7, dstCGRANode: 20; backEdge: 1
+[DEBUG] in shareSameCycle is true: node 7
+[DEBUG] check route size: 2
+[DEBUG] reset duration: 3 t_dstCycle: 26 previous: 27 II: 4
+[DEBUG] in allocateReg() t_cycle: 27; i: 2 CGRA node: 20; link: 1 duration 3
+[DEBUG] done reg allocation
+[DEBUG] occupy link[14]-->[20] (bypass:0) dfgNode: 0 at cycle 27
+[DEBUG] success in schedule()
+[DEBUG] no available path for DFG node 8 on CGRA node 1 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 8 on CGRA node 2 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 8 on CGRA node 3 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 8 on CGRA node 4 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 8 on CGRA node 5 within II 4; path size: 1.
+[DEBUG] no available path for DFG node 8 on CGRA node 7 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 8 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 9 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 10 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 11 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 12 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 13 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 14 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 15 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 16 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 17 within II 4; path size: 2.
+[DEBUG] no available path for DFG node 8 on CGRA node 19 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 20 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 21 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 22 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 23 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 24 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 25 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 26 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 27 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 28 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 29 within II 4; path size: 3.
+[DEBUG] no available path for DFG node 8 on CGRA node 31 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 8 on CGRA node 32 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 8 on CGRA node 33 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 8 on CGRA node 34 within II 4; path size: 4.
+[DEBUG] no available path for DFG node 8 on CGRA node 35 within II 4; path size: 4.
+[DEBUG] schedule dfg node[8] onto fu[6] at cycle 31 within II: 4
+[DEBUG] setDFGNode 8 onto CGRANode 6 at cycle: 31
+[cheng] synced for node: 0; check synced: 1; addr: 0x9665a60
+[cheng] synced for node: 1; check synced: 1; addr: 0x9665bb0
+[cheng] synced for node: 6; check synced: 1; addr: 0x9666240
+[cheng] synced for node: 7; check synced: 1; addr: 0x9666390
+[DEBUG] occupy link[20]-->[14] (bypass:1) dfgNode: 7 at cycle 26
+[DEBUG] in allocateReg() t_cycle: 27; i: 0 CGRA node: 8; link: 0 duration 0
+[DEBUG] done reg allocation
+[DEBUG] occupy link[14]-->[8] (bypass:0) dfgNode: 7 at cycle 27
+[DEBUG] occupy link[8]-->[7] (bypass:1) dfgNode: 7 at cycle 29
+[DEBUG] in allocateReg() t_cycle: 30; i: 0 CGRA node: 6; link: 3 duration 1
+[DEBUG] done reg allocation
+[DEBUG] occupy link[7]-->[6] (bypass:0) dfgNode: 7 at cycle 30
+[DEBUG] skip predecessor routing -- dfgNode: 7
+[DEBUG] success in schedule()
+Mapping algorithm elapsed time=327ms
+--------------------------- cycle:0 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:1 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:2 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:3 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[     ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:4 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:5 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:6 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:7 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[     ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:8 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:9 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:10 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:11 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:12 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:13 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:14 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:15 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:16 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:17 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:18 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:19 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:20 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:21 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:22 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:23 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [     ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:24 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:25 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:26 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:27 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[     ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:28 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:29 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:30 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:31 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:32 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:33 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:34 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:35 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:36 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:37 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:38 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:39 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:40 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:41 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:42 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:43 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:44 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:45 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:46 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:47 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:48 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:49 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:50 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:51 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:52 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:53 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:54 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:55 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:56 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:57 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:58 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:59 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:60 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:61 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:62 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:63 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:64 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:65 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:66 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:67 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:68 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:69 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ] ‚áÑ [     ] ‚Üí [     ]   [     ]   [     ]   [     ]
+                       ‚Üì                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                 ‚Üë                     
+[     ]   [     ] ‚Üê [     ]   [ 10  ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:70 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[  5  ]   [     ]   [  6  ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [  7  ]   [ 11  ]   [     ]   [     ]
+                       ‚áÖ         ‚Üì                     
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+   ‚Üì                                                   
+[     ] ‚Üê [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:71 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                       ‚Üë         ‚Üë                     
+[  3  ]   [     ]   [  0  ] ‚Üê [  1  ] ‚áÑ [     ]   [     ]
+                       ‚Üì         ‚áÖ                     
+[  8  ] ‚Üí [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+--------------------------- cycle:72 ---------------------------
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+                                                       
+[     ]   [     ] ‚Üê [     ]   [     ]   [     ]   [     ]
+                       ‚Üë                               
+[     ]   [     ]   [     ]   [  9  ]   [     ]   [     ]
+                                 ‚Üì                     
+[     ]   [     ]   [     ] ‚Üê [     ]   [  4  ]   [     ]
+                                                       
+[     ]   [     ] ‚Üí [     ]   [  2  ]   [     ]   [     ]
+                                                       
+[     ]   [     ]   [     ]   [     ]   [     ]   [     ]
+[Mapping II: 4]
+[Mapping Success]
+==================================
+[ExpandableII: 4]
+==================================
+[Utilization & DVFS stats]
+tile avg fu utilization: 53.5714%; avg xbar utilization: 82.1429%; avg overall utilization: 82.1429%
+histogram 0% tile utilization: 22
+histogram (0%, 25%] tile utilization: 1
+histogram (25%, 50%] tile utilization: 3
+histogram (50%, 100%] tile utilization: 10
+tile 0 DVFS frequency level: 0%
+tile 1 DVFS frequency level: 0%
+tile 2 DVFS frequency level: 0%
+tile 3 DVFS frequency level: 0%
+tile 4 DVFS frequency level: 0%
+tile 5 DVFS frequency level: 0%
+tile 6 DVFS frequency level: 25%
+tile 7 DVFS frequency level: 25%
+tile 8 DVFS frequency level: 25%
+tile 9 DVFS frequency level: 25%
+tile 10 DVFS frequency level: 0%
+tile 11 DVFS frequency level: 0%
+tile 12 DVFS frequency level: 25%
+tile 13 DVFS frequency level: 25%
+tile 14 DVFS frequency level: 100%
+tile 15 DVFS frequency level: 100%
+tile 16 DVFS frequency level: 25%
+tile 17 DVFS frequency level: 0%
+tile 18 DVFS frequency level: 0%
+tile 19 DVFS frequency level: 0%
+tile 20 DVFS frequency level: 100%
+tile 21 DVFS frequency level: 100%
+tile 22 DVFS frequency level: 0%
+tile 23 DVFS frequency level: 0%
+tile 24 DVFS frequency level: 25%
+tile 25 DVFS frequency level: 25%
+tile 26 DVFS frequency level: 25%
+tile 27 DVFS frequency level: 0%
+tile 28 DVFS frequency level: 0%
+tile 29 DVFS frequency level: 0%
+tile 30 DVFS frequency level: 0%
+tile 31 DVFS frequency level: 0%
+tile 32 DVFS frequency level: 0%
+tile 33 DVFS frequency level: 0%
+tile 34 DVFS frequency level: 0%
+tile 35 DVFS frequency level: 0%
+tile average DVFS frequency level: 18.0556%
+histogram 0% tile DVFS frequency ratio: 22
+histogram 25% tile DVFS frequency ratio: 10
+histogram 50% tile DVFS frequency ratio: 0
+histogram 100% tile DVFS frequency ratio: 4
+==================================
+[DEBUG] inside roi for CGRA node 8...
+[DEBUG] inside roi for CGRA node 25...
+[DEBUG] inside roi for CGRA node 7...
+[DEBUG] inside roi for CGRA node 13...
+[DEBUG] inside roi for CGRA node 14...
+[DEBUG] inside roi for CGRA node 6...
+[DEBUG] inside roi for CGRA node 14...
+[DEBUG] inside roi for CGRA node 15...
+[DEBUG] inside roi for CGRA node 7...
+[DEBUG] inside roi for CGRA node 15...
+[DEBUG] inside roi for CGRA node 20...
+[DEBUG] inside roi for CGRA node 26...
+[DEBUG] inside roi for CGRA node 8...
+[DEBUG] inside roi for CGRA node 25...
+[Output Json]
+[Output Json for Incremental Mapping]
+==================================
+BC¿ﬁ5     b0$JYæfm˚¥OQÄL   !  É  !       Å#ëA»I29íÑ%ãbÄEBíBÑ28K
+2BàHpƒ!#DáåAíd»± CFà …2BÑ*(*ê1|∞\ë ƒ»   â      2"	 dÖ"§Ñ"„Ñ°êLàåÑÑL83 	s`PÇ! (Ñ›·@¿(LÃ Q  ê   R&¯ˇˇˇˇ  	¿rHáyq`árhzát`á6áp`vò¿¬ÅÊ° ¬‰!⁄°⁄ ﬁ!‹Å A wxw(Ä`áròáyhxêárátòárhsÄávr Ã!ÿa  ⁄!‹°ÿ°Œ!ÿ°Ï°∆ÅﬁA⁄‡“ÅË 8 wxá6Hw0áyhsÄá6háp†t Ã!ÿa  ‹·⁄@Í°‡°Ë!ƒÅ a svòár wxá6páppáyhsÄá6háp†t Ã!ÿa  ‹·⁄`“·‹°»°Ù°‰·Ê°Ã⁄†¬Å–0áp`áy(ÄpáwhzêápÄxHw8á6háp†t ËAÍ° bË!∆a⁄ ‰·Ë°∆ÅﬁA⁄@Í¡Ã°‰°Ê!Ù° < zy8ár†á6x® ¿⁄¿Ë  Ë!‰· Å⁄¿ !Ë°‰°ÊXÉq¿<`É50|òy`É5háv¿6XÉyòár`É5òáy(9`É5¿<∏Ä†ázpárhÉqÄáz Œ°‹°‰!∆ Í¡Ê!Ã°⁄¿‡°⁄!Ë svòár àzòárhÉyxs†á60vxáp†¿¬ÅÊ°ÄÜ Pm X6ƒ ,@ I     Ç`&|¿;¯;†É6ÄáqhvHw®|hÉspázÿ`
+Â–Ì†Â– w z0r†s m rpq†s z0r– w z`t†v@mêv@z`t–ÊÄp†q x–ÓÄzv†s z`t–≥rÄJí@Üå4BVQà®!_xûPÇ     AÏê
+#†  @   
+`á¥0Åp     @P C™ã           
+`Hµ=    Ä    @Hl(|(  ê   .   2òLêå	&G∆CäÄ±¿ A˝@˘A¡@·Aê˛@Ip A‘?AÙA‰?¡@Cp AÑ?A˙A$¡APˇ@—Aêˇ@O0 A¡A˛@ÈAêA˝AD?A˛A<¡ A0A¯A§?A@ıè¶
+Åv    ±  ó   3Äƒ·f=àC8Ñ√åBÄyxsòqÊ ÌÙÄ3B¬¡Œ°f0=àC8ÑÉÃ=»C=å=Ãxåtp{yHáppzpvxáp áÃÏê·0n0„P3ƒﬁ!ÿ!¬af0â;ºÉ;–C9¥<ºÉ<Ñ;Ãv`{h7hárh7Äápêáp`v(v¯vxáwÄá_áqáròáyòÅ,ÓÓ‡ı¿Ï0b»°‰°Ã°‰°‹a !ƒÅ a÷êC9»C9òC9»C9∏√8îC8à;î√/ºÉ<¸Ç;‘;∞√«iápXárpÉthx`átát†áŒSÓ ÚP‰ê„@· ÏP3 (‹¡¬A“!‹Å‹‡‰·ÍfQ8∞C:úÉ;ÃP$v`{h7`áwxxòQLÙêP3j aË!ﬁ¡~‰°Ã!aTÖÉ8Ã√;∞C=–C9¸¬<‰C;à√;∞√å≈
+áyòáwátz(ròÅ\„Ï¿ÂPÛ0#¡“A‰·ÿ·ﬁfH;∞É=¥ÉÑ√8åC9Ã√<∏¡9»√;‘<ÃH¥qv`qáqXá€∆Ï`Ì‡ Â0Â ˆPn„0Â0Û‡È‡‰P¯0#‚Ïa¬Åÿ·Ï!Ê!ƒ!ÿ!Ë!f ù;ºC=∏9îÉ9ÃXºppwxzzHáwp  y   B   rH Cà	r2H #Ååëë—D†(d<12Béê!£x /
+œca  wchar_sizeUbuntu clang version 12.0.0-3ubuntu1~20.04.5floatomnipotent charSimple C++ TBAAllvm.loop.mustprogressllvm.loop.unroll.disable #√1Ç0 #K2≈∞H”$3¬A1√@8 √(3§Ã3áå&(#66ª6ó∂7≤:∂23∂∞≥πQÇ%66ª6ó4≤27∫Q  ©     
+r(áwÄzXpòC=∏√8∞C9–√ÇÊ∆°ËA¬¡Ê!Ë!ﬁ¡4„`ÁP· ‰@· ÁPÙ∞ÄÅy(áp`vxáqz(rXpú√8¥;§É=î   —     Ã<§É;ú;î=†É<îC8ê√   a   $   C,      tCÅ,…í–ñ@—å  D@ô%* xÇÅä≈û†«!0zë2P „Ü@Ó ÜfÑ 6 û° ñ	à      [ Ä∂E mé ⁄20í≤eh   !1     Ü ∏@Ü (       a   &   C,      ¥%P@    D¿ò%* xÇÅäû†ÉÄ¿Ë  0n‰é Üà& <n0òeÇ@b     [ Ä∂E mé ⁄2(¥eh$   !1  	   Ü ∏DÜ p–,8 à"Y0¿2aÄ        q      2"ÑπHM     e  7   î∞      *      L      X       X      –       0      C   
+          –                              ˇˇˇˇ $              ˇˇˇˇ $                ˇˇˇˇ               ˇˇˇˇ               ˇˇˇˇ       ]     î≠    inputoutputcoefficientsmain_Z6kernelPfS_S_12.0.0x86_64-pc-linux-gnukernel.cpp       
