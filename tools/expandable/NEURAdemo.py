@@ -78,24 +78,20 @@ class Kernel:
         """
         file_source = (self.kernel_name.split("."))[0]
 
-        compile_commands = {
-            (1, 1): f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}",
-            (2, 1): f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count=2 -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}",
-            (4, 1): f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count=4 -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}",
-            (1, 2): f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width=2 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}",
-            (1, 4): f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width=4 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}",
-            (1, 8): f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width=8 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
-        }
-
-        compile_command = compile_commands.get((self.unroll_factor, self.vector_factor))
-        if not compile_command:
+        if self.unroll_factor == 1 and self.vector_factor == 1:
+            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+        elif self.unroll_factor == 1 and self.vector_factor != 1:
+            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width={self.vector_factor} -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+        elif self.unroll_factor != 1 and self.vector_factor == 1:
+            compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+        else:
             print("Error, invalid unroll and vector factor combination.")
-            return
+            return            
 
         compile_proc = subprocess.Popen([compile_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (compile_out, compile_err) = compile_proc.communicate()
 
-        disassemble_command = "llvm-dis-12 kernel.bc -o ../build/kernel.ll"
+        disassemble_command = "llvm-dis-12 kernel.bc -o ./kernel.ll"
         disassemble_proc = subprocess.Popen([disassemble_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (disassemble_out, disassemble_err) = disassemble_proc.communicate()
 
@@ -331,7 +327,7 @@ class KernelInstance:
         self.pure_execution_time = 0  # Track pure execution time for this instance
         self.pure_waiting_time = 0  # Track pure waiting time for this instance
         # Determine the maximum number of CGRAs that can be allocated
-        self.max_allocate_cgra = 8
+        self.max_allocate_cgra = 9
 
     def __lt__(self, other):
         """
@@ -348,7 +344,7 @@ class KernelInstance:
             int: Total execution time in cycles.
         """
         # if self.vector_factor = 8, then when allocate_cgra <= 2, self.ii = ii_1, when 2 < allocate_cgra <= 4, self.ii = ii_2
-        if self.kernel.vector_factor == 16:
+        if self.kernel.vector_factor == 8:
             if self.allocated_cgras == 1:
                 # cgra tile only support vector = 4
                 # TODO: self.kernel.ii_1/2
@@ -627,7 +623,7 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_bos
         priority_bosting (bool): Whether to enable priority boosting.
         num_cgras (int): The number of CGRAs, default 9.
     """
-    for i, kernels in enumerate(kernels_list, start=7):
+    for i, kernels in enumerate(kernels_list, start=1):
         kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency = simulate(num_cgras, kernels, priority_bosting)
 
         # Calculate fastest, slowest, and average execution time per kernel
@@ -696,29 +692,17 @@ if __name__ == "__main__":
     baselineCase1=[
         [
             Kernel(kernel_name="fir.cpp", kernel_id =0, arrive_period =1500000, unroll_factor =1,vector_factor =1, total_iterations =300000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="latnrm.c", kernel_id =1, arrive_period =5000000, unroll_factor =1,vector_factor =1, total_iterations =1200000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="fft.c", kernel_id =2, arrive_period =2000000, unroll_factor =1,vector_factor =1, total_iterations =480000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="dtw.cpp", kernel_id =3, arrive_period =2800000, unroll_factor =1,vector_factor =1, total_iterations =524288, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="spmv.c", kernel_id =4, arrive_period =3300000, unroll_factor =1,vector_factor =1, total_iterations =507904, cgra_rows= 12, cgra_columns=12) ,
             Kernel(kernel_name="conv.c", kernel_id =5, arrive_period =2500000, unroll_factor =1,vector_factor =1, total_iterations =400000, cgra_rows= 12, cgra_columns=12) ,
             Kernel(kernel_name="relu.c", kernel_id =6, arrive_period =4000000, unroll_factor =1,vector_factor =1, total_iterations =1000000, cgra_rows= 12, cgra_columns=12) ,
             Kernel(kernel_name="histogram.cpp", kernel_id =7, arrive_period =1200000, unroll_factor =1,vector_factor =1, total_iterations =262144, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="mvt.c", kernel_id =8, arrive_period =10000000, unroll_factor =1,vector_factor =1, total_iterations =1800000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="gemm.c", kernel_id =9, arrive_period =8000000, unroll_factor =1,vector_factor =1, total_iterations =2097152, cgra_rows= 12, cgra_columns=12)
         ]
     ]
     taskCase1 = [
         [
-            Kernel(kernel_name="fir.cpp", kernel_id =0, arrive_period =300000, unroll_factor =1,vector_factor =16, total_iterations =300000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="latnrm.c", kernel_id =1, arrive_period =300000, unroll_factor =1,vector_factor =16, total_iterations =300000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="fft.c", kernel_id =2, arrive_period =480000, unroll_factor =1,vector_factor =16, total_iterations =480000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="dtw.cpp", kernel_id =3, arrive_period =524288, unroll_factor =1,vector_factor =16, total_iterations =524288, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="spmv.c", kernel_id =4, arrive_period =507904, unroll_factor =1,vector_factor =16, total_iterations =507904, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="conv.c", kernel_id =5, arrive_period =400000, unroll_factor =1,vector_factor =16, total_iterations =400000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="relu.c", kernel_id =6, arrive_period =1000000, unroll_factor =1,vector_factor =16, total_iterations =1000000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="histogram.cpp", kernel_id =7, arrive_period =262144, unroll_factor =1,vector_factor =16, total_iterations =262144, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="mvt.c", kernel_id =8, arrive_period =1800000, unroll_factor =1,vector_factor =16, total_iterations =1800000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="gemm.c", kernel_id =9, arrive_period =2097152, unroll_factor =1,vector_factor =16, total_iterations =2097152, cgra_rows= 4, cgra_columns=4)
+            Kernel(kernel_name="fir.cpp", kernel_id =0, arrive_period =300000, unroll_factor =1,vector_factor =8, total_iterations =300000, cgra_rows= 4, cgra_columns=4) ,
+            Kernel(kernel_name="conv.c", kernel_id =5, arrive_period =400000, unroll_factor =1,vector_factor =8, total_iterations =400000, cgra_rows= 4, cgra_columns=4) ,
+            Kernel(kernel_name="relu.c", kernel_id =6, arrive_period =1000000, unroll_factor =1,vector_factor =8, total_iterations =1000000, cgra_rows= 4, cgra_columns=4) ,
+            Kernel(kernel_name="histogram.cpp", kernel_id =7, arrive_period =262144, unroll_factor =1,vector_factor =8, total_iterations =262144, cgra_rows= 4, cgra_columns=4) ,
         ]
     ]
     run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_bosting = True, num_cgras=1)  # one cgra is 4x4
