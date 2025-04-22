@@ -54,16 +54,12 @@ def DVFSComp(fileName, uFactor):
     """
     fileSource = (fileName.split("."))[0]
 
-    uCommand0 = "clang-12 -emit-llvm -fno-unroll-loops -O3 -o kernel.bc -c "    # no unroll, i.e. unroll = 1
-    uCommand2 = "clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count=2 -O3 -o kernel.bc -c "    # unroll = 2
-    appCommand0 = "../kernels/"
-    generalCommand = fileSource + "/" + fileName
-    compileCommand = ""
-
     if uFactor == 1:
-        compileCommand = uCommand0 + appCommand0 + generalCommand
+        compileCommand = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -o kernel.bc -c ../../test/kernels/{fileSource}/{fileName}"
     elif uFactor == 2:
-        compileCommand = uCommand2 + appCommand0 + generalCommand
+        compileCommand = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={uFactor} -O3 -o kernel.bc -c ../../test/kernels/{fileSource}/{fileName}"
+    else:
+        print(f"Error: Invalid unroll factor value {uFactor}.") 
 
     compileProc = subprocess.Popen([compileCommand, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (compileOut, compileErr) = compileProc.communicate()
