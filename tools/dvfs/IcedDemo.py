@@ -17,13 +17,12 @@ import numpy as np
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
 
-testBenchs = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c",  "aggregate1.c", "aggregate2.c", "combine.c", "combineRelu.c", "compress.cpp", "pooling.c", "decompose.cpp", "determinant.cpp", "init.cpp", "invert.cpp", "solver0.cpp", "solver1.cpp"] # the file type of kernels must match
-testBenchsNum = len(testBenchs)
-dictCsv = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'avg tile utilization': "", '0% tiles u': "", 'avg tile frequency': "",	'0% tiles f': "", 
+TEST_BENCHS = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c",  "aggregate1.c", "aggregate2.c", "combine.c", "combineRelu.c", "compress.cpp", "pooling.c", "decompose.cpp", "determinant.cpp", "init.cpp", "invert.cpp", "solver0.cpp", "solver1.cpp"] # the file type of kernels must match
+DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'avg tile utilization': "", '0% tiles u': "", 'avg tile frequency': "",	'0% tiles f': "", 
 '25% tiles f': "",'50% tiles f': "", '100% tiles f': ""}  # column names of generated CSV
-dictColumn = len(dictCsv)
-jsonName = "./param.json"   # name of generated json file
-timeOutSet = 180   # set Timeout = 3 minutes
+JSON_NAME = "./param.json"   # name of generated json file
+TIME_OUT_SET = 180   # set Timeout = 3 minutes
+KERNEL_DIRECTORY = "../../test/kernels"
 # for showTable(), showFig9(), showFig10(), showFig11() since they all read the 6x6_*_*.csv
 fileBaselineU1 = "./tmp/t_6x6_unroll1_baseline.csv"  
 fileBaselineU2 = "./tmp/t_6x6_unroll2_baseline.csv"   
@@ -31,6 +30,7 @@ filePertileU1 = "./tmp/t_6x6_unroll1_pertile.csv"
 filePertileU2 = "./tmp/t_6x6_unroll2_pertile.csv"  
 fileIcedU1 = "./tmp/t_6x6_unroll1_iced.csv"
 fileIcedU2 = "./tmp/t_6x6_unroll2_iced.csv"
+
 
 # For your convience, the names of csv are listed to avoid wating for the csv generation in main function.
 # nameCsvBaseline = ["./tmp/t_2x2_unroll1_baseline.csv", "./tmp/t_4x4_unroll1_baseline.csv", "./tmp/t_6x6_unroll1_baseline.csv", 
@@ -55,9 +55,9 @@ def DVFSComp(fileName, uFactor):
     fileSource = (fileName.split("."))[0]
 
     if uFactor == 1:
-        compileCommand = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -o kernel.bc -c ../../test/kernels/{fileSource}/{fileName}"
+        compileCommand = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{fileSource}/{fileName}"
     elif uFactor == 2:
-        compileCommand = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={uFactor} -O3 -o kernel.bc -c ../../test/kernels/{fileSource}/{fileName}"
+        compileCommand = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={uFactor} -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{fileSource}/{fileName}"
     else:
         print(f"Error: Invalid unroll factor value {uFactor}.") 
 
@@ -107,7 +107,7 @@ def DVFSMap(kernel,df):
 
     try:
         eventlet.monkey_patch()
-        with eventlet.Timeout(timeOutSet, True):
+        with eventlet.Timeout(TIME_OUT_SET, True):
             with genMapProc.stdout:
                 genMapProc.stdout.flush()
                 for line in iter(genMapProc.stdout.readline, b''):
@@ -135,8 +135,8 @@ def DVFSMap(kernel,df):
                         dataS.append(int(outputLine.split("histogram 100% tile DVFS frequency ratio: ")[1]))
                     
     except eventlet.timeout.Timeout:
-        # print("Skipping a specific config for kernel: ", kernel, "Because it runs more than", timeOutSet/60 , "minute(s).")
-        dataS = [0]*(dictColumn)
+        # print("Skipping a specific config for kernel: ", kernel, "Because it runs more than", TIME_OUT_SET/60 , "minute(s).")
+        dataS = [0]*(len(DICT_CSV))
 
     df.loc[len(df.index)] = dataS
 
@@ -160,7 +160,7 @@ def DVFSGen(kernel, df):
 
     try:
         eventlet.monkey_patch()
-        with eventlet.Timeout(timeOutSet, True):
+        with eventlet.Timeout(TIME_OUT_SET, True):
             with genMapProc.stdout:
                 genMapProc.stdout.flush()
                 for line in iter(genMapProc.stdout.readline, b''):
@@ -170,12 +170,15 @@ def DVFSGen(kernel, df):
                         dataS.append(int(outputLine.split("DFG edge count: ")[1].split(";")[0]))
                     if "[RecMII: " in outputLine:
                         dataS.append(int(outputLine.split("[RecMII: ")[1].split("]")[0]))
-                        dataS.extend([0]*(dictColumn-kDataSHead))
+                        dataS.extend([0]*(len(DICT_CSV)-kDataSHead))
                         break
                     
     except eventlet.timeout.Timeout:
-        dataS = [0]*(dictColumn)
-        print("Skipping a specific config for kernel: ", kernel, "Because it runs more than", timeOutSet/60 , "minute(s).")
+        dataS = [0]*(len(DICT_CSV))
+        print("Skipping a specific config for kernel: ", kernel, "Because it runs more than", TIME_OUT_SET/60 , "minute(s).")
+    
+    if len(dataS) != len(DICT_CSV):
+            dataS.extend([0]*(len(DICT_CSV)-len(dataS)))
 
     df.loc[len(df.index)] = dataS
 
@@ -224,13 +227,13 @@ def showTableI(csvPath, nameBaselineS):
     tableIDict = {'Kernel': "", 'Unroll1 Nodes': "", 'Unroll1 Edges': "", 'Unroll1 RecMII': "", 'Unroll2 Nodes': "", 'Unroll2 Edges': "", 'Unroll2 RecMII': ""}
     tableIDictColumn = len(tableIDict)
     df = pd.DataFrame(tableIDict, index=[0])
-    dfBenchs = [[0] * (tableIDictColumn - 1) for _ in range(testBenchsNum)]  # a two-dim list with testBenchsNum of Rows 
-    for i in range(testBenchsNum):
+    dfBenchs = [[0] * (tableIDictColumn - 1) for _ in range(len(TEST_BENCHS))]  # a two-dim list with len(TEST_BENCHS) of Rows 
+    for i in range(len(TEST_BENCHS)):
         tmpList = [0]
-        tmpList[0] = testBenchs[i]  # add kernel name in the head of list
+        tmpList[0] = TEST_BENCHS[i]  # add kernel name in the head of list
         tmpList.extend(transList[i])    # add information of current kernel 
         dfBenchs[i] = tmpList    
-    for i in range(testBenchsNum):
+    for i in range(len(TEST_BENCHS)):
         df.loc[len(df.index)] = dfBenchs[i]
     df.to_csv(csvPath)
  
@@ -267,7 +270,7 @@ def showFig9(figPath, nameBaselineS, namePertileS, nameIcedS):
 
     # draw a 6 bar chart
     plt.figure(figsize=(16, 5)) # the size of generated figure
-    x = np.arange(len(testBenchs))  # X-axis
+    x = np.arange(len(TEST_BENCHS))  # X-axis
     xWidth = 0.1   # width of every bar 
     plt.bar(x - xWidth*2.5, yBaselineU1, xWidth, label='Baseline Unroll1')
     plt.bar(x - xWidth*1.5, yPertileU1, xWidth, label='Per-tile DVFS + Power-gating Unroll1')
@@ -277,7 +280,7 @@ def showFig9(figPath, nameBaselineS, namePertileS, nameIcedS):
     plt.bar(x + xWidth*2.5, yIcedU2, xWidth, label='ICED Unroll2')
     plt.title('ExampleFig9')
     plt.ylabel('Avg utilization')
-    plt.xticks(x, labels=testBenchs)
+    plt.xticks(x, labels=TEST_BENCHS)
     plt.legend()
     plt.savefig(figPath)
 
@@ -315,7 +318,7 @@ def showFig10(figPath, nameBaselineS, namePertileS, nameIcedS):
 
     # draw a 6 bar chart
     plt.figure(figsize=(16, 5)) # the size of generated figure
-    x = np.arange(len(testBenchs))  # X-axis
+    x = np.arange(len(TEST_BENCHS))  # X-axis
     xWidth = 0.1   # width of every bar 
     plt.bar(x - xWidth*2.5, yBaselineU1, xWidth, label='Baseline Unroll1')
     plt.bar(x - xWidth*1.5, yPertileU1, xWidth, label='Per-tile DVFS + Power-gating Unroll1')
@@ -325,7 +328,7 @@ def showFig10(figPath, nameBaselineS, namePertileS, nameIcedS):
     plt.bar(x + xWidth*2.5, yIcedU2, xWidth, label='ICED Unroll2')
     plt.title('ExampleFig10')
     plt.ylabel('Avg DVFS Level')
-    plt.xticks(x, labels=testBenchs)
+    plt.xticks(x, labels=TEST_BENCHS)
     plt.legend()
     plt.savefig(figPath)
 
@@ -396,8 +399,8 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
     # caculate corresponding power using the information above
     # Baseline: Power (36 tiles with SRAM) = 36 * (c * v100^2 * f100 + tile_static_power) + sram_power = 36 * 2.715 + 62.653 = 160.41. Energy = Power * (baselineII / minII).
     # Baseline: The v/f we use the 100% DVFS set and there is no control_overhead_DVFS for baseline.
-    yBaselineU1 = [0] * testBenchsNum; yBaselineU2 = [0] * testBenchsNum;
-    for i in range(testBenchsNum):
+    yBaselineU1 = [0] * len(TEST_BENCHS); yBaselineU2 = [0] * len(TEST_BENCHS);
+    for i in range(len(TEST_BENCHS)):
         if mappingII_Baseline_U1[i] == 0:
             yBaselineU1[i] = 0  # mappingII = 0 means mapping is failed, so the bar should be 0
         else:
@@ -408,8 +411,8 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
             yBaselineU2[i] = (36 * (c * v100**2 * f100 + tile_static_power) + sram_power) * (mappingII_Baseline_U2[i] / minII_U2[i])
 
     # Baseline + Power-gating: Power = power_of_baseline - number_of_idle_tiles * (c * v100^2 * f100 + tile_static_power). The number_of_idle_tiles is number_of_0%_utilization_tiles.
-    yBaselinePGU1 = [0] * testBenchsNum; yBaselinePGU2 = [0] * testBenchsNum
-    for i in range(testBenchsNum):
+    yBaselinePGU1 = [0] * len(TEST_BENCHS); yBaselinePGU2 = [0] * len(TEST_BENCHS)
+    for i in range(len(TEST_BENCHS)):
         if mappingII_Baseline_U1[i] == 0:
             yBaselinePGU1[i] = 0  # mappingII = 0 means mapping is failed, so the bar should be 0
         else: 
@@ -421,8 +424,8 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
     
     # Per-tile DVFS + Power-gating: Power = number_of_100%_DVFS_tiles * (c * v100^2 * f100) + number_of_50%_DVFS_tiles * (c * v50^2 * f50) + 
     # number_of_25%_DVFS_tiles * (c * v25^2 * f25) + 36 * tile_static_power + sram_power + control_overhead_DVFS * (36 - number_of_0%_DVFS_tiles). Energy = Power * (pertileII / minII).
-    yPertileU1 = [0] * testBenchsNum; yPertileU2 = [0] * testBenchsNum
-    for i in range(testBenchsNum):
+    yPertileU1 = [0] * len(TEST_BENCHS); yPertileU2 = [0] * len(TEST_BENCHS)
+    for i in range(len(TEST_BENCHS)):
         if mappingII_Pertile_U1[i] == 0:
             yPertileU1[i] = 0  # mappingII = 0 means mapping is failed, so the bar should be 0
         else:
@@ -436,8 +439,8 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
 
     # ICED: Power = number_of_100%_DVFS_tiles * (c * v100^2 * f100) + number_of_50%_DVFS_tiles * (c * v50^2 * f50) + 
     # number_of_25%_DVFS_tiles * (c * v25^2 * f25) + 36 * tile_static_power + sram_power + control_overhead_DVFS * 9. Energy = Power * (icedII / minII).
-    yIcedU1 = [0] * testBenchsNum; yIcedU2 = [0] * testBenchsNum
-    for i in range(testBenchsNum):
+    yIcedU1 = [0] * len(TEST_BENCHS); yIcedU2 = [0] * len(TEST_BENCHS)
+    for i in range(len(TEST_BENCHS)):
         if mappingII_Iced_U1[i] == 0:
             yIcedU1[i] = 0  # mappingII = 0 means mapping is failed, so the bar should be 0
         else:
@@ -451,7 +454,7 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
 
     # draw a 8 bar chart
     plt.figure(figsize=(16, 5)) # the size of generated figure
-    x = np.arange(len(testBenchs))  # X-axis
+    x = np.arange(len(TEST_BENCHS))  # X-axis
     xWidth = 0.1   # width of every bar 
     plt.bar(x - xWidth*3.5, yBaselineU1, xWidth, label='Baseline Unroll1')
     plt.bar(x - xWidth*2.5, yBaselinePGU1, xWidth, label='Baseline + Power-gating Unroll1')
@@ -463,7 +466,7 @@ def showFig11(figPath, nameBaselineS, namePertileS, nameIcedS):
     plt.bar(x + xWidth*3.5, yIcedU2, xWidth, label='ICED Unroll2')
     plt.title('ExampleFig11')
     plt.ylabel('Avg Power(mW)')
-    plt.xticks(x, labels=testBenchs)
+    plt.xticks(x, labels=TEST_BENCHS)
     plt.legend()
     plt.savefig(figPath)
 
@@ -482,30 +485,30 @@ def showFig12(figPath, nameBaselineS, namePertileS, nameIcedS):
         df = pd.read_csv(namePertile)
         tmpList = df['avg tile frequency'].tolist()
         yPertile.extend(tmpList)
-    # testBenchsNum is the length of a single yPertileX*U*
-    yPertileX2U1 = yPertile[1:1+testBenchsNum]
-    yPertileX4U1 = yPertile[2+testBenchsNum:2+2*testBenchsNum]
-    yPertileX6U1 = yPertile[3+2*testBenchsNum:3+3*testBenchsNum]
-    yPertileX6U2 = yPertile[4+3*testBenchsNum:4+4*testBenchsNum]
-    yPertileX8U1 = yPertile[5+4*testBenchsNum:5+5*testBenchsNum]
-    yPertileX8U2 = yPertile[6+5*testBenchsNum:6+6*testBenchsNum]
+    # len(TEST_BENCHS) is the length of a single yPertileX*U*
+    yPertileX2U1 = yPertile[1:1+len(TEST_BENCHS)]
+    yPertileX4U1 = yPertile[2+len(TEST_BENCHS):2+2*len(TEST_BENCHS)]
+    yPertileX6U1 = yPertile[3+2*len(TEST_BENCHS):3+3*len(TEST_BENCHS)]
+    yPertileX6U2 = yPertile[4+3*len(TEST_BENCHS):4+4*len(TEST_BENCHS)]
+    yPertileX8U1 = yPertile[5+4*len(TEST_BENCHS):5+5*len(TEST_BENCHS)]
+    yPertileX8U2 = yPertile[6+5*len(TEST_BENCHS):6+6*len(TEST_BENCHS)]
     # read avg tile frequency of 2x2/4x4_unroll1_iced.csv and 6x6/8x8_unroll1/unroll2_iced.csv
     yIced=[]
     for nameIced in nameIcedS:
         df = pd.read_csv(nameIced)
         tmpList = df['avg tile frequency'].tolist()
         yIced.extend(tmpList)
-    # testBenchsNum is the length of a single yPertileX*U*
-    yIcedX2U1 = yIced[1:1+testBenchsNum]
-    yIcedX4U1 = yIced[2+testBenchsNum:2+2*testBenchsNum]
-    yIcedX6U1 = yIced[3+2*testBenchsNum:3+3*testBenchsNum]
-    yIcedX6U2 = yIced[4+3*testBenchsNum:4+4*testBenchsNum]
-    yIcedX8U1 = yIced[5+4*testBenchsNum:5+5*testBenchsNum]
-    yIcedX8U2 = yIced[6+5*testBenchsNum:6+6*testBenchsNum]
+    # len(TEST_BENCHS) is the length of a single yPertileX*U*
+    yIcedX2U1 = yIced[1:1+len(TEST_BENCHS)]
+    yIcedX4U1 = yIced[2+len(TEST_BENCHS):2+2*len(TEST_BENCHS)]
+    yIcedX6U1 = yIced[3+2*len(TEST_BENCHS):3+3*len(TEST_BENCHS)]
+    yIcedX6U2 = yIced[4+3*len(TEST_BENCHS):4+4*len(TEST_BENCHS)]
+    yIcedX8U1 = yIced[5+4*len(TEST_BENCHS):5+5*len(TEST_BENCHS)]
+    yIcedX8U2 = yIced[6+5*len(TEST_BENCHS):6+6*len(TEST_BENCHS)]
 
     # draw a 12 bar chart
     plt.figure(figsize=(16, 5)) # the size of generated figure
-    x = np.arange(len(testBenchs))  # X-axis
+    x = np.arange(len(TEST_BENCHS))  # X-axis
     xWidth = 0.05   # width of every bar 
     plt.bar(x - xWidth*5.5, yPertileX2U1, xWidth, label='Per-tile DVFS + Power-gating, 2x2_Unroll1')
     plt.bar(x - xWidth*4.5, yPertileX4U1, xWidth, label='Per-tile DVFS + Power-gating, 4x4_Unroll1')
@@ -521,29 +524,25 @@ def showFig12(figPath, nameBaselineS, namePertileS, nameIcedS):
     plt.bar(x + xWidth*5.5, yIcedX8U2, xWidth, label='ICED, 8x8_Unroll2')
     plt.title('ExampleFig12')
     plt.ylabel('Avg DVFS Level')
-    plt.xticks(x, labels=testBenchs)
+    plt.xticks(x, labels=TEST_BENCHS)
     plt.legend()
     plt.savefig(figPath)
 
 
 def fig091011GenerationKernel():
     '''
-    This is a func to repalce the correct testBenchs for showFig9(), showFig10() and showFig11(), since fft.c, spmv.c and mvt.c is not appliable in "./tmp/t_6x6_unroll2_iced.csv".
+    This is a func to repalce the correct TEST_BENCHS for showFig9(), showFig10() and showFig11(), since fft.c, spmv.c and mvt.c is not appliable in "./tmp/t_6x6_unroll2_iced.csv".
     '''
-    global testBenchs 
-    testBenchs = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c"]
-    global testBenchsNum
-    testBenchsNum = len(testBenchs)
+    global TEST_BENCHS 
+    TEST_BENCHS = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c"]
 
 
 def fig12GenerationKernel():
     '''
-    This is a func to repalce the correct testBenchs for showFig12() since fft.c, dtw.cpp, spmv.c and mvt.c is not appliable in 2x2 and 4x4 CGRA.
+    This is a func to repalce the correct TEST_BENCHS for showFig12() since fft.c, dtw.cpp, spmv.c and mvt.c is not appliable in 2x2 and 4x4 CGRA.
     '''
-    global testBenchs 
-    testBenchs = ["fir.cpp", "latnrm.c", "conv.c", "relu.c", "histogram.cpp", "gemm.c"]
-    global testBenchsNum
-    testBenchsNum = len(testBenchs)
+    global TEST_BENCHS 
+    TEST_BENCHS = ["fir.cpp", "latnrm.c", "conv.c", "relu.c", "histogram.cpp", "gemm.c"]
 
 # ----------------------------------------------------------------------------
 #   main functions                                                          /
@@ -559,11 +558,11 @@ def mainBaseline(Rows, Columns, uFactor, doMapping = True):
     """
     csvName = './tmp/t_' + str(Rows) + 'x' + str(Columns) + '_unroll' + str(uFactor) + '_baseline.csv'
     print("Generating", csvName)
-    df = pd.DataFrame(dictCsv, index=[0])
+    df = pd.DataFrame(DICT_CSV, index=[0])
 
-    for kernel in testBenchs:
+    for kernel in TEST_BENCHS:
         if kernel == "NULL":
-            dataS = [""]*dictColumn
+            dataS = [""]*len(DICT_CSV)
             df.loc[len(df.index)] = dataS
             continue
 
@@ -596,7 +595,7 @@ def mainBaseline(Rows, Columns, uFactor, doMapping = True):
 
         json_object = json.dumps(genBaselineJson, indent=4)
 
-        with open(jsonName, "w") as outfile:
+        with open(JSON_NAME, "w") as outfile:
             outfile.write(json_object)
         if doMapping:
             DVFSMap(kernel, df)
@@ -617,11 +616,11 @@ def mainPertile(Rows, Columns, uFactor):
     """
     csvName = './tmp/t_' + str(Rows) + 'x' + str(Columns) + '_unroll' + str(uFactor) + '_pertile.csv'
     print("Generating", csvName)
-    df = pd.DataFrame(dictCsv, index=[0])
+    df = pd.DataFrame(DICT_CSV, index=[0])
 
-    for kernel in testBenchs:
+    for kernel in TEST_BENCHS:
         if kernel == "NULL":
-            dataS = [""]*dictColumn
+            dataS = [""]*len(DICT_CSV)
             df.loc[len(df.index)] = dataS
             continue
 
@@ -653,7 +652,7 @@ def mainPertile(Rows, Columns, uFactor):
         }
         json_object = json.dumps(genPertileJson, indent=4)
 
-        with open(jsonName, "w") as outfile:
+        with open(JSON_NAME, "w") as outfile:
             outfile.write(json_object)
 
         DVFSMap(kernel, df)
@@ -672,11 +671,11 @@ def mainIced(Rows, Columns, uFactor):
     """
     csvName = './tmp/t_' + str(Rows) + 'x' + str(Columns) + '_unroll' + str(uFactor) + '_iced.csv'
     print("Generating", csvName)
-    df = pd.DataFrame(dictCsv, index=[0])
+    df = pd.DataFrame(DICT_CSV, index=[0])
 
-    for kernel in testBenchs:
+    for kernel in TEST_BENCHS:
         if kernel == "NULL":
-            dataS = [""]*dictColumn
+            dataS = [""]*len(DICT_CSV)
             df.loc[len(df.index)] = dataS
             continue
 
@@ -709,7 +708,7 @@ def mainIced(Rows, Columns, uFactor):
 
         json_object = json.dumps(genIcedJson, indent=4)
 
-        with open(jsonName, "w") as outfile:
+        with open(JSON_NAME, "w") as outfile:
             outfile.write(json_object)
 
         DVFSMap(kernel, df)
@@ -720,7 +719,7 @@ def mainIced(Rows, Columns, uFactor):
 
 def main():
     """
-    This is the main function that runs testBenchs with selected CGRA size and unrolling factor, then outputs result in png or in csv.
+    This is the main function that runs TEST_BENCHS with selected CGRA size and unrolling factor, then outputs result in png or in csv.
 
     Parameters: NULL
 
@@ -740,7 +739,7 @@ def main():
     csvPath = "./example/exampleTable.csv"
     showTableI(csvPath, nameCsvBaseline)
 
-    print("Replace testBenchs to generate Fig. 9, 10, 11.")
+    print("Replace TEST_BENCHS to generate Fig. 9, 10, 11.")
     fig091011GenerationKernel()
     CGRAsizes = [6]  # the mapped CGRA size = 6
     unrollFactors = [1, 2]   # unrolling factor = 1, 2
@@ -765,7 +764,7 @@ def main():
     figPath = "./example/exampleFig11.png"
     showFig11(figPath, nameCsvBaseline, nameCsvPertile, nameCsvIced)
 
-    print("Replace testBenchs to generate Fig. 12.") 
+    print("Replace TEST_BENCHS to generate Fig. 12.") 
     fig12GenerationKernel()
     CGRAsizes = [2, 4, 6, 8]  # the mapped CGRA size = 2, 4, 6, 8
     unrollFactors = [1, 2]   # unrolling factor = 1, 2
@@ -788,5 +787,5 @@ def main():
 # ----------------------------------------------------------------------------
 #   run main                                                                /
 # ----------------------------------------------------------------------------
-
-main()
+if __name__ == "__main__":
+    main()

@@ -21,8 +21,8 @@ DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mapp
 DICT_COLUMN = len(DICT_CSV)
 JSON_NAME = "./param.json"   # name of generated json file
 TIME_OUT_SET = 180
-
 DO_MAPPING = True
+KERNEL_DIRECTORY = "../../test/kernels"
 
 
 
@@ -79,14 +79,14 @@ class Kernel:
         file_source = (self.kernel_name.split("."))[0]
 
         if self.unroll_factor == 1 and self.vector_factor == 1:
-            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor == 1 and self.vector_factor != 1:
-            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width={self.vector_factor} -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+            compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width={self.vector_factor} -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor != 1 and self.vector_factor == 1:
-            compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c ../../test/kernels/{file_source}/{self.kernel_name}"
+            compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         else:
             print("Error, invalid unroll and vector factor combination.")
-            return            
+            return    
 
         compile_proc = subprocess.Popen([compile_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (compile_out, compile_err) = compile_proc.communicate()
@@ -623,7 +623,7 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_bos
         priority_bosting (bool): Whether to enable priority boosting.
         num_cgras (int): The number of CGRAs, default 9.
     """
-    for i, kernels in enumerate(kernels_list, start=1):
+    for i, kernels in enumerate(kernels_list, start = 1):
         kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency = simulate(num_cgras, kernels, priority_bosting)
 
         # Calculate fastest, slowest, and average execution time per kernel
