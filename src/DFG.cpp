@@ -1053,7 +1053,7 @@ void DFG::combineAddAdd(string type) {
    bool isLonelyInst = true;
    bool isUsingIntraIterationData = false;
    for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
-     if(isa<Instruction>(op)) {
+     if(isa<Instruction>(*op)) {
        Instruction* tempInst = dyn_cast<Instruction>(*op);
        isLonelyInst = false;
        if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
