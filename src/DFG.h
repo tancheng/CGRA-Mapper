@@ -63,6 +63,7 @@ class DFG {
     bool shouldIgnore(Instruction*);
     void tuneForBranch();
     void tuneForBitcast();
+    void tuneForBitcast2();
     void tuneForLoad();
     void tuneForPattern();
     void tuneDivPattern();
@@ -101,7 +102,7 @@ class DFG {
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
-        list<string>*, bool, bool, int t_vectorFactorForIdiv=4);
+        list<string>*, bool, bool, int t_vectorFactorForIdiv=4, bool enableDistributed=false);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
@@ -109,6 +110,7 @@ class DFG {
     list<DFGNode*>* getBFSOrderedNodes();
     list<DFGNode*>* getDFSOrderedNodes();
     int getNodeCount();
+    int getMaxExecLantecy();
     void construct(Function&);
     void setupCycles();
     list<list<DFGEdge*>*>* calculateCycles();

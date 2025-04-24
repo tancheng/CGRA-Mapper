@@ -58,3 +58,18 @@ jobs:
         opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
         sh verify.sh
 
+    - name: Test multi-cyle mapping
+      working-directory: ${{github.workspace}}/test/multicycle
+      run: |
+        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o kernel.bc -c kernel.cpp
+        cat param_exclusive.json > param.json 
+        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
+        mv dfg.json dfg_exclusive.json
+        cat param_distributed.json > param.json 
+        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
+        mv dfg.json dfg_distributed.json
+        cat param_distributed.json > param.json 
+        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
+        mv dfg.json dfg_distributed.json
+        sh verify.sh
+

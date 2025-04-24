@@ -27,6 +27,9 @@ Mapper::Mapper(bool t_DVFSAwareMapping) {
 
 int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
   int ResMII = ceil(float(t_dfg->getNodeCount()) / t_cgra->getFUCount());
+  // For exclusive strategy, the II max be not less than the maximum execution latency.
+  int max_exec_latency = t_dfg->getMaxExecLantecy();
+  if (!t_cgra->getSupportInclusive() && max_exec_latency > ResMII) ResMII = max_exec_latency;
   return ResMII;
 }
 

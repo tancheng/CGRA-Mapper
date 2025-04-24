@@ -477,7 +477,6 @@ bool DFGNode::isPipelinable() {
 
 bool DFGNode::shareFU(DFGNode* t_dfgNode) {
   if (t_dfgNode->getFuType().compare(m_fuType) == 0) {
-    // cout << "FU type: " << m_fuType << " " << t_dfgNode->getFuType() << endl;
     return true;
   }
   return false;
@@ -623,11 +622,6 @@ list<DFGNode*>* DFGNode::getPredNodes() {
 
 list<DFGNode*>* DFGNode::getSuccNodes() {
   if (m_succNodes != NULL) {
-  //   cout << "succ: ";
-  // for (DFGNode* predNode: *m_succNodes) {
-  //   cout << predNode->getID() << " ";
-  // }
-  // cout << endl;
     return m_succNodes;
   }
     

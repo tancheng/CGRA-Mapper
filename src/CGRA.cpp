@@ -23,6 +23,7 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
   m_FUCount = t_rows * t_columns;
   m_supportDVFS = t_supportDVFS;
   m_DVFSIslandDim = t_DVFSIslandDim;
+  m_supportInclusive = enableMultipleOps;
   m_supportComplex = new list<string>();
   m_supportCall = new list<string>();
   nodes = new CGRANode**[t_rows];
@@ -400,3 +401,6 @@ void CGRA::syncDVFSIsland(CGRANode* t_node) {
   }
 }
 
+bool CGRA::getSupportInclusive() {
+  return m_supportInclusive;
+}
