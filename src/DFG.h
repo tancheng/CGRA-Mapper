@@ -65,7 +65,6 @@ class DFG {
     bool shouldIgnore(Instruction*);
     void tuneForBranch();
     void tuneForBitcast();
-    void tuneForBitcast2();
     void tuneForLoad();
     void tuneForPattern();
     void tuneDivPattern();
@@ -101,6 +100,7 @@ class DFG {
     // target nonlinear ops
     void nonlinear_combine();
     void ctrl_combine();
+    void splitNodes();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
