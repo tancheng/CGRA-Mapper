@@ -313,6 +313,8 @@ namespace {
         dfg->showOpcodeDistribution();
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
+        cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
+        cout << "==================================\n";
         cout << "[Utilization & DVFS stats]\n";
         mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";

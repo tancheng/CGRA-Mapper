@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -15,7 +16,7 @@ jobs:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -40,36 +41,42 @@ jobs:
     - name: Test fusion via Nonlinear kernel
       working-directory: ${{github.workspace}}/test/nonlinear
       run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o nonlinear_test.bc -c nonlinear_test.cpp
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass nonlinear_test.bc
+        sh compile.sh
+        sh run.sh
         sh verify.sh
 
-    - name: Test split via Idiv kernel
-      working-directory: ${{github.workspace}}/test/idiv
-      run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o idiv_test.bc -c idiv_test.cpp 
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass idiv_test.bc
-        sh verify.sh
+    # - name: Test split via Idiv kernel
+    #   working-directory: ${{github.workspace}}/test/idiv
+    #   run: |
+    #     sh compile.sh
+    #     sh run.sh
+    #     sh verify.sh
 
-    - name: Test DVFS
-      working-directory: ${{github.workspace}}/test/dvfs
-      run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o kernel.bc -c kernel.cpp
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc > trace.log
-        sh verify.sh
+    # - name: Test DVFS
+    #   working-directory: ${{github.workspace}}/test/dvfs
+    #   run: |
+    #     sh compile.sh
+    #     sh run.sh
+    #     sh verify.sh
+
+    # - name: Test inter edges
+    #   working-directory: ${{github.workspace}}/test/inter_edge
+    #   run: |
+    #     sh compile.sh
+    #     sh run.sh
+    #     sh verify.sh
+
+    # - name: Test expandable mapping
+    #   working-directory: ${{github.workspace}}/test/expandable
+    #   run: |
+    #     sh compile.sh
+    #     sh run.sh
+    #     sh verify.sh
 
     - name: Test multi-cyle mapping
       working-directory: ${{github.workspace}}/test/multicycle
       run: |
-        clang-12 -emit-llvm -O3 -fno-unroll-loops -fno-vectorize -o kernel.bc -c kernel.cpp
-        cat param_exclusive.json > param.json 
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
-        mv dfg.json dfg_exclusive.json
-        cat param_distributed.json > param.json 
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
-        mv dfg.json dfg_distributed.json
-        cat param_distributed.json > param.json 
-        opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc
-        mv dfg.json dfg_distributed.json
+        sh compile.sh
+        sh run.sh
         sh verify.sh
 

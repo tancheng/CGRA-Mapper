@@ -15,6 +15,7 @@ DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst) {
   m_src = t_src;
   m_dst = t_dst;
   m_isCtrlEdge = false;
+  m_isInterEdge = false;
 }
 
 DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst, bool t_isCtrlEdge) {
@@ -22,6 +23,7 @@ DFGEdge::DFGEdge(int t_id, DFGNode* t_src, DFGNode* t_dst, bool t_isCtrlEdge) {
   m_src = t_src;
   m_dst = t_dst;
   m_isCtrlEdge = t_isCtrlEdge;
+  m_isInterEdge = false;
   m_src->addPredicatee(m_dst);
 }
 
@@ -59,3 +61,16 @@ bool DFGEdge::isCtrlEdge() {
   return m_isCtrlEdge;
 }
 
+void DFGEdge::setInterEdge(bool t_isInterEdge) {
+  if(m_isCtrlEdge) {
+    cout<<"\033[0;31m"<<"[WARNING] Current DFGEdge is ctrl edge. Set m_isInterEdge = false."<<"\033[0m"<<endl;
+    m_isInterEdge = false;
+  }
+  else {
+    m_isInterEdge = t_isInterEdge;
+  } 
+}
+
+bool DFGEdge::isInterEdge() {
+  return m_isInterEdge;
+}

@@ -36,8 +36,8 @@ int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
 int Mapper::getRecMII(DFG* t_dfg) {
   float RecMII = 0.0;
   float temp_RecMII = 0.0;
-  list<list<DFGNode*>*>* cycles = t_dfg->getCycleLists();//calculateCycles();
-  cout<<"... number of cycles: "<<cycles->size()<<" ..."<<endl;
+  list<list<DFGNode*>*>* cycles = t_dfg->getCycleLists(); //calculateCycles();
+  // cout<<"... number of cycles: "<<cycles->size()<<" ..."<<endl;
   // TODO: RecMII = MAX (delay(c) / distance(c))
   for( list<DFGNode*>* cycle: *cycles) {
     temp_RecMII = float(cycle->size()) / 1.0;
@@ -45,6 +45,12 @@ int Mapper::getRecMII(DFG* t_dfg) {
       RecMII = temp_RecMII;
   }
   return ceil(RecMII);
+}
+
+int Mapper::getExpandableII(DFG* t_dfg, int t_ii) {
+  int rec_mii = getRecMII(t_dfg);
+  int ceiled = ceil((float)t_ii / 2.0);
+  return std::max(rec_mii, ceiled);
 }
 
 void Mapper::constructMRRG(DFG* t_dfg, CGRA* t_cgra, int t_II) {
@@ -214,7 +220,7 @@ list<map<CGRANode*, int>*>* Mapper::getOrderedPotentialPaths(CGRA* t_cgra,
     if (t_dfgNode->getSuccNodes()->size() > 1) {
       cost += 4 - targetCGRANode->getOutLinks()->size() +
           abs(t_cgra->getColumns()/2-targetCGRANode->getX()) +
-          abs(t_cgra->getRows()/2-targetCGRANode->getX());
+          abs(t_cgra->getRows()/2-targetCGRANode->getY());
     }
     if (t_dfgNode->getPredNodes()->size() > 0) {
       list<DFGNode*>* tempPredNodes = t_dfgNode->getPredNodes();

@@ -22,6 +22,7 @@
 #include <set>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 #include "DFGNode.h"
 #include "DFGEdge.h"
@@ -37,6 +38,7 @@ class DFG {
     bool m_precisionAware;
     list<DFGNode*>* m_orderedNodes;
     list<Loop*>* m_targetLoops;
+    list<BasicBlock*> m_targetBBs;
     int m_vectorFactorForIdiv;
 
     //edges of data flow
@@ -67,7 +69,7 @@ class DFG {
     void tuneForLoad();
     void tuneForPattern();
     void tuneDivPattern();
-    void combineCmpBranch();
+    void combineAddCmpBranch();
     void combineMulAdd(string type="");
     // void combineAddMul(string type="");
     void combineAddAdd(string type="");
@@ -99,6 +101,7 @@ class DFG {
     // target nonlinear ops
     void nonlinear_combine();
     void splitNodes();
+    void ctrl_combine();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
