@@ -45,33 +45,33 @@ jobs:
         sh run.sh
         sh verify.sh
 
-    # - name: Test split via Idiv kernel
-    #   working-directory: ${{github.workspace}}/test/idiv
-    #   run: |
-    #     sh compile.sh
-    #     sh run.sh
-    #     sh verify.sh
+    - name: Test split via Idiv kernel
+      working-directory: ${{github.workspace}}/test/idiv
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
 
-    # - name: Test DVFS
-    #   working-directory: ${{github.workspace}}/test/dvfs
-    #   run: |
-    #     sh compile.sh
-    #     sh run.sh
-    #     sh verify.sh
+    - name: Test DVFS
+      working-directory: ${{github.workspace}}/test/dvfs
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
 
-    # - name: Test inter edges
-    #   working-directory: ${{github.workspace}}/test/inter_edge
-    #   run: |
-    #     sh compile.sh
-    #     sh run.sh
-    #     sh verify.sh
+    - name: Test inter edges
+      working-directory: ${{github.workspace}}/test/inter_edge
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
 
-    # - name: Test expandable mapping
-    #   working-directory: ${{github.workspace}}/test/expandable
-    #   run: |
-    #     sh compile.sh
-    #     sh run.sh
-    #     sh verify.sh
+    - name: Test expandable mapping
+      working-directory: ${{github.workspace}}/test/expandable
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
 
     - name: Test multi-cyle mapping
       working-directory: ${{github.workspace}}/test/multicycle
