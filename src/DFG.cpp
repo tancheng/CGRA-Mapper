@@ -85,7 +85,6 @@ void DFG::splitNodes() {
   for (DFGNode* dfgNode: *add_nodes) {
     nodes.push_back(dfgNode);
   }
-
 }
 
 // Pre-assigns the DVFS levels to each DFG node.
@@ -530,17 +529,13 @@ void DFG::combineAddAdd(string type) {
          for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
            if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
              // Indicate the pattern is finally found and matched
-             if (i == (patternSize-1) ){
+           if (i == (patternSize-1) and dfgNode->isSuccessorOf(succNode)){
                toBeMatchedDFGNodes->push_back(succNode);
                for(DFGNode* optNode: *toBeMatchedDFGNodes){
                  if(optNode != dfgNode){
-                    dfgNode->addPatternPartner(optNode);                  
+                    dfgNode ->addPatternPartner(optNode);                  
                  }
-                 if (patternSize == 4)
-                  optNode->setCombine("apex2");    
-                else if (patternSize == 3)
-                  optNode->setCombine("apex3");
-                else if (patternSize == 2)optNode->setCombine("apex1");
+                 optNode->setCombine();         
                }
                break;
              } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
@@ -1060,7 +1055,7 @@ void DFG::combineAddAdd(string type) {
  }
  
  void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
-   set<string> targetOpt;    // set 去重？作用是看有没有剩下的 pipeline opt（只能给 DFG 里有的）
+   set<string> targetOpt;
    for (string opt: *t_pipelinedOpt) {
      targetOpt.insert(opt);
    }
@@ -1083,7 +1078,7 @@ void DFG::combineAddAdd(string type) {
         string opcodeName = node->getComplexType();
         node->setPipelinable();
         targetOpt.erase(opcodeName);
-    }
+      }
     }
    }
    if (!targetOpt.empty()) {
@@ -1409,8 +1404,7 @@ void DFG::combineAddAdd(string type) {
      m_cycleNodeLists->push_back(nodeCycle);
      cycleID += 1;
    }
-   cout << "cycle id " <<  cycleID << " \n";
-  return cycleLists;
+   return cycleLists;
  }
  
  list<list<DFGNode*>*>* DFG::getCycleLists() {

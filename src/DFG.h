@@ -100,7 +100,6 @@ class DFG {
     bool isMinimumAndHasNotBeenVisited(set<DFGNode*>*, map<DFGNode*, int>*, DFGNode*);
     // target nonlinear ops
     void nonlinear_combine();
-    void splitNodes();
     void ctrl_combine();
 
   public:
