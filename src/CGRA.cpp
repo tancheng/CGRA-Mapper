@@ -7,7 +7,7 @@
  * Author : Cheng Tan
  *   Date : Jan 9, 2023
  */
-
+ 
 #include <fstream>
 #include "CGRA.h"
 #include "json.hpp"
@@ -59,7 +59,7 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       }
     }
 
-    ifstream paramCGRA("./paramCGRA.json");
+    ifstream paramCGRA("./param.json");
     if (!paramCGRA.good()) {
       cout<<"Parameterizable CGRA design/mapping requires paramCGRA.json"<<endl;
       return;
@@ -190,12 +190,12 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
     // Enable the heterogeneity.
     if (t_heterogeneity) {
-      // for (int r=0; r<t_rows; ++r) {
-      //   for (int c=0; c<t_columns; ++c) {
-      //     // if(c == 0 || (r%2==1 and c%2 == 1))
-      //       nodes[r][c]->enableComplex();
-      //   }
-      // }
+      for (int r=0; r<t_rows; ++r) {
+        for (int c=0; c<t_columns; ++c) {
+          // if(c == 0 || (r%2==1 and c%2 == 1))
+            nodes[r][c]->enableComplex();
+        }
+      }
     }
 
     for (int r=0; r<t_rows; ++r) {

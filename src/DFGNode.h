@@ -15,6 +15,7 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/IR/BasicBlock.h>
 
 #include <string>
 #include <list>
@@ -39,6 +40,8 @@ class DFGNode {
     Value* m_value;
     StringRef m_stringRef;
     string m_opcodeName;
+    // m_pathName is the derived from basic block of llvm
+    string m_pathName;  
     list<DFGEdge*> m_inEdges;
     list<DFGEdge*> m_outEdges;
     list<DFGNode*>* m_succNodes;
@@ -87,10 +90,11 @@ class DFGNode {
     string isCall();
     bool isBranch();
     bool isPhi();
-    bool isAdd();
-    bool isScalarAdd();
+    bool isAddSub();
+    bool isScalarAddSub();
+    bool isConstantAddSub();
     // Detect integer addition.
-    bool isIadd();
+    bool isIaddIsub();
     bool isMul();
     bool isCmp();
     bool isBitcast();
@@ -109,6 +113,7 @@ class DFGNode {
     Instruction* getInst();
     StringRef getStringRef();
     string getOpcodeName();
+    string getPathName();
     list<DFGNode*>* getPredNodes();
     list<DFGNode*>* getSuccNodes();
     void deleteSuccNode(DFGNode*);
