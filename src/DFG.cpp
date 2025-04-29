@@ -250,7 +250,7 @@ void DFG::ctrlFlow_combine(map<string, list<string>*>* t_fusionPattern) {
           combineForIter(iter->second, "Ctrl");
         }
   // combineForUnroll only resloves "phi-ConstantAdd-ConstantAdd-..." 
-  combineForUnroll();
+  combineForUnroll("Ctrl");
   tuneForPattern();
 }
 
@@ -501,7 +501,7 @@ void DFG::combineForIter(list<string>* t_targetPattern, string type) {
                 if(optNode != dfgNode){
                    dfgNode ->addPatternPartner(optNode);                  
                 }
-                optNode->setCombine();                   
+                optNode->setCombine(type);                   
               }
               break;
             } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
@@ -542,7 +542,7 @@ void DFG::combineForUnroll(string type) {
                 if(optNode != dfgNode){
                    dfgNode ->addPatternPartner(optNode);                  
                 }
-                optNode->setCombine();                       
+                optNode->setCombine(type);                       
               }
               combineDone = true;   
             }
