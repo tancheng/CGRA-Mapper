@@ -101,7 +101,6 @@ class DFG {
     void nonlinear_combine();
     // target control flows
     void ctrlFlow_combine(map<string, list<string>*>*);
-    void ctrl_combine();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
