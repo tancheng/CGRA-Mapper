@@ -233,7 +233,6 @@ void DFG::tuneDivPattern() {
 
 // Fusion for control flows using t_fusionPattern.
 void DFG::ctrlFlow_combine(map<string, list<string>*>* t_fusionPattern) {
-  cout<< "[MMJDEBUG] ctrlFlow_combine is running \n";
   for (map<string, list<string>*>::iterator iter=t_fusionPattern->begin();
           iter!=t_fusionPattern->end(); ++iter) {
           combineForIter(iter->second, "Ctrl");
@@ -474,7 +473,6 @@ void DFG::combine(string t_opt0, string t_opt1, string type) {
 
 // Combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
 void DFG::combineForIter(list<string>* t_targetPattern, string type) { 
-  cout <<"[MMJDEBU] combineForIter is running\n"; 
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
   list<string>::iterator currentFunc = t_targetPattern->begin();
@@ -518,7 +516,6 @@ void DFG::combineForIter(list<string>* t_targetPattern, string type) {
 
 // combineForUnroll is used to reconstruct "phi-ConstantAdd-ConstantAdd-..." alike circles with a limited length 4.
 void DFG::combineForUnroll(string type) {
-  cout<<"[MMJDEBUG] combineForUnroll is running \n";
   bool combineDone = false;
   bool foundNext = false;
   int limitedSize = 4;
@@ -530,7 +527,6 @@ void DFG::combineForUnroll(string type) {
       for (int i = 1; i < limitedSize; i++) {
         DFGNode* tailNode = currentPath.back();
         for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
-          cout<<"[MMJDEBUG] succNode is " << succNode->getID() << "\n";
           if (succNode->isConstantAddSub() and !succNode->hasCombined()) {
             currentPath.push_back(succNode);
             foundNext = true;

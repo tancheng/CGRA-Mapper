@@ -259,8 +259,6 @@ bool DFGNode::isConstantAddSub() {
       if (addInst->getOpcode() == Instruction::Add) {
           Value* op1 = addInst->getOperand(0);
           Value* op2 = addInst->getOperand(1);
-          cout<<"[MMJDEBUG] isa<ConstantInt>(op1) " << isa<ConstantInt>(op1) << "\n";
-          cout<<"[MMJDEBUG] isa<ConstantInt>(op2) " << isa<ConstantInt>(op2) << "\n";
           return isa<ConstantInt>(op1) || isa<ConstantInt>(op2);
       }
   }
