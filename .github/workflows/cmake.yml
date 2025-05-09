@@ -35,10 +35,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       working-directory: ${{github.workspace}}
       run: |
-        rm -Rf ${{github.workspace}}
-        sudo apt-get -y install git
-        git clone https://github.com/tancheng/CGRA-Mapper.git
-        cd CGRA-Mapper
+        echo '>>>'
+        ls
+        pwd
+        echo '<<<'
         sudo apt-get -y install cmake
         sudo apt-get -y install build-essential
         mkdir build && cd build && cmake ..
