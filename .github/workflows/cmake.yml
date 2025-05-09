@@ -36,6 +36,9 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         cmake --version
+        sudo apt-get -y remove cmake
+        sudo apt-get -y install cmake
+        cmake --version
         echo '>>>'
         ls -l
         pwd
