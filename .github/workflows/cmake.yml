@@ -45,12 +45,15 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/build
       # Build your program with the given configuration
-      run: make
+      run: |
+        pwd
+        make
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
       working-directory: ${{github.workspace}}/test/nonlinear
       run: |
+        pwd
         sh compile.sh
         sh run.sh
         sh verify.sh

@@ -694,7 +694,7 @@ int DFGNode::getNumConst() {
 string getOpcodeNameHelper(Instruction* inst) {
 
   unsigned opcode = inst->getOpcode();
-  opcode -= testing_opcode_offset;
+  opcode -= 2;
   if (opcode == Instruction::Mul) return "mul";
   if (opcode == Instruction::FMul) return "fmul";
   if (opcode == Instruction::Add) return "add";
