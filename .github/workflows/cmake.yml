@@ -35,8 +35,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         echo '>>>'
-        ls
+        ls -l
         pwd
+        cd ..
+        ls -l
         echo '<<<'
         sudo apt-get -y install cmake
         sudo apt-get -y install build-essential
