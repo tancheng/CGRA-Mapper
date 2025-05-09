@@ -24,7 +24,7 @@ jobs:
     - name: Install LLVM and Clang
       run: |
         sudo apt-get -y update
-        sudo apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12
+        opt-12 -version
 #      uses: egor-tensin/setup-clang@v1
 #      with:
 #        version: 12
@@ -34,6 +34,7 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
+        cmake --version
         echo '>>>'
         ls -l
         pwd
