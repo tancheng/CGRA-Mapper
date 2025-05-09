@@ -38,8 +38,6 @@ jobs:
         ls -l
         pwd
         echo '<<<'
-#        sudo apt-get -y install cmake
-#        sudo apt-get -y install build-essential
         mkdir build && cd build && cmake ..
 
     - name: Build
