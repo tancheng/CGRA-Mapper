@@ -175,6 +175,7 @@ namespace {
           vectorFactorForIdiv = param["vectorFactorForIdiv "];
         }
         if (param.find("testingOpcodeOffset") != param.end()) {
+          cout<<"---------- testingOpcodeOffset "<< param["testingOpcodeOffset"] <<endl;
           testing_opcode_offset = param["testingOpcodeOffset"];
 	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
