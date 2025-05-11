@@ -20,19 +20,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
     - name: Install LLVM and Clang
       run: |
         sudo apt-get -y update
         sudo apt-get -y install cmake
-        echo '>>>'
-        ls -l
-        pwd
-        cd ..
-        pwd
-        echo '<<<'
-        echo '111111111111111111'
         sudo apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12
+        sudo apt-get -y install build-essential
+        echo '>>>'
         opt-12 -version
         cmake -version
     - name: Configure CMake
@@ -46,7 +40,6 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Build your program with the given configuration
       run: |
-        pwd
         make
         echo '<<<!!!!!!!!!!!!!!!!!!!'
         ls -l src/libmapperPass.so
