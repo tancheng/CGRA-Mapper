@@ -42,7 +42,7 @@ jobs:
         sudo make install
         filepath=`pwd`
         echo $filepath
-        PATH=$filepath:$PATH
+        export PATH="$filepath:$PATH"
         echo $PATH
         cmake --version
         echo '>>>'
