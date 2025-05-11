@@ -51,7 +51,8 @@ jobs:
         cd ..
         pwd
         echo '<<<'
-        mkdir build && cd build && cmake ..
+        cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target all --config Release -- -j4
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -60,7 +61,7 @@ jobs:
         pwd
         make
         echo '<<<!!!!!!!!!!!!!!!!!!!'
-        ls -l libmapperPass.so
+        ls -l src/libmapperPass.so
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
