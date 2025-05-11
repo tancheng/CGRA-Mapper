@@ -24,6 +24,9 @@ jobs:
       run: |
         echo '>>>>>>> llvm >>>>>>>'
         dpkg -l | grep llvm
+        sudo apt-get purge llvm-13 clang-13
+        sudo apt-get purge llvm-14 clang-14
+        sudo apt-get purge llvm-15 clang-15
         echo '<<<<<<<<<<<<<'
         sudo apt-get -y update
         sudo apt-get -y install cmake
