@@ -59,6 +59,8 @@ jobs:
       run: |
         pwd
         make
+        echo '<<<!!!!!!!!!!!!!!!!!!!'
+        ls - /build/src/libmapperPass.so
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
