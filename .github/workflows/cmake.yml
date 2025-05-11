@@ -36,15 +36,15 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         cmake --version
-        sudo apt purge -y cmake
-        sudo apt-get -y install wget
-        sudo apt-get install libssl-dev
-        wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1.tar.gz
-        tar zxvf cmake-3.22.1.tar.gz
-        cd cmake-3.22.1
-        sudo ./bootstrap
-        sudo make
-        sudo make install
+#        sudo apt purge -y cmake
+#        sudo apt-get -y install wget
+#        sudo apt-get install libssl-dev
+#        wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1.tar.gz
+#        tar zxvf cmake-3.22.1.tar.gz
+#        cd cmake-3.22.1
+#        sudo ./bootstrap
+#        sudo make
+#        sudo make install
         filepath=`pwd`
         echo $filepath
         PATH=$filepath:$PATH
