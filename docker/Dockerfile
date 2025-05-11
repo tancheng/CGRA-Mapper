@@ -1,8 +1,8 @@
 FROM ubuntu:22.04
 
 RUN apt-get -y update \
-    && apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12 \
     && apt-get -y install cmake \
+    && apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12 \
     && mkdir ${HOME}/cgra \
     && cd ${HOME}/cgra \
     && apt-get -y install git \

@@ -20,21 +20,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Install LLVM and Clang
+    - name: Install CMAKE LLVM and Clang
       run: |
-        echo '>>>>>>> llvm >>>>>>>'
         dpkg -l | grep llvm
-        sudo apt-get purge llvm-13 clang-13
-        sudo apt-get purge llvm-14 clang-14
-        sudo apt-get purge llvm-15 clang-15
-        echo '<<<<<<<<<<<<<'
+        sudo apt-get purge llvm-13
+        sudo apt-get purge llvm-14
+        sudo apt-get purge llvm-15
         sudo apt-get -y update
         sudo apt-get -y install cmake
         sudo apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12
         sudo apt-get -y install build-essential
-        echo '>>>'
-        opt-12 -version
-        cmake -version
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -47,14 +43,11 @@ jobs:
       # Build your program with the given configuration
       run: |
         make
-        echo '<<<!!!!!!!!!!!!!!!!!!!'
-        ls -l src/libmapperPass.so
 
     # Testing.
     - name: Test fusion via Nonlinear kernel
       working-directory: ${{github.workspace}}/test/nonlinear
       run: |
-        pwd
         sh compile.sh
         sh run.sh
         sh verify.sh
