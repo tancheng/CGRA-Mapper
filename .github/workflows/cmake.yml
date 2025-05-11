@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Install CMAKE LLVM and Clang
+    - name: Install CMAKE LLVM-12 and Clang
       run: |
         dpkg -l | grep llvm
         sudo apt-get purge llvm-13
