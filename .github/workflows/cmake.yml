@@ -41,8 +41,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/build
       # Build your program with the given configuration
-      run: |
-        make
+      run: make
 
     # Testing.
     - name: Test fusion via Nonlinear kernel

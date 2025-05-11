@@ -2,9 +2,6 @@ icmpbr=$(grep -o 'icmpbr' dfg.json | wc -l)
 phiadd=$(grep -o 'phiadd' dfg.json | wc -l)
 fp2fx=$(grep -o 'fp2fx' dfg.json | wc -l)
 faddmuladd=$(grep -o 'faddmuladd' dfg.json | wc -l)
-echo '>>>>>>>>>>>>>>'
-less dfg.json
-echo '<<<<<<<<<<<<<<'
 if [ "$icmpbr" -eq 1 ] && [ "$phiadd" -eq 1 ] && [ "$fp2fx" -eq 1 ] && [ "$faddmuladd" -eq 1 ]; then
     echo "Nonlinear Test Pass!"
 else
