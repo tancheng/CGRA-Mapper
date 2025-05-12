@@ -82,6 +82,8 @@ class CGRANode {
     bool m_mapped;
     bool m_synced;
 
+    bool m_canMultipleOps;
+
   public:
     CGRANode(int, int, int);
 //    CGRANode(int, int, int, int, int);
@@ -113,6 +115,7 @@ class CGRANode {
     void enableLogic();
     void enableBr();
     void enableDiv();
+    void disableMultipleOps();
 
     void attachInLink(CGRALink*);
     void attachOutLink(CGRALink*);
@@ -153,6 +156,7 @@ class CGRANode {
     bool canLogic();
     bool canBr();
     bool canDiv();
+    bool canMultipleOps();
     DFGNode* getMappedDFGNode(int);
     bool containMappedDFGNode(DFGNode*, int);
     void allocateReg(CGRALink*, int, int, int);

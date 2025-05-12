@@ -64,6 +64,10 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_mapped = false;
   m_DVFSLatencyMultiple = 1;
   m_synced = false;
+
+  // Indicates whether this CGRA node can execute multiple operations
+  // simultaneously. (e.g.,  single-cycle overlaps with multi-cycle)
+  m_canMultipleOps = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -262,6 +266,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   return true;
 }
 
+// t_cycle, t_II 是什么？
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (m_disabled) 
     return false;
@@ -293,6 +298,9 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
     // Single-cycle opt:
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      if (!canMultipleOps() && !m_dfgNodesWithOccupyStatus[cycle]->empty()) {
+        return false;
+      }
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
         if (p.second != IN_PIPE_OCCUPY) {
           return false;
@@ -302,6 +310,19 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   } else {
     // Multi-cycle opt.
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      // Can not support simultaneous execution of multiple operations.
+      if (!canMultipleOps()) {
+        int exec_latency = t_opt->getExecLatency(getDVFSLatencyMultiple());
+        for (int duration=0; duration < exec_latency; duration++) {
+          if (cycle + duration >= m_cycleBoundary) {
+            break;
+          }
+          if (!m_dfgNodesWithOccupyStatus[cycle+duration]->empty()) {
+            return false;
+          }
+        }
+      }
+      else {
       // Check start cycle.
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
 	// Cannot occupy/overlap by/with other operation if DVFS is enabled.
@@ -347,6 +368,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
           return false;
         }
       }
+    }
     }
   }
 
@@ -427,9 +449,16 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, SINGLE_OCCUPY));
     } else {
+      // if (t_opt->getID() == 34 && getID() == 4 ){
+      //   cout << "now here " << t_opt->getExecLatency(getDVFSLatencyMultiple()) << "\n";
+      // }
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, START_PIPE_OCCUPY));
       for (int i=1; i<t_opt->getExecLatency(getDVFSLatencyMultiple())-1; ++i) {
+        // cout << "opt latency" << t_opt->getExecLatency(getDVFSLatencyMultiple()) << "\n";
+        // cout << "now cycle:" <<  cycle+i << " " << m_cycleBoundary << "\n";
         if (cycle+i < m_cycleBoundary) {
+          // if (cycle + i < 32) 
+          // cout << "now cycle: " << cycle+i << " " << t_opt->getID() << "\n";
           m_dfgNodesWithOccupyStatus[cycle+i]->push_back(make_pair(t_opt, IN_PIPE_OCCUPY));
         }
       }
@@ -640,6 +669,11 @@ void CGRANode::enableDiv() {
   m_canDiv = true;
 }
 
+void CGRANode::disableMultipleOps() {
+  printf("disabling multiple ops\n");
+  m_canMultipleOps = false;
+}
+
 bool CGRANode::supportComplex(string type) {
   if (type == "") return m_supportComplex;
   for (string t: m_supportComplexType) {
@@ -711,6 +745,10 @@ bool CGRANode::canBr() {
 
 bool CGRANode::canDiv() {
   return m_canDiv;
+}
+
+bool CGRANode::canMultipleOps() {
+  return m_canMultipleOps;
 }
 
 int CGRANode::getX() {

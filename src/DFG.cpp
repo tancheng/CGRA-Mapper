@@ -15,7 +15,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          bool t_precisionAware, bool t_heterogeneity,
          map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
 	 bool t_supportDVFS, bool t_DVFSAwareMapping,
-	 int t_vectorFactorForIdiv) {
+	 int t_vectorFactorForIdiv, bool enableDistributed) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -37,6 +37,54 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   }
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
+  if (enableDistributed) {
+    splitNodes();
+  }
+  calculateCycles();
+}
+
+void DFG::splitNodes() {
+  list<DFGNode*>* add_nodes = new list<DFGNode*>();
+  int dfgNodeID = nodes.size();
+  for (DFGNode* dfgNode: nodes) {
+    int ExecLatency = dfgNode->getExecLatency(1);
+    if (ExecLatency == 1) continue;
+      dfgNode->setExecLatency(1);
+      int dfgNodeID = nodes.size();
+      DFGNode* nowNode = dfgNode;
+      DFGNode* stNode;
+      for (int i = 1; i < ExecLatency; i++) {
+        DFGNode* newNode = new DFGNode(dfgNodeID++, dfgNode);
+        int dfgEdgeID = m_DFGEdges.size();
+        DFGEdge* newEdge = new DFGEdge(dfgEdgeID++, nowNode, newNode);
+        newNode->setExecLatency(1);
+        m_DFGEdges.push_back(newEdge);
+        // nodes.push_back(newNode);
+        add_nodes->push_back(newNode);
+        // Update the pred and succ nodes of nods.
+        newNode->deleteAllPredNodes();
+        newNode->deleteAllSuccNodes();
+        nowNode->addSuccNode(newNode);
+        newNode->addPredNode(nowNode);
+        nowNode = newNode;
+        if (i == 1) stNode = nowNode;
+      }
+      // change the successors of dfgNode to nowNode;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode == stNode) continue;
+        replaceDFGEdge(dfgNode, succNode, nowNode, succNode);
+        // dfgNode->deleteSuccNode(succNode);
+        nowNode->addSuccNode(succNode);
+        succNode->deletePredNode(dfgNode);
+        succNode->addPredNode(nowNode);
+      }
+      dfgNode->deleteAllSuccNodes();
+      dfgNode->addSuccNode(stNode);
+  }
+
+  for (DFGNode* dfgNode: *add_nodes) {
+    nodes.push_back(dfgNode);
+  }
 }
 
 // Pre-assigns the DVFS levels to each DFG node.
@@ -481,13 +529,13 @@ void DFG::combineAddAdd(string type) {
          for (DFGNode* succNode: *(tailNode->getSuccNodes())) {
            if (succNode->isOpt(t_opt) and !succNode->hasCombined()) {
              // Indicate the pattern is finally found and matched
-             if (i == (patternSize-1) and dfgNode->isSuccessorOf(succNode)){
+           if (i == (patternSize-1) and dfgNode->isSuccessorOf(succNode)){
                toBeMatchedDFGNodes->push_back(succNode);
                for(DFGNode* optNode: *toBeMatchedDFGNodes){
                  if(optNode != dfgNode){
                     dfgNode ->addPatternPartner(optNode);                  
                  }
-                 optNode->setCombine();                       
+                 optNode->setCombine();         
                }
                break;
              } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
@@ -980,11 +1028,22 @@ void DFG::combineAddAdd(string type) {
      targetOpt.insert(iter->first);
    }
    for (DFGNode* node: nodes) {
-     if (t_execLatency->find(node->getOpcodeName()) != t_execLatency->end()) {
-       string opcodeName = node->getOpcodeName();
-       node->setExecLatency((*t_execLatency)[opcodeName]);
-       targetOpt.erase(opcodeName);
-     }
+     if (!node->hasCombined()) {
+      if (t_execLatency->find(node->getOpcodeName()) != t_execLatency->end()) {
+         string opcodeName = node->getOpcodeName();
+         node->setExecLatency((*t_execLatency)[opcodeName]);
+         targetOpt.erase(opcodeName);
+       }
+    }
+    else {
+      // Initialize the execution latency of fused patterns.
+      // If a multiplication and an addition are fused and the pattern is called MAC, then we can set "MAC": 2 in the optLatency of param.json. 
+      if (t_execLatency->find(node->getComplexType()) != t_execLatency->end()) {
+        string opcodeName = node->getComplexType();
+        node->setExecLatency((*t_execLatency)[opcodeName]);
+        targetOpt.erase(opcodeName);
+      }
+    }
    }
    if (!targetOpt.empty()) {
      cout<<"\033[0;31mPlease check the operations targeting multi-cycle execution in <param.json>:\"\033[0m";
@@ -1001,13 +1060,26 @@ void DFG::combineAddAdd(string type) {
      targetOpt.insert(opt);
    }
    for (DFGNode* node: nodes) {
-     list<string>::iterator it;
-     it = find(t_pipelinedOpt->begin(), t_pipelinedOpt->end(), node->getOpcodeName());
-     if(it != t_pipelinedOpt->end()) {
-       string opcodeName = node->getOpcodeName();
-       node->setPipelinable();
-       targetOpt.erase(opcodeName);
-     }
+     if (!node->hasCombined()) {
+      list<string>::iterator it;
+       it = find(t_pipelinedOpt->begin(), t_pipelinedOpt->end(), node->getOpcodeName());
+       if(it != t_pipelinedOpt->end()) {
+         string opcodeName = node->getOpcodeName();
+         node->setPipelinable();
+         targetOpt.erase(opcodeName);
+       }
+    }
+    else {
+      // Initialize the pipelinable ability of fused patterns.
+      // Similar to initExecLatency()
+      list<string>::iterator it;
+      it = find(t_pipelinedOpt->begin(), t_pipelinedOpt->end(), node->getComplexType());
+      if(it != t_pipelinedOpt->end()) {
+        string opcodeName = node->getComplexType();
+        node->setPipelinable();
+        targetOpt.erase(opcodeName);
+      }
+    }
    }
    if (!targetOpt.empty()) {
      cout<<"\033[0;31mPlease check the pipelinable operations in <param.json>:\"\033[0m";
@@ -1687,6 +1759,16 @@ void DFG::combineAddAdd(string type) {
    return false;
  }
  
+// used for initializing II when exclusive strategy
+int DFG::getMaxExecLantecy() {
+  int max_exec_latency = 0;
+  for (DFGNode* dfgNode: nodes) {
+    int exec_latecy = dfgNode->getExecLatency(1);
+    if (exec_latecy > max_exec_latency) max_exec_latency = exec_latecy;
+  }
+  return max_exec_latency;
+}
+
  // TODO: This is necessary for inter-iteration data dependency
  //       checking (ld/st dependency analysis on base address).
  void DFG::detectMemDataDependency() {

@@ -77,6 +77,7 @@ namespace {
       // Option used to split one integer division into 4.
       // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
       int vectorFactorForIdiv               = 1;
+      string multiCycleStrategy        = "exclusive";
 
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
@@ -177,6 +178,9 @@ namespace {
         if (param.find("testingOpcodeOffset") != param.end()) {
           testing_opcode_offset = param["testingOpcodeOffset"];
 	}
+        if (param.find("multiCycleStrategy") != param.end()) {
+          multiCycleStrategy = param["multiCycleStrategy"];
+	      }
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -205,16 +209,25 @@ namespace {
       }
       cout << "==================================\n";
       cout<<"[function \'"<<t_F.getName().str()<<"\' is one of our targets]\n";
+      bool enableDistributed = false;
+      bool enableMultipleOps = false;
+
+      if (multiCycleStrategy.compare("distributed") == 0) {
+        enableDistributed = true;
+      }
+      if (multiCycleStrategy.compare("inclusive") == 0) {
+        enableMultipleOps = true;
+      }
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          heterogeneity, execLatency, pipelinedOpt, supportDVFS,
-			 DVFSAwareMapping, vectorFactorForIdiv);
+			 DVFSAwareMapping, vectorFactorForIdiv, enableDistributed);
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
-			    DVFSIslandDim);
+			    DVFSIslandDim, enableMultipleOps);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);
@@ -295,6 +308,9 @@ namespace {
         cout << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
+        // cout << "==================================\n";
+        cout << "[show opcode count]\n";
+        dfg->showOpcodeDistribution();
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
