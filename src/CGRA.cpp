@@ -7,7 +7,7 @@
  * Author : Cheng Tan
  *   Date : Jan 9, 2023
  */
-
+ 
 #include <fstream>
 #include "CGRA.h"
 #include "json.hpp"
@@ -59,7 +59,7 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       }
     }
 
-    ifstream paramCGRA("./paramCGRA.json");
+    ifstream paramCGRA("./param.json");
     if (!paramCGRA.good()) {
       cout<<"Parameterizable CGRA design/mapping requires paramCGRA.json"<<endl;
       return;

@@ -247,7 +247,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isStore()      and !canStore()) or
       (t_opt->isReturn()     and !canReturn()) or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->isAdd()        and !canAdd()) or 
+      (t_opt->isAddSub()        and !canAdd()) or 
       (t_opt->isMul()        and !canMul()) or 
       (t_opt->isPhi()        and !canPhi()) or 
       (t_opt->isSel()        and !canSel()) or 
