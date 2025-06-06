@@ -41,7 +41,7 @@ class DFGNode {
     Value* m_value;
     StringRef m_stringRef;
     string m_opcodeName;
-    // m_pathName is the derived from basic block of llvm
+    // m_pathName is derived from basic block of llvm
     string m_pathName;  
     list<DFGEdge*> m_inEdges;
     list<DFGEdge*> m_outEdges;

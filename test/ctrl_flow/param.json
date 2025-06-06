@@ -7,7 +7,7 @@
   "row"                   : 4,
   "column"                : 4,
   "precisionAware"        : false,
-  "fusionStrategy"        : [],
+  "fusionStrategy"        : ["ctrl_flow"],
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,
   "parameterizableCGRA"   : false,

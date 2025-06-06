@@ -7,7 +7,7 @@
   "row"                   : 4,
   "column"                : 4,
   "diagonalVectorization" : false,
-  "heterogeneity"         : false,
+  "fusionStrategy"        : [],
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,
   "parameterizableCGRA"   : false,

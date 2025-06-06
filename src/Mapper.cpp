@@ -36,14 +36,12 @@ int Mapper::getRecMII(DFG* t_dfg) {
   list<list<DFGNode*>*>* cycles = t_dfg->getCycleLists(); //calculateCycles();
   // cout<<"... number of cycles: "<<cycles->size()<<" ..."<<endl;
   // TODO: RecMII = MAX (delay(c) / distance(c))
-  // print all the cycles
   for( list<DFGNode*>* cycle: *cycles) {
     temp_RecMII = float(cycle->size()) / 1.0;
     // cout << "... [DEBUG] cycle length " << temp_RecMII << "..." <<endl;
-    for (DFGNode* dfgNode: *cycle){
-      // cout << "... [DEBUG] cycle nodes " << dfgNode->getID() << " "<< dfgNode->getOpcodeName() << " ";
-    }
-    // cout << endl;
+    // for (DFGNode* dfgNode: *cycle){
+    //   cout << "... [DEBUG] cycle nodes " << dfgNode->getID() << " "<< dfgNode->getOpcodeName() << " ";
+    // }
     if(temp_RecMII > RecMII)
       RecMII = temp_RecMII;
   }
@@ -446,7 +444,7 @@ bool Mapper::schedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   // FIXME: Handles DVFS-related stuff here.
   t_cgra->syncDVFSIsland(fu);
-  
+
   m_mappingTiming[t_dfgNode] = (*t_path)[fu];
 
   // Route the dataflow onto the CGRA links across cycles.
@@ -539,18 +537,18 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
 
   // Indicates the busy cycles of the functional units inside the
   // tile.
-  map<int, int> tile_fu_busy_cycles; 
+  map<int, int> tile_fu_busy_cycles;
   // Indicates the busy cycles of the crossbar inside the tile.
   map<int, int> tile_xbar_busy_cycles;;
   // Indicates the busy cycles of both the functional units and
   // crossbar inside the tile. Note that this is not simply the
   // sum of `tile_fu_busy_cycles` and the `tile_xbar_busy_cycles`
   // as both the fu and xbar can be busy at the same cycle.
-  map<int, int> tile_overall_busy_cycles; 
+  map<int, int> tile_overall_busy_cycles;
 
-  map<int, float> tile_fu_utilization; 
+  map<int, float> tile_fu_utilization;
   map<int, float> tile_xbar_utilization;
-  map<int, float> tile_overall_utilization; 
+  map<int, float> tile_overall_utilization;
 
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
@@ -642,7 +640,7 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
 //       const int island_x = tile_x / kIslandDim;
 //       const int island_y = tile_y / kIslandDim;
 //       auto island_location = std::make_tuple(island_x, island_y);
-// 
+//
 //       if (island_map.find(island_location) != island_map.end()) {
 //         island_map[island_location].push_back(*tile);
 //       } else {
@@ -842,7 +840,7 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
     std::cout << "histogram 100% tile DVFS frequency ratio: " << tile_count_dvfs_ratio_100 << endl;
   }
 }
- 
+
 void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
     bool t_isStaticElasticCGRA, bool t_parameterizableCGRA) {
 
@@ -1057,7 +1055,7 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             first = false;
           else
             jsonFile<<",\n";
-    
+
           jsonFile<<"  {\n";
           jsonFile<<"    \"x\"           : "<<j<<",\n";
           jsonFile<<"    \"y\"           : "<<i<<",\n";
@@ -1168,7 +1166,7 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
               }
             }
           }
-          for (int out_index=0; out_index<8; ++out_index) {  
+          for (int out_index=0; out_index<8; ++out_index) {
             jsonFile<<"    \"out_"<<to_string(out_index)<<"\"       : \""<<stringDst[out_index]<<"\"";
             if (out_index < 7)
               jsonFile<<",\n";
@@ -1250,7 +1248,7 @@ void Mapper::generateJSON(CGRA* t_cgra, DFG* t_dfg, int t_II,
             } else {
               stringSrc[stringDstIndex++] = il->getDirection(currentCGRANode);
             }
-          } else if (il->isOccupied(0, t_II, t_isStaticElasticCGRA) and 
+          } else if (il->isOccupied(0, t_II, t_isStaticElasticCGRA) and
               il->isBypass(0) and
               il->getMappedDFGNode(0)->isPredecessorOf(targetDFGNode)) {
             // This is the case that the data is used in the CGRA node and
@@ -1456,7 +1454,7 @@ bool Mapper::tryToRoute(CGRA* t_cgra, DFG* t_dfg, int t_II,
   }
 
   // Not a valid mapping if it exceeds the 'm_maxMappingCycle'.
-  // I don't think we need check II here. 
+  // I don't think we need check II here.
   if(timing[t_dstCGRANode] > m_maxMappingCycle) {
     // timing[t_dstCGRANode] - timing[t_srcCGRANode] > t_II) {
     // cout<<"[DEBUG] cannot route due to II violation case 2: timing[CGRANode "<<t_dstCGRANode->getID()<<"] "<<timing[t_dstCGRANode]<<" - timing[CGRANode "<<t_srcCGRANode->getID()<<"] "<<timing[t_srcCGRANode]<<" > II "<<t_II<<endl;
@@ -1717,9 +1715,9 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
   for (DFGNode* dfgNode: t_dfg->nodes) {
     // Writes dfgnodeID, mapped CGRANode X and Y coordinates.i
     // opt id.
-    jsonFile<<"             \""<<dfgNode->getID()<<"\": {"<<endl; 
+    jsonFile<<"             \""<<dfgNode->getID()<<"\": {"<<endl;
     // opt mapped tile x coordinate.
-    jsonFile<<"                     \"x\":"<<m_mapping[dfgNode]->getX()<<","<<endl; 
+    jsonFile<<"                     \"x\":"<<m_mapping[dfgNode]->getX()<<","<<endl;
     // opt mapped tile y coordinate.
     jsonFile<<"                     \"y\":"<<m_mapping[dfgNode]->getY()<<endl;
     idx += 1;
@@ -1728,17 +1726,17 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
   }
   jsonFile<<"     },"<<endl;
 
-  jsonFile<<"     \"Tile2Level\":{"<<endl;      
+  jsonFile<<"     \"Tile2Level\":{"<<endl;
   // Generates level informations of current mapping results.
-  // FanIO is the number of links of current CGRANode connected to other CGRANode, 
+  // FanIO is the number of links of current CGRANode connected to other CGRANode,
   // and FanIO_CGRANodes can help with querying the list of CGRANodes with the given FanIO.
   vector<int> FanIOs;
-  map<int, vector<CGRANode*>> FanIO_CGRANodes; 
+  map<int, vector<CGRANode*>> FanIO_CGRANodes;
   int numTiles = 0;
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
 
-      // Records the number of FanIO for each tile. 
+      // Records the number of FanIO for each tile.
       CGRANode* currentCGRANode = t_cgra->nodes[i][j];
       // Only records tiles that have DFGNodes mapped.
       if (currentCGRANode->getInLinks() == 0) continue;
@@ -1755,11 +1753,11 @@ void Mapper::generateJSON4IncrementalMap(CGRA* t_cgra, DFG* t_dfg){
   }
 
   // Sorts FanIOs from big to small helps automatically form the level.
-  // Level indicates the ranking of CGRA according to the FanIOs that CGRANode has, 
+  // Level indicates the ranking of CGRA according to the FanIOs that CGRANode has,
   // high level means higher FanIOs, CGRANodes within the same level have same FanIOs.
-  std::sort(FanIOs.rbegin(), FanIOs.rend()); 
+  std::sort(FanIOs.rbegin(), FanIOs.rend());
   idx = 0;
-  for (int level = 0; level < FanIOs.size(); level++) { 
+  for (int level = 0; level < FanIOs.size(); level++) {
     int FanIO = FanIOs[level];
     vector<CGRANode*> tiles = FanIO_CGRANodes[FanIO];
     for (auto tile : tiles) {
@@ -1804,10 +1802,10 @@ void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
   for (int i=0; i<t_cgra->getRows(); ++i) {
     for (int j=0; j<t_cgra->getColumns(); ++j) {
 
-      // Records the number of FanIO for each tile. 
+      // Records the number of FanIO for each tile.
       CGRANode* currentCGRANode = t_cgra->nodes[i][j];
       // only record tiles that have DFGNodes mapped.
-      if (currentCGRANode->isDisabled()) continue; 
+      if (currentCGRANode->isDisabled()) continue;
       int FanIO = max(currentCGRANode->getInLinks()->size(), currentCGRANode->getOutLinks()->size());
       FanIO_CGRANodes[FanIO].push_back(currentCGRANode);
 
@@ -1820,7 +1818,7 @@ void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
     }
   }
   // Sorts FanIOs from big to small to automatically form the level.
-  std::sort(FanIOs.rbegin(), FanIOs.rend()); 
+  std::sort(FanIOs.rbegin(), FanIOs.rend());
 
   CGRANodes_sortedByLevel.clear();
   for (int level = 0; level < FanIOs.size(); level++) {
@@ -1830,15 +1828,15 @@ void Mapper::sortAllocTilesByLevel(CGRA* t_cgra){
   }
 }
 
-// Generates the placement recommendation list for current DFGNode 
+// Generates the placement recommendation list for current DFGNode
 // by referencing its placement in the former mapping results.
 // Two principles: Reference Placement Tendency (RPT) & Minimize Bypass Operations (MBO).
 list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
   list<CGRANode*> placementRecommList;
   CGRANode* refCGRANode = refMapRes[t_dfgNode];
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
-  // The level is used to ordering the CGRANodes based on the FanIO. 
-  // Though FanIO of each CGRANode would change for different CGRA architectures, 
+  // The level is used to ordering the CGRANodes based on the FanIO.
+  // Though FanIO of each CGRANode would change for different CGRA architectures,
   // the DFGNode prefers to being mapped onto the CGRANode with same level.
   int refLevel = CGRANodeID2Level[refCGRANode->getID()];
   int level = refLevel;
@@ -1849,7 +1847,7 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
   while (true) {
     // Sorts the CGRANodes with the number of bypass operations
     // required to communicate with its predecessors.
-    map<int, vector<CGRANode*>> bypassNums_CGRANode; 
+    map<int, vector<CGRANode*>> bypassNums_CGRANode;
     int curX, curY, preX, preY;
     int xdiff, ydiff;
     for (auto curCGRANode : CGRANodes_sortedByLevel[level]) {
@@ -1866,9 +1864,9 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
       bypassNums_CGRANode[numBypass].push_back(curCGRANode);
     }
 
-    // bypassNums_CGRANode is sorted by key from smallest to largest by default, 
+    // bypassNums_CGRANode is sorted by key from smallest to largest by default,
     // and tile with fewer bypass nodes has higher priority.
-    for (auto iter : bypassNums_CGRANode) {  
+    for (auto iter : bypassNums_CGRANode) {
       for (auto tile : iter.second) {
         placementRecommList.push_back(tile);
       }
@@ -1877,7 +1875,7 @@ list<CGRANode*> Mapper::placementGen(CGRA* t_cgra,  DFGNode* t_dfgNode){
     level += 1;
     if (level > maxLevel) {
       // Goes back to the highest level.
-      level = 0; 
+      level = 0;
     }
     if (level == initLevel) break;
   }
@@ -1904,23 +1902,23 @@ int Mapper::incrementalMap(CGRA* t_cgra, DFG* t_dfg, int t_II){
         if (path == NULL) {
           // Switches to the next tile.
           cout<<"[DEBUG] no available path for DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
-          continue; 
+          continue;
         }
         else {
           if (schedule(t_cgra, t_dfg, t_II, *dfgNode, path, false)) {
             // Current DFGNode is scheduled successfully, moves to the next DFGNode.
             dfgNodeMapFailed = false;
-            break; 
+            break;
           }
           else {
             // Switches to the next tile.
             cout<<"[DEBUG] no available path to schedule DFG node "<<(*dfgNode)->getID()<<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<endl;
-            continue; 
+            continue;
           }
         }
       }
       // Increases II and restart if current DFGNode fails the mapping.
-      if (dfgNodeMapFailed) break; 
+      if (dfgNodeMapFailed) break;
     }
 
     if (dfgNodeMapFailed) {

@@ -77,7 +77,7 @@ class DFG {
     void combine(string, string, string type="");
     void combineForIter(list<string>*, string type="");
     // combineForUnroll is used to reconstruct "phi-add-add-..." alike patterns with a limited length.
-    void combineForUnroll(string type=""); 
+    void combineForUnroll(string type="");
     void trimForStandalone();
     void detectMemDataDependency();
     void eliminateOpcode(string);
@@ -103,7 +103,7 @@ class DFG {
     void ctrlFlow_combine(map<string, list<string>*>*);
 
   public:
-    DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
+    DFG(Function&, list<Loop*>*, bool, bool, list<string>*, map<string, int>*,
         list<string>*, map<string, list<string>*>*, bool, bool, int t_vectorFactorForIdiv=4);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts

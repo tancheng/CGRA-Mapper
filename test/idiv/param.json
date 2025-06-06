@@ -7,7 +7,7 @@
     "row"                   : 4,
     "column"                : 4,
     "precisionAware"        : false,
-    "heterogeneity"         : true,
+    "fusionStrategy"        : ["ctrl_flow", "nonlinear"],
     "isTrimmedDemo"         : true,
     "heuristicMapping"      : true,
     "parameterizableCGRA"   : false,
@@ -17,7 +17,7 @@
     "ctrlMemConstraint"     : 10,
     "regConstraint"         : 8,
     "incrementalMapping"    : false,
-    "vectorFactorForIdiv "  : 4, 
+    "vectorFactorForIdiv "  : 4,
     "testingOpcodeOffset"   : 0,
     "optLatency"            : {
                                 "load" : 2,

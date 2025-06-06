@@ -60,9 +60,8 @@ namespace {
       int regConstraint             = 8;
       bool precisionAware           = false;
       bool diagonalVectorization    = false;
-      bool heterogeneity            = false;
       bool heuristicMapping         = true;
-      bool parameterizableCGRA      = false; 
+      bool parameterizableCGRA      = false;
 
       // Incremental mapping related:
       // https://github.com/tancheng/CGRA-Mapper/pull/24
@@ -80,6 +79,7 @@ namespace {
 
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
+      list<string>* fusionStrategy  = new list<string>();
       map<string, list<int>*>* additionalFunc = new map<string, list<int>*>();
       map<string, list<string>*>* fusionPattern = new map<string, list<string>*>();
 
@@ -98,7 +98,7 @@ namespace {
       } else {
         json param;
         i >> param;
- 
+
 	// Check param exist or not.
 	set<string> paramKeys;
 	paramKeys.insert("row");
@@ -115,7 +115,7 @@ namespace {
 	paramKeys.insert("regConstraint");
 	paramKeys.insert("precisionAware");
 	paramKeys.insert("diagonalVectorization");
-	paramKeys.insert("heterogeneity");
+	paramKeys.insert("fusionStrategy");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
 
@@ -153,7 +153,6 @@ namespace {
         regConstraint         = param["regConstraint"];
         precisionAware        = param["precisionAware"];
         diagonalVectorization = param["diagonalVectorization"];
-        heterogeneity         = param["heterogeneity"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
 
@@ -186,6 +185,10 @@ namespace {
         json pipeOpt = param["optPipelined"];
         for (int i=0; i<pipeOpt.size(); ++i) {
           pipelinedOpt->push_back(pipeOpt[i]);
+        }
+        cout<<"Deciding fusion strategy for DFG nodes: "<<endl;
+        for (auto& opt : param["fusionStrategy"].items()) {
+          fusionStrategy->push_back(opt.value());
         }
         cout<<"Initialize additional functionality on CGRA nodes: "<<endl;
         for (auto& opt : param["additionalFunc"].items()) {
@@ -221,9 +224,9 @@ namespace {
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
-                         heterogeneity, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
+                         fusionStrategy, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
 			 DVFSAwareMapping, vectorFactorForIdiv);
-      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, heterogeneity,
+      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, fusionStrategy,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
 			    DVFSIslandDim);
       cgra->setRegConstraint(regConstraint);

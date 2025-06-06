@@ -1,3 +1,4 @@
+
 /*
  * ======================================================================
  * DFG.cpp
@@ -12,9 +13,9 @@
 #include "DFG.h"
 
 DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
-         bool t_precisionAware, bool t_heterogeneity,
+         bool t_precisionAware, list<string>* t_fusionStrategy,
          map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
-         map<string, list<string>*>* t_fusionPattern, 
+         map<string, list<string>*>* t_fusionPattern,
 	      bool t_supportDVFS, bool t_DVFSAwareMapping,
 	      int t_vectorFactorForIdiv) {
   m_num = 0;
@@ -29,12 +30,27 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   m_vectorFactorForIdiv = t_vectorFactorForIdiv;
 
   construct(t_F);
-  if (t_heterogeneity) {
-    // Fuses ctrl-related ops.
-    ctrlFlow_combine(t_fusionPattern);
-    // Fuses nonlinear ops.
-    nonlinear_combine(); 
-    calculateCycles();
+  bool needsCycleCalculation = false;
+  for (auto strategy : *t_fusionStrategy) {
+    if (strategy == "default_heterogeneous") {
+      combineMulAdd("CoT");
+      combinePhiAdd("BrT");
+      needsCycleCalculation = true;
+    }
+    else if (strategy == "nonlinear") {
+      nonlinear_combine();
+      needsCycleCalculation = true;
+    }
+    else if (strategy == "ctrl_flow") {
+      ctrlFlow_combine(t_fusionPattern);
+      needsCycleCalculation = true;
+    }
+    else {
+      cout << "Error: Unknown strategy '" << strategy << "'\n";
+    }
+  }
+  if (needsCycleCalculation) {
+      calculateCycles();
   }
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
@@ -237,7 +253,7 @@ void DFG::ctrlFlow_combine(map<string, list<string>*>* t_fusionPattern) {
           iter!=t_fusionPattern->end(); ++iter) {
           combineForIter(iter->second, "Ctrl");
         }
-  // combineForUnroll only resloves "phi-ConstantAdd-ConstantAdd-..." 
+  // combineForUnroll only resloves "phi-ConstantAdd-ConstantAdd-..."
   combineForUnroll("Ctrl");
   combine("phi", "add", "Ctrl");
   combine("phi", "fadd", "Ctrl");
@@ -336,9 +352,9 @@ void DFG::combinePhiAdd(string type) {
   DFGNode* addNode = NULL;
   DFGNode* addNode2 = NULL;
   bool found = false;
-  // TODO: When a phi has multiple iadd, it would simply pick the first one no matter 
-  // whether the second one has grandchild iadd, i.e., we may unfortunately skip the 
-  // best opportunities of maximum fusion. 
+  // TODO: When a phi has multiple iadd, it would simply pick the first one no matter
+  // whether the second one has grandchild iadd, i.e., we may unfortunately skip the
+  // best opportunities of maximum fusion.
   for (DFGNode* dfgNode: nodes) {
     if (dfgNode->isPhi() and !dfgNode->hasCombined()) {
       found = false;
@@ -428,7 +444,7 @@ void DFG::combineMulAdd(string type) {
   }
 }
 
-// Combine add + add. 
+// Combine add + add.
 void DFG::combineAddAdd(string type) {
   DFGNode* mulNode = NULL;
   DFGNode* addNode = NULL;
@@ -472,7 +488,7 @@ void DFG::combine(string t_opt0, string t_opt1, string type) {
 }
 
 // Combines patterns provided by users which should be a cycle, otherwise, the fusion won't be performed.
-void DFG::combineForIter(list<string>* t_targetPattern, string type) { 
+void DFG::combineForIter(list<string>* t_targetPattern, string type) {
   int patternSize = t_targetPattern->size();
   string headOpt = string(t_targetPattern->front());
   list<string>::iterator currentFunc = t_targetPattern->begin();
@@ -493,9 +509,9 @@ void DFG::combineForIter(list<string>* t_targetPattern, string type) {
               toBeMatchedDFGNodes->push_back(succNode);
               for(DFGNode* optNode: *toBeMatchedDFGNodes){
                 if(optNode != dfgNode){
-                   dfgNode ->addPatternPartner(optNode);                  
+                   dfgNode ->addPatternPartner(optNode);
                 }
-                optNode->setCombine(type);                   
+                optNode->setCombine(type);
               }
               break;
             } else if(i == (patternSize-1) and !dfgNode->isSuccessorOf(succNode)){
@@ -505,12 +521,12 @@ void DFG::combineForIter(list<string>* t_targetPattern, string type) {
               break;
             }
           }
-        }        
+        }
       }
       toBeMatchedDFGNodes->clear();
       currentFunc = t_targetPattern->begin();
       currentFunc++;
-    }  
+    }
   }
 }
 
@@ -530,15 +546,15 @@ void DFG::combineForUnroll(string type) {
           if (succNode->isConstantAddSub() and !succNode->hasCombined()) {
             currentPath.push_back(succNode);
             foundNext = true;
-            if (dfgNode->isSuccessorOf(succNode)) { 
+            if (dfgNode->isSuccessorOf(succNode)) {
               // must be a circle
               for(DFGNode* optNode: currentPath){
                 if(optNode != dfgNode){
-                   dfgNode ->addPatternPartner(optNode);                  
+                   dfgNode ->addPatternPartner(optNode);
                 }
-                optNode->setCombine(type);                       
+                optNode->setCombine(type);
               }
-              combineDone = true;   
+              combineDone = true;
             }
             break;
           }
@@ -666,9 +682,9 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
 
  // extract DFG from specific function
  void DFG::construct(Function& t_F) {
- 
-  m_DFGEdges.clear(); 
-  nodes.clear(); 
+
+  m_DFGEdges.clear();
+  nodes.clear();
   m_ctrlEdges.clear();
   m_targetBBs.clear();
 
@@ -684,7 +700,7 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
     BasicBlock *curBB = &*BB;
     bool isTargetBB = false;
     errs()<<"└── *** current basic block: "<<curBB->getName().str()<<"; First Inst: "<<*curBB->begin()<<"\n";
-    for (BasicBlock::iterator II=curBB->begin(), IEnd=curBB->end(); II!=IEnd; ++II) { 
+    for (BasicBlock::iterator II=curBB->begin(), IEnd=curBB->end(); II!=IEnd; ++II) {
       Instruction* curII = &*II;
       if (shouldIgnore(curII)) {
         errs()<<"│   └── *** ignored by pass because instruction \""<<*curII<<"\" is out of the scope (target loop)."<<"\n";
@@ -709,7 +725,7 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
     }
   }
 
-  // construct ctrl flows. 
+  // construct ctrl flows.
   // consider 3 types in function "isLiveInInst".
   // 1. pointed to "sucBB->front()"
   // 2. pointed to "lonely inst"(i.e. an inst without any flow pointed to it)
@@ -750,7 +766,7 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
       }
     }
   }
-  
+
   // construct data flow edges.
   for (DFGNode* node: nodes) {
     Instruction* curII = node->getInst();
@@ -764,10 +780,10 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
           }
           else {
             dfgEdge = new DFGEdge(dfgEdgeID++, getNode(tempInst), node);
-            if ((dfgEdge->getSrc()->getBBID() != dfgEdge->getDst()->getBBID()) 
-                or 
-                ((dfgEdge->getSrc()->getBBID() == dfgEdge->getDst()->getBBID()) 
-                 and 
+            if ((dfgEdge->getSrc()->getBBID() != dfgEdge->getDst()->getBBID())
+                or
+                ((dfgEdge->getSrc()->getBBID() == dfgEdge->getDst()->getBBID())
+                 and
                  (dfgEdge->getSrc()->getID()) > (dfgEdge->getDst()->getID()))) {
               dfgEdge->setInterEdge(true);
             }
@@ -793,14 +809,14 @@ list<DFGNode*>* DFG::getBFSOrderedNodes() {
   // reorderInALAP();
   // The mapping algorithm works on the DFG that is ordered along with the longest path.
   reorderInLongest();
-  
+
 }
 
 // Reorder the DFG nodes in ASAP based on original sequential execution order.
 void DFG::reorderInASAP() {
 
   list<DFGNode*> tempNodes;
-  // The first node in the nodes is treated as the starting point (no 
+  // The first node in the nodes is treated as the starting point (no
   // matter it has predecessors or not).
   int maxLevel = 0;
   for (DFGNode* node: nodes) {
@@ -816,7 +832,7 @@ void DFG::reorderInASAP() {
     if (maxLevel < level) {
       maxLevel = level;
     }
-  } 
+  }
 
   for (int l=0; l<maxLevel+1; ++l) {
     for (DFGNode* node: nodes) {
@@ -938,7 +954,7 @@ void DFG::reorderDFS(set<DFGNode*>* t_visited, list<DFGNode*>* t_targetPath,
 void DFG::reorderInALAP() {
 
   list<DFGNode*> tempNodes;
-  // The last node in the nodes is treated as the end point (no 
+  // The last node in the nodes is treated as the end point (no
   // matter it has successors or not).
   int maxLevel = 0;
   nodes.reverse();
@@ -955,7 +971,7 @@ void DFG::reorderInALAP() {
     if (maxLevel < level) {
       maxLevel = level;
     }
-  } 
+  }
 
   for (DFGNode* node: nodes) {
     node->setLevel(maxLevel - node->getLevel());
@@ -1022,30 +1038,62 @@ void DFG::initPipelinedOpt(list<string>* t_pipelinedOpt) {
   }
 }
 
-bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
-  if (t_inst == &(t_bb->front())) {
-    errs()<<"ctrl to: "<<*t_inst<<"; front: "<<(t_bb->front())<<"; ";
-    return true;
-  }
-  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
-    Instruction* tempInst = dyn_cast<Instruction>(*op);
-    if (tempInst and !containsInst(t_bb, tempInst)) {
-      errs()<<"ctrl to: "<<*t_inst<<"; containsInst(t_bb, tempInst): "<<containsInst(t_bb, tempInst)<<"; ";
-      return true;
-    }
-  }
+ bool DFG::isLiveInInst(BasicBlock* t_bb, Instruction* t_inst) {
+   // FOR DEBUG
+ //  errs()<<"[FOR DEBUG] "<<"current inst: "<<*t_inst<<"\n";
+ //  errs()<<"            "<<"op used:"<<"\n";
+ //  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+ //    Value *operand = *op;
+ //    if(operand->hasName()) {
+ //      errs()<<"            "<<operand->getName()<<"\n";
+ //    }
+ //    else {
+ //      errs()<<"            ";
+ //      operand->print(errs());
+ //      errs()<<"\n";
+ //    }
+ //    Instruction* tempInst = dyn_cast<Instruction>(*op);
+ //    if(tempInst) {
+ //      cout<<"            "<<"This op is Instruction type."<<endl;
+ //    }
+ //    else {
+ //      cout<<"            "<<"This op is not Instruction type."<<endl;
+ //    }
+ //  }
+   //
 
-  // The first (lower ID) IR with only in-block dependency is also treated as live-in.
-  for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
-    Instruction* tempInst = dyn_cast<Instruction>(*op);
-    if (tempInst and getInstID(t_bb, t_inst) > getInstID(t_bb, tempInst)) {
-      return false;
-    }
-  }
+   // type 1
+   if(t_inst == &(t_bb->front())) {
+     errs()<<"│   │   ├── Type: first inst of a BB."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     return true;
+   }
 
-  errs()<<"ctrl to: "<<*t_inst<<"; ";
-  return true;
-}
+   // type 2 & 3
+   bool isLonelyInst = true;
+   bool isUsingIntraIterationData = false;
+   for (Instruction::op_iterator op = t_inst->op_begin(), opEnd = t_inst->op_end(); op != opEnd; ++op) {
+     if(isa<Instruction>(*op)) {
+       Instruction* tempInst = dyn_cast<Instruction>(*op);
+       isLonelyInst = false;
+       if(containsInst(t_bb, tempInst) and (getNode(tempInst)->getID() < getNode(t_inst)->getID())) {
+         isUsingIntraIterationData = true;
+       }
+     }
+   }
+   if(isLonelyInst) {
+     errs()<<"│   │   ├── Type: lonely inst."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     return true;
+   }
+   else if(!isUsingIntraIterationData) {
+     errs()<<"│   │   ├── Type: inst without [intra-basicblock & intra-iteration data flow] nor [ctrl flow] pointed to it."<<"\n";
+     errs()<<"│   │   ├── ctrl flow point to: "<<*t_inst<<"; In BB: "<<t_bb->getName().str()<<"\n";
+     return true;
+   }
+
+   return false;
+ }
 
 bool DFG::containsInst(BasicBlock* t_bb, Instruction* t_inst) {
 
@@ -1155,7 +1203,7 @@ void DFG::generateJSON() {
 }
 
 void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
- 
+
   error_code error;
 //  sys::fs::OpenFlags F_Excl;
   string func_name = t_F.getName().str();
@@ -1215,7 +1263,7 @@ void DFG::generateDot(Function &t_F, bool t_isTrimmedDemo) {
       }
     }
   }
- 
+
   // Dump data flow.(inter)
   file << "edge [color=green]" << "\n";
   for (DFGEdge* edge: m_DFGEdges) {
@@ -1257,7 +1305,7 @@ void DFG::DFS_on_DFG(DFGNode* t_head, DFGNode* t_current,
         for (DFGEdge* currentEdge: *t_currentCycle) {
           temp_cycle->push_back(currentEdge);
           // break the cycle to avoid future repeated detection
-          errs() << "cycle edge: {" << *((currentEdge)->getSrc()->getInst()) << "  } -> {"<< *(currentEdge)->getDst()->getInst() << "  } ("<<currentEdge->getSrc()->getID()<<" -> "<<currentEdge->getDst()->getID()<<")\n";
+          errs() << "cycle edge: {" << *((currentEdge)->getSrc()->getInst()) << "  } -> {"<< *((currentEdge)->getDst()->getInst()) << "  } ("<<currentEdge->getSrc()->getID()<<" -> "<<currentEdge->getDst()->getID()<<")\n";
         }
         t_erasedEdges->push_back(edge);
         t_cycles->push_back(temp_cycle);
@@ -1326,7 +1374,7 @@ void DFG::showOpcodeDistribution() {
     if (node->isVectorized()) {
       simdNodeCount++;
     }
-  }    
+  }
   cout << "DFG node count: "<<nodes.size()<<"; DFG edge count: "<<m_DFGEdges.size()<<"; SIMD node count: "<<simdNodeCount<<"\n";
 }
 

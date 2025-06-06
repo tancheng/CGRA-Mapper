@@ -212,7 +212,7 @@ bool DFGNode::isPhi() {
   return false;
 }
 
-bool DFGNode::isOpt(string t_opt) {   
+bool DFGNode::isOpt(string t_opt) {
   if (m_opcodeName.compare(t_opt) == 0)
     return true;
   return false;
@@ -336,7 +336,7 @@ void DFGNode::setCombine(string type) {
 }
 
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
-  // setCombine() and setMerge() use the same addPatternPartner
+  // setCombine and setMerge use addPatternPartner Function to put two or more nodes into one node
   m_isPatternRoot = true;
   m_patternRoot = this;
   m_patternNodes->push_back(t_patternNode);
@@ -408,7 +408,7 @@ string DFGNode::getOpcodeName() {
   return m_opcodeName;
 }
 
-string DFGNode::getPathName(){
+string DFGNode::getPathName() {
   return m_pathName;
 }
 
