@@ -247,7 +247,7 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isStore()      and !canStore()) or
       (t_opt->isReturn()     and !canReturn()) or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->isAddSub()     and !canAdd()) or  // We assumes the HW adder can both both add and sub
+      (t_opt->isAddSub()     and !canAdd()) or  // We assume the HW adder can do both add and sub.
       (t_opt->isMul()        and !canMul()) or
       (t_opt->isPhi()        and !canPhi()) or
       (t_opt->isSel()        and !canSel()) or
