@@ -77,3 +77,11 @@ jobs:
         sh run.sh
         sh verify.sh
 
+    - name: Test Control Flow
+      working-directory: ${{github.workspace}}/test/ctrl_flow
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
+
+
