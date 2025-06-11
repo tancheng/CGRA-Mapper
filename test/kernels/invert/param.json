@@ -4,7 +4,7 @@
   "targetLoopsID"       : [0],
   "row"                 : 4,
   "column"              : 4,
-  "heterogeneity"       : false,
+  "fusionStrategy"      : [],
   "isTrimmedDemo"       : true,
   "heuristicMapping"    : true,
   "bypassConstraint"    : 4,

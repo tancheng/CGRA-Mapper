@@ -27,11 +27,11 @@ class Mapper {
     list<map<CGRANode*, int>*>* getOrderedPotentialPaths(CGRA*, DFG*, int,
         DFGNode*, list<map<CGRANode*, int>*>*);
     // The mapping relationship referenced by incrementalMap, read from increMapInput.json file
-    map<DFGNode*, CGRANode*> refMapRes; 
+    map<DFGNode*, CGRANode*> refMapRes;
     // One to one relationship between CGRANode and its level
-    map<int, int> CGRANodeID2Level; 
+    map<int, int> CGRANodeID2Level;
     // The list of CGRANodes sorted by levels
-    vector<vector<CGRANode*>> CGRANodes_sortedByLevel; 
+    vector<vector<CGRANode*>> CGRANodes_sortedByLevel;
     bool m_DVFSAwareMapping;
 
   public:

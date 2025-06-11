@@ -55,7 +55,7 @@ class Kernel:
         self.df = pd.DataFrame(DICT_CSV, index=[0])
         self.ii_1 = None  # II when using 1 CGRA, actual II
         self.ii_2 = None  # II when using 2 CGRAs, expandable II
-        self.total_iterations = math.ceil(total_iterations / (self.unroll_factor*self.vector_factor)) 
+        self.total_iterations = math.ceil(total_iterations / (self.unroll_factor*self.vector_factor))
         self.rows = cgra_rows
         self.columns = cgra_columns
         if DO_MAPPING:
@@ -86,7 +86,7 @@ class Kernel:
             compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         else:
             print("Error, invalid unroll and vector factor combination.")
-            return    
+            return
 
         compile_proc = subprocess.Popen([compile_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (compile_out, compile_err) = compile_proc.communicate()
@@ -148,11 +148,11 @@ class Kernel:
                         if "[ExpandableII: " in output_line:
                             self.ii_2 = int(output_line.split("[ExpandableII: ")[1].split("]")[0])
                             dataS.append(self.ii_2)
-        
+
         except eventlet.timeout.Timeout:
             dataS = [0]*(DICT_COLUMN)
             print("Skipping a specific config for kernel: ", self.kernel_name, "Because it runs more than", TIME_OUT_SET/60 , "minute(s).")
-        
+
         if len(dataS) != DICT_COLUMN:
             dataS.extend([0]*(DICT_COLUMN-len(dataS)))
 
@@ -200,7 +200,7 @@ class Kernel:
         """
         This is a func to compile, run and map kernels under sora_json and store the mapping result in csv
 
-        Returns: name of the csv that collects information of mapped kernels 
+        Returns: name of the csv that collects information of mapped kernels
         """
         csv_name = f'./tmp/t_{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
         print("Generating", csv_name)
@@ -215,7 +215,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "heterogeneity": True,
+            "fusionStrategy": ["default_heterogeneous"],
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
@@ -225,7 +225,7 @@ class Kernel:
             "ctrlMemConstraint": 10,
             "regConstraint": 8,
             "incrementalMapping"    : False,
-            "vectorFactorForIdiv "  : 1, 
+            "vectorFactorForIdiv "  : 1,
             "testingOpcodeOffset"   : 0,
             "additionalFunc"        : {
                                         "complex-Ctrl" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
@@ -323,7 +323,7 @@ class KernelInstance:
         self.allocated_cgras = 0
         self.ii = None
         self.end_time = None
-        self.is_valid = True  
+        self.is_valid = True
         self.pure_execution_time = 0  # Track pure execution time for this instance
         self.pure_waiting_time = 0  # Track pure waiting time for this instance
         # Determine the maximum number of CGRAs that can be allocated
@@ -337,7 +337,7 @@ class KernelInstance:
 
     def calculate_execution_time(self):
         """
-        Calculate the execution time based on the number of allocated CGRAs 
+        Calculate the execution time based on the number of allocated CGRAs
         at the beginning running time of current kernel. It may change after.
 
         Returns:
@@ -364,7 +364,7 @@ class KernelInstance:
         execution_time = self.kernel.total_iterations * self.ii
         print(f"Calculated execution time for {self.kernel.kernel_name}: {execution_time} cycles (II={self.ii}, iterations={self.kernel.total_iterations})")
         return execution_time
-    
+
     def copy_with_valid(self):
         """
         Create a copy of the current instance and set is_valid to True.
@@ -706,5 +706,5 @@ if __name__ == "__main__":
         ]
     ]
     run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_bosting = True, num_cgras=1)  # one cgra is 4x4
-    run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_bosting = False, num_cgras=9)  
-    run_multiple_simulations_and_save_to_csv(taskCase1, "Bosting", priority_bosting = True, num_cgras=9)  
+    run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_bosting = False, num_cgras=9)
+    run_multiple_simulations_and_save_to_csv(taskCase1, "Bosting", priority_bosting = True, num_cgras=9)

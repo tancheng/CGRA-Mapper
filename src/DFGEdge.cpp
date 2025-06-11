@@ -68,7 +68,7 @@ void DFGEdge::setInterEdge(bool t_isInterEdge) {
   }
   else {
     m_isInterEdge = t_isInterEdge;
-  } 
+  }
 }
 
 bool DFGEdge::isInterEdge() {

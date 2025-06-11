@@ -225,7 +225,7 @@ bool DFGNode::isMul() {
   return false;
 }
 
-bool DFGNode::isAdd() {
+bool DFGNode::isAddSub() {
   if (m_opcodeName.compare("getelementptr") == 0 or
       m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("fadd") == 0 or
@@ -237,8 +237,9 @@ bool DFGNode::isAdd() {
 }
 
 // Only detect integer addition.
-bool DFGNode::isIadd() {
-  if (m_opcodeName.compare("add") == 0  or
+bool DFGNode::isIaddIsub() {
+  if (m_opcodeName.compare("getelementptr") == 0 or
+      m_opcodeName.compare("add") == 0  or
       m_opcodeName.compare("sub") == 0) {
     return true;
   }
@@ -246,10 +247,21 @@ bool DFGNode::isIadd() {
 }
 
 // Checks whether the operation is a scalar addition.
-bool DFGNode::isScalarAdd() {
+bool DFGNode::isScalarAddSub() {
   if (m_opcodeName.compare("add") == 0 or
       m_opcodeName.compare("sub") == 0)
     return true;
+  return false;
+} 
+
+bool DFGNode::isConstantAddSub() {
+  if (auto* addInst = dyn_cast<BinaryOperator>(m_inst)) {
+      if (addInst->getOpcode() == Instruction::Add) {
+          Value* op1 = addInst->getOperand(0);
+          Value* op2 = addInst->getOperand(1);
+          return isa<ConstantInt>(op1) || isa<ConstantInt>(op2);
+      }
+  }
   return false;
 }
 
@@ -324,6 +336,7 @@ void DFGNode::setCombine(string type) {
 }
 
 void DFGNode::addPatternPartner(DFGNode* t_patternNode) {
+  // setCombine and setMerge use addPatternPartner Function to put two or more nodes into one node
   m_isPatternRoot = true;
   m_patternRoot = this;
   m_patternNodes->push_back(t_patternNode);
@@ -393,6 +406,10 @@ string DFGNode::getOpcodeName() {
   }
 
   return m_opcodeName;
+}
+
+string DFGNode::getPathName() {
+  return m_pathName;
 }
 
 string DFGNode::getFuType() {
