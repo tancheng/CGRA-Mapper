@@ -104,7 +104,7 @@ class DFG {
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, bool, map<string, int>*,
-        list<string>*, bool, bool, int t_vectorFactorForIdiv=4, bool enableDistributed=false);
+        list<string>*, bool, bool, int t_vectorFactorForIdiv = 4, bool enableDistributed = false);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;

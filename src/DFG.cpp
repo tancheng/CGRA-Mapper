@@ -43,11 +43,13 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   calculateCycles();
 }
 
+// Split multi-cycle nodes in the DFG into multiple single-cycle nodes when distributed strategy is adopted.
+// Example: Division takes 8 cycles on our hardware, so each division node in the DFG should be split into 8 sub-nodes, each of which only needs to perform one cycle of division execution.
 void DFG::splitNodes() {
   list<DFGNode*>* add_nodes = new list<DFGNode*>();
   int dfgNodeID = nodes.size();
   for (DFGNode* dfgNode: nodes) {
-    int ExecLatency = dfgNode->getExecLatency(1);
+    int ExecLatency = dfgNode->getExecLatency(dfgNode->getDVFSLatencyMultiple());
     if (ExecLatency == 1) continue;
       dfgNode->setExecLatency(1);
       int dfgNodeID = nodes.size();
@@ -1028,22 +1030,21 @@ void DFG::combineAddAdd(string type) {
      targetOpt.insert(iter->first);
    }
    for (DFGNode* node: nodes) {
-     if (!node->hasCombined()) {
-      if (t_execLatency->find(node->getOpcodeName()) != t_execLatency->end()) {
-         string opcodeName = node->getOpcodeName();
-         node->setExecLatency((*t_execLatency)[opcodeName]);
-         targetOpt.erase(opcodeName);
-       }
-    }
-    else {
-      // Initialize the execution latency of fused patterns.
-      // If a multiplication and an addition are fused and the pattern is called MAC, then we can set "MAC": 2 in the optLatency of param.json. 
-      if (t_execLatency->find(node->getComplexType()) != t_execLatency->end()) {
-        string opcodeName = node->getComplexType();
-        node->setExecLatency((*t_execLatency)[opcodeName]);
-        targetOpt.erase(opcodeName);
-      }
-    }
+      if (!node->hasCombined()) {
+         if (t_execLatency->find(node->getOpcodeName()) != t_execLatency->end()) {
+            string opcodeName = node->getOpcodeName();
+            node->setExecLatency((*t_execLatency)[opcodeName]);
+            targetOpt.erase(opcodeName);
+         }
+      } else {
+          // Initializes the execution latency of fused patterns.
+          // If a division and an addition are fused and the pattern is called DIVADD, and we determine its latency to be 2 according to the timing results, then we can set "DIVADD": 2 in the optLatency of param.json. 
+          if (t_execLatency->find(node->getComplexType()) != t_execLatency->end()) {
+            string opcodeName = node->getComplexType();
+            node->setExecLatency((*t_execLatency)[opcodeName]);
+            targetOpt.erase(opcodeName);
+          }
+        }
    }
    if (!targetOpt.empty()) {
      cout<<"\033[0;31mPlease check the operations targeting multi-cycle execution in <param.json>:\"\033[0m";
@@ -1070,7 +1071,7 @@ void DFG::combineAddAdd(string type) {
        }
     }
     else {
-      // Initialize the pipelinable ability of fused patterns.
+      // Initializes the pipelinable ability of fused patterns.
       // Similar to initExecLatency()
       list<string>::iterator it;
       it = find(t_pipelinedOpt->begin(), t_pipelinedOpt->end(), node->getComplexType());
@@ -1759,11 +1760,11 @@ void DFG::combineAddAdd(string type) {
    return false;
  }
  
-// used for initializing II when exclusive strategy
+// Used for initializing II for exclusive strategy.
 int DFG::getMaxExecLantecy() {
   int max_exec_latency = 0;
   for (DFGNode* dfgNode: nodes) {
-    int exec_latecy = dfgNode->getExecLatency(1);
+    int exec_latecy = dfgNode->getExecLatency(dfgNode->->getDVFSLatencyMultiple());
     if (exec_latecy > max_exec_latency) max_exec_latency = exec_latecy;
   }
   return max_exec_latency;

@@ -77,7 +77,7 @@ namespace {
       // Option used to split one integer division into 4.
       // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
       int vectorFactorForIdiv               = 1;
-      string multiCycleStrategy        = "exclusive";
+      string multiCycleStrategy             = "exclusive";
 
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
@@ -180,7 +180,7 @@ namespace {
 	}
         if (param.find("multiCycleStrategy") != param.end()) {
           multiCycleStrategy = param["multiCycleStrategy"];
-	      }
+	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -209,15 +209,8 @@ namespace {
       }
       cout << "==================================\n";
       cout<<"[function \'"<<t_F.getName().str()<<"\' is one of our targets]\n";
-      bool enableDistributed = false;
-      bool enableMultipleOps = false;
-
-      if (multiCycleStrategy.compare("distributed") == 0) {
-        enableDistributed = true;
-      }
-      if (multiCycleStrategy.compare("inclusive") == 0) {
-        enableMultipleOps = true;
-      }
+      const bool enableDistributed = multiCycleStrategy.compare("distributed") == 0;
+      const bool enableMultipleOps = multiCycleStrategy.compare("inclusive") == 0;
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the

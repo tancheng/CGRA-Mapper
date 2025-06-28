@@ -585,8 +585,8 @@ void DFGNode::initType() {
   }
   else {
     // TODO: Update opcode name of call 
-    m_optType = "Unfamiliar: " + getOpcodeName();
-    m_fuType = "Unknown" + getOpcodeName();
+    m_optType = "Unfamiliar Op: " + getOpcodeName();
+    m_fuType = "Unknown FU for " + getOpcodeName();
     // printf("Fu Type:  \n");
     // cout << m_fuType << endl;
   }

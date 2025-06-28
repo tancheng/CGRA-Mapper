@@ -67,6 +67,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
 
   // Indicates whether this CGRA node can execute multiple operations
   // simultaneously. (e.g.,  single-cycle overlaps with multi-cycle)
+  // i.e., inclusive execution
   m_canMultipleOps = true;
 }
 
@@ -266,7 +267,6 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
   return true;
 }
 
-// t_cycle, t_II 是什么？
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (m_disabled) 
     return false;
@@ -298,6 +298,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
     // Single-cycle opt:
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      // If this tile don't support inclusive execution (canMultipleOps() == false), and there has been an operation occupied this tile at the current cycle, we cannot map t_opt on it. 
       if (!canMultipleOps() && !m_dfgNodesWithOccupyStatus[cycle]->empty()) {
         return false;
       }
@@ -368,7 +369,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
           return false;
         }
       }
-    }
+      }
     }
   }
 
@@ -449,16 +450,9 @@ void CGRANode::setDFGNode(DFGNode* t_opt, int t_cycle, int t_II,
     if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, SINGLE_OCCUPY));
     } else {
-      // if (t_opt->getID() == 34 && getID() == 4 ){
-      //   cout << "now here " << t_opt->getExecLatency(getDVFSLatencyMultiple()) << "\n";
-      // }
       m_dfgNodesWithOccupyStatus[cycle]->push_back(make_pair(t_opt, START_PIPE_OCCUPY));
       for (int i=1; i<t_opt->getExecLatency(getDVFSLatencyMultiple())-1; ++i) {
-        // cout << "opt latency" << t_opt->getExecLatency(getDVFSLatencyMultiple()) << "\n";
-        // cout << "now cycle:" <<  cycle+i << " " << m_cycleBoundary << "\n";
         if (cycle+i < m_cycleBoundary) {
-          // if (cycle + i < 32) 
-          // cout << "now cycle: " << cycle+i << " " << t_opt->getID() << "\n";
           m_dfgNodesWithOccupyStatus[cycle+i]->push_back(make_pair(t_opt, IN_PIPE_OCCUPY));
         }
       }

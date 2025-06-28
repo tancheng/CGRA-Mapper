@@ -361,8 +361,7 @@ map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
   int latest = -1;
   bool isAnyPredDFGNodeMapped = false;
-  // 找之前 pred 节点已经 map 了的，map 之后找一个 cost（即间隔 cycle 最短的）
-  // 作为 path
+
   for(DFGNode* pre: *predNodes) {
 //      cout<<"[DEBUG] how dare to pre node: "<<pre->getID()<<"; CGRA node: "<<t_fu->getID()<<endl;
     if(m_mapping.find(pre) != m_mapping.end()) {
