@@ -1,0 +1,27 @@
+{
+  "kernel"                : "_Z6kernelPfS_S_",
+  "targetFunction"        : false,
+  "targetNested"          : false,
+  "targetLoopsID"         : [0],
+  "doCGRAMapping"         : true,
+  "row"                   : 4,
+  "column"                : 4,
+  "precisionAware"        : false,
+  "fusionStrategy"        : ["ctrl_flow"],
+  "isTrimmedDemo"         : true,
+  "heuristicMapping"      : true,
+  "parameterizableCGRA"   : false,
+  "diagonalVectorization" : false,
+  "bypassConstraint"      : 4,
+  "isStaticElasticCGRA"   : false,
+  "ctrlMemConstraint"     : 10,
+  "regConstraint"         : 8,
+  "supportDVFS"           : false,
+  "opcodeOffset"          : 0,
+  "DVFSIslandDim"         : 1,
+  "DVFSAwareMapping"      : false,
+  "enablePowerGating"     : false,
+  "fusionPattern"         : {
+                              "4" : ["phi", "add", "icmp", "br"]
+                            }
+}

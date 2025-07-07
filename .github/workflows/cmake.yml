@@ -84,4 +84,11 @@ jobs:
         sh run.sh
         sh verify.sh
 
+    - name: Test Early Exit
+      working-directory: ${{github.workspace}}/test/early_exit
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
+
 
