@@ -12,6 +12,7 @@
     "heuristicMapping"      : true,
     "parameterizableCGRA"   : false,
     "diagonalVectorization" : false,
+    "fusionStrategy"        : [],
     "bypassConstraint"      : 4,
     "isStaticElasticCGRA"   : false,
     "ctrlMemConstraint"     : 10,

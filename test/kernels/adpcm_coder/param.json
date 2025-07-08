@@ -6,7 +6,7 @@
   "doCGRAMapping"       : false,
   "row"                 : 4,
   "column"              : 4,
-  "heterogeneity"       : false,
+  "fusionStrategy"      : [],
   "isTrimmedDemo"       : true,
   "heuristicMapping"    : false,
   "bypassConstraint"    : 4,

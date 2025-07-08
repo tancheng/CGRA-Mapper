@@ -25,6 +25,33 @@ Docker
 --------------------------------------------------------
 The docker image is available [here](https://hub.docker.com/layers/cgra/cgra-flow/demo/images/sha256-7ca327d24f555376d91cba6fa30e3fbaa4a4c0d4053a82ac9059c374a3dee5bd?context=repo).
 
+### Build Docker image from Dockerfile
+```shell
+$ mkdir -p ${HOME}/cgra
+$ cd ${HOME}/cgra
+$ git clone https://github.com/tancheng/CGRA-Mapper.git
+$ cd CGRA-Mapper/docker/
+$ docker build -t cgramapper:v1 .
+```
+
+### Run Docker container
+```shell
+$ docker run --name mycgramapper cgramapper:v1 &
+$ docker exec -it mycgramapper bash
+```
+
+### Run test in Docker container
+```shell
+root@host:/# cd /root/cgra/CGRA-Mapper/test/nonlinear/
+root@host:/# sh compile.sh
+root@host:/# sh run.sh
+root@host:/# sh verify.sh
+```
+```shell
+Nonlinear Test Pass!
+```
+
+
 Showcase
 --------------------------------------------------------
 

@@ -41,7 +41,7 @@ class DFGEdge
     void connect(DFGNode*, DFGNode*);
     DFGNode* getConnectedNode(DFGNode*);
     bool isCtrlEdge();
-    
+
     // Sets m_isInterEdge = true/false.
     void setInterEdge(bool);
 

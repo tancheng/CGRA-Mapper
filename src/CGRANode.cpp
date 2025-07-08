@@ -223,7 +223,7 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
   for (int i=0; i<m_cycleBoundary; ++i) {
     m_dfgNodesWithOccupyStatus.push_back(new list<pair<DFGNode*, int>>());
   }
-  
+
   m_regs_duration = new int*[m_cycleBoundary];
   m_regs_timing = new int*[m_cycleBoundary];
   for (int i=0; i<m_cycleBoundary; ++i) {
@@ -237,7 +237,7 @@ void CGRANode::constructMRRG(int t_CGRANodeCount, int t_II) {
 }
 
 bool CGRANode::canSupport(DFGNode* t_opt) {
-  if (m_disabled) 
+  if (m_disabled)
     return false;
   // Check whether this CGRA node supports the required functionality.
   string call_f = t_opt->isCall();
@@ -252,23 +252,23 @@ bool CGRANode::canSupport(DFGNode* t_opt) {
       (t_opt->isStore()      and !canStore()) or
       (t_opt->isReturn()     and !canReturn()) or
       (t_opt->isVectorized() and !supportVectorization()) or
-      (t_opt->isAdd()        and !canAdd()) or 
-      (t_opt->isMul()        and !canMul()) or 
-      (t_opt->isPhi()        and !canPhi()) or 
-      (t_opt->isSel()        and !canSel()) or 
-      (t_opt->isMAC()        and !canMAC()) or 
-      (t_opt->isLogic()      and !canLogic()) or 
-      (t_opt->isBranch()     and !canBr()) or 
+      (t_opt->isAddSub()     and !canAdd()) or  // We assume the HW adder can do both add and sub.
+      (t_opt->isMul()        and !canMul()) or
+      (t_opt->isPhi()        and !canPhi()) or
+      (t_opt->isSel()        and !canSel()) or
+      (t_opt->isMAC()        and !canMAC()) or
+      (t_opt->isLogic()      and !canLogic()) or
+      (t_opt->isBranch()     and !canBr()) or
       (t_opt->isCmp()        and !canCmp()) or
       (t_opt->isDiv()        and !canDiv())
-      ) { 
+      ) {
     return false;
   }
   return true;
 }
 
 bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
-  if (m_disabled) 
+  if (m_disabled)
     return false;
 
   // Check whether this CGRA node supports the required functionality.
@@ -337,7 +337,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
         // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
 	else if (p.second == SINGLE_OCCUPY) {
           return false;
-        } 
+        }
         // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
         else if (p.second == START_PIPE_OCCUPY) {
           return false;
@@ -357,7 +357,7 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
         // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
         if (p.second == SINGLE_OCCUPY) {
           return false;
-        } 
+        }
         // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
         else if (p.second == END_PIPE_OCCUPY) {
           return false;
@@ -591,7 +591,7 @@ bool CGRANode::enableFunctionality(string t_func) {
     enableComplex(type);
   } else if (t_func.compare("div") == 0) {
     enableDiv();
-  } 
+  }
   else {
     return false;
   }

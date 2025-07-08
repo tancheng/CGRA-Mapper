@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
-	   bool t_heterogeneity, bool t_parameterizableCGRA,
+	   list<string>* t_fusionStrategy, bool t_parameterizableCGRA,
 	   map<string, list<int>*>* t_additionalFunc,
 	   bool t_supportDVFS, int t_DVFSIslandDim, bool enableMultipleOps) {
   m_rows = t_rows;
@@ -63,14 +63,14 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       }
     }
 
-    ifstream paramCGRA("./paramCGRA.json");
+    ifstream paramCGRA("./param.json");
     if (!paramCGRA.good()) {
       cout<<"Parameterizable CGRA design/mapping requires paramCGRA.json"<<endl;
       return;
     }
     json param;
     paramCGRA >> param;
-    
+
     int numOfNodes = t_rows * t_columns;
     for (int nodeID = 0; nodeID < numOfNodes; ++nodeID) {
       bool disabled = param["tiles"][to_string(nodeID)]["disabled"];
@@ -196,14 +196,14 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     }
 
     // Enable the heterogeneity.
-    if (t_heterogeneity) {
-      // for (int r=0; r<t_rows; ++r) {
-      //   for (int c=0; c<t_columns; ++c) {
-      //     // if(c == 0 || (r%2==1 and c%2 == 1))
-      //       nodes[r][c]->enableComplex();
-      //   }
-      // }
-    }
+    // if (t_fusionStrategy) {
+    //   for (int r=0; r<t_rows; ++r) {
+    //     for (int c=0; c<t_columns; ++c) {
+    //       // if(c == 0 || (r%2==1 and c%2 == 1))
+    //         nodes[r][c]->enableComplex();
+    //     }
+    //   }
+    // }
 
     for (int r=0; r<t_rows; ++r) {
       for (int c=0; c<t_columns; ++c) {
@@ -305,11 +305,11 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
 
 }
 
-list<string>* CGRA::getSupportComplex() { 
+list<string>* CGRA::getSupportComplex() {
     return m_supportComplex;
 }
 
-list<string>* CGRA::getSupportCall() { 
+list<string>* CGRA::getSupportCall() {
     return m_supportCall;
 }
 
