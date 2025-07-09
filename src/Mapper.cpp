@@ -1539,7 +1539,6 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
         dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
       list<map<CGRANode*, int>*> paths;
-      // 枚举所有，可能映射的 cgra node（dijkstra？）
       for (int i=0; i<t_cgra->getRows(); ++i) {
         for (int j=0; j<t_cgra->getColumns(); ++j) {
           CGRANode* fu = t_cgra->nodes[i][j];
@@ -1558,7 +1557,6 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
         map<CGRANode*, int>* optimalPath =
             getPathWithMinCostAndConstraints(t_cgra, t_dfg, t_II, *dfgNode, &paths);
         if (optimalPath->size() != 0) {
-          // 尝试将这条 path 安排过去
           if (!schedule(t_cgra, t_dfg, t_II, *dfgNode, optimalPath,
               t_isStaticElasticCGRA)) {
             cout<<"[DEBUG] fail1 in schedule() II: "<<t_II<<"\n";

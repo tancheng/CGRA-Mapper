@@ -180,6 +180,9 @@ namespace {
 	}
         if (param.find("multiCycleStrategy") != param.end()) {
           multiCycleStrategy = param["multiCycleStrategy"];
+          assert(multiCycleStrategy.compare("exclusive") == 0 or
+                 multiCycleStrategy.compare("distributed") == 0 or
+                 multiCycleStrategy.compare("inclusive") == 0);
 	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {

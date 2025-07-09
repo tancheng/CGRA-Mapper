@@ -324,51 +324,51 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
         }
       }
       else {
-      // Check start cycle.
-      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
-	// Cannot occupy/overlap by/with other operation if DVFS is enabled.
-	if (isDVFSEnabled() and
-	    (p.second == SINGLE_OCCUPY or
-	     p.second == START_PIPE_OCCUPY or
-	     p.second == IN_PIPE_OCCUPY or
-	     p.second == END_PIPE_OCCUPY)) {
-	  return false;
-	}
-        // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
-	else if (p.second == SINGLE_OCCUPY) {
-          return false;
+        // Check start cycle.
+        for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+          // Cannot occupy/overlap by/with other operation if DVFS is enabled.
+          if (isDVFSEnabled() and
+              (p.second == SINGLE_OCCUPY or
+              p.second == START_PIPE_OCCUPY or
+              p.second == IN_PIPE_OCCUPY or
+              p.second == END_PIPE_OCCUPY)) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
+          else if (p.second == SINGLE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
+          else if (p.second == START_PIPE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
+          else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
+                  (t_opt->shareFU(p.first))   and
+                  (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+            return false;
+          }
         }
-        // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
-        else if (p.second == START_PIPE_OCCUPY) {
-          return false;
+        if (cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1 >= m_cycleBoundary) {
+          break;
         }
-        // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
-        else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
-                 (t_opt->shareFU(p.first))   and
-                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
-          return false;
+        // Check end cycle.
+        for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1])) {
+          // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
+          if (p.second == SINGLE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
+          else if (p.second == END_PIPE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's end cycle overlaps with multi-cycle opt with the same type:
+          else if ((p.second == IN_PIPE_OCCUPY or p.second == START_PIPE_OCCUPY) and
+                  (t_opt->shareFU(p.first))   and
+                  (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+            return false;
+          }
         }
-      }
-      if (cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1 >= m_cycleBoundary) {
-        break;
-      }
-      // Check end cycle.
-      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1])) {
-        // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
-        if (p.second == SINGLE_OCCUPY) {
-          return false;
-        }
-        // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
-        else if (p.second == END_PIPE_OCCUPY) {
-          return false;
-        }
-        // Multi-cycle opt's end cycle overlaps with multi-cycle opt with the same type:
-        else if ((p.second == IN_PIPE_OCCUPY or p.second == START_PIPE_OCCUPY) and
-                 (t_opt->shareFU(p.first))   and
-                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
-          return false;
-        }
-      }
       }
     }
   }
