@@ -277,6 +277,13 @@ namespace {
         cout << "==================================\n";
         return false;
       }
+      if (!canMap(cgra, dfg)) {
+        cout << "==================================\n";
+        cout << "[Mapping Fail]\n";
+        return false;
+      }
+
+
       // Heuristic algorithm (hill climbing) to get a valid mapping within
       // a acceptable II.
       bool success = false;
@@ -380,6 +387,33 @@ namespace {
       }
       errs()<<"... done detected loops.size(): "<<targetLoops->size()<<"\n";
       return targetLoops;
+    }
+
+    /*
+     * Early exit if mapping is not possible when no FU can support certain DFG op.
+     */
+    bool canMap(CGRA* t_cgra, DFG* t_dfg) {
+      // need CGRANode::canSupport
+      bool supportMap = false;
+      for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
+          dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
+        bool nodeSupported = false;
+        for (int i=0; i<t_cgra->getRows(); ++i) {
+          for (int j=0; j<t_cgra->getColumns(); ++j) {
+            CGRANode* fu = t_cgra->nodes[i][j];
+            if (fu->canSupport(*dfgNode)) {
+              nodeSupported = true;
+              break;
+            }
+          }
+          if (nodeSupported) break;
+        }
+        if (!nodeSupported) {
+          cout<<"No available CGRA node for DFG node "<<(*dfgNode)->getOpcodeName()<<"\n";
+          return false;
+        }
+      }
+      return true;
     }
   };
 }
