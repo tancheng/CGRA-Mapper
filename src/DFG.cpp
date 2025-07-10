@@ -39,6 +39,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
       combine("icmp", "select", "Ctrl");
       combine("icmp", "br", "Ctrl");
       combine("fcmp", "br", "Ctrl");
+      tuneForPattern();
       needsCycleCalculation = true;
     }
     else if (strategy == "nonlinear") {
