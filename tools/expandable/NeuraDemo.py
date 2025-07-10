@@ -23,6 +23,7 @@ JSON_NAME = "./param.json"   # name of generated json file
 TIME_OUT_SET = 180
 DO_MAPPING = True
 KERNEL_DIRECTORY = "../../test/kernels"
+VECTOR_LANE = 2
 
 
 
@@ -91,7 +92,7 @@ class Kernel:
         compile_proc = subprocess.Popen([compile_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (compile_out, compile_err) = compile_proc.communicate()
 
-        disassemble_command = "llvm-dis-12 kernel.bc -o ./kernel.ll"
+        disassemble_command = f"llvm-dis-12 kernel.bc -o kernel.ll"
         disassemble_proc = subprocess.Popen([disassemble_command, '-u'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (disassemble_out, disassemble_err) = disassemble_proc.communicate()
 
@@ -103,7 +104,7 @@ class Kernel:
             return
 
         # collect the potentially targeting kernel/function from kernel.ll
-        ir_file = open('kernel.ll', 'r')
+        ir_file = open(f'kernel.ll', 'r')
         ir_lines = ir_file.readlines()
 
         # strips the newline character
@@ -124,7 +125,7 @@ class Kernel:
 
         Returns: NULL
         """
-        get_map_command = "opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
+        get_map_command = f"opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
         gen_map_proc = subprocess.Popen([get_map_command, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         dataS = []    # for get results from subprocess and output to pandas
         kernels_source = (self.kernel_name.split("."))[0]
@@ -156,7 +157,6 @@ class Kernel:
         if len(dataS) != DICT_COLUMN:
             dataS.extend([0]*(DICT_COLUMN-len(dataS)))
 
-        print(dataS)
         self.df.loc[len(self.df.index)] = dataS
 
     def map_kernel_skip(self):
@@ -165,7 +165,7 @@ class Kernel:
 
         Returns: NULL
         """
-        get_map_command = "opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
+        get_map_command = f"opt-12 -load ../../build/src/libmapperPass.so -mapperPass kernel.bc"
         gen_map_proc = subprocess.Popen([get_map_command, "-u"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         # Holds the results from subprocess and output to pandas.
         dataS = []
@@ -193,7 +193,6 @@ class Kernel:
             dataS = [0]*(DICT_COLUMN)
             print("Skipping a specific config for kernel: ", self.kernel_name, "Because it runs more than", TIME_OUT_SET/60, "minute(s).")
 
-        print(dataS)
         self.df.loc[len(self.df.index)] = dataS
 
     def get_ii(self):
@@ -215,7 +214,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": ["default_heterogeneous"],
+            "fusionStrategy": [],
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
@@ -229,6 +228,8 @@ class Kernel:
             "testingOpcodeOffset"   : 0,
             "additionalFunc"        : {
                                         "complex-Ctrl" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+                                        "complex-CoT" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+                                        "complex-BrT" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
                                         "div" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
                                     }
         }
@@ -259,9 +260,7 @@ class Kernel:
         try:
             df = pd.read_csv(csv_name)
             self.ii_1 = int(df['mappingII'].iloc[1])   # the first data line
-            print(self.ii_1)
             self.ii_2 = int(df['expandableII'].iloc[1])    # the first data line
-            print(self.ii_2)
         except FileNotFoundError:
             print(f"CSV file {csv_name} not found.")
         except ValueError:
@@ -327,7 +326,10 @@ class KernelInstance:
         self.pure_execution_time = 0  # Track pure execution time for this instance
         self.pure_waiting_time = 0  # Track pure waiting time for this instance
         # Determine the maximum number of CGRAs that can be allocated
-        self.max_allocate_cgra = 9
+        if self.kernel.vector_factor == 1:
+            self.max_allocate_cgra = 2
+        else:
+            self.max_allocate_cgra = 9
 
     def __lt__(self, other):
         """
@@ -343,25 +345,18 @@ class KernelInstance:
         Returns:
             int: Total execution time in cycles.
         """
-        # if self.vector_factor = 8, then when allocate_cgra <= 2, self.ii = ii_1, when 2 < allocate_cgra <= 4, self.ii = ii_2
-        if self.kernel.vector_factor == 8:
-            if self.allocated_cgras == 1:
-                # cgra tile only support vector = 4
-                # TODO: self.kernel.ii_1/2
-                self.ii = self.kernel.ii_1
-            elif self.allocated_cgras == 2:
-                self.ii = self.kernel.ii_1
-            else:
-                # TODO: self.kernel.ii_3/2
-                self.ii = self.kernel.ii_2
-        else:
+        if self.kernel.vector_factor == 1:
             if self.allocated_cgras == 1:
                 self.ii = self.kernel.ii_1
             elif self.allocated_cgras == 2:
                 self.ii = self.kernel.ii_2
             else:
                 raise ValueError(f"Number of CGRAs must be between 1 and {self.max_allocate_cgra}.")
-        execution_time = self.kernel.total_iterations * self.ii
+            execution_time = self.kernel.total_iterations * self.ii
+        else:
+            self.ii = self.kernel.ii_1
+            execution_time = math.ceil(self.kernel.total_iterations * self.ii * (self.kernel.vector_factor / (VECTOR_LANE * self.allocated_cgras)))
+            print(self.kernel.vector_factor / (VECTOR_LANE * self.allocated_cgras))
         print(f"Calculated execution time for {self.kernel.kernel_name}: {execution_time} cycles (II={self.ii}, iterations={self.kernel.total_iterations})")
         return execution_time
 
@@ -378,7 +373,7 @@ class KernelInstance:
         new_instance.ii = self.ii
         new_instance.end_time = self.end_time
         new_instance.is_valid = True
-        new_instance.pure_execution_time = self.pure_execution_time
+        new_instance.pure_execution_time = 0
         new_instance.pure_waiting_time = self.pure_waiting_time
         new_instance.max_allocate_cgra = self.max_allocate_cgra
         return new_instance
@@ -465,6 +460,9 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         int: Updated number of available CGRAs.
         float: Updated total runtime of all CGRAs.
     """
+    if not instance.is_valid:
+        print(f"Instance {instance.kernel.kernel_name} is already invalid, skipping re-allocation.")
+        return available_cgras, total_cgra_runtime
     if instance.allocated_cgras < instance.max_allocate_cgra and available_cgras > 0:
         possible_alloc = min(instance.max_allocate_cgra - instance.allocated_cgras, available_cgras)
         # Update allocation
@@ -474,16 +472,24 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         elapsed_time = current_time - instance.start_time
         completed_iters = elapsed_time // instance.ii
         remaining_iters = instance.kernel.total_iterations - completed_iters
-        # Update II
-        if instance.allocated_cgras == 1:
-            instance.ii = instance.kernel.ii_1
-        elif instance.allocated_cgras in [2, 3, 4]:
-            instance.ii = instance.kernel.ii_2
-        new_execution_time = remaining_iters * instance.ii
+        # Update II and new_execution_time
+        if instance.kernel.vector_factor == 1:
+            # 非向量情况：根据分配的 CGRA 数量选择 II
+            if instance.allocated_cgras == 1:
+                instance.ii = instance.kernel.ii_1
+            elif instance.allocated_cgras == 2:
+                instance.ii = instance.kernel.ii_2
+            else:
+                raise ValueError(f"Number of CGRAs must be between 1 and {instance.max_allocate_cgra}.")
+            new_execution_time = remaining_iters * instance.ii
+        else:
+            # 向量情况：使用向量因子和 CGRA 数量计算 II 和执行时间
+            vector_divisor = VECTOR_LANE * instance.allocated_cgras
+            new_execution_time = math.ceil(remaining_iters * instance.ii * (instance.kernel.vector_factor / vector_divisor))
         # Schedule new end event
         new_end_time = current_time + new_execution_time
+        print(f"Re-allocated succeed. {instance.kernel.kernel_name}. Add {possible_alloc} CGRAs at time {current_time}. Old end time: {instance.end_time}. New end time: {new_end_time}")
         instance.end_time = new_end_time
-        print(f"Re-allocated {possible_alloc} CGRAs to {instance.kernel.kernel_name} at time {current_time}. New end time: {new_end_time}")
         # Create a new valid instance for the new end event
         new_instance = instance.copy_with_valid()  # Assume there is a copy method in KernelInstance class
         heapq.heappush(events, (new_end_time, 'end', new_instance, new_instance))
@@ -491,7 +497,7 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         total_cgra_runtime += possible_alloc * new_execution_time
         # Invalidate old end event by leaving it in the heap but ignoring when processed
     else:
-        print(f"Re-allocated CGRAs to {instance.kernel.kernel_name} at time {current_time} Failed.")
+        print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
     return available_cgras, total_cgra_runtime
 
 
@@ -528,7 +534,20 @@ def simulate(num_cgras, kernels, priority_bosting, lcm_time=80000000):
     # Dictionary to store per-kernel ratio (iterations per cycle)
     kernel_waiting_ratio = {kernel.kernel_name: 0 for kernel in kernels}
     total_cgra_runtime = 0
-    arrive_times_list = {"fir.cpp": 12, "latnrm.c":4, "fft.c":10, "dtw.cpp":7, "spmv.c":6, "conv.c":8, "relu.c":5, "mvt.c":12, "gemm.c":2, "histogram.cpp":2}
+    # I think it need a reconstruction
+    # arrive_times_list = {"fir.cpp": 12, "latnrm.c":4, "fft.c":10, "dtw.cpp":7, "spmv.c":6, "conv.c":8, "relu.c":5, "mvt.c":12, "gemm.c":2, "histogram.cpp":2}
+    arrive_times_list = {
+    "fir.cpp": 66,
+    "latnrm.c": 11,
+    "fft.c": 10,
+    "dtw.cpp": 10,
+    "spmv.c": 8,
+    "conv.c": 33,
+    "relu.c": 8,
+    "mvt.c": 2,
+    "gemm.c": 3,
+    "histogram.cpp": 38
+    }
 
     if priority_bosting:
         print("\033[91mpriority_bosting is on\033[0m")
@@ -545,6 +564,7 @@ def simulate(num_cgras, kernels, priority_bosting, lcm_time=80000000):
     while events:
         event_time, event_type, kernel_or_instance, _ = heapq.heappop(events)
         current_time = event_time
+        print("="*20)
         print(f"Processing event at time {current_time}: type={event_type}, kernel={kernel_or_instance.kernel_name if event_type == 'arrival' else kernel_or_instance.kernel.kernel_name}")
 
         if event_type == 'arrival':
@@ -571,6 +591,8 @@ def simulate(num_cgras, kernels, priority_bosting, lcm_time=80000000):
             if not instance.is_valid:
                 # If instance is invalid, means it is re_allocated.
                 print(f"Ignoring invalid end event for {instance.kernel.kernel_name}")
+                # if instance in running_instances:
+                #     running_instances.remove(instance)
                 continue
             # Release CGRAs
             available_cgras, total_cgra_runtime = release(instance, current_time, available_cgras, running_instances, completed_instances,kernel_latency, total_cgra_runtime)
@@ -589,6 +611,8 @@ def simulate(num_cgras, kernels, priority_bosting, lcm_time=80000000):
             if priority_bosting:
                 for running in running_instances:
                     available_cgras, total_cgra_runtime = re_allocate(running, current_time, available_cgras, events, total_cgra_runtime)
+
+        print("="*20)
 
     # Calculate ratio for each kernel
     for kernel in kernels:
@@ -684,27 +708,34 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_bos
 
 
         df = pd.DataFrame(all_results)
-        file_name = f'simulation_{csvname}_case{i}.csv'
+        file_name = f'./result/simulation_{csvname}_case{i}.csv'
         df.to_csv(file_name, index=False)
 
 
 if __name__ == "__main__":
     baselineCase1=[
         [
-            Kernel(kernel_name="fir.cpp", kernel_id =0, arrive_period =1500000, unroll_factor =1,vector_factor =1, total_iterations =300000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="conv.c", kernel_id =5, arrive_period =2500000, unroll_factor =1,vector_factor =1, total_iterations =400000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="relu.c", kernel_id =6, arrive_period =4000000, unroll_factor =1,vector_factor =1, total_iterations =1000000, cgra_rows= 12, cgra_columns=12) ,
-            Kernel(kernel_name="histogram.cpp", kernel_id =7, arrive_period =1200000, unroll_factor =1,vector_factor =1, total_iterations =262144, cgra_rows= 12, cgra_columns=12) ,
+            # Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
+            # Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=1, total_iterations=524288, cgra_rows=4, cgra_columns=4),
+            # Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=2, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=2, vector_factor=1, total_iterations=524288, cgra_rows=4, cgra_columns=4),
         ]
     ]
-    taskCase1 = [
-        [
-            Kernel(kernel_name="fir.cpp", kernel_id =0, arrive_period =300000, unroll_factor =1,vector_factor =8, total_iterations =300000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="conv.c", kernel_id =5, arrive_period =400000, unroll_factor =1,vector_factor =8, total_iterations =400000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="relu.c", kernel_id =6, arrive_period =1000000, unroll_factor =1,vector_factor =8, total_iterations =1000000, cgra_rows= 4, cgra_columns=4) ,
-            Kernel(kernel_name="histogram.cpp", kernel_id =7, arrive_period =262144, unroll_factor =1,vector_factor =8, total_iterations =262144, cgra_rows= 4, cgra_columns=4) ,
-        ]
-    ]
-    run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_bosting = True, num_cgras=1)  # one cgra is 4x4
-    run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_bosting = False, num_cgras=9)
-    run_multiple_simulations_and_save_to_csv(taskCase1, "Bosting", priority_bosting = True, num_cgras=9)
+    # taskCase1 = [
+    #     [
+    #         Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=2, vector_factor=1, total_iterations=300000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="latnrm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=2, total_iterations=524288, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="spmv.c", kernel_id=6, arrive_period=4571136, unroll_factor=1, vector_factor=4, total_iterations=507904, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="conv.c", kernel_id=7, arrive_period=1200000, unroll_factor=1, vector_factor=2, total_iterations=400000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="relu.c", kernel_id=2, arrive_period=4500000, unroll_factor=2, vector_factor=1, total_iterations=1000000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="histogram.cpp", kernel_id=9, arrive_period=1048576, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="mvt.c", kernel_id=0, arrive_period=13500000, unroll_factor=1, vector_factor=4, total_iterations=1800000, cgra_rows=4, cgra_columns=4),
+    #         Kernel(kernel_name="gemm.c", kernel_id=1, arrive_period=12582912, unroll_factor=1, vector_factor=8, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #     ]
+    # ]
+    # TODO：arrive_period和arrive_times重新计算方式
+    # run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_bosting = False, num_cgras=1)  # one cgra is 12x12
+    # run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_bosting = False, num_cgras=9) # one cgra is 4x4
+    # run_multiple_simulations_and_save_to_csv(taskCase1, "Bosting", priority_bosting = True, num_cgras=9)    # one cgra is 4x4
