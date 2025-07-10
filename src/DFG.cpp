@@ -39,13 +39,6 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
       combine("icmp", "select", "Ctrl");
       combine("icmp", "br", "Ctrl");
       combine("fcmp", "br", "Ctrl");
-      combineMulAdd("CoT");
-      combinePhiAdd("BrT");
-      combine("fcmp", "select", "BrT");
-      combine("icmp", "select", "BrT");
-      combine("icmp", "br", "CoT");
-      combine("fcmp", "br", "CoT");
-      combineAddAdd("BrT");
       needsCycleCalculation = true;
     }
     else if (strategy == "nonlinear") {
