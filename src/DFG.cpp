@@ -949,6 +949,50 @@ void DFG::reorderDFS(set<DFGNode*>* t_visited, list<DFGNode*>* t_targetPath,
 
 }
 
+void DFG::reorderInCriticalFirst() {
+  // Step 1: Uses longest path ordering to initialize levels.
+  reorderInLongest();
+
+  // Step 2: Separates critical and non-critical nodes.
+  std::list<DFGNode*> criticalNodes;
+  std::list<DFGNode*> nonCriticalNodes;
+
+  for (DFGNode* node : nodes) {
+    if (isNodeOnCriticalPath(node)) {
+      criticalNodes.push_back(node);
+    } else {
+      nonCriticalNodes.push_back(node);
+    }
+  }
+
+  // Step 3: Combines them into one reordered list.
+  nodes.clear();
+  for (DFGNode* node : criticalNodes) {
+    nodes.push_back(node);
+    errs() << "[CRITICAL] (" << node->getID() << ") " << *(node->getInst()) << "\n";
+  }
+  for (DFGNode* node : nonCriticalNodes) {
+    nodes.push_back(node);
+    errs() << "[NON-CRITICAL] (" << node->getID() << ") " << *(node->getInst()) << "\n";
+  }
+
+  std::cout << "[reorder DFG with critical path nodes first]\n";
+}
+
+bool DFG::isNodeOnCriticalPath(DFGNode* t_node) {
+  if (!m_cycleNodeLists) return false;
+
+  for (auto cycleListPtr : *m_cycleNodeLists) {
+    if (!cycleListPtr) continue;
+
+    for (auto node : *cycleListPtr) {
+      if (node == t_node) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 // Reorder the DFG nodes in ALAP based on original sequential execution order.
 void DFG::reorderInALAP() {
