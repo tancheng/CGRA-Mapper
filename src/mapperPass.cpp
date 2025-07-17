@@ -72,6 +72,7 @@ namespace {
       bool DVFSAwareMapping         = false;
       int DVFSIslandDim             = 2;
       bool enablePowerGating        = false;
+      bool enableExpandableMapping  = false;
 
       // Option used to split one integer division into 4.
       // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
@@ -158,25 +159,29 @@ namespace {
 
         if (param.find("incrementalMapping") != param.end()) {
           incrementalMapping = param["incrementalMapping"];
-	}
+        }
         if (param.find("supportDVFS") != param.end()) {
           supportDVFS = param["supportDVFS"];
-	}
+        }
         if (param.find("DVFSAwareMapping") != param.end()) {
           DVFSAwareMapping = param["DVFSAwareMapping"];
-	}
+        }
         if (param.find("DVFSIslandDim") != param.end()) {
           DVFSIslandDim = param["DVFSIslandDim"];
-	}
+        }
         if (param.find("enablePowerGating") != param.end()) {
           enablePowerGating = param["enablePowerGating"];
-	}
+        }
+        if (param.find("expandableMapping") != param.end()) {
+          enableExpandableMapping = param["expandableMapping"];
+        }
+
         if (param.find("vectorFactorForIdiv ") != param.end()) {
           vectorFactorForIdiv = param["vectorFactorForIdiv "];
         }
         if (param.find("testingOpcodeOffset") != param.end()) {
           testing_opcode_offset = param["testingOpcodeOffset"];
-	}
+        }
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -226,6 +231,9 @@ namespace {
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          fusionStrategy, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
 			 DVFSAwareMapping, vectorFactorForIdiv);
+      if (enableExpandableMapping) {
+        dfg->reorderInCriticalFirst();
+      }
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, fusionStrategy,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
 			    DVFSIslandDim);
@@ -268,6 +276,13 @@ namespace {
         cout << "==================================\n";
         return false;
       }
+      if (!canMap(cgra, dfg)) {
+        cout << "==================================\n";
+        cout << "[Mapping Fail]\n";
+        return false;
+      }
+
+
       // Heuristic algorithm (hill climbing) to get a valid mapping within
       // a acceptable II.
       bool success = false;
@@ -311,8 +326,10 @@ namespace {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
-        cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
-        cout << "==================================\n";
+        if (enableExpandableMapping) {
+          cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
+          cout << "==================================\n";
+        }
         cout << "[Utilization & DVFS stats]\n";
         mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";
@@ -368,6 +385,33 @@ namespace {
       }
       errs()<<"... done detected loops.size(): "<<targetLoops->size()<<"\n";
       return targetLoops;
+    }
+
+    /*
+     * Early exit if mapping is not possible when no FU can support certain DFG op.
+     */
+    bool canMap(CGRA* t_cgra, DFG* t_dfg) {
+      // need CGRANode::canSupport
+      bool supportMap = false;
+      for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
+          dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
+        bool nodeSupported = false;
+        for (int i=0; i<t_cgra->getRows(); ++i) {
+          for (int j=0; j<t_cgra->getColumns(); ++j) {
+            CGRANode* fu = t_cgra->nodes[i][j];
+            if (fu->canSupport(*dfgNode)) {
+              nodeSupported = true;
+              break;
+            }
+          }
+          if (nodeSupported) break;
+        }
+        if (!nodeSupported) {
+          cout<<"No available CGRA node for DFG node "<<(*dfgNode)->getOpcodeName()<<"\n";
+          return false;
+        }
+      }
+      return true;
     }
   };
 }
