@@ -180,6 +180,11 @@ namespace {
 	}
         if (param.find("multiCycleStrategy") != param.end()) {
           multiCycleStrategy = param["multiCycleStrategy"];
+          // Strategy Definition
+          // Exclusive: Multi-cyce operations occupy tiles exclusively. Other operations can be mapped onto this tile only if the multi-cycle operation finishs its computation.
+          // Distributed: Multi-cycle operations are splitted into multiple single-cycle operations and each of which can be mapped onto a tile.
+          // Inclusive: Multi-cycle operations' execution can overlap with other operations on the same tile.
+          // Note that 
           assert(multiCycleStrategy.compare("exclusive") == 0 or
                  multiCycleStrategy.compare("distributed") == 0 or
                  multiCycleStrategy.compare("inclusive") == 0);

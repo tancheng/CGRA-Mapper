@@ -62,6 +62,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
 
 // Split multi-cycle nodes in the DFG into multiple single-cycle nodes when distributed strategy is adopted.
 // Example: Division takes 8 cycles on our hardware, so each division node in the DFG should be split into 8 sub-nodes, each of which only needs to perform one cycle of division execution.
+// The cycles of the multi-cycle operations are specified by `optLatency` in param.json.
 void DFG::splitNodes() {
   list<DFGNode*>* add_nodes = new list<DFGNode*>();
   int dfgNodeID = nodes.size();
