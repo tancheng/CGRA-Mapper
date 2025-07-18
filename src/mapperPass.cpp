@@ -77,6 +77,7 @@ namespace {
       // Option used to split one integer division into 4.
       // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
       int vectorFactorForIdiv               = 1;
+      string multiCycleStrategy             = "exclusive";
 
       map<string, int>* execLatency = new map<string, int>();
       list<string>* pipelinedOpt    = new list<string>();
@@ -182,6 +183,17 @@ namespace {
         if (param.find("testingOpcodeOffset") != param.end()) {
           testing_opcode_offset = param["testingOpcodeOffset"];
         }
+        if (param.find("multiCycleStrategy") != param.end()) {
+          multiCycleStrategy = param["multiCycleStrategy"];
+          // Strategy Definition
+          // Exclusive: Multi-cyce operations occupy tiles exclusively. Other operations can be mapped onto this tile only if the multi-cycle operation finishs its computation.
+          // Distributed: Multi-cycle operations are splitted into multiple single-cycle operations and each of which can be mapped onto a tile.
+          // Inclusive: Multi-cycle operations' execution can overlap with other operations on the same tile.
+          // Note that 
+          assert(multiCycleStrategy.compare("exclusive") == 0 or
+                 multiCycleStrategy.compare("distributed") == 0 or
+                 multiCycleStrategy.compare("inclusive") == 0);
+	}
         cout<<"Initialize opt latency for DFG nodes: "<<endl;
         for (auto& opt : param["optLatency"].items()) {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
@@ -224,19 +236,21 @@ namespace {
       }
       cout << "==================================\n";
       cout<<"[function \'"<<t_F.getName().str()<<"\' is one of our targets]\n";
+      const bool enableDistributed = multiCycleStrategy.compare("distributed") == 0;
+      const bool enableMultipleOps = multiCycleStrategy.compare("inclusive") == 0;
 
       list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          fusionStrategy, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
-			 DVFSAwareMapping, vectorFactorForIdiv);
+			 DVFSAwareMapping, vectorFactorForIdiv, enableDistributed);
       if (enableExpandableMapping) {
         dfg->reorderInCriticalFirst();
       }
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, fusionStrategy,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
-			    DVFSIslandDim);
+			    DVFSIslandDim, enableMultipleOps);
       cgra->setRegConstraint(regConstraint);
       cgra->setCtrlMemConstraint(ctrlMemConstraint);
       cgra->setBypassConstraint(bypassConstraint);
@@ -324,6 +338,9 @@ namespace {
         cout << "[fail]\n";
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
+        // cout << "==================================\n";
+        cout << "[show opcode count]\n";
+        dfg->showOpcodeDistribution();
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         if (enableExpandableMapping) {

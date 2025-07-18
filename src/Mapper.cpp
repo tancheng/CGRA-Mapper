@@ -27,6 +27,9 @@ Mapper::Mapper(bool t_DVFSAwareMapping) {
 
 int Mapper::getResMII(DFG* t_dfg, CGRA* t_cgra) {
   int ResMII = ceil(float(t_dfg->getNodeCount()) / t_cgra->getFUCount());
+  // For exclusive strategy, the II max be not less than the maximum execution latency.
+  int max_exec_latency = t_dfg->getMaxExecLatency();
+  if (!t_cgra->getSupportInclusive() && max_exec_latency > ResMII) ResMII = max_exec_latency;
   return ResMII;
 }
 
@@ -362,6 +365,7 @@ map<CGRANode*, int>* Mapper::calculateCost(CGRA* t_cgra, DFG* t_dfg,
   list<DFGNode*>* predNodes = t_dfgNode->getPredNodes();
   int latest = -1;
   bool isAnyPredDFGNodeMapped = false;
+
   for(DFGNode* pre: *predNodes) {
 //      cout<<"[DEBUG] how dare to pre node: "<<pre->getID()<<"; CGRA node: "<<t_fu->getID()<<endl;
     if(m_mapping.find(pre) != m_mapping.end()) {

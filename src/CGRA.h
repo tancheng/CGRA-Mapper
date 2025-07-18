@@ -23,6 +23,7 @@ class CGRA {
     int m_rows;
     int m_columns;
     bool m_supportDVFS;
+    bool m_supportInclusive;
     int m_DVFSIslandDim;
     map<int, vector<CGRANode*>> m_DVFSIslands;
     list<string>* m_supportComplex;
@@ -30,7 +31,7 @@ class CGRA {
     void disableSpecificConnections();
 
   public:
-    CGRA(int, int, bool, list<string>*, bool, map<string, list<int>*>*, bool, int);
+    CGRA(int, int, bool, list<string>*, bool, map<string, list<int>*>*, bool, int, bool=true);
     CGRANode ***nodes;
     CGRALink **links;
     int getFUCount();
@@ -49,5 +50,6 @@ class CGRA {
     void syncDVFSIsland(CGRANode*);
     list<string>* getSupportComplex();
     list<string>* getSupportCall();
+    bool getSupportInclusive();
 };
 

@@ -101,10 +101,11 @@ class DFG {
     void nonlinear_combine();
     // target control flows
     void ctrlFlow_combine(map<string, list<string>*>*);
+    void splitNodes();
 
   public:
     DFG(Function&, list<Loop*>*, bool, bool, list<string>*, map<string, int>*,
-        list<string>*, map<string, list<string>*>*, bool, bool, int t_vectorFactorForIdiv=4);
+        list<string>*, map<string, list<string>*>*, bool, bool, int t_vectorFactorForIdiv = 4, bool enableDistributed = false);
     list<list<DFGNode*>*>* m_cycleNodeLists;
     //initial ordering of insts
     list<DFGNode*> nodes;
@@ -112,6 +113,7 @@ class DFG {
     list<DFGNode*>* getBFSOrderedNodes();
     list<DFGNode*>* getDFSOrderedNodes();
     int getNodeCount();
+    int getMaxExecLatency();
     void construct(Function&);
     void setupCycles();
     list<list<DFGEdge*>*>* calculateCycles();

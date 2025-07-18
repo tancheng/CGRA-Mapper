@@ -64,6 +64,11 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_mapped = false;
   m_DVFSLatencyMultiple = 1;
   m_synced = false;
+
+  // Indicates whether this CGRA node can execute multiple operations
+  // simultaneously. (e.g.,  single-cycle overlaps with multi-cycle)
+  // i.e., inclusive execution
+  m_canMultipleOps = true;
 }
 
 // FIXME: should handle the case that the data is maintained in the registers
@@ -293,6 +298,10 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   if (not t_opt->isMultiCycleExec(getDVFSLatencyMultiple())) {
     // Single-cycle opt:
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
+      // If this tile don't support inclusive execution (canMultipleOps() == false), and there has been an operation occupied this tile at the current cycle, we cannot map t_opt on it. 
+      if (!canMultipleOps() && !m_dfgNodesWithOccupyStatus[cycle]->empty()) {
+        return false;
+      }
       for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
         if (p.second != IN_PIPE_OCCUPY) {
           return false;
@@ -302,49 +311,63 @@ bool CGRANode::canOccupy(DFGNode* t_opt, int t_cycle, int t_II) {
   } else {
     // Multi-cycle opt.
     for (int cycle=t_cycle%t_II; cycle<m_cycleBoundary; cycle+=t_II) {
-      // Check start cycle.
-      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
-	// Cannot occupy/overlap by/with other operation if DVFS is enabled.
-	if (isDVFSEnabled() and
-	    (p.second == SINGLE_OCCUPY or
-	     p.second == START_PIPE_OCCUPY or
-	     p.second == IN_PIPE_OCCUPY or
-	     p.second == END_PIPE_OCCUPY)) {
-	  return false;
-	}
-        // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
-	else if (p.second == SINGLE_OCCUPY) {
-          return false;
-        }
-        // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
-        else if (p.second == START_PIPE_OCCUPY) {
-          return false;
-        }
-        // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
-        else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
-                 (t_opt->shareFU(p.first))   and
-                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
-          return false;
+      // Can not support simultaneous execution of multiple operations.
+      if (!canMultipleOps()) {
+        int exec_latency = t_opt->getExecLatency(getDVFSLatencyMultiple());
+        for (int duration=0; duration < exec_latency; duration++) {
+          if (cycle + duration >= m_cycleBoundary) {
+            break;
+          }
+          if (!m_dfgNodesWithOccupyStatus[cycle+duration]->empty()) {
+            return false;
+          }
         }
       }
-      if (cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1 >= m_cycleBoundary) {
-        break;
-      }
-      // Check end cycle.
-      for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1])) {
-        // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
-        if (p.second == SINGLE_OCCUPY) {
-          return false;
+      else {
+        // Check start cycle.
+        for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle])) {
+          // Cannot occupy/overlap by/with other operation if DVFS is enabled.
+          if (isDVFSEnabled() and
+              (p.second == SINGLE_OCCUPY or
+              p.second == START_PIPE_OCCUPY or
+              p.second == IN_PIPE_OCCUPY or
+              p.second == END_PIPE_OCCUPY)) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with single-cycle opt' cycle.
+          else if (p.second == SINGLE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with multi-cycle opt's start cycle.
+          else if (p.second == START_PIPE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's start cycle overlaps with multi-cycle opt with the same type:
+          else if ((p.second == IN_PIPE_OCCUPY or p.second == END_PIPE_OCCUPY) and
+                  (t_opt->shareFU(p.first))   and
+                  (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+            return false;
+          }
         }
-        // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
-        else if (p.second == END_PIPE_OCCUPY) {
-          return false;
+        if (cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1 >= m_cycleBoundary) {
+          break;
         }
-        // Multi-cycle opt's end cycle overlaps with multi-cycle opt with the same type:
-        else if ((p.second == IN_PIPE_OCCUPY or p.second == START_PIPE_OCCUPY) and
-                 (t_opt->shareFU(p.first))   and
-                 (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
-          return false;
+        // Check end cycle.
+        for (pair<DFGNode*, int> p: *(m_dfgNodesWithOccupyStatus[cycle+t_opt->getExecLatency(getDVFSLatencyMultiple())-1])) {
+          // Multi-cycle opt's end cycle overlaps with single-cycle opt' cycle.
+          if (p.second == SINGLE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's end cycle overlaps with multi-cycle opt's end cycle.
+          else if (p.second == END_PIPE_OCCUPY) {
+            return false;
+          }
+          // Multi-cycle opt's end cycle overlaps with multi-cycle opt with the same type:
+          else if ((p.second == IN_PIPE_OCCUPY or p.second == START_PIPE_OCCUPY) and
+                  (t_opt->shareFU(p.first))   and
+                  (not t_opt->isPipelinable() or not p.first->isPipelinable())) {
+            return false;
+          }
         }
       }
     }
@@ -640,6 +663,11 @@ void CGRANode::enableDiv() {
   m_canDiv = true;
 }
 
+void CGRANode::disableMultipleOps() {
+  printf("disabling multiple ops\n");
+  m_canMultipleOps = false;
+}
+
 bool CGRANode::supportComplex(string type) {
   if (type == "") return m_supportComplex;
   for (string t: m_supportComplexType) {
@@ -711,6 +739,10 @@ bool CGRANode::canBr() {
 
 bool CGRANode::canDiv() {
   return m_canDiv;
+}
+
+bool CGRANode::canMultipleOps() {
+  return m_canMultipleOps;
 }
 
 int CGRANode::getX() {

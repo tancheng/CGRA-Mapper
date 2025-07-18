@@ -58,8 +58,14 @@ DFGNode::DFGNode(int t_id, DFGNode* old_node) {
   m_precisionAware = old_node->m_precisionAware;
   m_inst = old_node->m_inst;
   m_stringRef = old_node->m_stringRef;
-  m_predNodes = old_node->m_predNodes;
-  m_succNodes = old_node->m_succNodes;
+  m_predNodes = new list<DFGNode*>();
+  for (DFGNode* predNode: *old_node->getPredNodes()) {
+    m_predNodes->push_back(predNode);
+  }
+  m_succNodes = new list<DFGNode*>();
+  for (DFGNode* succNode: *old_node->getSuccNodes()) {
+    m_succNodes->push_back(succNode);
+  }
   m_opcodeName = old_node->m_opcodeName;
   m_isMapped = old_node->m_isMapped;
   m_numConst = old_node->m_numConst;
@@ -78,6 +84,8 @@ DFGNode::DFGNode(int t_id, DFGNode* old_node) {
   m_isPredicater = old_node->m_isPredicater;
   m_patternNodes = old_node->m_patternNodes;
   m_fuType = old_node->m_fuType;
+  m_supportDVFS = old_node->m_supportDVFS;
+  m_DVFSLatencyMultiple = old_node->m_DVFSLatencyMultiple;
 }
 
 int DFGNode::getID() {
@@ -588,10 +596,16 @@ void DFGNode::initType() {
   } else if (m_opcodeName.compare("intQuantize") == 0) {
     m_optType = "OPT_Quantize";
     m_fuType = "Quantize";
-  } 
+  } else if (getOpcodeName() == "fp2fx") {
+    m_optType = "OPT_FP2FX";
+    m_fuType = "Fp2fx";
+  }
   else {
-    m_optType = "Unfamiliar: " + m_opcodeName;
-    m_fuType = "Unknown";
+    // TODO: Update opcode name of call 
+    m_optType = "Unfamiliar Op: " + getOpcodeName();
+    m_fuType = "Unknown FU for " + getOpcodeName();
+    // printf("Fu Type:  \n");
+    // cout << m_fuType << endl;
   }
 }
 
@@ -627,11 +641,6 @@ list<DFGNode*>* DFGNode::getPredNodes() {
 
 list<DFGNode*>* DFGNode::getSuccNodes() {
   if (m_succNodes != NULL) {
-  //   cout << "succ: ";
-  // for (DFGNode* predNode: *m_succNodes) {
-  //   cout << predNode->getID() << " ";
-  // }
-  // cout << endl;
     return m_succNodes;
   }
     
@@ -650,6 +659,22 @@ void DFGNode::deleteSuccNode(DFGNode* node) {
 
 void DFGNode::deletePredNode(DFGNode* node) {
   getPredNodes()->remove(node);
+}
+
+void DFGNode::deleteAllSuccNodes() {
+  getSuccNodes()->clear();
+}
+
+void DFGNode::deleteAllPredNodes() {
+  getPredNodes()->clear();
+}
+
+void DFGNode::addSuccNode(DFGNode* node) {
+  getSuccNodes()->push_back(node);
+}
+
+void DFGNode::addPredNode(DFGNode* node) {
+  getPredNodes()->push_back(node);
 }
 
 void DFGNode::setInEdge(DFGEdge* t_dfgEdge) {
