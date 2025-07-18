@@ -72,6 +72,7 @@ namespace {
       bool DVFSAwareMapping         = false;
       int DVFSIslandDim             = 2;
       bool enablePowerGating        = false;
+      bool enableExpandableMapping  = false;
 
       // Option used to split one integer division into 4.
       // https://github.com/tancheng/CGRA-Mapper/pull/27#issuecomment-2480362586
@@ -159,25 +160,29 @@ namespace {
 
         if (param.find("incrementalMapping") != param.end()) {
           incrementalMapping = param["incrementalMapping"];
-	}
+        }
         if (param.find("supportDVFS") != param.end()) {
           supportDVFS = param["supportDVFS"];
-	}
+        }
         if (param.find("DVFSAwareMapping") != param.end()) {
           DVFSAwareMapping = param["DVFSAwareMapping"];
-	}
+        }
         if (param.find("DVFSIslandDim") != param.end()) {
           DVFSIslandDim = param["DVFSIslandDim"];
-	}
+        }
         if (param.find("enablePowerGating") != param.end()) {
           enablePowerGating = param["enablePowerGating"];
-	}
+        }
+        if (param.find("expandableMapping") != param.end()) {
+          enableExpandableMapping = param["expandableMapping"];
+        }
+
         if (param.find("vectorFactorForIdiv ") != param.end()) {
           vectorFactorForIdiv = param["vectorFactorForIdiv "];
         }
         if (param.find("testingOpcodeOffset") != param.end()) {
           testing_opcode_offset = param["testingOpcodeOffset"];
-	}
+        }
         if (param.find("multiCycleStrategy") != param.end()) {
           multiCycleStrategy = param["multiCycleStrategy"];
           // Strategy Definition
@@ -240,6 +245,9 @@ namespace {
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
                          fusionStrategy, execLatency, pipelinedOpt, fusionPattern, supportDVFS,
 			 DVFSAwareMapping, vectorFactorForIdiv, enableDistributed);
+      if (enableExpandableMapping) {
+        dfg->reorderInCriticalFirst();
+      }
       CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, fusionStrategy,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
 			    DVFSIslandDim, enableMultipleOps);
@@ -335,8 +343,10 @@ namespace {
         dfg->showOpcodeDistribution();
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
-        cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
-        cout << "==================================\n";
+        if (enableExpandableMapping) {
+          cout << "[ExpandableII: " << mapper->getExpandableII(dfg, II) << "]\n";
+          cout << "==================================\n";
+        }
         cout << "[Utilization & DVFS stats]\n";
         mapper->showUtilization(cgra, dfg, II, isStaticElasticCGRA, enablePowerGating);
         cout << "==================================\n";

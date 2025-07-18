@@ -123,4 +123,6 @@ class DFG {
     void generateDot(Function&, bool);
     void generateJSON();
     void initDVFSLatencyMultiple(int, int, int);
+    void reorderInCriticalFirst();
+    bool isNodeOnCriticalPath(DFGNode*);
 };

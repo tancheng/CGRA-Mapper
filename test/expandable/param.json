@@ -10,6 +10,7 @@
     "fusionStrategy"        : ["ctrl_flow", "nonlinear"],
     "isTrimmedDemo"         : true,
     "heuristicMapping"      : true,
+    "expandableMapping"     : true,
     "parameterizableCGRA"   : false,
     "diagonalVectorization" : false,
     "bypassConstraint"      : 4,
