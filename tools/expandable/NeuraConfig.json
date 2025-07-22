@@ -1,0 +1,7 @@
+{
+  "JSON_NAME": "./param.json",
+  "TIME_OUT_SET": 180,
+  "DO_MAPPING": true,
+  "KERNEL_DIRECTORY": "../../test/kernels",
+  "VECTOR_LANE": 2
+}

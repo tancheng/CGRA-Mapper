@@ -1,0 +1,19 @@
+{
+  "kernel"                : "kernel",
+  "targetFunction"        : false,
+  "targetNested"          : false,
+  "targetLoopsID"         : [1],
+  "doCGRAMapping"         : false,
+  "row"                   : 4,
+  "column"                : 4,
+  "diagonalVectorization" : true,
+  "fusionStrategy"        : [],
+  "isTrimmedDemo"         : true,
+  "heuristicMapping"      : false,
+  "bypassConstraint"      : 4,
+  "isStaticElasticCGRA"   : false,
+  "precisionAware"        : false,
+  "ctrlMemConstraint"     : 200,
+  "regConstraint"         : 8
+}
+

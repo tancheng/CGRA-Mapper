@@ -76,7 +76,7 @@ int kernel(int ni, int nj, int nk,
   for (x = 0; x < total; x++) {
     i = x / NJ;
     j = x % NJ;
-    out += A[i][j] * B[i][j];
+    out += A  [i][j] * B[i][j];
   }
 
   /*

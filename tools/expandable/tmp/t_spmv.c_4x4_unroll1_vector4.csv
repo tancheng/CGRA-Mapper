@@ -1,0 +1,3 @@
+,kernels,DFG nodes,DFG edges,recMII,mappingII,expandableII,utilization
+0,,,,,,,
+1,spmv,17,20,2,2,2,81.25
