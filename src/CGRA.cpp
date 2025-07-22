@@ -79,17 +79,46 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
       } else {
         bool supportAllFUs = param["tiles"][to_string(nodeID)]["supportAllFUs"];
 	if (!supportAllFUs) {
-	  id2Node[nodeID]->disableAllFUs();
-	}
+          id2Node[nodeID]->disableAllFUs();
+
+          auto supportedFUs = param["tiles"][to_string(nodeID)]["supportedFUs"];
+          cout << "Node " << nodeID << " supports: ";
+          for (const auto& fu : supportedFUs) {
+            cout << fu << " ";
+            if (fu == "Add") {
+              id2Node[nodeID]->enableAdd();
+            } else if (fu == "Br") {
+              id2Node[nodeID]->enableBr();
+            } else if (fu == "Cmp") {
+              id2Node[nodeID]->enableCmp();
+            } else if (fu == "Ld") {
+              id2Node[nodeID]->enableLoad();
+            } else if (fu == "Logic") {
+              id2Node[nodeID]->enableLogic();
+            } else if (fu == "MAC") {
+              id2Node[nodeID]->enableMAC();
+            } else if (fu == "Mul") {
+              id2Node[nodeID]->enableMul();
+            } else if (fu == "Phi") {
+              id2Node[nodeID]->enablePhi();
+            } else if (fu == "Ret") {
+              id2Node[nodeID]->enableReturn();
+            } else if (fu == "Sel") {
+              id2Node[nodeID]->enableSel();
+            } else if (fu == "Shift") {
+              id2Node[nodeID]->enableShift();
+            } else if (fu == "St") {
+              id2Node[nodeID]->enableStore();
+            }
+          }
+          cout << " \n " << endl;
+        }
 	if (param["tiles"][to_string(nodeID)].contains("accessMem")) {
 	  if (param["tiles"][to_string(nodeID)]["accessMem"]) {
 	    id2Node[nodeID]->enableLoad();
 	    id2Node[nodeID]->enableStore();
 	  }
 	}
-
-	// TODO: need to take care of supportedFUs:
-	//
       }
     }
 
