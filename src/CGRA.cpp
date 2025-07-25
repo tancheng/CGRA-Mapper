@@ -78,9 +78,23 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
         id2Node[nodeID]->disable();
       } else {
         bool supportAllFUs = param["tiles"][to_string(nodeID)]["supportAllFUs"];
-	if (!supportAllFUs) {
+        // Take care of supportedFUs(part 5)
+        if (supportAllFUs) {
+          // Enable all FUs manually
+          id2Node[nodeID]->enableAdd();
+          id2Node[nodeID]->enableBr();
+          id2Node[nodeID]->enableCmp();
+          id2Node[nodeID]->enableLoad();
+          id2Node[nodeID]->enableLogic();
+          id2Node[nodeID]->enableMAC();
+          id2Node[nodeID]->enableMul();
+          id2Node[nodeID]->enablePhi();
+          id2Node[nodeID]->enableReturn();
+          id2Node[nodeID]->enableSel();
+          id2Node[nodeID]->enableShift();
+          id2Node[nodeID]->enableStore();
+        } else {
           id2Node[nodeID]->disableAllFUs();
-
           auto supportedFUs = param["tiles"][to_string(nodeID)]["supportedFUs"];
           cout << "Node " << nodeID << " supports: ";
           for (const auto& fu : supportedFUs) {
