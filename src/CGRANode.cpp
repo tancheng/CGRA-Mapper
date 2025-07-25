@@ -43,16 +43,15 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_regs_timing = NULL;
 
   // used for parameterizable CGRA functional units
-  // Take care of supportedFUs(part 4)(true->false)
-  m_canAdd   = false;
-  m_canMul   = false;
-  m_canShift = false;
-  m_canPhi   = false;
-  m_canSel   = false;
-  m_canCmp   = false;
-  m_canMAC   = false;
-  m_canLogic = false;
-  m_canBr    = false;
+  m_canAdd   = true;
+  m_canMul   = true;
+  m_canShift = true;
+  m_canPhi   = true;
+  m_canSel   = true;
+  m_canCmp   = true;
+  m_canMAC   = true;
+  m_canLogic = true;
+  m_canBr    = true;
 
   // supportDVFS should be leveraged with the optLatency (i.e., multi-
   // cycle execution) to mimic the operations running on the low

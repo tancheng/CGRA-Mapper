@@ -78,7 +78,6 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
         id2Node[nodeID]->disable();
       } else {
         bool supportAllFUs = param["tiles"][to_string(nodeID)]["supportAllFUs"];
-        // Take care of supportedFUs(part 5)
         if (supportAllFUs) {
           // Enable all FUs manually
           id2Node[nodeID]->enableAdd();
