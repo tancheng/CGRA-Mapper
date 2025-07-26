@@ -52,6 +52,7 @@ CGRANode::CGRANode(int t_id, int t_x, int t_y) {
   m_canMAC   = true;
   m_canLogic = true;
   m_canBr    = true;
+  m_canReturn = true;
 
   // supportDVFS should be leveraged with the optLatency (i.e., multi-
   // cycle execution) to mimic the operations running on the low
