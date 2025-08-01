@@ -23,7 +23,7 @@ DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mapp
 DICT_COLUMN = len(DICT_CSV)
 JSON_NAME = "./param.json"   # name of generated json file
 TIME_OUT_SET = 180
-DO_MAPPING = False
+DO_MAPPING = True
 KERNEL_DIRECTORY = "../../test/kernels"
 VECTOR_LANE = 2
 
@@ -142,6 +142,8 @@ class Kernel:
             compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor == 1 and self.vector_factor != 1:
             compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width={self.vector_factor} -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
+        elif self.kernel_name == "conv.c" and self.unroll_factor == 4:
+            compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-slp-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor != 1 and self.vector_factor == 1:
             compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         else:
@@ -273,11 +275,11 @@ class Kernel:
             "targetFunction": False,
             "targetNested": False,
             "targetLoopsID": [0],
-            "doCGRAMapping": DO_MAPPING,
+            "doCGRAMapping": True,
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": ["default_heterogeneous"],   # "default_heterogeneous"
+            "fusionStrategy": ["default_heterogeneous"],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
@@ -307,7 +309,7 @@ class Kernel:
 
         with open(JSON_NAME, "w") as outfile:
             outfile.write(json_object)
-        if DO_MAPPING:
+        if True:
             self.map_kernel()
         else:
             self.map_kernel_skip()
@@ -321,17 +323,28 @@ class Kernel:
 
         Returns: csv_name
         """
-        csv_name = f'./tmp/t_{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
-
+        # 计算 CSV 文件路径，根据 kernel_name 是否为特定值使用不同的前缀
+        prefix = './tmp/fftDtw/t_' if self.kernel_name in {'fft.c', 'dtw.cpp'} else './tmp/t_'
+        csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
+        print(csv_name)
         try:
             df = pd.read_csv(csv_name)
             self.base_ii = int(df['mappingII'].iloc[1])
             self.expandable_ii = int(df['expandableII'].iloc[1])
-            self.utilization = float(df['utilization'].iloc[1])/100
+            # 检查是否存在utilization列
+            if 'utilization' in df.columns:
+                self.utilization = float(df['utilization'].iloc[1]) / 100
+            else:
+                self.get_ii()
+                return csv_name
         except FileNotFoundError:
             print(f"CSV file {csv_name} not found.")
+            self.get_ii()
+            return csv_name
         except ValueError:
             print(f"Error extracting II values from {csv_name}.")
+            self.get_ii()
+            return csv_name
 
         return csv_name
 
@@ -422,8 +435,7 @@ class KernelInstance:
             execution_duration = self.kernel.total_iterations * self.ii
         else:
             self.ii = self.kernel.base_ii
-            execution_duration = math.ceil(self.kernel.total_iterations * self.ii * (self.kernel.vector_factor / (VECTOR_LANE * self.allocated_cgras)))
-            print(self.kernel.vector_factor / (VECTOR_LANE * self.allocated_cgras))
+            execution_duration = self.kernel.total_iterations * self.ii * math.ceil(self.kernel.vector_factor / (VECTOR_LANE * self.allocated_cgras))
         print(f"Calculated execution duration for {self.kernel.kernel_name}: {execution_duration} cycles (II={self.ii}, iterations={self.kernel.total_iterations})")
         return execution_duration
 
@@ -457,12 +469,17 @@ class SystemIdleTracker:
         self.last_active_time = 0  # Timestamp when system was last active
         self.idle_periods = []     # List to store idle periods (start, end)
 
-    def check_idle_period(self, current_time, available_cgras):
-        """Check and record idle periods
+        # New attributes for waiting time tracking
+        self.waiting_start_time = None  # Timestamp when waiting started
+        self.waiting_periods = []       # List to store non-overlapping waiting periods (start, end)
+
+    def check_idle_period(self, current_time, available_cgras, waiting_kernels):
+        """Check and record idle periods and waiting times
 
         Args:
             current_time: Current simulation time (passed from simulate function)
             available_cgras: Number of currently available CGRAs
+            waiting_kernels: Number of kernels in the waiting queue
         """
         # Detect system-wide idle state (all CGRAs available)
         if available_cgras == self.num_cgras and current_time > self.last_active_time:
@@ -471,6 +488,15 @@ class SystemIdleTracker:
             # Update last active time if system is not fully idle
             self.last_active_time = current_time
 
+        # Track waiting time
+        if waiting_kernels and self.waiting_start_time is None:
+            # Start tracking waiting time if queue was empty and now has kernels
+            self.waiting_start_time = current_time
+        elif not waiting_kernels and self.waiting_start_time is not None:
+            # End tracking and record waiting period if queue was non-empty and now empty
+            self.waiting_periods.append((self.waiting_start_time, current_time))
+            self.waiting_start_time = None  # Reset for next waiting period
+
     @property
     def total_idle_duration(self) -> int:
         """Calculate total accumulated idle time
@@ -478,7 +504,16 @@ class SystemIdleTracker:
         Returns:
             Sum of all idle periods in cycles
         """
-        return sum(end - start for start, end in self.idle_periods)  # Fixed typo: idle_periods
+        return sum(end - start for start, end in self.idle_periods)
+
+    @property
+    def total_waiting_time_nolap(self) -> int:
+        """Calculate total non-overlapping waiting time
+
+        Returns:
+            Sum of all waiting periods in cycles
+        """
+        return sum(end - start for start, end in self.waiting_periods)
 
     def get_utilization(self, total_cgra_runtime, current_time) -> float:
         """Calculate system utilization rate
@@ -494,14 +529,14 @@ class SystemIdleTracker:
             return 0.0
         # Utilization = Actual busy time / Possible busy time
         possible_busy_time = (current_time - self.total_idle_duration) * self.num_cgras
-        print(f"Total idle duration is {self.total_idle_duration}")
+        print(f"Total idle duration is {self.total_idle_duration}, total_cgra_runtime is {total_cgra_runtime}")
         return total_cgra_runtime / possible_busy_time if possible_busy_time > 0 else 0.0
 
 # ----------------------------------------------------------------------------
 #   function defination                                                      /
 # ----------------------------------------------------------------------------
 
-def allocate(instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime):
+def allocate(priority_boosting, instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime):
     """
     Allocate CGRAs to a kernel instance.
 
@@ -519,13 +554,25 @@ def allocate(instance, current_time, available_cgras, events, running_instances,
         float: The updated total runtime of all CGRAs.
     """
     runned_kernel_names.append(instance.kernel.kernel_name)
-
+    # HACK：再检查一下 cgra 利用率的问题，已经通过 invalid 查看解决
     # 如果kernel名称中包含"+"，则将分配的CGRAs数量限制为1
-    if '+' in instance.kernel.kernel_name:
-        allocate_cgras = min(1, available_cgras)
-        print(f"Kernel {instance.kernel.kernel_name} contains '+', limiting allocation to 1 CGRA")
+
+    if priority_boosting == 0:
+        # Noboosting 还是给点限制吧
+        if '+' in instance.kernel.kernel_name:
+            allocate_cgras = min(1, available_cgras)
+            print(f"Kernel {instance.kernel.kernel_name} contains '+', limiting allocation to 1 CGRA")
+        elif instance.kernel.vector_factor != 1:    # vector 的一定要限制
+            allocate_cgras = min(1, available_cgras)
+            print(f"Kernel {instance.kernel.kernel_name} is vectorized, limiting allocation to 1 CGRA")
+        elif available_cgras < 6:   # scalar 用这个限制，试过了，1的限制不是很好，会导致 noboosting 比 baseline 差一点
+            allocate_cgras = min(1, available_cgras)
+            print(f"available_cgras is less than 5, limiting allocation to 1 CGRA")
+        else:
+            allocate_cgras = min(instance.max_allocate_cgra, available_cgras)
+        #allocate_cgras = 1
     else:
-        allocate_cgras = min(instance.max_allocate_cgra, available_cgras)
+        allocate_cgras = 1
     available_cgras -= allocate_cgras
     instance.start_time = current_time
     instance.allocated_cgras = allocate_cgras
@@ -535,7 +582,7 @@ def allocate(instance, current_time, available_cgras, events, running_instances,
     print(f"Allocated {allocate_cgras} CGRAs to {instance.kernel.kernel_name} at {current_time}. Execution will end at {instance.end_time}")
     heapq.heappush(events, (instance.end_time, 'end', instance, instance))
     running_instances.append(instance)
-    if instance.kernel.rows == 12 and instance.kernel.columns == 12:
+    if instance.kernel.rows != 4 and instance.kernel.columns != 4:  # HACK: 4x4 是 neura
         total_cgra_runtime += allocate_cgras * execution_duration * instance.kernel.utilization
     else:
         total_cgra_runtime += allocate_cgras * execution_duration
@@ -588,19 +635,28 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         float: Updated total runtime of all CGRAs.
     """
     if not instance.is_valid:
-        print(f"Instance {instance.kernel.kernel_name} is already invalid, skipping re-allocation.")
+        # TODO: 把 Invalid 去除在 running_instance 以外
+        #print(f"Instance {instance.kernel.kernel_name} is already invalid, skipping re-allocation.")
         return available_cgras, total_cgra_runtime
     if instance.allocated_cgras < instance.max_allocate_cgra and available_cgras > 0:
         possible_alloc = min(instance.max_allocate_cgra - instance.allocated_cgras, available_cgras)
         original_allocated_cgras = instance.allocated_cgras
-        original_execution_duration = current_time - instance.start_time
         # Update allocation
         instance.allocated_cgras += possible_alloc
         available_cgras -= possible_alloc
         # Recalculate remaining iterations
         elapsed_duration = current_time - instance.start_time
-        completed_iters = elapsed_duration // instance.ii
+        # 计算等效标量迭代次数（考虑向量化和CGRAs）
+        # 使用原始分配的CGRAs和II计算已完成的等效标量迭代
+        if instance.kernel.vector_factor == 1:
+            # 标量情况
+            completed_iters = elapsed_duration // instance.ii
+        else:
+            # 向量情况 - 考虑向量化效率
+            effective_ii = instance.ii * math.ceil(instance.kernel.vector_factor / (VECTOR_LANE * original_allocated_cgras))
+            completed_iters = int(elapsed_duration // effective_ii)
         remaining_iters = instance.kernel.total_iterations - completed_iters
+        print(f"current_time {current_time}, completed_iters {completed_iters}")
         # Update II and remaining_execution_duration
         if instance.kernel.vector_factor == 1:
             # Scalar case
@@ -614,9 +670,10 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         else:
             # Vector case
             vector_divisor = VECTOR_LANE * instance.allocated_cgras
-            remaining_execution_duration = math.ceil(remaining_iters * instance.ii * (instance.kernel.vector_factor / vector_divisor))
+            remaining_execution_duration = remaining_iters * instance.ii * math.ceil(instance.kernel.vector_factor / vector_divisor)
         # Schedule new end event
         new_end_time = current_time + remaining_execution_duration
+        print(f"remaining_iters {remaining_iters}, remaining_execution_duration {remaining_execution_duration}")
         print(f"Re-allocated succeed. {instance.kernel.kernel_name}. Add {possible_alloc} CGRAs at {current_time}. Old end time: {instance.end_time}. New end time: {new_end_time}")
         # Create a new valid instance for the new end event
         new_instance = instance.copy_with_valid()  # Assume there is a copy method in KernelInstance class
@@ -640,8 +697,52 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
     return available_cgras, total_cgra_runtime
 
 
-def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
+def handle_reallocation(priority_boosting, running, current_time, available_cgras, events, total_cgra_runtime):
     """
+    Checks if a running instance should be re-allocated based on the priority_boosting strategy.
+
+    Args:
+        priority_boosting (int): The strategy for re-allocation.
+                                 0: No re-allocation.
+                                 1: Re-allocate for vector_factor=1 kernels without '+' in name.
+                                 2: Re-allocate for all vector_factor=1 kernels.
+                                 3: Re-allocate for all kernels.
+        running (object): The currently running instance to check.
+        current_time (float): The current simulation time.
+        available_cgras (int): The number of currently available CGRAs.
+        events (list): The list of simulation events.
+        total_cgra_runtime (float): The accumulated total CGRA runtime.
+
+    Returns:
+        tuple: A tuple containing the updated available_cgras and total_cgra_runtime.
+    """
+    if priority_boosting <= 0:
+        return available_cgras, total_cgra_runtime
+
+    should_reallocate = False
+    kernel_info = running.kernel
+
+    if priority_boosting == 1:
+        # Re-allocate only for kernels with vector_factor=1 and no '+' in the name
+        should_reallocate = (kernel_info.vector_factor == 1 and '+' not in kernel_info.kernel_name)
+    elif priority_boosting == 2:
+        # Re-allocate for all kernels with vector_factor=1 (including those with '+')
+        should_reallocate = (kernel_info.vector_factor == 1)
+    elif priority_boosting == 3:
+        # Re-allocate for all kernels
+        should_reallocate = True
+
+    # If the condition is met, perform the re-allocation
+    if should_reallocate:
+        available_cgras, total_cgra_runtime = re_allocate(
+            running, current_time, available_cgras, events, total_cgra_runtime
+        )
+
+    return available_cgras, total_cgra_runtime
+
+def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
+    """
+    lcm_time=26214400
     Simulate the execution of multiple kernels on a CGRA architecture.
 
     Parameters:
@@ -675,7 +776,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
     total_cgra_runtime = 0
     idle_tracker = SystemIdleTracker(num_cgras=num_cgras)
     arrive_times_list = {
-        kernel.kernel_name: lcm_time // kernel.arrive_period
+        kernel.kernel_name: ((lcm_time // kernel.arrive_period))
         for kernel in kernels
     }
 
@@ -683,7 +784,8 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
     print(f"\033[91mPriority Boosting Level: {priority_boosting}\033[0m")
 
     for kernel in kernels:
-        print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, iterations={kernel.total_iterations}, utilization={kernel.utilization}")
+        print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, \
+              iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_name]}")
 
     # Schedule initial arrivals for all kernels
     for kernel in kernels:
@@ -693,9 +795,13 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
 
     while events:
         event_time, event_type, kernel_or_instance, _ = heapq.heappop(events)
+        if event_type == 'end' and not kernel_or_instance.is_valid:
+            print(f"Skipping invalid event for {kernel_or_instance.kernel.kernel_name}")
+            continue
+
         current_time = event_time
-        idle_tracker.check_idle_period(current_time, available_cgras)
         print("="*20)
+        idle_tracker.check_idle_period(current_time, available_cgras, waiting_instances)
         print(f"Processing event at time {current_time}: type={event_type}, kernel={kernel_or_instance.kernel_name if event_type == 'arrival' else kernel_or_instance.kernel.kernel_name}")
 
         if event_type == 'arrival':
@@ -712,19 +818,14 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
 
             # Try to allocate CGRAs
             if available_cgras >= 1:
-                available_cgras, total_cgra_runtime = allocate(instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime)
+                available_cgras, total_cgra_runtime = allocate(priority_boosting, instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime)
+                available_cgras, total_cgra_runtime = handle_reallocation(priority_boosting, instance, current_time, available_cgras, events, total_cgra_runtime)
             else:
                 waiting_instances.append(instance)
                 print(f"No available CGRAs for {kernel.kernel_name}. Added to waiting queue.")
 
         elif event_type == 'end':
             instance = kernel_or_instance
-            if not instance.is_valid:
-                # If instance is invalid, means it is re_allocated.
-                print(f"Ignoring invalid end event for {instance.kernel.kernel_name}")
-                # if instance in running_instances:
-                #     running_instances.remove(instance)
-                continue
             # Release CGRAs
             available_cgras, total_cgra_runtime = release(instance, current_time, available_cgras, running_instances, completed_instances,kernel_latency, total_cgra_runtime)
 
@@ -736,38 +837,21 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
             while waiting_instances and available_cgras >= 1:
                 instance = waiting_instances.pop(0)
                 print(f"Allocating CGRAs to waiting instance {instance.kernel.kernel_name}")
-                available_cgras, total_cgra_runtime = allocate(instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime)
+                available_cgras, total_cgra_runtime = allocate(priority_boosting, instance, current_time, available_cgras, events, running_instances, runned_kernel_names, total_cgra_runtime)
+                available_cgras, total_cgra_runtime = handle_reallocation(priority_boosting, instance, current_time, available_cgras, events, total_cgra_runtime)
 
             # Check running instances for possible re-allocation
             # if priority_boosting:
             #     for running in running_instances:
             #         available_cgras, total_cgra_runtime = re_allocate(running, current_time, available_cgras, events, total_cgra_runtime)
-            if priority_boosting > 0:
-                for running in running_instances:
-                    # 根据priority_boosting决定是否进行re-allocate
-                    should_reallocate = False
-
-                    if priority_boosting == 1:
-                        # 只对vector=1且名字不带"+"的kernel进行re-allocate
-                        should_reallocate = (
-                            running.kernel.vector_factor == 1 and
-                            '+' not in running.kernel.kernel_name
-                        )
-                    elif priority_boosting == 2:
-                        # 只对vector=1的kernel进行re-allocate(包括带"+"的)
-                        should_reallocate = (running.kernel.vector_factor == 1)
-                    elif priority_boosting == 3:
-                        # 对所有kernel进行re-allocate
-                        should_reallocate = True
-
-                    # 如果满足条件，则进行re-allocate
-                    if should_reallocate:
-                        available_cgras, total_cgra_runtime = re_allocate(
-                            running, current_time, available_cgras, events, total_cgra_runtime
-                        )
-
+            for running in running_instances[:]:
+                available_cgras, total_cgra_runtime = handle_reallocation(
+                    priority_boosting, running, current_time, available_cgras, events, total_cgra_runtime
+                )
         print("="*20)
 
+    overall_execution = 0
+    overall_waiting = 0
     # Calculate ratio for each kernel
     for kernel in kernels:
         total_execution_duration = sum(
@@ -777,9 +861,12 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
         total_duration = total_execution_duration + total_waiting_duration
         kernel_execution_ratio[kernel.kernel_name] = total_execution_duration / total_duration if total_duration > 0 else 0
         kernel_waiting_ratio[kernel.kernel_name] = total_waiting_duration / total_duration if total_duration > 0 else 0
+        overall_execution += total_execution_duration
+        overall_waiting += total_waiting_duration
 
     # Calculate utilization of total CGRAs
     cgra_utilization = idle_tracker.get_utilization(total_cgra_runtime, current_time)
+    waiting_time_nolap = idle_tracker.total_waiting_time_nolap
     overall_latency = current_time  # when all kernels are done
 
     print(f"Simulation completed. Kernel latencies: {kernel_latency}")
@@ -788,10 +875,12 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=40000000):
     print(f"Kernel Runned List: {runned_kernel_names}")
     print(f"CGRA utilization: {cgra_utilization}")
     print(f"overall latency: {overall_latency}")
-    return kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency
+    print(f"overall execution: {overall_execution}")
+    print(f"overall waiting_time_nolap: {waiting_time_nolap}")
+    return kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution
 
 
-def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boosting, num_cgras=9):
+def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boosting, kernel_case, num_cgras=9):
     """
     Run multiple simulations and save the results to a CSV file.
 
@@ -802,7 +891,7 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
         num_cgras (int): The number of CGRAs, default 9.
     """
     for i, kernels in enumerate(kernels_list, start = 1):
-        kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency = simulate(num_cgras, kernels, priority_boosting)
+        kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution = simulate(num_cgras, kernels, priority_boosting)
 
         # Calculate fastest, slowest, and average execution duration per kernel
         execution_stats = {}
@@ -821,11 +910,13 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
 
         # Calculate fastest, slowest, and average waiting duration per kernel
         waiting_stats = {}
+        overall_avg_waiting = 0
         for kernel_name, waiting_durations in kernel_waiting_distribution.items():
             if waiting_durations:
                 fastest = min(waiting_durations)
                 slowest = max(waiting_durations)
                 average = sum(waiting_durations) / len(waiting_durations)
+                overall_avg_waiting += average
                 total = sum(waiting_durations)
                 waiting_stats[kernel_name] = {
                     "fastest_waiting_duration": fastest,
@@ -853,7 +944,9 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
                 "Execution_duration Ratio": kernel_execution_ratio[kernel_name],
                 "Waiting_duration Ratio": kernel_waiting_ratio[kernel_name],
                 "Overall_Case_Latency": overall_latency,
-                "CGRA Utilization": cgra_utilization,
+                "Overall_Execution": overall_execution,
+                "Sum_Average_Waiting_duration": overall_avg_waiting,
+                "CGRA_Utilization": cgra_utilization,
                 "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", None))/overall_latency,
                 "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency,
                 "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", None) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency
@@ -862,7 +955,7 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
 
 
         df = pd.DataFrame(all_results)
-        file_name = f'./result/simulation_{csvname}_case{i}.csv'
+        file_name = f'./result/simulation_{kernel_case}_{csvname}.csv'
         df.to_csv(file_name, index=False)
 
 
@@ -870,20 +963,33 @@ if __name__ == "__main__":
     baselineCase1=[
         [
             #Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=1, vector_factor=8, total_iterations=300000, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="latnrm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="latnrm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            #Kernel(kernel_name="latnrm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=4, cgra_columns=4)
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=2, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=4, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=2, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=4, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=12, cgra_columns=12)
             #Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
             #Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=8, total_iterations=524288, cgra_rows=4, cgra_columns=4),
-             Kernel(kernel_name="spmv.c", kernel_id=6, arrive_period=4571136, unroll_factor=2, vector_factor=1, total_iterations=507904, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="conv.c", kernel_id=7, arrive_period=1200000, unroll_factor=1, vector_factor=8, total_iterations=400000, cgra_rows=4, cgra_columns=4),
+             #Kernel(kernel_name="spmv.c", kernel_id=6, arrive_period=4571136, unroll_factor=2, vector_factor=1, total_iterations=507904, cgra_rows=4, cgra_columns=4),
+            #Kernel(kernel_name="conv.c", kernel_id=7, arrive_period=1200000, unroll_factor=4, vector_factor=1, total_iterations=400000, cgra_rows=4, cgra_columns=4),
             # Kernel(kernel_name="relu.c", kernel_id=2, arrive_period=4500000, unroll_factor=1, vector_factor=8, total_iterations=1000000, cgra_rows=4, cgra_columns=4),
             # Kernel(kernel_name="histogram.cpp", kernel_id=9, arrive_period=1048576, unroll_factor=1, vector_factor=8, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="mvt.c", kernel_id=0, arrive_period=13500000, unroll_factor=1, vector_factor=8, total_iterations=1800000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="gemm.c", kernel_id=1, arrive_period=12582912, unroll_factor=2, vector_factor=1, total_iterations=2097152, cgra_rows=4, cgra_columns=4)
+            #Kernel(kernel_name="mvt.c", kernel_id=0, arrive_period=13500000, unroll_factor=4, vector_factor=1, total_iterations=1800000, cgra_rows=12, cgra_columns=12),
+            #Kernel(kernel_name="gemm.c", kernel_id=1, arrive_period=12582912, unroll_factor=2, vector_factor=1, total_iterations=2097152, cgra_rows=4, cgra_columns=4)
             # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
             # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=2, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=4, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
+            #Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=4, vector_factor=1, total_iterations=480000, cgra_rows=12, cgra_columns=12)
             # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=16, total_iterations=480000, cgra_rows=4, cgra_columns=4),
             # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=4, total_iterations=480000, cgra_rows=4, cgra_columns=4),
             # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
@@ -914,8 +1020,8 @@ if __name__ == "__main__":
     # ]
 
 
-
+    # TODO: 尽量让排序id 靠前的kernel 向量化
     # TODO：明确 kernel_id 是通过 static execution time 排序， static execution time 越大，id 越小
-    # run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_boosting = False, num_cgras=1)  # one cgra is 12x12
+    #run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_boosting = False, num_cgras=1)  # one cgra is 12x12
     # run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_boosting = False, num_cgras=9) # one cgra is 4x4
-    #run_multiple_simulations_and_save_to_csv(baselineCase1, "Bosting", priority_boosting = True, num_cgras=10)    # one cgra is 4x4
+    run_multiple_simulations_and_save_to_csv(baselineCase1, "Bosting", priority_boosting = 2, num_cgras=9)    # one cgra is 4x4
