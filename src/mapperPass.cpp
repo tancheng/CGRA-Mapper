@@ -405,31 +405,42 @@ namespace {
     }
 
     /*
-     * Early exit if mapping is not possible when no FU can support certain DFG op.
+     * Early exit if mapping is not possible when no FU can support certain DFG op. Lists all the missing fus.
      */
-    bool canMap(CGRA* t_cgra, DFG* t_dfg) {
-      // need CGRANode::canSupport
-      bool supportMap = false;
-      for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
-          dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
+     bool canMap(CGRA* t_cgra, DFG* t_dfg) {
+      std::set<std::string> missing_fus;
+    
+      for (auto it = t_dfg->nodes.begin(); it != t_dfg->nodes.end(); ++it) {
+        DFGNode* node = *it;
         bool nodeSupported = false;
-        for (int i=0; i<t_cgra->getRows(); ++i) {
-          for (int j=0; j<t_cgra->getColumns(); ++j) {
+    
+        for (int i = 0; i < t_cgra->getRows() && !nodeSupported; ++i) {
+          for (int j = 0; j < t_cgra->getColumns(); ++j) {
             CGRANode* fu = t_cgra->nodes[i][j];
-            if (fu->canSupport(*dfgNode)) {
+            if (fu && fu->canSupport(node)) {
               nodeSupported = true;
               break;
             }
           }
-          if (nodeSupported) break;
         }
+    
         if (!nodeSupported) {
-          cout<<"No available CGRA node for DFG node "<<(*dfgNode)->getOpcodeName()<<"\n";
-          return false;
+          missing_fus.insert(node->getOpcodeName());
         }
       }
+    
+      if (!missing_fus.empty()) {
+        std::cout << "[canMap] Missing functional units: ";
+        for (const auto& op : missing_fus) {
+          std::cout << op << " ";
+        }
+        std::cout << std::endl;
+        return false;
+      }
+    
       return true;
     }
+    
   };
 }
 
