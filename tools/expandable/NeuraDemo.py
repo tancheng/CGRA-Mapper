@@ -22,7 +22,7 @@ TEST_BENCHS_NUM = len(TEST_BENCHS)
 DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'expandableII': "", 'utilization': ""}  # column names of generated CSV
 DICT_COLUMN = len(DICT_CSV)
 JSON_NAME = "./param.json"   # name of generated json file
-TIME_OUT_SET = 180
+TIME_OUT_SET = 300
 DO_MAPPING = True
 KERNEL_DIRECTORY = "../../test/kernels"
 VECTOR_LANE = 2
@@ -211,7 +211,7 @@ class Kernel:
                             self.expandable_ii = int(output_line.split("[ExpandableII: ")[1].split("]")[0])
                             dataS.append(self.expandable_ii)
                         if "tile avg fu utilization: " in output_line:
-                            self.utilization = float(output_line.split("avg overall utilization: ")[1].split("%")[0])
+                            self.utilization = float(output_line.split("avg overall utilization: ")[1].split("%")[0])/ 100
                             dataS.append(self.utilization)
                         if "[Mapping Fail]" in output_line:
                             print(f"{self.kernel_name} mapping failed.")
@@ -279,7 +279,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": ["default_heterogeneous"],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
+            "fusionStrategy": [],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
@@ -565,7 +565,7 @@ def allocate(priority_boosting, instance, current_time, available_cgras, events,
         elif instance.kernel.vector_factor != 1:    # vector 的一定要限制
             allocate_cgras = min(1, available_cgras)
             print(f"Kernel {instance.kernel.kernel_name} is vectorized, limiting allocation to 1 CGRA")
-        elif available_cgras < 6:   # scalar 用这个限制，试过了，1的限制不是很好，会导致 noboosting 比 baseline 差一点
+        elif available_cgras < 6: # 6 if num_cgras = 9, 3 if num_cgras = 4, 12 if num_cgras = 16, 20 if num_cgras = 25
             allocate_cgras = min(1, available_cgras)
             print(f"available_cgras is less than 5, limiting allocation to 1 CGRA")
         else:
@@ -754,6 +754,12 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     Returns:
         dict: A dictionary that maps kernel names to their total latencies.
     """
+    # 添加目标检查时间
+    CHECK_TIME = 3276800
+    # 标记是否已输出结果，避免重复输出
+    checked = False
+    checked_num_kernel = None
+
     available_cgras = num_cgras
     events = []  # when a kernel arrives or ends, it is an event
     current_time = 0
@@ -762,7 +768,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     completed_instances = []
     runned_kernel_names = []
     # Dictionary to store per-kernel arrival times
-    kernel_arrival_count = {kernel.kernel_name: 0 for kernel in kernels}
+    kernel_arrival_count = {kernel.kernel_id: 0 for kernel in kernels}
     # Dictionary to store per-kernel overall latency (cycle)
     kernel_latency = {kernel.kernel_name: 0 for kernel in kernels}
     # Dictionary to store per-kernel execution duration distribution
@@ -775,17 +781,19 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     kernel_waiting_ratio = {kernel.kernel_name: 0 for kernel in kernels}
     total_cgra_runtime = 0
     idle_tracker = SystemIdleTracker(num_cgras=num_cgras)
+    # TODO：从函数名换成函数ID
     arrive_times_list = {
-        kernel.kernel_name: ((lcm_time // kernel.arrive_period))
+        kernel.kernel_id: (1)  # TODO: +1 (lcm_time // kernel.arrive_period)
         for kernel in kernels
     }
+    print(arrive_times_list)
 
 
     print(f"\033[91mPriority Boosting Level: {priority_boosting}\033[0m")
 
     for kernel in kernels:
         print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, \
-              iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_name]}")
+              iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_id]}")
 
     # Schedule initial arrivals for all kernels
     for kernel in kernels:
@@ -806,12 +814,12 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
 
         if event_type == 'arrival':
             kernel = kernel_or_instance
-            kernel_arrival_count[kernel.kernel_name] += 1
+            kernel_arrival_count[kernel.kernel_id] += 1
             # Create a new instance
             instance = kernel.create_instance(current_time)
             # Schedule next arrival if within lcm_time
             next_arrival = current_time + kernel.arrive_period
-            if kernel_arrival_count[kernel.kernel_name] < arrive_times_list[kernel.kernel_name]:
+            if kernel_arrival_count[kernel.kernel_id] < arrive_times_list[kernel.kernel_id]:
                 heapq.heappush(events, (next_arrival, 'arrival', kernel, None))
                 print(f"Scheduled next arrival for {kernel.kernel_name} at time {next_arrival}")
 
@@ -848,7 +856,20 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
                 available_cgras, total_cgra_runtime = handle_reallocation(
                     priority_boosting, running, current_time, available_cgras, events, total_cgra_runtime
                 )
+
+        # 检查是否达到目标时间，未输出过结果，且当前时间 >= 目标时间
+        # TODO: 人工修正差的一两个，因为它显示的是这个数字以后的最近的
+        if not checked and current_time >= CHECK_TIME:
+            print(f"\n=== At time {CHECK_TIME}, number of completed functions: {len(completed_instances)} ===")
+            checked_num_kernel = len(completed_instances)
+            checked = True  # 标记已输出，避免重复
+
         print("="*20)
+
+    # 如果整个模拟结束都没达到目标时间，也输出结果
+    if not checked:
+        print(f"\n=== Simulation ended before {CHECK_TIME}, number of completed functions: {len(completed_instances)}")
+        checked_num_kernel = len(completed_instances)
 
     overall_execution = 0
     overall_waiting = 0
@@ -877,7 +898,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     print(f"overall latency: {overall_latency}")
     print(f"overall execution: {overall_execution}")
     print(f"overall waiting_time_nolap: {waiting_time_nolap}")
-    return kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution
+    return kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution, checked_num_kernel, waiting_time_nolap
 
 
 def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boosting, kernel_case, num_cgras=9):
@@ -891,7 +912,7 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
         num_cgras (int): The number of CGRAs, default 9.
     """
     for i, kernels in enumerate(kernels_list, start = 1):
-        kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution = simulate(num_cgras, kernels, priority_boosting)
+        kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution, checked_num_kernel, waiting_time_nolap = simulate(num_cgras, kernels, priority_boosting)
 
         # Calculate fastest, slowest, and average execution duration per kernel
         execution_stats = {}
@@ -947,6 +968,8 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
                 "Overall_Execution": overall_execution,
                 "Sum_Average_Waiting_duration": overall_avg_waiting,
                 "CGRA_Utilization": cgra_utilization,
+                "checked_num_kernel":checked_num_kernel,
+                "waiting_time_nolap":waiting_time_nolap,
                 "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", None))/overall_latency,
                 "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency,
                 "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", None) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency
