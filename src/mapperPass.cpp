@@ -59,7 +59,7 @@ namespace {
       int bypassConstraint          = 4;
       int regConstraint             = 8;
       bool precisionAware           = false;
-      bool vectorizationMode        = "all";
+      std::string vectorizationMode = "all";
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false;
 
