@@ -6,7 +6,7 @@
   "doCGRAMapping"         : true,
   "row"                   : 4,
   "column"                : 4,
-  "diagonalVectorization" : false,
+  "vectorizationMode"     : "all",
   "fusionStrategy"        : [],
   "isTrimmedDemo"         : true,
   "heuristicMapping"      : true,

@@ -59,7 +59,7 @@ namespace {
       int bypassConstraint          = 4;
       int regConstraint             = 8;
       bool precisionAware           = false;
-      bool diagonalVectorization    = false;
+      bool vectorizationMode        = "all";
       bool heuristicMapping         = true;
       bool parameterizableCGRA      = false;
 
@@ -116,7 +116,7 @@ namespace {
 	paramKeys.insert("bypassConstraint");
 	paramKeys.insert("regConstraint");
 	paramKeys.insert("precisionAware");
-	paramKeys.insert("diagonalVectorization");
+	paramKeys.insert("vectorizationMode");
 	paramKeys.insert("fusionStrategy");
 	paramKeys.insert("heuristicMapping");
 	paramKeys.insert("parameterizableCGRA");
@@ -154,7 +154,7 @@ namespace {
         bypassConstraint      = param["bypassConstraint"];
         regConstraint         = param["regConstraint"];
         precisionAware        = param["precisionAware"];
-        diagonalVectorization = param["diagonalVectorization"];
+        vectorizationMode     = param["vectorizationMode"];
         heuristicMapping      = param["heuristicMapping"];
         parameterizableCGRA   = param["parameterizableCGRA"];
 
@@ -248,7 +248,7 @@ namespace {
       if (enableExpandableMapping) {
         dfg->reorderInCriticalFirst();
       }
-      CGRA* cgra = new CGRA(rows, columns, diagonalVectorization, fusionStrategy,
+      CGRA* cgra = new CGRA(rows, columns, vectorizationMode, fusionStrategy,
 		            parameterizableCGRA, additionalFunc, supportDVFS,
 			    DVFSIslandDim, enableMultipleOps);
       cgra->setRegConstraint(regConstraint);
