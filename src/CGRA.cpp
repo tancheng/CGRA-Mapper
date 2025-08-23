@@ -14,7 +14,7 @@
 
 using json = nlohmann::json;
 
-CGRA::CGRA(int t_rows, int t_columns, string t_vectorizationMode,
+CGRA::CGRA(int t_rows, int t_columns, std::string t_vectorizationMode,
 	   list<string>* t_fusionStrategy, bool t_parameterizableCGRA,
 	   map<string, list<int>*>* t_additionalFunc,
 	   bool t_supportDVFS, int t_DVFSIslandDim, bool enableMultipleOps) {
