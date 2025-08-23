@@ -11,7 +11,7 @@
     "isTrimmedDemo"         : true,
     "heuristicMapping"      : true,
     "parameterizableCGRA"   : false,
-    "diagonalVectorization" : false,
+    "vectorizationMode"     : "all",
     "fusionStrategy"        : [],
     "bypassConstraint"      : 4,
     "isStaticElasticCGRA"   : false,

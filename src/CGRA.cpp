@@ -14,7 +14,7 @@
 
 using json = nlohmann::json;
 
-CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
+CGRA::CGRA(int t_rows, int t_columns, std::string t_vectorizationMode,
 	   list<string>* t_fusionStrategy, bool t_parameterizableCGRA,
 	   map<string, list<int>*>* t_additionalFunc,
 	   bool t_supportDVFS, int t_DVFSIslandDim, bool enableMultipleOps) {
@@ -222,19 +222,22 @@ CGRA::CGRA(int t_rows, int t_columns, bool t_diagonalVectorization,
     // }
 
     // Enable the vectorization.
-    if (t_diagonalVectorization) {
+    if (t_vectorizationMode == "interleaved") {
       for (int r=0; r<t_rows; ++r) {
         for (int c=0; c<t_columns; ++c) {
           if((r+c)%2 == 0)
             nodes[r][c]->enableVectorization();
         }
       }
-    } else {
+    } else if (t_vectorizationMode == "all") {
       for (int r=0; r<t_rows; ++r) {
         for (int c=0; c<t_columns; ++c) {
           nodes[r][c]->enableVectorization();
         }
       }
+    } else {
+      // "none" or else will be treated as none.
+      cout<<"No vectorization is enabled on the CGRA nodes."<<endl;
     }
 
     // Enable the heterogeneity.
