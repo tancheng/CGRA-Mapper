@@ -207,10 +207,10 @@ elif args.old_new == 1:
 
 
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_boosting = 0, kernel_case=1, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_boosting = 0, kernel_case=1, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalar", priority_boosting = 1, kernel_case=1, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalarFuse", priority_boosting = 2, kernel_case=1, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=1, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_boosting = 0, kernel_case=1, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalar", priority_boosting = 1, kernel_case=1, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalarFuse", priority_boosting = 2, kernel_case=1, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase1, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=1, num_cgras=9)    # one cgra is 4x4
 
 
 
@@ -275,10 +275,10 @@ elif args.old_new == 2:
 
 
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase2, "Baseline", priority_boosting = 0, kernel_case=2, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "NoBosting", priority_boosting = 0, kernel_case=2, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalar", priority_boosting = 1, kernel_case=2, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalarFuse", priority_boosting = 2, kernel_case=2, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=2, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "NoBosting", priority_boosting = 0, kernel_case=2, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalar", priority_boosting = 1, kernel_case=2, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalarFuse", priority_boosting = 2, kernel_case=2, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase2, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=2, num_cgras=9)    # one cgra is 4x4
 
 
 elif args.old_new == 3:
@@ -338,10 +338,10 @@ elif args.old_new == 3:
             ]
     ]
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase3, "Baseline", priority_boosting = 0, kernel_case=3, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "NoBosting", priority_boosting = 0, kernel_case=3, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalar", priority_boosting = 1, kernel_case=3, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalarFuse", priority_boosting = 2, kernel_case=3, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=3, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "NoBosting", priority_boosting = 0, kernel_case=3, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalar", priority_boosting = 1, kernel_case=3, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalarFuse", priority_boosting = 2, kernel_case=3, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase3, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=3, num_cgras=9)    # one cgra is 4x4
 
 
 elif args.old_new == 5:
@@ -377,10 +377,10 @@ elif args.old_new == 5:
 
 
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase7, "Baseline", priority_boosting = 0, kernel_case=5, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "NoBosting", priority_boosting = 0, kernel_case=5, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalar", priority_boosting = 1, kernel_case=5, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuse", priority_boosting = 2, kernel_case=5, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=5, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "NoBosting", priority_boosting = 0, kernel_case=5, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalar", priority_boosting = 1, kernel_case=5, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuse", priority_boosting = 2, kernel_case=5, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=5, num_cgras=9)    # one cgra is 4x4
 elif args.old_new == 6:
     baselineCase6=[
         [
@@ -411,10 +411,10 @@ elif args.old_new == 6:
     ]
 
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase6, "Baseline", priority_boosting = 0, kernel_case=6, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "NoBosting", priority_boosting = 0, kernel_case=6, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalar", priority_boosting = 1, kernel_case=6, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalarFuse", priority_boosting = 2, kernel_case=6, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=6, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "NoBosting", priority_boosting = 0, kernel_case=6, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalar", priority_boosting = 1, kernel_case=6, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalarFuse", priority_boosting = 2, kernel_case=6, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase6, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=6, num_cgras=9)    # one cgra is 4x4
 elif args.old_new == 7:
     baselineCase7=[
             [
@@ -444,10 +444,10 @@ elif args.old_new == 7:
             ]
     ]
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase7, "Baseline", priority_boosting = 0, kernel_case=7, num_cgras=1)  # one cgra is 12x12
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "NoBosting", priority_boosting = 0, kernel_case=7, num_cgras=9)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalar", priority_boosting = 1, kernel_case=7, num_cgras=9) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuse", priority_boosting = 2, kernel_case=7, num_cgras=9)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=7, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "NoBosting", priority_boosting = 0, kernel_case=7, num_cgras=9)  # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalar", priority_boosting = 1, kernel_case=7, num_cgras=9) # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuse", priority_boosting = 2, kernel_case=7, num_cgras=9)    # one cgra is 4x4
+    # NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase7, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=7, num_cgras=9)    # one cgra is 4x4
 
 elif args.old_new == 72:
     # TODO:8x8 下relu U 为2,spmv,conv的U和V为1
@@ -514,55 +514,55 @@ NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=21, arrive_period=204
             ]
     ]
 
-    taskCase72=[
-                [
-                    NeuraDemo.Kernel(kernel_name="fir.cpp", kernel_id=7, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=2048, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="latnrm.c", kernel_id=8, arrive_period=327680, unroll_factor=4, vector_factor=1, total_iterations=1280, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=2, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=4, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=819200, unroll_factor=4, vector_factor=1, total_iterations=65536, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="conv.c", kernel_id=1, arrive_period=6553600, unroll_factor=4, vector_factor=1, total_iterations=655360, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=5, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=0, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=6, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=12, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=9, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=10, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=11, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=13, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=14, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=29, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=30, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=31, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=32, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=15, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=16, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=17, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=18, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=19, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=20, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-                       NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=21, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=22, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=23, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=24, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=25, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=26, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=27, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=28, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=29, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=30, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=31, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
-                    NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=32, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    # taskCase72=[
+    #             [
+    #                 NeuraDemo.Kernel(kernel_name="fir.cpp", kernel_id=7, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=2048, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="latnrm.c", kernel_id=8, arrive_period=327680, unroll_factor=4, vector_factor=1, total_iterations=1280, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=2, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=4, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=819200, unroll_factor=4, vector_factor=1, total_iterations=65536, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="conv.c", kernel_id=1, arrive_period=6553600, unroll_factor=4, vector_factor=1, total_iterations=655360, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=5, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=0, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=6, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=12, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=9, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=10, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=11, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=13, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=14, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=29, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=30, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=31, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=32, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=15, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=16, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=17, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=18, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=19, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="gemm.c", kernel_id=20, arrive_period=5242880, unroll_factor=1, vector_factor=16, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
+    #                    NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=21, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=22, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=23, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="relu+histogram.c", kernel_id=24, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=25, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=26, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=27, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="mvt.c", kernel_id=28, arrive_period=204800, unroll_factor=4, vector_factor=1, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=29, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=30, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="fft.c", kernel_id=31, arrive_period=327680, unroll_factor=1, vector_factor=16, total_iterations=112640, cgra_rows=4, cgra_columns=4),
+    #                 NeuraDemo.Kernel(kernel_name="dtw.cpp", kernel_id=32, arrive_period=819200, unroll_factor=1, vector_factor=16, total_iterations=16384, cgra_rows=4, cgra_columns=4),
 
-                ]
-    ]
+    #             ]
+    # ]
 
 
     NeuraDemo.run_multiple_simulations_and_save_to_csv(baselineCase72, "Baseline", priority_boosting = 0, kernel_case=72, num_cgras=1)  # one cgra is 8x8
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "NoBosting", priority_boosting = 0, kernel_case=72, num_cgras=4)  # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalar", priority_boosting = 1, kernel_case=72, num_cgras=4) # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalarFuse", priority_boosting = 2, kernel_case=72, num_cgras=4)    # one cgra is 4x4
-    NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=72, num_cgras=4)    # one cgra is 4x4
+    #NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "NoBosting", priority_boosting = 0, kernel_case=72, num_cgras=4)  # one cgra is 4x4
+    #NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalar", priority_boosting = 1, kernel_case=72, num_cgras=4) # one cgra is 4x4
+    #NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalarFuse", priority_boosting = 2, kernel_case=72, num_cgras=4)    # one cgra is 4x4
+    #NeuraDemo.run_multiple_simulations_and_save_to_csv(taskCase72, "BostingScalarFuseVector", priority_boosting = 3, kernel_case=72, num_cgras=4)    # one cgra is 4x4
 elif args.old_new == 73:
     # TODO:12x12 下relu,spmv,conv,mvt的U和V为1
     # baselineCase73=[

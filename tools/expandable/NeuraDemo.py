@@ -211,7 +211,7 @@ class Kernel:
                             self.expandable_ii = int(output_line.split("[ExpandableII: ")[1].split("]")[0])
                             dataS.append(self.expandable_ii)
                         if "tile avg fu utilization: " in output_line:
-                            self.utilization = float(output_line.split("avg overall utilization: ")[1].split("%")[0])/ 100
+                            self.utilization = min(float(output_line.split("avg overall utilization: ")[1].split("%")[0])/100,1)
                             dataS.append(self.utilization)
                         if "[Mapping Fail]" in output_line:
                             print(f"{self.kernel_name} mapping failed.")
@@ -279,7 +279,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": [],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
+            "fusionStrategy": ["default_heterogeneous"],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
@@ -333,7 +333,7 @@ class Kernel:
             self.expandable_ii = int(df['expandableII'].iloc[1])
             # 检查是否存在utilization列
             if 'utilization' in df.columns:
-                self.utilization = float(df['utilization'].iloc[1]) / 100
+                self.utilization = min(float(df['utilization'].iloc[1]),1.0)
             else:
                 self.get_ii()
                 return csv_name
@@ -783,7 +783,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     idle_tracker = SystemIdleTracker(num_cgras=num_cgras)
     # TODO：从函数名换成函数ID
     arrive_times_list = {
-        kernel.kernel_id: (1)  # TODO: +1 (lcm_time // kernel.arrive_period)
+        kernel.kernel_id: ((lcm_time // kernel.arrive_period))  # TODO: +1 (lcm_time // kernel.arrive_period)
         for kernel in kernels
     }
     print(arrive_times_list)

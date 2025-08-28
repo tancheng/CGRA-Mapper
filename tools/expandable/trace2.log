@@ -1,0 +1,682 @@
+./tmp/t_fir.cpp_12x12_unroll1_vector4.csv
+Kernel fir.cpp initialized with arrive_period=102400, unroll_factor=1, vector_factor=4
+./tmp/t_latnrm.c_12x12_unroll2_vector1.csv
+Kernel latnrm.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+./tmp/fftDtw/t_fft.c_12x12_unroll1_vector1.csv
+Kernel fft.c initialized with arrive_period=102400, unroll_factor=1, vector_factor=1
+./tmp/fftDtw/t_dtw.cpp_12x12_unroll1_vector4.csv
+Kernel dtw.cpp initialized with arrive_period=327680, unroll_factor=1, vector_factor=4
+./tmp/t_spmv.c_12x12_unroll2_vector1.csv
+Kernel spmv.c initialized with arrive_period=327680, unroll_factor=2, vector_factor=1
+./tmp/t_conv.c_12x12_unroll2_vector1.csv
+Kernel conv.c initialized with arrive_period=1638400, unroll_factor=2, vector_factor=1
+./tmp/t_mvt.c_12x12_unroll2_vector1.csv
+Kernel mvt.c initialized with arrive_period=163840, unroll_factor=2, vector_factor=1
+./tmp/t_gemm.c_12x12_unroll1_vector4.csv
+Kernel gemm.c initialized with arrive_period=1638400, unroll_factor=1, vector_factor=4
+./tmp/t_relu+histogram.c_12x12_unroll1_vector1.csv
+Kernel relu+histogram.c initialized with arrive_period=81920, unroll_factor=1, vector_factor=1
+./tmp/t_fir.cpp_4x4_unroll1_vector4.csv
+Kernel fir.cpp initialized with arrive_period=102400, unroll_factor=1, vector_factor=4
+./tmp/t_latnrm.c_4x4_unroll2_vector1.csv
+Kernel latnrm.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+./tmp/fftDtw/t_fft.c_4x4_unroll2_vector1.csv
+Kernel fft.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+./tmp/fftDtw/t_dtw.cpp_4x4_unroll1_vector4.csv
+Kernel dtw.cpp initialized with arrive_period=327680, unroll_factor=1, vector_factor=4
+./tmp/t_spmv.c_4x4_unroll2_vector1.csv
+Kernel spmv.c initialized with arrive_period=327680, unroll_factor=2, vector_factor=1
+./tmp/t_conv.c_4x4_unroll2_vector1.csv
+Kernel conv.c initialized with arrive_period=1638400, unroll_factor=2, vector_factor=1
+./tmp/t_mvt.c_4x4_unroll2_vector1.csv
+Kernel mvt.c initialized with arrive_period=163840, unroll_factor=2, vector_factor=1
+./tmp/t_gemm.c_4x4_unroll1_vector4.csv
+Kernel gemm.c initialized with arrive_period=1638400, unroll_factor=1, vector_factor=4
+./tmp/t_relu+histogram.c_4x4_unroll2_vector1.csv
+Kernel relu+histogram.c initialized with arrive_period=81920, unroll_factor=2, vector_factor=1
+{7: 1, 8: 1, 2: 1, 4: 1, 3: 1, 1: 1, 5: 1, 0: 1, 6: 1}
+[91mPriority Boosting Level: 0[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.0798611, arrive_times, 1
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.10648099999999999, arrive_times, 1
+Kernel fft.c base_ii=3, expandable_ii=3,               iterations=112640, utilization=0.256944, arrive_times, 1
+Kernel dtw.cpp base_ii=3, expandable_ii=3,               iterations=4096, utilization=0.175926, arrive_times, 1
+Kernel spmv.c base_ii=8, expandable_ii=7,               iterations=32768, utilization=0.105903, arrive_times, 1
+Kernel conv.c base_ii=2, expandable_ii=2,               iterations=327680, utilization=0.20138899999999998, arrive_times, 1
+Kernel mvt.c base_ii=3, expandable_ii=2,               iterations=8192, utilization=0.24536999999999998, arrive_times, 1
+Kernel gemm.c base_ii=4, expandable_ii=4,               iterations=524288, utilization=0.111111, arrive_times, 1
+Kernel relu+histogram.c base_ii=2, expandable_ii=2,               iterations=262144, utilization=0.20138899999999998, arrive_times, 1
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Kernel gemm.c is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for gemm.c: 4194304 cycles (II=4, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 4194304
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+No available CGRAs for conv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 4194304: type=end, kernel=gemm.c
+Released 1 CGRAs from gemm.c at 4194304. Latency added: 4194304 cycles
+Allocating CGRAs to waiting instance conv.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for conv.c: 655360 cycles (II=2, iterations=327680)
+Allocated 1 CGRAs to conv.c at 4194304. Execution will end at 4849664
+
+=== At time 3276800, number of completed functions: 1 ===
+====================
+====================
+Processing event at time 4849664: type=end, kernel=conv.c
+Released 1 CGRAs from conv.c at 4849664. Latency added: 655360 cycles
+Allocating CGRAs to waiting instance fft.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for fft.c: 337920 cycles (II=3, iterations=112640)
+Allocated 1 CGRAs to fft.c at 4849664. Execution will end at 5187584
+====================
+====================
+Processing event at time 5187584: type=end, kernel=fft.c
+Released 1 CGRAs from fft.c at 5187584. Latency added: 337920 cycles
+Allocating CGRAs to waiting instance spmv.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for spmv.c: 262144 cycles (II=8, iterations=32768)
+Allocated 1 CGRAs to spmv.c at 5187584. Execution will end at 5449728
+====================
+====================
+Processing event at time 5449728: type=end, kernel=spmv.c
+Released 1 CGRAs from spmv.c at 5449728. Latency added: 262144 cycles
+Allocating CGRAs to waiting instance dtw.cpp
+Kernel dtw.cpp is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for dtw.cpp: 24576 cycles (II=3, iterations=4096)
+Allocated 1 CGRAs to dtw.cpp at 5449728. Execution will end at 5474304
+====================
+====================
+Processing event at time 5474304: type=end, kernel=dtw.cpp
+Released 1 CGRAs from dtw.cpp at 5474304. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance mvt.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for mvt.c: 24576 cycles (II=3, iterations=8192)
+Allocated 1 CGRAs to mvt.c at 5474304. Execution will end at 5498880
+====================
+====================
+Processing event at time 5498880: type=end, kernel=mvt.c
+Released 1 CGRAs from mvt.c at 5498880. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance relu+histogram.c
+Kernel relu+histogram.c contains '+', limiting allocation to 1 CGRA
+Calculated execution duration for relu+histogram.c: 524288 cycles (II=2, iterations=262144)
+Allocated 1 CGRAs to relu+histogram.c at 5498880. Execution will end at 6023168
+====================
+====================
+Processing event at time 6023168: type=end, kernel=relu+histogram.c
+Released 1 CGRAs from relu+histogram.c at 6023168. Latency added: 524288 cycles
+Allocating CGRAs to waiting instance fir.cpp
+Kernel fir.cpp is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for fir.cpp: 2048 cycles (II=2, iterations=512)
+Allocated 1 CGRAs to fir.cpp at 6023168. Execution will end at 6025216
+====================
+====================
+Processing event at time 6025216: type=end, kernel=fir.cpp
+Released 1 CGRAs from fir.cpp at 6025216. Latency added: 2048 cycles
+Allocating CGRAs to waiting instance latnrm.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for latnrm.c: 1920 cycles (II=3, iterations=640)
+Allocated 1 CGRAs to latnrm.c at 6025216. Execution will end at 6027136
+====================
+====================
+Processing event at time 6027136: type=end, kernel=latnrm.c
+Released 1 CGRAs from latnrm.c at 6027136. Latency added: 1920 cycles
+====================
+Total idle duration is 0, total_cgra_runtime is 828911.5648768
+Simulation completed. Kernel latencies: {'fir.cpp': 2048, 'latnrm.c': 1920, 'fft.c': 337920, 'dtw.cpp': 24576, 'spmv.c': 262144, 'conv.c': 655360, 'mvt.c': 24576, 'gemm.c': 4194304, 'relu+histogram.c': 524288}
+Kernel execution_ratio: {'fir.cpp': 0.0003399048266485384, 'latnrm.c': 0.0003185592626414934, 'fft.c': 0.06514015001973944, 'dtw.cpp': 0.004489337822671156, 'spmv.c': 0.048102217211574594, 'conv.c': 0.13513513513513514, 'mvt.c': 0.004469273743016759, 'gemm.c': 1.0, 'relu+histogram.c': 0.0870452227133628}
+Kernel execution duration distributions: {'fir.cpp': [2048], 'latnrm.c': [1920], 'fft.c': [337920], 'dtw.cpp': [24576], 'spmv.c': [262144], 'conv.c': [655360], 'mvt.c': [24576], 'gemm.c': [4194304], 'relu+histogram.c': [524288]}
+Kernel Runned List: ['gemm.c', 'conv.c', 'fft.c', 'spmv.c', 'dtw.cpp', 'mvt.c', 'relu+histogram.c', 'fir.cpp', 'latnrm.c']
+CGRA utilization: 0.13752992546987491
+overall latency: 6027136
+overall execution: 6027136
+overall waiting_time_nolap: 6027136
+{7: 1, 8: 1, 2: 1, 4: 1, 3: 1, 1: 1, 5: 1, 0: 1, 6: 1}
+[91mPriority Boosting Level: 0[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.5, arrive_times, 1
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.6875, arrive_times, 1
+Kernel fft.c base_ii=7, expandable_ii=4,               iterations=56320, utilization=0.9801000000000001, arrive_times, 1
+Kernel dtw.cpp base_ii=3, expandable_ii=3,               iterations=4096, utilization=0.9375, arrive_times, 1
+Kernel spmv.c base_ii=8, expandable_ii=7,               iterations=32768, utilization=0.6640619999999999, arrive_times, 1
+Kernel conv.c base_ii=3, expandable_ii=2,               iterations=327680, utilization=0.8125, arrive_times, 1
+Kernel mvt.c base_ii=4, expandable_ii=2,               iterations=8192, utilization=0.890625, arrive_times, 1
+Kernel gemm.c base_ii=2, expandable_ii=2,               iterations=524288, utilization=0.6875, arrive_times, 1
+Kernel relu+histogram.c base_ii=4, expandable_ii=3,               iterations=131072, utilization=1.0, arrive_times, 1
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Kernel gemm.c is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for gemm.c: 2097152 cycles (II=2, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 2097152
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+Calculated execution duration for conv.c: 655360 cycles (II=2, iterations=327680)
+Allocated 2 CGRAs to conv.c at 0. Execution will end at 655360
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+Calculated execution duration for fft.c: 225280 cycles (II=4, iterations=56320)
+Allocated 2 CGRAs to fft.c at 0. Execution will end at 225280
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for spmv.c: 262144 cycles (II=8, iterations=32768)
+Allocated 1 CGRAs to spmv.c at 0. Execution will end at 262144
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+Kernel dtw.cpp is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for dtw.cpp: 24576 cycles (II=3, iterations=4096)
+Allocated 1 CGRAs to dtw.cpp at 0. Execution will end at 24576
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for mvt.c: 32768 cycles (II=4, iterations=8192)
+Allocated 1 CGRAs to mvt.c at 0. Execution will end at 32768
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+Kernel relu+histogram.c contains '+', limiting allocation to 1 CGRA
+Calculated execution duration for relu+histogram.c: 524288 cycles (II=4, iterations=131072)
+Allocated 1 CGRAs to relu+histogram.c at 0. Execution will end at 524288
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 24576: type=end, kernel=dtw.cpp
+Released 1 CGRAs from dtw.cpp at 24576. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance fir.cpp
+Kernel fir.cpp is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for fir.cpp: 2048 cycles (II=2, iterations=512)
+Allocated 1 CGRAs to fir.cpp at 24576. Execution will end at 26624
+====================
+====================
+Processing event at time 26624: type=end, kernel=fir.cpp
+Released 1 CGRAs from fir.cpp at 26624. Latency added: 2048 cycles
+Allocating CGRAs to waiting instance latnrm.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for latnrm.c: 1920 cycles (II=3, iterations=640)
+Allocated 1 CGRAs to latnrm.c at 26624. Execution will end at 28544
+====================
+====================
+Processing event at time 28544: type=end, kernel=latnrm.c
+Released 1 CGRAs from latnrm.c at 28544. Latency added: 1920 cycles
+====================
+====================
+Processing event at time 32768: type=end, kernel=mvt.c
+Released 1 CGRAs from mvt.c at 32768. Latency added: 32768 cycles
+====================
+====================
+Processing event at time 225280: type=end, kernel=fft.c
+Released 2 CGRAs from fft.c at 225280. Latency added: 225280 cycles
+====================
+====================
+Processing event at time 262144: type=end, kernel=spmv.c
+Released 1 CGRAs from spmv.c at 262144. Latency added: 262144 cycles
+====================
+====================
+Processing event at time 524288: type=end, kernel=relu+histogram.c
+Released 1 CGRAs from relu+histogram.c at 524288. Latency added: 524288 cycles
+====================
+====================
+Processing event at time 655360: type=end, kernel=conv.c
+Released 2 CGRAs from conv.c at 655360. Latency added: 655360 cycles
+====================
+====================
+Processing event at time 2097152: type=end, kernel=gemm.c
+Released 1 CGRAs from gemm.c at 2097152. Latency added: 2097152 cycles
+====================
+
+=== Simulation ended before 3276800, number of completed functions: 9
+Total idle duration is 0, total_cgra_runtime is 4706176
+Simulation completed. Kernel latencies: {'fir.cpp': 2048, 'latnrm.c': 1920, 'fft.c': 225280, 'dtw.cpp': 24576, 'spmv.c': 262144, 'conv.c': 655360, 'mvt.c': 32768, 'gemm.c': 2097152, 'relu+histogram.c': 524288}
+Kernel execution_ratio: {'fir.cpp': 0.07692307692307693, 'latnrm.c': 0.06726457399103139, 'fft.c': 1.0, 'dtw.cpp': 1.0, 'spmv.c': 1.0, 'conv.c': 1.0, 'mvt.c': 1.0, 'gemm.c': 1.0, 'relu+histogram.c': 1.0}
+Kernel execution duration distributions: {'fir.cpp': [2048], 'latnrm.c': [1920], 'fft.c': [225280], 'dtw.cpp': [24576], 'spmv.c': [262144], 'conv.c': [655360], 'mvt.c': [32768], 'gemm.c': [2097152], 'relu+histogram.c': [524288]}
+Kernel Runned List: ['gemm.c', 'conv.c', 'fft.c', 'spmv.c', 'dtw.cpp', 'mvt.c', 'relu+histogram.c', 'fir.cpp', 'latnrm.c']
+CGRA utilization: 0.24934217664930555
+overall latency: 2097152
+overall execution: 3825536
+overall waiting_time_nolap: 28544
+{7: 1, 8: 1, 2: 1, 4: 1, 3: 1, 1: 1, 5: 1, 0: 1, 6: 1}
+[91mPriority Boosting Level: 1[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.5, arrive_times, 1
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.6875, arrive_times, 1
+Kernel fft.c base_ii=7, expandable_ii=4,               iterations=56320, utilization=0.9801000000000001, arrive_times, 1
+Kernel dtw.cpp base_ii=3, expandable_ii=3,               iterations=4096, utilization=0.9375, arrive_times, 1
+Kernel spmv.c base_ii=8, expandable_ii=7,               iterations=32768, utilization=0.6640619999999999, arrive_times, 1
+Kernel conv.c base_ii=3, expandable_ii=2,               iterations=327680, utilization=0.8125, arrive_times, 1
+Kernel mvt.c base_ii=4, expandable_ii=2,               iterations=8192, utilization=0.890625, arrive_times, 1
+Kernel gemm.c base_ii=2, expandable_ii=2,               iterations=524288, utilization=0.6875, arrive_times, 1
+Kernel relu+histogram.c base_ii=4, expandable_ii=3,               iterations=131072, utilization=1.0, arrive_times, 1
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Calculated execution duration for gemm.c: 2097152 cycles (II=2, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 2097152
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+Calculated execution duration for conv.c: 983040 cycles (II=3, iterations=327680)
+Allocated 1 CGRAs to conv.c at 0. Execution will end at 983040
+current_time 0, completed_iters 0
+remaining_iters 327680, remaining_execution_duration 655360
+Re-allocated succeed. conv.c. Add 1 CGRAs at 0. Old end time: 983040. New end time: 655360
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+Calculated execution duration for fft.c: 394240 cycles (II=7, iterations=56320)
+Allocated 1 CGRAs to fft.c at 0. Execution will end at 394240
+current_time 0, completed_iters 0
+remaining_iters 56320, remaining_execution_duration 225280
+Re-allocated succeed. fft.c. Add 1 CGRAs at 0. Old end time: 394240. New end time: 225280
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+Calculated execution duration for spmv.c: 262144 cycles (II=8, iterations=32768)
+Allocated 1 CGRAs to spmv.c at 0. Execution will end at 262144
+current_time 0, completed_iters 0
+remaining_iters 32768, remaining_execution_duration 229376
+Re-allocated succeed. spmv.c. Add 1 CGRAs at 0. Old end time: 262144. New end time: 229376
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+Calculated execution duration for dtw.cpp: 24576 cycles (II=3, iterations=4096)
+Allocated 1 CGRAs to dtw.cpp at 0. Execution will end at 24576
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+Calculated execution duration for mvt.c: 32768 cycles (II=4, iterations=8192)
+Allocated 1 CGRAs to mvt.c at 0. Execution will end at 32768
+Re-allocated Failed. (mvt.c at time 0)
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 24576: type=end, kernel=dtw.cpp
+Released 1 CGRAs from dtw.cpp at 24576. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance relu+histogram.c
+Calculated execution duration for relu+histogram.c: 524288 cycles (II=4, iterations=131072)
+Allocated 1 CGRAs to relu+histogram.c at 24576. Execution will end at 548864
+Re-allocated Failed. (mvt.c at time 24576)
+====================
+====================
+Processing event at time 32768: type=end, kernel=mvt.c
+Released 1 CGRAs from mvt.c at 32768. Latency added: 32768 cycles
+Allocating CGRAs to waiting instance fir.cpp
+Calculated execution duration for fir.cpp: 2048 cycles (II=2, iterations=512)
+Allocated 1 CGRAs to fir.cpp at 32768. Execution will end at 34816
+====================
+====================
+Processing event at time 34816: type=end, kernel=fir.cpp
+Released 1 CGRAs from fir.cpp at 34816. Latency added: 2048 cycles
+Allocating CGRAs to waiting instance latnrm.c
+Calculated execution duration for latnrm.c: 1920 cycles (II=3, iterations=640)
+Allocated 1 CGRAs to latnrm.c at 34816. Execution will end at 36736
+Re-allocated Failed. (latnrm.c at time 34816)
+Re-allocated Failed. (latnrm.c at time 34816)
+====================
+====================
+Processing event at time 36736: type=end, kernel=latnrm.c
+Released 1 CGRAs from latnrm.c at 36736. Latency added: 1920 cycles
+====================
+====================
+Processing event at time 225280: type=end, kernel=fft.c
+Released 2 CGRAs from fft.c at 225280. Latency added: 225280 cycles
+====================
+====================
+Processing event at time 229376: type=end, kernel=spmv.c
+Released 2 CGRAs from spmv.c at 229376. Latency added: 229376 cycles
+====================
+Skipping invalid event for spmv.c
+Skipping invalid event for fft.c
+====================
+Processing event at time 548864: type=end, kernel=relu+histogram.c
+Released 1 CGRAs from relu+histogram.c at 548864. Latency added: 524288 cycles
+====================
+====================
+Processing event at time 655360: type=end, kernel=conv.c
+Released 2 CGRAs from conv.c at 655360. Latency added: 655360 cycles
+====================
+Skipping invalid event for conv.c
+====================
+Processing event at time 2097152: type=end, kernel=gemm.c
+Released 1 CGRAs from gemm.c at 2097152. Latency added: 2097152 cycles
+====================
+
+=== Simulation ended before 3276800, number of completed functions: 9
+Total idle duration is 0, total_cgra_runtime is 4902784.0
+Simulation completed. Kernel latencies: {'fir.cpp': 2048, 'latnrm.c': 1920, 'fft.c': 225280, 'dtw.cpp': 24576, 'spmv.c': 229376, 'conv.c': 655360, 'mvt.c': 32768, 'gemm.c': 2097152, 'relu+histogram.c': 524288}
+Kernel execution_ratio: {'fir.cpp': 0.058823529411764705, 'latnrm.c': 0.05226480836236934, 'fft.c': 1.0, 'dtw.cpp': 1.0, 'spmv.c': 1.0, 'conv.c': 1.0, 'mvt.c': 1.0, 'gemm.c': 1.0, 'relu+histogram.c': 0.9552238805970149}
+Kernel execution duration distributions: {'fir.cpp': [2048], 'latnrm.c': [1920], 'fft.c': [225280], 'dtw.cpp': [24576], 'spmv.c': [229376], 'conv.c': [655360], 'mvt.c': [32768], 'gemm.c': [2097152], 'relu+histogram.c': [524288]}
+Kernel Runned List: ['gemm.c', 'conv.c', 'fft.c', 'spmv.c', 'dtw.cpp', 'mvt.c', 'relu+histogram.c', 'fir.cpp', 'latnrm.c']
+CGRA utilization: 0.2597588433159722
+overall latency: 2097152
+overall execution: 3792768
+overall waiting_time_nolap: 36736
+{7: 1, 8: 1, 2: 1, 4: 1, 3: 1, 1: 1, 5: 1, 0: 1, 6: 1}
+[91mPriority Boosting Level: 2[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.5, arrive_times, 1
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.6875, arrive_times, 1
+Kernel fft.c base_ii=7, expandable_ii=4,               iterations=56320, utilization=0.9801000000000001, arrive_times, 1
+Kernel dtw.cpp base_ii=3, expandable_ii=3,               iterations=4096, utilization=0.9375, arrive_times, 1
+Kernel spmv.c base_ii=8, expandable_ii=7,               iterations=32768, utilization=0.6640619999999999, arrive_times, 1
+Kernel conv.c base_ii=3, expandable_ii=2,               iterations=327680, utilization=0.8125, arrive_times, 1
+Kernel mvt.c base_ii=4, expandable_ii=2,               iterations=8192, utilization=0.890625, arrive_times, 1
+Kernel gemm.c base_ii=2, expandable_ii=2,               iterations=524288, utilization=0.6875, arrive_times, 1
+Kernel relu+histogram.c base_ii=4, expandable_ii=3,               iterations=131072, utilization=1.0, arrive_times, 1
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Calculated execution duration for gemm.c: 2097152 cycles (II=2, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 2097152
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+Calculated execution duration for conv.c: 983040 cycles (II=3, iterations=327680)
+Allocated 1 CGRAs to conv.c at 0. Execution will end at 983040
+current_time 0, completed_iters 0
+remaining_iters 327680, remaining_execution_duration 655360
+Re-allocated succeed. conv.c. Add 1 CGRAs at 0. Old end time: 983040. New end time: 655360
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+Calculated execution duration for fft.c: 394240 cycles (II=7, iterations=56320)
+Allocated 1 CGRAs to fft.c at 0. Execution will end at 394240
+current_time 0, completed_iters 0
+remaining_iters 56320, remaining_execution_duration 225280
+Re-allocated succeed. fft.c. Add 1 CGRAs at 0. Old end time: 394240. New end time: 225280
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+Calculated execution duration for spmv.c: 262144 cycles (II=8, iterations=32768)
+Allocated 1 CGRAs to spmv.c at 0. Execution will end at 262144
+current_time 0, completed_iters 0
+remaining_iters 32768, remaining_execution_duration 229376
+Re-allocated succeed. spmv.c. Add 1 CGRAs at 0. Old end time: 262144. New end time: 229376
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+Calculated execution duration for dtw.cpp: 24576 cycles (II=3, iterations=4096)
+Allocated 1 CGRAs to dtw.cpp at 0. Execution will end at 24576
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+Calculated execution duration for mvt.c: 32768 cycles (II=4, iterations=8192)
+Allocated 1 CGRAs to mvt.c at 0. Execution will end at 32768
+Re-allocated Failed. (mvt.c at time 0)
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 24576: type=end, kernel=dtw.cpp
+Released 1 CGRAs from dtw.cpp at 24576. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance relu+histogram.c
+Calculated execution duration for relu+histogram.c: 524288 cycles (II=4, iterations=131072)
+Allocated 1 CGRAs to relu+histogram.c at 24576. Execution will end at 548864
+Re-allocated Failed. (relu+histogram.c at time 24576)
+Re-allocated Failed. (mvt.c at time 24576)
+Re-allocated Failed. (relu+histogram.c at time 24576)
+====================
+====================
+Processing event at time 32768: type=end, kernel=mvt.c
+Released 1 CGRAs from mvt.c at 32768. Latency added: 32768 cycles
+Allocating CGRAs to waiting instance fir.cpp
+Calculated execution duration for fir.cpp: 2048 cycles (II=2, iterations=512)
+Allocated 1 CGRAs to fir.cpp at 32768. Execution will end at 34816
+Re-allocated Failed. (relu+histogram.c at time 32768)
+====================
+====================
+Processing event at time 34816: type=end, kernel=fir.cpp
+Released 1 CGRAs from fir.cpp at 34816. Latency added: 2048 cycles
+Allocating CGRAs to waiting instance latnrm.c
+Calculated execution duration for latnrm.c: 1920 cycles (II=3, iterations=640)
+Allocated 1 CGRAs to latnrm.c at 34816. Execution will end at 36736
+Re-allocated Failed. (latnrm.c at time 34816)
+Re-allocated Failed. (relu+histogram.c at time 34816)
+Re-allocated Failed. (latnrm.c at time 34816)
+====================
+====================
+Processing event at time 36736: type=end, kernel=latnrm.c
+Released 1 CGRAs from latnrm.c at 36736. Latency added: 1920 cycles
+current_time 36736, completed_iters 3040
+remaining_iters 128032, remaining_execution_duration 384096
+Re-allocated succeed. relu+histogram.c. Add 1 CGRAs at 36736. Old end time: 548864. New end time: 420832
+====================
+====================
+Processing event at time 225280: type=end, kernel=fft.c
+Released 2 CGRAs from fft.c at 225280. Latency added: 225280 cycles
+====================
+====================
+Processing event at time 229376: type=end, kernel=spmv.c
+Released 2 CGRAs from spmv.c at 229376. Latency added: 229376 cycles
+====================
+Skipping invalid event for spmv.c
+Skipping invalid event for fft.c
+====================
+Processing event at time 420832: type=end, kernel=relu+histogram.c
+Released 2 CGRAs from relu+histogram.c at 420832. Latency added: 396256 cycles
+====================
+Skipping invalid event for relu+histogram.c
+====================
+Processing event at time 655360: type=end, kernel=conv.c
+Released 2 CGRAs from conv.c at 655360. Latency added: 655360 cycles
+====================
+Skipping invalid event for conv.c
+====================
+Processing event at time 2097152: type=end, kernel=gemm.c
+Released 1 CGRAs from gemm.c at 2097152. Latency added: 2097152 cycles
+====================
+
+=== Simulation ended before 3276800, number of completed functions: 9
+Total idle duration is 0, total_cgra_runtime is 5158848.0
+Simulation completed. Kernel latencies: {'fir.cpp': 2048, 'latnrm.c': 1920, 'fft.c': 225280, 'dtw.cpp': 24576, 'spmv.c': 229376, 'conv.c': 655360, 'mvt.c': 32768, 'gemm.c': 2097152, 'relu+histogram.c': 396256}
+Kernel execution_ratio: {'fir.cpp': 0.058823529411764705, 'latnrm.c': 0.05226480836236934, 'fft.c': 1.0, 'dtw.cpp': 1.0, 'spmv.c': 1.0, 'conv.c': 1.0, 'mvt.c': 1.0, 'gemm.c': 1.0, 'relu+histogram.c': 0.9416013991331458}
+Kernel execution duration distributions: {'fir.cpp': [2048], 'latnrm.c': [1920], 'fft.c': [225280], 'dtw.cpp': [24576], 'spmv.c': [229376], 'conv.c': [655360], 'mvt.c': [32768], 'gemm.c': [2097152], 'relu+histogram.c': [396256]}
+Kernel Runned List: ['gemm.c', 'conv.c', 'fft.c', 'spmv.c', 'dtw.cpp', 'mvt.c', 'relu+histogram.c', 'fir.cpp', 'latnrm.c']
+CGRA utilization: 0.2733256022135417
+overall latency: 2097152
+overall execution: 3664736
+overall waiting_time_nolap: 36736
+{7: 1, 8: 1, 2: 1, 4: 1, 3: 1, 1: 1, 5: 1, 0: 1, 6: 1}
+[91mPriority Boosting Level: 3[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.5, arrive_times, 1
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.6875, arrive_times, 1
+Kernel fft.c base_ii=7, expandable_ii=4,               iterations=56320, utilization=0.9801000000000001, arrive_times, 1
+Kernel dtw.cpp base_ii=3, expandable_ii=3,               iterations=4096, utilization=0.9375, arrive_times, 1
+Kernel spmv.c base_ii=8, expandable_ii=7,               iterations=32768, utilization=0.6640619999999999, arrive_times, 1
+Kernel conv.c base_ii=3, expandable_ii=2,               iterations=327680, utilization=0.8125, arrive_times, 1
+Kernel mvt.c base_ii=4, expandable_ii=2,               iterations=8192, utilization=0.890625, arrive_times, 1
+Kernel gemm.c base_ii=2, expandable_ii=2,               iterations=524288, utilization=0.6875, arrive_times, 1
+Kernel relu+histogram.c base_ii=4, expandable_ii=3,               iterations=131072, utilization=1.0, arrive_times, 1
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Calculated execution duration for gemm.c: 2097152 cycles (II=2, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 2097152
+current_time 0, completed_iters 0
+remaining_iters 524288, remaining_execution_duration 1048576
+Re-allocated succeed. gemm.c. Add 1 CGRAs at 0. Old end time: 2097152. New end time: 1048576
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+Calculated execution duration for conv.c: 983040 cycles (II=3, iterations=327680)
+Allocated 1 CGRAs to conv.c at 0. Execution will end at 983040
+current_time 0, completed_iters 0
+remaining_iters 327680, remaining_execution_duration 655360
+Re-allocated succeed. conv.c. Add 1 CGRAs at 0. Old end time: 983040. New end time: 655360
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+Calculated execution duration for fft.c: 394240 cycles (II=7, iterations=56320)
+Allocated 1 CGRAs to fft.c at 0. Execution will end at 394240
+current_time 0, completed_iters 0
+remaining_iters 56320, remaining_execution_duration 225280
+Re-allocated succeed. fft.c. Add 1 CGRAs at 0. Old end time: 394240. New end time: 225280
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+Calculated execution duration for spmv.c: 262144 cycles (II=8, iterations=32768)
+Allocated 1 CGRAs to spmv.c at 0. Execution will end at 262144
+current_time 0, completed_iters 0
+remaining_iters 32768, remaining_execution_duration 229376
+Re-allocated succeed. spmv.c. Add 1 CGRAs at 0. Old end time: 262144. New end time: 229376
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+Calculated execution duration for dtw.cpp: 24576 cycles (II=3, iterations=4096)
+Allocated 1 CGRAs to dtw.cpp at 0. Execution will end at 24576
+Re-allocated Failed. (dtw.cpp at time 0)
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 24576: type=end, kernel=dtw.cpp
+Released 1 CGRAs from dtw.cpp at 24576. Latency added: 24576 cycles
+Allocating CGRAs to waiting instance mvt.c
+Calculated execution duration for mvt.c: 32768 cycles (II=4, iterations=8192)
+Allocated 1 CGRAs to mvt.c at 24576. Execution will end at 57344
+Re-allocated Failed. (mvt.c at time 24576)
+Re-allocated Failed. (mvt.c at time 24576)
+====================
+====================
+Processing event at time 57344: type=end, kernel=mvt.c
+Released 1 CGRAs from mvt.c at 57344. Latency added: 32768 cycles
+Allocating CGRAs to waiting instance relu+histogram.c
+Calculated execution duration for relu+histogram.c: 524288 cycles (II=4, iterations=131072)
+Allocated 1 CGRAs to relu+histogram.c at 57344. Execution will end at 581632
+Re-allocated Failed. (relu+histogram.c at time 57344)
+Re-allocated Failed. (relu+histogram.c at time 57344)
+====================
+====================
+Processing event at time 225280: type=end, kernel=fft.c
+Released 2 CGRAs from fft.c at 225280. Latency added: 225280 cycles
+Allocating CGRAs to waiting instance fir.cpp
+Calculated execution duration for fir.cpp: 2048 cycles (II=2, iterations=512)
+Allocated 1 CGRAs to fir.cpp at 225280. Execution will end at 227328
+current_time 225280, completed_iters 0
+remaining_iters 512, remaining_execution_duration 1024
+Re-allocated succeed. fir.cpp. Add 1 CGRAs at 225280. Old end time: 227328. New end time: 226304
+Re-allocated Failed. (relu+histogram.c at time 225280)
+====================
+====================
+Processing event at time 226304: type=end, kernel=fir.cpp
+Released 2 CGRAs from fir.cpp at 226304. Latency added: 1024 cycles
+Allocating CGRAs to waiting instance latnrm.c
+Calculated execution duration for latnrm.c: 1920 cycles (II=3, iterations=640)
+Allocated 1 CGRAs to latnrm.c at 226304. Execution will end at 228224
+current_time 226304, completed_iters 0
+remaining_iters 640, remaining_execution_duration 1920
+Re-allocated succeed. latnrm.c. Add 1 CGRAs at 226304. Old end time: 228224. New end time: 228224
+Re-allocated Failed. (relu+histogram.c at time 226304)
+====================
+Skipping invalid event for fir.cpp
+Skipping invalid event for latnrm.c
+====================
+Processing event at time 228224: type=end, kernel=latnrm.c
+Released 2 CGRAs from latnrm.c at 228224. Latency added: 1920 cycles
+current_time 228224, completed_iters 42720
+remaining_iters 88352, remaining_execution_duration 265056
+Re-allocated succeed. relu+histogram.c. Add 1 CGRAs at 228224. Old end time: 581632. New end time: 493280
+====================
+====================
+Processing event at time 229376: type=end, kernel=spmv.c
+Released 2 CGRAs from spmv.c at 229376. Latency added: 229376 cycles
+====================
+Skipping invalid event for spmv.c
+Skipping invalid event for fft.c
+====================
+Processing event at time 493280: type=end, kernel=relu+histogram.c
+Released 2 CGRAs from relu+histogram.c at 493280. Latency added: 435936 cycles
+====================
+Skipping invalid event for relu+histogram.c
+====================
+Processing event at time 655360: type=end, kernel=conv.c
+Released 2 CGRAs from conv.c at 655360. Latency added: 655360 cycles
+====================
+Skipping invalid event for conv.c
+====================
+Processing event at time 1048576: type=end, kernel=gemm.c
+Released 2 CGRAs from gemm.c at 1048576. Latency added: 1048576 cycles
+====================
+Skipping invalid event for gemm.c
+
+=== Simulation ended before 3276800, number of completed functions: 9
+Total idle duration is 0, total_cgra_runtime is 5081408.0
+Simulation completed. Kernel latencies: {'fir.cpp': 1024, 'latnrm.c': 1920, 'fft.c': 225280, 'dtw.cpp': 24576, 'spmv.c': 229376, 'conv.c': 655360, 'mvt.c': 32768, 'gemm.c': 1048576, 'relu+histogram.c': 435936}
+Kernel execution_ratio: {'fir.cpp': 0.004524886877828055, 'latnrm.c': 0.008412787436904094, 'fft.c': 1.0, 'dtw.cpp': 1.0, 'spmv.c': 1.0, 'conv.c': 1.0, 'mvt.c': 0.5714285714285714, 'gemm.c': 1.0, 'relu+histogram.c': 0.8837495945507623}
+Kernel execution duration distributions: {'fir.cpp': [1024], 'latnrm.c': [1920], 'fft.c': [225280], 'dtw.cpp': [24576], 'spmv.c': [229376], 'conv.c': [655360], 'mvt.c': [32768], 'gemm.c': [1048576], 'relu+histogram.c': [435936]}
+Kernel Runned List: ['gemm.c', 'conv.c', 'fft.c', 'spmv.c', 'dtw.cpp', 'mvt.c', 'relu+histogram.c', 'fir.cpp', 'latnrm.c']
+CGRA utilization: 0.5384453667534722
+overall latency: 1048576
+overall execution: 2654816
+overall waiting_time_nolap: 228224

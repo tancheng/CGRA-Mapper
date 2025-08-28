@@ -10,7 +10,7 @@
     "column": 4,
     "precisionAware": false,
     "fusionStrategy": [
-
+        "default_heterogeneous"
     ],
     "isTrimmedDemo": true,
     "heuristicMapping": true,

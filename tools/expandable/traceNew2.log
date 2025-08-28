@@ -1,0 +1,1090 @@
+Generating ./tmp/t_fir.cpp_12x12_unroll1_vector4.csv
+Target kernel function for fir.cpp: _Z6kernelPfS_S_
+Kernel fir.cpp initialized with arrive_period=102400, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_latnrm.c_12x12_unroll2_vector1.csv
+Compile warning message for latnrm.c: b"../../test/kernels/latnrm/latnrm.c:21:3: warning: implicit declaration of function 'input_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  input_dsp(&input,1,0);\n  ^\n../../test/kernels/latnrm/latnrm.c:25:3: warning: implicit declaration of function 'output_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  output_dsp(&input,1,0);\n  ^\n2 warnings generated.\n"
+Target kernel function for latnrm.c: kernel
+Kernel latnrm.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_fft.c_12x12_unroll1_vector1.csv
+Compile warning message for fft.c: b"../../test/kernels/fft/fft.c:22:3: warning: implicit declaration of function 'input_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  input_dsp (data_real, NPOINTS, 0);\n  ^\n../../test/kernels/fft/fft.c:32:3: warning: implicit declaration of function 'output_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  output_dsp (data_real, NPOINTS, 0);\n  ^\n2 warnings generated.\n"
+Target kernel function for fft.c: kernel
+Kernel fft.c initialized with arrive_period=102400, unroll_factor=1, vector_factor=1
+Generating ./tmp/t_dtw.cpp_12x12_unroll1_vector4.csv
+Target kernel function for dtw.cpp: _Z6kerneli
+Kernel dtw.cpp initialized with arrive_period=327680, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_spmv.c_12x12_unroll2_vector1.csv
+Target kernel function for spmv.c: kernel
+Kernel spmv.c initialized with arrive_period=327680, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_conv.c_12x12_unroll2_vector1.csv
+Target kernel function for conv.c: kernel
+Kernel conv.c initialized with arrive_period=1638400, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_mvt.c_12x12_unroll2_vector1.csv
+Target kernel function for mvt.c: kernel
+Kernel mvt.c initialized with arrive_period=163840, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_gemm.c_12x12_unroll1_vector4.csv
+Target kernel function for gemm.c: kernel
+Kernel gemm.c initialized with arrive_period=1638400, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_relu+histogram.c_12x12_unroll1_vector1.csv
+Target kernel function for relu+histogram.c: kernel
+Kernel relu+histogram.c initialized with arrive_period=81920, unroll_factor=1, vector_factor=1
+Generating ./tmp/t_fir.cpp_4x4_unroll1_vector4.csv
+Target kernel function for fir.cpp: _Z6kernelPfS_S_
+Kernel fir.cpp initialized with arrive_period=102400, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_latnrm.c_4x4_unroll2_vector1.csv
+Compile warning message for latnrm.c: b"../../test/kernels/latnrm/latnrm.c:21:3: warning: implicit declaration of function 'input_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  input_dsp(&input,1,0);\n  ^\n../../test/kernels/latnrm/latnrm.c:25:3: warning: implicit declaration of function 'output_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  output_dsp(&input,1,0);\n  ^\n2 warnings generated.\n"
+Target kernel function for latnrm.c: kernel
+Kernel latnrm.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_fft.c_4x4_unroll2_vector1.csv
+Compile warning message for fft.c: b"../../test/kernels/fft/fft.c:22:3: warning: implicit declaration of function 'input_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  input_dsp (data_real, NPOINTS, 0);\n  ^\n../../test/kernels/fft/fft.c:32:3: warning: implicit declaration of function 'output_dsp' is invalid in C99 [-Wimplicit-function-declaration]\n  output_dsp (data_real, NPOINTS, 0);\n  ^\n2 warnings generated.\n"
+Target kernel function for fft.c: kernel
+Skipping a specific config for kernel:  fft.c Because it runs more than 6.0 minute(s).
+Kernel fft.c initialized with arrive_period=102400, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_dtw.cpp_4x4_unroll1_vector4.csv
+Target kernel function for dtw.cpp: _Z6kerneli
+Kernel dtw.cpp initialized with arrive_period=327680, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_spmv.c_4x4_unroll2_vector1.csv
+Target kernel function for spmv.c: kernel
+Kernel spmv.c initialized with arrive_period=327680, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_conv.c_4x4_unroll2_vector1.csv
+Target kernel function for conv.c: kernel
+Kernel conv.c initialized with arrive_period=1638400, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_mvt.c_4x4_unroll2_vector1.csv
+Target kernel function for mvt.c: kernel
+Kernel mvt.c initialized with arrive_period=163840, unroll_factor=2, vector_factor=1
+Generating ./tmp/t_gemm.c_4x4_unroll1_vector4.csv
+Target kernel function for gemm.c: kernel
+Kernel gemm.c initialized with arrive_period=1638400, unroll_factor=1, vector_factor=4
+Generating ./tmp/t_relu+histogram.c_4x4_unroll2_vector1.csv
+Target kernel function for relu+histogram.c: kernel
+Kernel relu+histogram.c initialized with arrive_period=81920, unroll_factor=2, vector_factor=1
+{7: 256, 8: 256, 2: 256, 4: 80, 3: 80, 1: 16, 5: 160, 0: 16, 6: 320}
+[91mPriority Boosting Level: 0[0m
+Kernel fir.cpp base_ii=2, expandable_ii=2,               iterations=512, utilization=0.159722, arrive_times, 256
+Kernel latnrm.c base_ii=3, expandable_ii=3,               iterations=640, utilization=0.319444, arrive_times, 256
+Kernel fft.c base_ii=7, expandable_ii=4,               iterations=112640, utilization=0.8194450000000001, arrive_times, 256
+Kernel dtw.cpp base_ii=7, expandable_ii=4,               iterations=4096, utilization=0.5694440000000001, arrive_times, 80
+Kernel spmv.c base_ii=None, expandable_ii=None,               iterations=32768, utilization=None, arrive_times, 80
+Kernel conv.c base_ii=2, expandable_ii=2,               iterations=327680, utilization=0.40277799999999997, arrive_times, 16
+Kernel mvt.c base_ii=3, expandable_ii=2,               iterations=8192, utilization=0.75, arrive_times, 160
+Kernel gemm.c base_ii=2, expandable_ii=2,               iterations=524288, utilization=0.305556, arrive_times, 16
+Kernel relu+histogram.c base_ii=2, expandable_ii=2,               iterations=262144, utilization=0.40277799999999997, arrive_times, 320
+====================
+Processing event at time 0: type=arrival, kernel=gemm.c
+Scheduled next arrival for gemm.c at time 1638400
+Kernel gemm.c is vectorized, limiting allocation to 1 CGRA
+Calculated execution duration for gemm.c: 2097152 cycles (II=2, iterations=524288)
+Allocated 1 CGRAs to gemm.c at 0. Execution will end at 2097152
+====================
+====================
+Processing event at time 0: type=arrival, kernel=conv.c
+Scheduled next arrival for conv.c at time 1638400
+No available CGRAs for conv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 102400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 327680
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 327680
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 163840
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 81920
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 102400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 0: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 102400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 81920: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 163840
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 102400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 204800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 102400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 204800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 102400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 204800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 163840: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 327680
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 163840: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 245760
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 204800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 307200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 204800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 307200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 204800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 307200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 245760: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 327680
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 307200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 409600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 307200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 409600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 307200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 409600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 327680: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 655360
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 327680: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 655360
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 327680: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 491520
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 327680: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 409600
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 409600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 512000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 409600: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 491520
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 409600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 512000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 409600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 512000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 491520: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 655360
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 491520: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 573440
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 512000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 614400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 512000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 614400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 512000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 614400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 573440: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 655360
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 614400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 716800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 614400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 716800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 614400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 716800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 655360: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 983040
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 655360: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 983040
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 655360: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 819200
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 655360: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 737280
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 716800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 819200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 716800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 819200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 716800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 819200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 737280: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 819200
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 819200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 921600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 819200: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 983040
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 819200: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 901120
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 819200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 921600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 819200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 921600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 901120: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 983040
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 921600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1024000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 921600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1024000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 921600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1024000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 983040: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 1310720
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 983040: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 1310720
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 983040: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1146880
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 983040: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1064960
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1024000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1126400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1024000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1126400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1024000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1126400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1064960: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1146880
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1126400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1228800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1126400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1228800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1126400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1228800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1146880: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1310720
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1146880: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1228800
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1228800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1331200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1228800: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1310720
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1228800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1331200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1228800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1331200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1310720: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 1638400
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1310720: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 1638400
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1310720: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1474560
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1310720: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1392640
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1331200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1433600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1331200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1433600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1331200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1433600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1392640: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1474560
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1433600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1536000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1433600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1536000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1433600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1536000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1474560: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1638400
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1474560: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1556480
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1536000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1638400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1536000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1638400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1536000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1638400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1556480: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1638400
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=gemm.c
+Scheduled next arrival for gemm.c at time 3276800
+No available CGRAs for gemm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=conv.c
+Scheduled next arrival for conv.c at time 3276800
+No available CGRAs for conv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1740800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 1966080
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 1966080
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1802240
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1720320
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1740800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1638400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1740800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1720320: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1802240
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1740800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1843200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1740800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1843200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1740800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1843200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1802240: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 1966080
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1802240: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1884160
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1843200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 1945600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1843200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 1945600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1843200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 1945600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1884160: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 1966080
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1945600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2048000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1945600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2048000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1945600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2048000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1966080: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 2293760
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1966080: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 2293760
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 1966080: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2129920
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 1966080: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2048000
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2048000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2150400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2048000: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2129920
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2048000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2150400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2048000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2150400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2097152: type=end, kernel=gemm.c
+Released 1 CGRAs from gemm.c at 2097152. Latency added: 2097152 cycles
+Allocating CGRAs to waiting instance conv.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for conv.c: 655360 cycles (II=2, iterations=327680)
+Allocated 1 CGRAs to conv.c at 2097152. Execution will end at 2752512
+====================
+====================
+Processing event at time 2129920: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2293760
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2129920: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2211840
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2150400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2252800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2150400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2252800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2150400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2252800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2211840: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2293760
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2252800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2355200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2252800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2355200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2252800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2355200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2293760: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 2621440
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2293760: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 2621440
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2293760: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2457600
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2293760: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2375680
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2355200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2457600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2355200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2457600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2355200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2457600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2375680: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2457600
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2457600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2560000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2457600: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2621440
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2457600: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2539520
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2457600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2560000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2457600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2560000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2539520: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2621440
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2560000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2662400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2560000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2662400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2560000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2662400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2621440: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 2949120
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2621440: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 2949120
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2621440: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2785280
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2621440: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2703360
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2662400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2764800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2662400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2764800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2662400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2764800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2703360: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2785280
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2752512: type=end, kernel=conv.c
+Released 1 CGRAs from conv.c at 2752512. Latency added: 655360 cycles
+Allocating CGRAs to waiting instance fft.c
+available_cgras is less than 5, limiting allocation to 1 CGRA
+Calculated execution duration for fft.c: 788480 cycles (II=7, iterations=112640)
+Allocated 1 CGRAs to fft.c at 2752512. Execution will end at 3540992
+====================
+====================
+Processing event at time 2764800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2867200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2764800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2867200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2764800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2867200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2785280: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 2949120
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2785280: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2867200
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2867200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 2969600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2867200: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 2949120
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2867200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 2969600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2867200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 2969600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2949120: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 3276800
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2949120: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 3276800
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2949120: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 3112960
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2949120: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3031040
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2969600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3072000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 2969600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3072000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 2969600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3072000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3031040: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3112960
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3072000: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3174400
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3072000: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3174400
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3072000: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3174400
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3112960: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 3276800
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3112960: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3194880
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3174400: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3276800
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3174400: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3276800
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3174400: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3276800
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3194880: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3276800
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=gemm.c
+Scheduled next arrival for gemm.c at time 4915200
+No available CGRAs for gemm.c. Added to waiting queue.
+
+=== At time 3276800, number of completed functions: 2 ===
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=conv.c
+Scheduled next arrival for conv.c at time 4915200
+No available CGRAs for conv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3379200
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=spmv.c
+Scheduled next arrival for spmv.c at time 3604480
+No available CGRAs for spmv.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=dtw.cpp
+Scheduled next arrival for dtw.cpp at time 3604480
+No available CGRAs for dtw.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 3440640
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3358720
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3379200
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3276800: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3379200
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3358720: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3440640
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3379200: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3481600
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3379200: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3481600
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3379200: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3481600
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3440640: type=arrival, kernel=mvt.c
+Scheduled next arrival for mvt.c at time 3604480
+No available CGRAs for mvt.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3440640: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3522560
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3481600: type=arrival, kernel=fft.c
+Scheduled next arrival for fft.c at time 3584000
+No available CGRAs for fft.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3481600: type=arrival, kernel=fir.cpp
+Scheduled next arrival for fir.cpp at time 3584000
+No available CGRAs for fir.cpp. Added to waiting queue.
+====================
+====================
+Processing event at time 3481600: type=arrival, kernel=latnrm.c
+Scheduled next arrival for latnrm.c at time 3584000
+No available CGRAs for latnrm.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3522560: type=arrival, kernel=relu+histogram.c
+Scheduled next arrival for relu+histogram.c at time 3604480
+No available CGRAs for relu+histogram.c. Added to waiting queue.
+====================
+====================
+Processing event at time 3540992: type=end, kernel=fft.c
+Released 1 CGRAs from fft.c at 3540992. Latency added: 788480 cycles
+Allocating CGRAs to waiting instance spmv.c
+available_cgras is less than 5, limiting allocation to 1 CGRA

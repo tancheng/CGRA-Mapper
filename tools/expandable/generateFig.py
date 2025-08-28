@@ -232,7 +232,7 @@ def combine_csv_files():
     metrics = [
         #{'column': 'Average_Execution_duration', 'output': 'execution_time.csv'},
         {'column': 'Overall_Case_Latency', 'output': 'overall_case_latency.csv'},
-
+        {'column': 'Total_Waiting_duration', 'output': 'Total_Waiting_duration.csv'},
         {'column': 'checked_num_kernel', 'output': 'checked_num_kernel.csv'}
         # 可以在这里添加更多需要处理的指标
     ]
