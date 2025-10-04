@@ -1,4 +1,0 @@
-Kernel_Name,Arrive_Period,Unroll_Factor,Vector_Factor,fastest_execution_duration,slowest_execution_duration,Average_Execution_duration,fastest_waiting_duration,slowest_waiting_duration,Average_Waiting_duration,Total_Execution_duration,Total_Waiting_duration,Execution_duration Ratio,Waiting_duration Ratio,Overall_Case_Latency,CGRA Utilization,Total_Execution_duration Ratio,Total_Waiting_duration Ratio,Total_Latency Ratio
-fir.cpp,600000,1,8,75000,150000,87500.0,0,0,0.0,525000,0,1.0,0.0,15540000,0.48587186847206987,0.033783783783783786,0.0,0.033783783783783786
-fft.c,3840000,1,8,180000,180000,180000.0,0,0,0.0,900000,0,1.0,0.0,15540000,0.48587186847206987,0.05791505791505792,0.0,0.05791505791505792
-dtw.cpp,3932160,1,8,196608,196608,196608.0,0,0,0.0,589824,0,1.0,0.0,15540000,0.48587186847206987,0.037955212355212355,0.0,0.037955212355212355

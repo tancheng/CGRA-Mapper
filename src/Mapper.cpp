@@ -659,9 +659,13 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
     total_active_tiles += 1;
   }
   float avg_tile_overall_utilization = 0.0;
+  float max_tile_overall_utilization = 0.0;
   float avg_tile_fu_utilization = 0.0;
   float avg_tile_xbar_utilization = 0.0;
   for (int tile = 0; tile < t_cgra->getFUCount(); ++tile) {
+    if (max_tile_overall_utilization < tile_overall_utilization[tile]) {
+      max_tile_overall_utilization = tile_overall_utilization[tile];
+    }
     avg_tile_overall_utilization += tile_overall_utilization[tile];
     avg_tile_fu_utilization += tile_fu_utilization[tile];
     avg_tile_xbar_utilization += tile_xbar_utilization[tile];
@@ -670,8 +674,10 @@ void Mapper::showUtilization(CGRA* t_cgra, DFG* t_dfg, int t_II,
   avg_tile_overall_utilization /= total_active_tiles;
   avg_tile_fu_utilization /= total_active_tiles;
   avg_tile_xbar_utilization /= total_active_tiles;
+  //max_tile_overall_utilization /= total_active_tiles;
 
-  cout << "tile avg fu utilization: " << avg_tile_fu_utilization*100 << "%; avg xbar utilization: " << avg_tile_xbar_utilization*100 << "%; avg overall utilization: " << avg_tile_overall_utilization*100 << "%" << endl;
+  cout << "tile avg fu utilization: " << avg_tile_fu_utilization*100 << "%; avg xbar utilization: " << avg_tile_xbar_utilization*100 << "%; avg overall utilization: " << avg_tile_overall_utilization*t_II*100 << "%" << endl;
+  cout << "max overall utilization: " << max_tile_overall_utilization*t_II*100 << "%" << endl;
 
   // Collects the histogram of tiles' utilization.
   // Histogram for the number of tiles that have utilization of 0%.
@@ -1002,6 +1008,7 @@ void Mapper::showSchedule(CGRA* t_cgra, DFG* t_dfg, int t_II,
   cout<<"[Mapping II: "<<t_II<<"]"<<endl;
 
   if (t_parameterizableCGRA) {
+    // TODO: make it clean
     jsonTilesLinks["tiles"] = jsonTiles;
     jsonTilesLinks["links"] = jsonLinks;
     json jsonMap(jsonTilesLinks);

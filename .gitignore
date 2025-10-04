@@ -9,3 +9,5 @@ build*/
 *.ll
 *.dot
 *.bc
+.vscode/
+.venv/
