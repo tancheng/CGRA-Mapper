@@ -260,7 +260,7 @@ bool DFGNode::isScalarAddSub() {
       m_opcodeName.compare("sub") == 0)
     return true;
   return false;
-} 
+}
 
 bool DFGNode::isConstantAddSub() {
   if (auto* addInst = dyn_cast<BinaryOperator>(m_inst)) {
@@ -369,20 +369,20 @@ bool DFGNode::isPatternRoot() {
 }
 
 string DFGNode::getOpcodeName() {
-
+  string result = m_opcodeName;
   if (not m_precisionAware) {
     if (m_opcodeName.compare("fadd") == 0) {
-      return "add";
+      result = "add";
     } else if (m_opcodeName.compare("fsub") == 0) {
-      return "sub";
+      result = "sub";
     } else if (m_opcodeName.compare("fmul") == 0) {
-      return "mul";
+      result = "mul";
     } else if (m_opcodeName.compare("fcmp") == 0) {
-      return "cmp";
+      result = "cmp";
     } else if (m_opcodeName.compare("icmp") == 0) {
-      return "cmp";
+      result = "cmp";
     } else if (m_opcodeName.compare("fdiv") == 0) {
-      return "div";
+      result = "div";
     } else if (m_opcodeName.compare("call") == 0 && isVectorized()) {
 
       Function *func = ((CallInst*)m_inst)->getCalledFunction();
@@ -413,7 +413,12 @@ string DFGNode::getOpcodeName() {
     }
   }
 
-  return m_opcodeName;
+  if (isVectorized()) {
+    return "v" + result;
+  }
+  else {
+    return result;
+  }
 }
 
 string DFGNode::getPathName() {
@@ -601,7 +606,7 @@ void DFGNode::initType() {
     m_fuType = "Fp2fx";
   }
   else {
-    // TODO: Update opcode name of call 
+    // TODO: Update opcode name of call
     m_optType = "Unfamiliar Op: " + getOpcodeName();
     m_fuType = "Unknown FU for " + getOpcodeName();
     // printf("Fu Type:  \n");
@@ -613,7 +618,7 @@ list<DFGNode*>* DFGNode::getPredNodes() {
   if (m_predNodes != NULL) {
     return m_predNodes;
   }
-    
+
 
   m_predNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_inEdges) {
@@ -643,7 +648,7 @@ list<DFGNode*>* DFGNode::getSuccNodes() {
   if (m_succNodes != NULL) {
     return m_succNodes;
   }
-    
+
 
   m_succNodes = new list<DFGNode*>();
   for (DFGEdge* edge: m_outEdges) {
@@ -755,7 +760,7 @@ string getOpcodeNameHelper(Instruction* inst) {
   if (opcode == Instruction::SExt) return "sext";
   if (opcode == Instruction::LShr) return "lshr";
   if (opcode == Instruction::AShr) return "ashr";
-  if (opcode == Instruction::Load) return "load"; 
+  if (opcode == Instruction::Load) return "load";
   if (opcode == Instruction::Store) return "store";
   if (opcode == Instruction::Br) return "br";
   if (opcode == Instruction::PHI) return "phi";
@@ -766,7 +771,7 @@ string getOpcodeNameHelper(Instruction* inst) {
   if (opcode == Instruction::Select) return "select";
   if (opcode == Instruction::ExtractElement) return "extractelement";
   if (opcode == Instruction::Call) return "call";
-  
+
   return "unknown";
 }
 
