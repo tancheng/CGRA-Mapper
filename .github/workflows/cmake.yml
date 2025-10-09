@@ -99,3 +99,9 @@ jobs:
         sh run.sh
         sh verify.sh
 
+    - name: Test vectorized node
+      working-directory: ${{github.workspace}}/test/vector
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
