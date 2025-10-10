@@ -11,6 +11,7 @@
 #include "DFGNode.h"
 #include "llvm/Demangle/Demangle.h"
 
+int testing_opcode_offset = 0;
 string initOpcodeNameHelper(Instruction* inst, int testing_opcode_offset);
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
@@ -21,7 +22,6 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_stringRef = t_stringRef;
   m_predNodes = NULL;
   m_succNodes = NULL;
-  int testing_opcode_offset = 0;
   if (testing_opcode_offset == 0) {
     m_opcodeName = t_inst->getOpcodeName();
   } else {
