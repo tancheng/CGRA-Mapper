@@ -11,8 +11,7 @@
 #include "DFGNode.h"
 #include "llvm/Demangle/Demangle.h"
 
-int testing_opcode_offset = 0;
-string getOpcodeNameHelper(Instruction* inst);
+initOpcodeNameHelper(Instruction* inst, int testing_opcode_offset);
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
                  StringRef t_stringRef, bool t_supportDVFS) {
@@ -22,10 +21,11 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   m_stringRef = t_stringRef;
   m_predNodes = NULL;
   m_succNodes = NULL;
+  int testing_opcode_offset = 0;
   if (testing_opcode_offset == 0) {
     m_opcodeName = t_inst->getOpcodeName();
   } else {
-    m_opcodeName = getOpcodeNameHelper(t_inst);
+    m_opcodeName = getOpcodeNameHelper(t_inst, testing_opcode_offset);
   }
   m_isMapped = false;
   m_numConst = 0;
@@ -369,6 +369,9 @@ bool DFGNode::isPatternRoot() {
 }
 
 string DFGNode::getOpcodeName() {
+  // For a vectorized multiplication, getOpcodeName() in LLVM will return "mul", not "vmul".
+  // In LLVM Intermediate Representation (IR), the same opcode is used for both scalar
+  // and vector operations.
   string result = m_opcodeName;
   if (not m_precisionAware) {
     if (m_opcodeName.compare("fadd") == 0) {
@@ -415,8 +418,7 @@ string DFGNode::getOpcodeName() {
 
   if (isVectorized()) {
     return "v" + result;
-  }
-  else {
+  } else {
     return result;
   }
 }
@@ -606,7 +608,6 @@ void DFGNode::initType() {
     m_fuType = "Fp2fx";
   }
   else {
-    // TODO: Update opcode name of call
     m_optType = "Unfamiliar Op: " + getOpcodeName();
     m_fuType = "Unknown FU for " + getOpcodeName();
     // printf("Fu Type:  \n");
@@ -738,7 +739,10 @@ int DFGNode::getNumConst() {
   return m_numConst;
 }
 
-string getOpcodeNameHelper(Instruction* inst) {
+string initOpcodeNameHelper(Instruction* inst, , int testing_opcode_offset) {
+// For a vectorized multiplication, getOpcodeName() in LLVM will return "mul", not "vmul".
+// In LLVM Intermediate Representation (IR), the same opcode is used for both scalar
+// and vector operations.
 
   unsigned opcode = inst->getOpcode();
   opcode -= testing_opcode_offset;
