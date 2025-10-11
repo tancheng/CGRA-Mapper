@@ -12,7 +12,7 @@
 #include "llvm/Demangle/Demangle.h"
 
 int testing_opcode_offset = 0;
-string initOpcodeNameHelper(Instruction* inst, int testing_opcode_offset);
+string initOpcodeNameHelper(Instruction* inst);
 
 DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
                  StringRef t_stringRef, bool t_supportDVFS) {
@@ -25,7 +25,7 @@ DFGNode::DFGNode(int t_id, bool t_precisionAware, Instruction* t_inst,
   if (testing_opcode_offset == 0) {
     m_opcodeName = t_inst->getOpcodeName();
   } else {
-    m_opcodeName = initOpcodeNameHelper(t_inst, testing_opcode_offset);
+    m_opcodeName = initOpcodeNameHelper(t_inst);
   }
   m_isMapped = false;
   m_numConst = 0;
@@ -371,7 +371,8 @@ bool DFGNode::isPatternRoot() {
 string DFGNode::getOpcodeName() {
   // For a vectorized multiplication, getOpcodeName() in LLVM will return "mul", not "vmul".
   // In LLVM Intermediate Representation (IR), the same opcode is used for both scalar
-  // and vector operations.
+  // and vector operations. So we explicitly add "v" as prefix inside
+  // getOpcodeName().
   string result = m_opcodeName;
   if (not m_precisionAware) {
     if (m_opcodeName.compare("fadd") == 0) {
@@ -739,11 +740,11 @@ int DFGNode::getNumConst() {
   return m_numConst;
 }
 
-string initOpcodeNameHelper(Instruction* inst, int testing_opcode_offset) {
-// For a vectorized multiplication, getOpcodeName() in LLVM will return "mul", not "vmul".
-// In LLVM Intermediate Representation (IR), the same opcode is used for both scalar
-// and vector operations.
-
+string initOpcodeNameHelper(Instruction* inst) {
+  // For a vectorized multiplication, getOpcodeName() in LLVM will return "mul", not "vmul".
+  // In LLVM Intermediate Representation (IR), the same opcode is used for both scalar
+  // and vector operations. So we explicitly add "v" as prefix inside
+  // getOpcodeName().
   unsigned opcode = inst->getOpcode();
   opcode -= testing_opcode_offset;
   if (opcode == Instruction::Mul) return "mul";
