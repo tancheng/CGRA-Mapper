@@ -17,7 +17,7 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
          map<string, int>* t_execLatency, list<string>* t_pipelinedOpt,
          map<string, list<string>*>* t_fusionPattern,
 	      bool t_supportDVFS, bool t_DVFSAwareMapping,
-	      int t_vectorFactorForIdiv) {
+	      int t_vectorFactorForIdiv, bool enableDistributed) {
   m_num = 0;
   m_targetFunction = t_targetFunction;
   m_targetLoops = t_loops;
@@ -59,6 +59,57 @@ DFG::DFG(Function& t_F, list<Loop*>* t_loops, bool t_targetFunction,
   }
   initExecLatency(t_execLatency);
   initPipelinedOpt(t_pipelinedOpt);
+  if (enableDistributed) {
+    splitNodes();
+  }
+  calculateCycles();
+}
+
+// Split multi-cycle nodes in the DFG into multiple single-cycle nodes when distributed strategy is adopted.
+// Example: Division takes 8 cycles on our hardware, so each division node in the DFG should be split into 8 sub-nodes, each of which only needs to perform one cycle of division execution.
+// The cycles of the multi-cycle operations are specified by `optLatency` in param.json.
+void DFG::splitNodes() {
+  list<DFGNode*>* add_nodes = new list<DFGNode*>();
+  int dfgNodeID = nodes.size();
+  for (DFGNode* dfgNode: nodes) {
+    int ExecLatency = dfgNode->getExecLatency(dfgNode->getDVFSLatencyMultiple());
+    if (ExecLatency == 1) continue;
+      dfgNode->setExecLatency(1);
+      int dfgNodeID = nodes.size();
+      DFGNode* nowNode = dfgNode;
+      DFGNode* stNode;
+      for (int i = 1; i < ExecLatency; i++) {
+        DFGNode* newNode = new DFGNode(dfgNodeID++, dfgNode);
+        int dfgEdgeID = m_DFGEdges.size();
+        DFGEdge* newEdge = new DFGEdge(dfgEdgeID++, nowNode, newNode);
+        newNode->setExecLatency(1);
+        m_DFGEdges.push_back(newEdge);
+        // nodes.push_back(newNode);
+        add_nodes->push_back(newNode);
+        // Update the pred and succ nodes of nods.
+        newNode->deleteAllPredNodes();
+        newNode->deleteAllSuccNodes();
+        nowNode->addSuccNode(newNode);
+        newNode->addPredNode(nowNode);
+        nowNode = newNode;
+        if (i == 1) stNode = nowNode;
+      }
+      // change the successors of dfgNode to nowNode;
+      for (DFGNode* succNode: *(dfgNode->getSuccNodes())) {
+        if (succNode == stNode) continue;
+        replaceDFGEdge(dfgNode, succNode, nowNode, succNode);
+        // dfgNode->deleteSuccNode(succNode);
+        nowNode->addSuccNode(succNode);
+        succNode->deletePredNode(dfgNode);
+        succNode->addPredNode(nowNode);
+      }
+      dfgNode->deleteAllSuccNodes();
+      dfgNode->addSuccNode(stNode);
+  }
+
+  for (DFGNode* dfgNode: *add_nodes) {
+    nodes.push_back(dfgNode);
+  }
 }
 
 // Pre-assigns the DVFS levels to each DFG node.
@@ -1754,6 +1805,16 @@ bool DFG::searchDFS(DFGNode* t_target, DFGNode* t_head,
     }
   }
   return false;
+}
+
+// Used for initializing II for exclusive strategy.
+int DFG::getMaxExecLatency() {
+  int max_exec_latency = 0;
+  for (DFGNode* dfgNode: nodes) {
+    int exec_latecy = dfgNode->getExecLatency(dfgNode->getDVFSLatencyMultiple());
+    if (exec_latecy > max_exec_latency) max_exec_latency = exec_latecy;
+  }
+  return max_exec_latency;
 }
 
 // TODO: This is necessary for inter-iteration data dependency

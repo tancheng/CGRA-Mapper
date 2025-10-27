@@ -13,7 +13,7 @@
     "isTrimmedDemo": true,
     "heuristicMapping": true,
     "parameterizableCGRA": false,
-    "diagonalVectorization": false,
+    "vectorizationMode": "all",
     "bypassConstraint": 16,
     "isStaticElasticCGRA": false,
     "ctrlMemConstraint": 100,

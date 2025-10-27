@@ -12,7 +12,7 @@
     "heuristicMapping"      : true,
     "expandableMapping"     : true,
     "parameterizableCGRA"   : false,
-    "diagonalVectorization" : false,
+    "vectorizationMode"     : "all",
     "bypassConstraint"      : 4,
     "isStaticElasticCGRA"   : false,
     "ctrlMemConstraint"     : 10,

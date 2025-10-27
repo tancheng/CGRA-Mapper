@@ -92,3 +92,16 @@ jobs:
         sh verify.sh
 
 
+    - name: Test multi-cyle mapping
+      working-directory: ${{github.workspace}}/test/multicycle
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
+
+    - name: Test vectorized node
+      working-directory: ${{github.workspace}}/test/vector
+      run: |
+        sh compile.sh
+        sh run.sh
+        sh verify.sh
