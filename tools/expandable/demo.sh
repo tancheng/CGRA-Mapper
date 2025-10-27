@@ -3,4 +3,4 @@ source /WORK_REPO/venv/bin/activate
 
 mkdir ./tmp
 
-python NEURAdemo.py
+python main.py

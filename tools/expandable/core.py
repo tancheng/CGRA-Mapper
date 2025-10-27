@@ -10,8 +10,6 @@ import json
 import eventlet    # for time out
 import pandas as pd
 import math
-from types import SimpleNamespace
-import argparse
 
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
@@ -21,74 +19,10 @@ TEST_BENCHS = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "r
 TEST_BENCHS_NUM = len(TEST_BENCHS)
 DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'expandableII': "", 'utilization': ""}  # column names of generated CSV
 DICT_COLUMN = len(DICT_CSV)
-JSON_NAME = "./param.json"   # name of generated json file
-TIME_OUT_SET = 300
-DO_MAPPING = True
-KERNEL_DIRECTORY = "../../test/kernels"
-VECTOR_LANE = 2
-
-
-def str_to_bool(value):
-    if isinstance(value, bool):
-        return value
-    if str(value).lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif str(value).lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    raise argparse.ArgumentTypeError('Invalid boolean value (accepted: 0/1, true/false, yes/no)')
-
-
-def load_configuration():
-    """Load and merge configurations from multiple sources with priority:
-    1. Command line arguments (highest priority)
-    2. JSON config file
-    3. Default values (lowest priority)
-    """
-    global JSON_NAME, KERNEL_DIRECTORY, VECTOR_LANE, DO_MAPPING, TIME_OUT_SET
-
-    # Default configuration values
-    defaults = {
-        "JSON_NAME": JSON_NAME,
-        "KERNEL_DIRECTORY": KERNEL_DIRECTORY,
-        "VECTOR_LANE": VECTOR_LANE,
-        "DO_MAPPING": DO_MAPPING,
-        "TIME_OUT_SET": TIME_OUT_SET
-    }
-
-    # 1. Load from JSON config file if exists
-    try:
-        with open('NeuraConfig.json') as f:
-            file_config = json.load(f)
-            defaults.update(file_config)
-    except FileNotFoundError:
-        pass  # Use defaults if no config file
-
-    # 2. Parse command line arguments (override JSON/defaults)
-    # parser = argparse.ArgumentParser(description='Kernel processing configuration')
-    # parser.add_argument('--do-mapping',
-    #                    type=str_to_bool,
-    #                    default=defaults["DO_MAPPING"],
-    #                    help='Enable/disable mapping phase (default: True)')
-    # args = parser.parse_args()
-
-    # Update global configuration
-    JSON_NAME = defaults["JSON_NAME"]
-    KERNEL_DIRECTORY = defaults["KERNEL_DIRECTORY"]
-    VECTOR_LANE = defaults["VECTOR_LANE"]
-    DO_MAPPING = defaults["DO_MAPPING"]
-    TIME_OUT_SET = defaults["TIME_OUT_SET"]
-
-
-# Initialize configuration
-load_configuration()
-
 
 # ----------------------------------------------------------------------------
 #   class defination                                                         /
 # ----------------------------------------------------------------------------
-
-
-
 class Kernel:
     def __init__(self, kernel_name, kernel_id, arrive_period, unroll_factor, vector_factor, total_iterations, cgra_rows, cgra_columns):
         """
@@ -740,6 +674,7 @@ def handle_reallocation(priority_boosting, running, current_time, available_cgra
 
     return available_cgras, total_cgra_runtime
 
+
 def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     """
     lcm_time=26214400
@@ -980,71 +915,3 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
         df = pd.DataFrame(all_results)
         file_name = f'./result/simulation_{kernel_case}_{csvname}.csv'
         df.to_csv(file_name, index=False)
-
-
-if __name__ == "__main__":
-    baselineCase1=[
-        [
-            #Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=1, vector_factor=8, total_iterations=300000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=2, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=4, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=2, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=4, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="spmv.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=8, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=4, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
-            Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=16, total_iterations=1200000, cgra_rows=12, cgra_columns=12)
-            #Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=8, total_iterations=524288, cgra_rows=4, cgra_columns=4),
-             #Kernel(kernel_name="spmv.c", kernel_id=6, arrive_period=4571136, unroll_factor=2, vector_factor=1, total_iterations=507904, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="conv.c", kernel_id=7, arrive_period=1200000, unroll_factor=4, vector_factor=1, total_iterations=400000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu.c", kernel_id=2, arrive_period=4500000, unroll_factor=1, vector_factor=8, total_iterations=1000000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="histogram.cpp", kernel_id=9, arrive_period=1048576, unroll_factor=1, vector_factor=8, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="mvt.c", kernel_id=0, arrive_period=13500000, unroll_factor=4, vector_factor=1, total_iterations=1800000, cgra_rows=12, cgra_columns=12),
-            #Kernel(kernel_name="gemm.c", kernel_id=1, arrive_period=12582912, unroll_factor=2, vector_factor=1, total_iterations=2097152, cgra_rows=4, cgra_columns=4)
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=2, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            #Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=4, vector_factor=1, total_iterations=480000, cgra_rows=12, cgra_columns=12)
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=16, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=4, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="relu+histogram.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=12, cgra_columns=12)
-        ]
-    ]
-
-    taskCase1=[
-        [
-            # Kernel(kernel_name="spmv+conv.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=12, cgra_columns=12),
-            # Kernel(kernel_name="spmv+conv.c", kernel_id=7, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=1, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-            # Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=1, total_iterations=524288, cgra_rows=4, cgra_columns=4)
-        ]
-    ]
-    # taskCase1 = [
-    #     [
-    #         Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=2, vector_factor=1, total_iterations=300000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="latnrm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="fft.c", kernel_id=4, arrive_period=3840000, unroll_factor=1, vector_factor=8, total_iterations=480000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="dtw.cpp", kernel_id=5, arrive_period=3932160, unroll_factor=1, vector_factor=2, total_iterations=524288, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="spmv.c", kernel_id=6, arrive_period=4571136, unroll_factor=1, vector_factor=4, tot1al_iterations=400000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="relu.c", kernel_id=2, arrive_period=4500000, unroll_factor=2, vector_factor=1, total_iterations=1000000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="histogram.cpp", kernel_id=9, arrive_period=1048576, unroll_factor=4, vector_factor=1, total_iterations=262144, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="mvt.c", kernel_id=0, arrive_period=13500000, unroll_factor=1, vector_factor=4, total_iterations=1800000, cgra_rows=4, cgra_columns=4),
-    #         Kernel(kernel_name="gemm.c", kernel_id=1, arrive_period=12582912, unroll_factor=1, vector_factor=8, total_iterations=2097152, cgra_rows=4, cgra_columns=4),
-    #     ]
-    # ]
-
-
-    # TODO: 尽量让排序id 靠前的kernel 向量化
-    # TODO：明确 kernel_id 是通过 static execution time 排序， static execution time 越大，id 越小
-    #run_multiple_simulations_and_save_to_csv(baselineCase1, "Baseline", priority_boosting = False, num_cgras=1)  # one cgra is 12x12
-    # run_multiple_simulations_and_save_to_csv(taskCase1, "NoBosting", priority_boosting = False, num_cgras=9) # one cgra is 4x4
-    run_multiple_simulations_and_save_to_csv(baselineCase1, "Bosting", priority_boosting = 2, num_cgras=9)    # one cgra is 4x4
