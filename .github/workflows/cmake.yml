@@ -105,3 +105,8 @@ jobs:
         sh compile.sh
         sh run.sh
         sh verify.sh
+
+    - name: Test expandable automatic script
+      working-directory: ${{github.workspace}}/tools/expandable
+      run: |
+        sh demo.sh
