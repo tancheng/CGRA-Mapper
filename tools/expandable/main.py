@@ -15,14 +15,9 @@ from pathlib import Path
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
-JSON_NAME = "./param.json"   # name of generated json file
-KERNEL_DIRECTORY = "../../test/kernels"
-VECTOR_LANE = 2
-DO_MAPPING = False
-TIME_OUT_SET = 300
 VISUALIZATION = False
-CGRA_CONFIG = 4
-# ========== Configuration Section ==========
+TEST_ME = True
+
 # Static kernel data (name: (sort_id, total_iterations, static_execution_time))
 KERNEL_DATA = {
     "fir.cpp": (7, 2048, 4096),
@@ -86,17 +81,15 @@ def parse_arguments():
         description='Multi-CGRA Task Scheduling Tool'
     )
     # Core application arguments
-    parser.add_argument('--cgra-config', type=int, default=CGRA_CONFIG,
+    parser.add_argument('--cgra-config', type=int, default= 4,
                        help='Path to CGRA configuration file')
-    parser.add_argument('--json-name', type=str, default=JSON_NAME,
+    parser.add_argument('--json-name', type=str, default= "./param.json",
                        help='JSON configuration file name')
-    parser.add_argument('--kernel-directory', type=str, default=KERNEL_DIRECTORY,
+    parser.add_argument('--kernel-directory', type=str, default= "../../test/kernels",
                        help='Kernel directory path')
-    parser.add_argument('--vector-lane', type=int, default=VECTOR_LANE,
-                       help='Vector lane configuration')
-    parser.add_argument('--do-mapping', type=str_to_bool, default=DO_MAPPING,
+    parser.add_argument('--do-mapping', type=str_to_bool, default= False,
                        help='Enable/disable mapping phase [y/n]')
-    parser.add_argument('--time-out-set', type=int, default=TIME_OUT_SET,
+    parser.add_argument('--time-out-set', type=int, default= 180,
                        help='Timeout setting for operations')
     parser.add_argument('--visualize', type=str_to_bool, default=VISUALIZATION,
                        help='Generate visualization figures [y/n]')
@@ -109,19 +102,15 @@ def load_configuration():
     1. Command line arguments (highest priority)
     2. Default values (lowest priority)
     """
-    global JSON_NAME, KERNEL_DIRECTORY, VECTOR_LANE, DO_MAPPING, TIME_OUT_SET, VISUALIZATION, CGRA_CONFIG
-
+    # Update global configuration with command line arguments
+    global VISUALIZATION
     # Parse command line arguments
     args = parse_arguments()
-
-    # Update global configuration with command line arguments
-    JSON_NAME = args.json_name
-    KERNEL_DIRECTORY = args.kernel_directory
-    VECTOR_LANE = args.vector_lane
-    DO_MAPPING = args.do_mapping
-    TIME_OUT_SET = args.time_out_set
     VISUALIZATION = args.visualize
-    CGRA_CONFIG = args.cgra_config
+    core.init_args(args)
+    # print(f"CGRA Config: {CGRA_CONFIG}")
+    print(f"Do Mapping: {args.do_mapping}")
+    print(f"Timeout: {args.time_out_set}")
 
 
 # ========== Task Loading Function ==========
@@ -136,6 +125,7 @@ def load_tasks(task_id, task_type="baseline"):
     Returns:
         task_list: List of task objects
     """
+    global TASK_CONFIGS, KERNEL_DATA
     if task_id not in TASK_CONFIGS:
         raise ValueError(f"Task{task_id} configuration does not exist")
 
@@ -182,7 +172,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     Args:
         task_id: Configuration case ID to run simulation for
     """
-    print(f"[Step 1] Loading tasks for task {task_id}...")
+    print(f"[Step 2] Loading tasks for task {task_id}...")
 
     if load_from_file:
         # Load baseline tasks (12x12 CGRA)
@@ -235,6 +225,45 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     )
 
 
+def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL", load_from_file = False):
+    """
+    Complete simulation workflow for specified case
+
+    Args:
+        task_id: Configuration case ID to run simulation for
+    """
+    print(f"[Step 2] Loading tasks for task {task_id}...")
+
+    if load_from_file:
+        # Load baseline tasks (12x12 CGRA)
+        baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
+        # Load task tasks (4x4 CGRA)
+        task_tasks = load_tasks_from_file(f"{file_name}task.json")
+    else:
+        # Load baseline tasks (12x12 CGRA)
+        baseline_tasks = load_tasks(task_id, "baseline")
+        # Load task tasks (4x4 CGRA)
+        task_tasks = load_tasks(task_id, "task")
+
+    # Run baseline simulation
+    core.run_multiple_simulations_and_save_to_csv(
+        baseline_tasks,
+        "Baseline",
+        priority_boosting=0,
+        kernel_case=task_id,
+        num_cgras=1  # one cgra is 12x12
+    )
+
+    # Run task simulation
+    core.run_multiple_simulations_and_save_to_csv(
+        task_tasks,
+        "NoBoosting",
+        priority_boosting=0,
+        kernel_case=task_id,
+        num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
+    )
+
+
 
 def load_tasks_from_file(filename):
     """
@@ -275,13 +304,8 @@ def load_tasks_from_file(filename):
 def main():
     """Main workflow control function"""
     # 1. Load configuration (includes parsing arguments)
-    load_configuration()
-
     print("=== Multi-CGRA Task Scheduling Tool ===")
-    print(f"CGRA Config: {CGRA_CONFIG}")
-    print(f"Vector Lane: {VECTOR_LANE}")
-    print(f"Do Mapping: {DO_MAPPING}")
-    print(f"Timeout: {TIME_OUT_SET}")
+    load_configuration()
 
     # 2. Create output directory
     print(f"Intermediate reslut in: ./tmp")
@@ -289,21 +313,22 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # 3. Load tasks and configuration
-    print("[Step 1] Loading tasks and CGRA configuration...")
-    # tasks = load_tasks(JSON_NAME)  # Use global JSON_NAME
-    # cgra_config = load_cgra_config(CGRA_CONFIG)
+    print("[Step 1] Printing tasks...")
 
     # 4. Execute scheduling
-    print("[Step 2] Scheduling tasks on 4x4 Multi-CGRA...")
-    for task_case_id in TASK_CONFIGS:
-        run_simulation_for_case(task_case_id)
+    print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
+    if TEST_ME:
+        run_simulation_for_case_test(6)
+    else:
+        for task_case_id in TASK_CONFIGS:
+            run_simulation_for_case(task_case_id)
 
     # 4. Execute scheduling
-    print("[Step 3] Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-    run_simulation_for_case(task_case_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
-    run_simulation_for_case(task_case_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
-    run_simulation_for_case(task_case_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 2x2
-    run_simulation_for_case(task_case_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 2x2
+    print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
+    # run_simulation_for_case(task_case_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+    # run_simulation_for_case(task_case_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
+    # run_simulation_for_case(task_case_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 2x2
+    # run_simulation_for_case(task_case_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 2x2
 
     # 5. Generate visualization
     if VISUALIZATION:  # Use global variable
@@ -320,6 +345,7 @@ def main():
         # print(f"  Generated: {util_file}")
 
     print("\n=== Scheduling completed successfully! ===")
+
 
 if __name__ == '__main__':
     main()

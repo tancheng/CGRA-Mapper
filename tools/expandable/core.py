@@ -19,6 +19,19 @@ TEST_BENCHS = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "r
 TEST_BENCHS_NUM = len(TEST_BENCHS)
 DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'expandableII': "", 'utilization': ""}  # column names of generated CSV
 DICT_COLUMN = len(DICT_CSV)
+JSON_NAME = "./param.json"   # name of generated json file
+TIME_OUT_SET = 180
+DO_MAPPING = True
+KERNEL_DIRECTORY = "../../test/kernels"
+VECTOR_LANE = 2
+
+def init_args(args):
+    """init config"""
+    global JSON_NAME, TIME_OUT_SET, DO_MAPPING, KERNEL_DIRECTORY
+    JSON_NAME = args.json_name
+    KERNEL_DIRECTORY = args.kernel_directory
+    DO_MAPPING = args.do_mapping
+    TIME_OUT_SET = args.time_out_set
 
 # ----------------------------------------------------------------------------
 #   class defination                                                         /
@@ -158,6 +171,7 @@ class Kernel:
 
         self.df.loc[len(self.df.index)] = dataS
 
+
     def map_kernel_skip(self):
         """
         This is a func gain DFG information only without mapping.
@@ -200,7 +214,8 @@ class Kernel:
 
         Returns: name of the csv that collects information of mapped kernels
         """
-        csv_name = f'./tmp/t_{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
+        prefix = './tmp/fftDtw/t_' if self.kernel_name in {'fft.c', 'dtw.cpp'} else './tmp/t_'
+        csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
         print("Generating", csv_name)
         target_kernel = self.comp_kernel()
 
@@ -846,72 +861,71 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
         priority_boosting (int): Whether to enable priority boosting.
         num_cgras (int): The number of CGRAs, default 9.
     """
-    for i, kernels in enumerate(kernels_list, start = 1):
-        kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution, checked_num_kernel, waiting_time_nolap = simulate(num_cgras, kernels, priority_boosting)
+    kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution, checked_num_kernel, waiting_time_nolap = simulate(num_cgras, kernels_list, priority_boosting)
 
-        # Calculate fastest, slowest, and average execution duration per kernel
-        execution_stats = {}
-        for kernel_name, execution_durations in kernel_execution_distribution.items():
-            if execution_durations:
-                fastest = min(execution_durations)
-                slowest = max(execution_durations)
-                average = sum(execution_durations) / len(execution_durations)
-                total = sum(execution_durations)
-                execution_stats[kernel_name] = {
-                    "fastest_execution_duration": fastest,
-                    "slowest_execution_duration": slowest,
-                    "average_execution_duration": average,
-                    "total_execution_duration": total
-                }
-
-        # Calculate fastest, slowest, and average waiting duration per kernel
-        waiting_stats = {}
-        overall_avg_waiting = 0
-        for kernel_name, waiting_durations in kernel_waiting_distribution.items():
-            if waiting_durations:
-                fastest = min(waiting_durations)
-                slowest = max(waiting_durations)
-                average = sum(waiting_durations) / len(waiting_durations)
-                overall_avg_waiting += average
-                total = sum(waiting_durations)
-                waiting_stats[kernel_name] = {
-                    "fastest_waiting_duration": fastest,
-                    "slowest_waiting_duration": slowest,
-                    "average_waiting_duration": average,
-                    "total_waiting_duration": total
-                }
-
-        all_results = []
-        for kernel in kernels:
-            kernel_name = kernel.kernel_name
-            result = {
-                "Kernel_Name": kernel_name,
-                "Arrive_Period": kernel.arrive_period,
-                "Unroll_Factor": kernel.unroll_factor,
-                "Vector_Factor": kernel.vector_factor,
-                "fastest_execution_duration": execution_stats.get(kernel_name, {}).get("fastest_execution_duration", None),
-                "slowest_execution_duration": execution_stats.get(kernel_name, {}).get("slowest_execution_duration", None),
-                "Average_Execution_duration": execution_stats.get(kernel_name, {}).get("average_execution_duration", None),
-                "fastest_waiting_duration": waiting_stats.get(kernel_name, {}).get("fastest_waiting_duration", None),
-                "slowest_waiting_duration": waiting_stats.get(kernel_name, {}).get("slowest_waiting_duration", None),
-                "Average_Waiting_duration": waiting_stats.get(kernel_name, {}).get("average_waiting_duration", None),
-                "Total_Execution_duration": execution_stats.get(kernel_name, {}).get("total_execution_duration", None),
-                "Total_Waiting_duration": waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None),
-                "Execution_duration Ratio": kernel_execution_ratio[kernel_name],
-                "Waiting_duration Ratio": kernel_waiting_ratio[kernel_name],
-                "Overall_Case_Latency": overall_latency,
-                "Overall_Execution": overall_execution,
-                "Sum_Average_Waiting_duration": overall_avg_waiting,
-                "CGRA_Utilization": cgra_utilization,
-                "checked_num_kernel":checked_num_kernel,
-                "waiting_time_nolap":waiting_time_nolap,
-                "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", None))/overall_latency,
-                "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency,
-                "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", None) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency
+    # Calculate fastest, slowest, and average execution duration per kernel
+    execution_stats = {}
+    for kernel_name, execution_durations in kernel_execution_distribution.items():
+        if execution_durations:
+            fastest = min(execution_durations)
+            slowest = max(execution_durations)
+            average = sum(execution_durations) / len(execution_durations)
+            total = sum(execution_durations)
+            execution_stats[kernel_name] = {
+                "fastest_execution_duration": fastest,
+                "slowest_execution_duration": slowest,
+                "average_execution_duration": average,
+                "total_execution_duration": total
             }
-            all_results.append(result)
+
+    # Calculate fastest, slowest, and average waiting duration per kernel
+    waiting_stats = {}
+    overall_avg_waiting = 0
+    for kernel_name, waiting_durations in kernel_waiting_distribution.items():
+        if waiting_durations:
+            fastest = min(waiting_durations)
+            slowest = max(waiting_durations)
+            average = sum(waiting_durations) / len(waiting_durations)
+            overall_avg_waiting += average
+            total = sum(waiting_durations)
+            waiting_stats[kernel_name] = {
+                "fastest_waiting_duration": fastest,
+                "slowest_waiting_duration": slowest,
+                "average_waiting_duration": average,
+                "total_waiting_duration": total
+            }
+
+    all_results = []
+    for kernel in kernels_list:
+        kernel_name = kernel.kernel_name
+        result = {
+            "Kernel_Name": kernel_name,
+            "Arrive_Period": kernel.arrive_period,
+            "Unroll_Factor": kernel.unroll_factor,
+            "Vector_Factor": kernel.vector_factor,
+            "fastest_execution_duration": execution_stats.get(kernel_name, {}).get("fastest_execution_duration", None),
+            "slowest_execution_duration": execution_stats.get(kernel_name, {}).get("slowest_execution_duration", None),
+            "Average_Execution_duration": execution_stats.get(kernel_name, {}).get("average_execution_duration", None),
+            "fastest_waiting_duration": waiting_stats.get(kernel_name, {}).get("fastest_waiting_duration", None),
+            "slowest_waiting_duration": waiting_stats.get(kernel_name, {}).get("slowest_waiting_duration", None),
+            "Average_Waiting_duration": waiting_stats.get(kernel_name, {}).get("average_waiting_duration", None),
+            "Total_Execution_duration": execution_stats.get(kernel_name, {}).get("total_execution_duration", None),
+            "Total_Waiting_duration": waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None),
+            "Execution_duration Ratio": kernel_execution_ratio[kernel_name],
+            "Waiting_duration Ratio": kernel_waiting_ratio[kernel_name],
+            "Overall_Case_Latency": overall_latency,
+            "Overall_Execution": overall_execution,
+            "Sum_Average_Waiting_duration": overall_avg_waiting,
+            "CGRA_Utilization": cgra_utilization,
+            "checked_num_kernel":checked_num_kernel,
+            "waiting_time_nolap":waiting_time_nolap,
+            "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", None))/overall_latency,
+            "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency,
+            "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", None) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency
+        }
+        all_results.append(result)
 
 
-        df = pd.DataFrame(all_results)
-        file_name = f'./result/simulation_{kernel_case}_{csvname}.csv'
-        df.to_csv(file_name, index=False)
+    df = pd.DataFrame(all_results)
+    file_name = f'./result/simulation_{kernel_case}_{csvname}.csv'
+    df.to_csv(file_name, index=False)
