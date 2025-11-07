@@ -63,7 +63,7 @@ CGRA::CGRA(int t_rows, int t_columns, std::string t_vectorizationMode,
       }
     }
 
-   ifstream paramCGRA("./param.json");
+    ifstream paramCGRA("./param.json");
     if (!paramCGRA.good()) {
       cout<<"Parameterizable CGRA design/mapping requires paramCGRA.json"<<endl;
       return;
