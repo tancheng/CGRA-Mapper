@@ -5,12 +5,11 @@
 # ----------------------------------------------------------------------------
 
 import argparse
-import core
+import tools.expandable.scheduler as scheduler
+import visualization
 import json
 import os
 from pathlib import Path
-# from .visualization import generate_schedule_figure, generate_gantt_chart
-
 
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
@@ -107,7 +106,7 @@ def load_configuration():
     # Parse command line arguments
     args = parse_arguments()
     VISUALIZATION = args.visualize
-    core.init_args(args)
+    scheduler.init_args(args)
     # print(f"CGRA Config: {CGRA_CONFIG}")
     print(f"Do Mapping: {args.do_mapping}")
     print(f"Timeout: {args.time_out_set}")
@@ -150,7 +149,7 @@ def load_tasks(task_id, task_type="baseline"):
     # Generate task list
     task_list = []
     for i, (kernel_name, (kernel_id, total_iters, _)) in enumerate(KERNEL_DATA.items()):
-        task = core.Kernel(
+        task = scheduler.Kernel(
             kernel_name=kernel_name,
             kernel_id=kernel_id,
             arrive_period=A_P[i] if A_P else 0,
@@ -185,42 +184,46 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
         # Load task tasks (4x4 CGRA)
         task_tasks = load_tasks(task_id, "task")
 
+    if load_from_file:
+        case_id = file_name + str(task_id)
+    else:
+        case_id = task_id
     # Run baseline simulation
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         baseline_tasks,
-        "Baseline",
+        csv_name="Baseline",
         priority_boosting=0,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=1  # one cgra is 12x12
     )
 
     # Run task simulation
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        "NoBoosting",
+        csv_name="NoBoosting",
         priority_boosting=0,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        "BoostingScalar",
+        csv_name="BoostingScalar",
         priority_boosting=1,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        "BoostingScalarFuse",
+        csv_name="BoostingScalarFuse",
         priority_boosting=2,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        "BoostingScalarFuseVector",
+        csv_name="BoostingScalarFuseVector",
         priority_boosting=3,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
 
@@ -245,21 +248,25 @@ def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL"
         # Load task tasks (4x4 CGRA)
         task_tasks = load_tasks(task_id, "task")
 
+    if load_from_file:
+        case_id = file_name + str(task_id)
+    else:
+        case_id = task_id
     # Run baseline simulation
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         baseline_tasks,
         "Baseline",
         priority_boosting=0,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=1  # one cgra is 12x12
     )
 
     # Run task simulation
-    core.run_multiple_simulations_and_save_to_csv(
+    scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
         "NoBoosting",
         priority_boosting=0,
-        kernel_case=task_id,
+        kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
 
@@ -284,7 +291,7 @@ def load_tasks_from_file(filename):
     # Reconstruct task objects from dictionaries
     task_list = []
     for task_dict in tasks_data:
-        task = core.Kernel(
+        task = scheduler.Kernel(
             kernel_name=task_dict['kernel_name'],
             kernel_id=task_dict['kernel_id'],
             arrive_period=task_dict['arrive_period'],
@@ -334,8 +341,9 @@ def main():
     if VISUALIZATION:  # Use global variable
         print(f"[Step 4] Generating visualization figures...")
 
-        # Generate schedule Gantt chart
-        # gantt_file = output_dir / f'schedule_gantt.png'  # Using default format
+        # Generate Fig9
+        genFigs = visualization.SimulationDataAnalyzer()
+
         # generate_gantt_chart(schedule_results, output_path=gantt_file)
         # print(f"  Generated: {gantt_file}")
 

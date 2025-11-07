@@ -851,7 +851,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     return kernel_latency, kernel_waiting_distribution, kernel_execution_ratio, kernel_waiting_ratio, kernel_execution_distribution, cgra_utilization, overall_latency, overall_execution, checked_num_kernel, waiting_time_nolap
 
 
-def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boosting, kernel_case, num_cgras=9):
+def run_multiple_simulations_and_save_to_csv(kernels_list, csv_name, priority_boosting, kernel_case, num_cgras=9):
     """
     Run multiple simulations and save the results to a CSV file.
 
@@ -927,5 +927,5 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csvname, priority_boo
 
 
     df = pd.DataFrame(all_results)
-    file_name = f'./result/simulation_{kernel_case}_{csvname}.csv'
+    file_name = f'./result/simulation_{kernel_case}_{csv_name}.csv'
     df.to_csv(file_name, index=False)
