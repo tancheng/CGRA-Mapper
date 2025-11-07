@@ -1,3 +1,0 @@
-,kernels,DFG nodes,DFG edges,recMII,mappingII,expandableII,utilization
-0,,,,,,,
-1,relu+histogram,23,28,2,2,2,40.625
