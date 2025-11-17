@@ -5,6 +5,7 @@
 # ----------------------------------------------------------------------------
 
 import heapq
+import os
 import subprocess
 import json
 import eventlet    # for time out
@@ -57,25 +58,31 @@ class Kernel:
         self.unroll_factor = unroll_factor
         self.vector_factor = vector_factor
         self.df = pd.DataFrame(DICT_CSV, index=[0])
-        self.base_ii = None  # II when using 1 CGRA, actual II, if fused, base_ii is fused_ii
-        self.expandable_ii = None  # II when using 2 CGRAs, expandable II, if fused, expandable_ii is individual_ii
-        self.utilization = None
+        self.base_ii = 0  # II when using 1 CGRA, actual II, if fused, base_ii is fused_ii
+        self.expandable_ii = 0  # II when using 2 CGRAs, expandable II, if fused, expandable_ii is individual_ii
+        self.utilization = 0
         self.total_iterations = math.ceil(total_iterations / (self.unroll_factor*self.vector_factor))
         self.rows = cgra_rows
         self.columns = cgra_columns
-        if DO_MAPPING:
-            self.get_ii()  # Perform mapping and populate attributes
-        else:
-            self.read_ii()  # Read from existing csv
+        self.load_data()
 
-        # TODO
-        print(f"Kernel {self.kernel_name} initialized with arrive_period={self.arrive_period}, unroll_factor={self.unroll_factor}, vector_factor={self.vector_factor}")
 
     def __lt__(self, other):
         """
         Compare two Kernel by id.
         """
         return self.kernel_id < other.kernel_id
+
+    def load_data(self):
+        prefix = './tmp/t_'
+        csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
+        if os.path.exists(csv_name):
+            self.read_ii(csv_name)
+        else:
+            self.get_ii(csv_name)
+
+        self.is_valid = bool(self.base_ii)
+        print(f"Kernel {self.kernel_name} loaded with arrive_period={self.arrive_period}")
 
     def comp_kernel(self):
         """
@@ -208,14 +215,12 @@ class Kernel:
 
         self.df.loc[len(self.df.index)] = dataS
 
-    def get_ii(self):
+    def get_ii(self, csv_name):
         """
         This is a func to compile, run and map kernels under neura_json and store the mapping result in csv
 
         Returns: name of the csv that collects information of mapped kernels
         """
-        prefix = './tmp/fftDtw/t_' if self.kernel_name in {'fft.c', 'dtw.cpp'} else './tmp/t_'
-        csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
         print("Generating", csv_name)
         target_kernel = self.comp_kernel()
 
@@ -266,16 +271,12 @@ class Kernel:
         self.df.to_csv(csv_name)
         return csv_name
 
-    def read_ii(self):
+    def read_ii(self, csv_name):
         """
         This is a func to read from csv generated from get_ii()
 
         Returns: csv_name
         """
-        # 计算 CSV 文件路径，根据 kernel_name 是否为特定值使用不同的前缀
-        prefix = './tmp/fftDtw/t_' if self.kernel_name in {'fft.c', 'dtw.cpp'} else './tmp/t_'
-        csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
-        print(csv_name)
         try:
             df = pd.read_csv(csv_name)
             self.base_ii = int(df['mappingII'].iloc[1])
@@ -351,7 +352,7 @@ class KernelInstance:
         self.allocated_cgras = 0
         self.ii = None
         self.end_time = None
-        self.is_valid = True
+        self.is_valid = self.kernel.is_valid
         self.pure_execution_duration = 0  # Track pure execution duration for this instance
         self.pure_waiting_duration = 0  # Track pure waiting duration for this instance
         # Determine the maximum number of CGRAs that can be allocated
@@ -743,7 +744,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
 
     for kernel in kernels:
         print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, \
-              iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_id]}")
+              iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_id]}, isvalid, {kernel.is_valid}")
 
     # Schedule initial arrivals for all kernels
     for kernel in kernels:
@@ -753,8 +754,9 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
 
     while events:
         event_time, event_type, kernel_or_instance, _ = heapq.heappop(events)
-        if event_type == 'end' and not kernel_or_instance.is_valid:
-            print(f"Skipping invalid event for {kernel_or_instance.kernel.kernel_name}")
+        if not kernel_or_instance.is_valid:
+            # tmp_name = kernel_or_instance.kernel_name if kernel_or_instance is Kernel else kernel_or_instance.kernel.kernel_name
+            print(f"Skipping invalid event for tmp_name")
             continue
 
         current_time = event_time
@@ -762,7 +764,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
         idle_tracker.check_idle_period(current_time, available_cgras, waiting_instances)
         print(f"Processing event at time {current_time}: type={event_type}, kernel={kernel_or_instance.kernel_name if event_type == 'arrival' else kernel_or_instance.kernel.kernel_name}")
 
-        if event_type == 'arrival':
+        if event_type == 'arrival' and kernel_or_instance.is_valid:
             kernel = kernel_or_instance
             kernel_arrival_count[kernel.kernel_id] += 1
             # Create a new instance
@@ -782,7 +784,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
                 waiting_instances.append(instance)
                 print(f"No available CGRAs for {kernel.kernel_name}. Added to waiting queue.")
 
-        elif event_type == 'end':
+        elif event_type == 'end' and kernel_or_instance.is_valid:
             instance = kernel_or_instance
             # Release CGRAs
             available_cgras, total_cgra_runtime = release(instance, current_time, available_cgras, running_instances, completed_instances,kernel_latency, total_cgra_runtime)
@@ -903,14 +905,14 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csv_name, priority_bo
             "Arrive_Period": kernel.arrive_period,
             "Unroll_Factor": kernel.unroll_factor,
             "Vector_Factor": kernel.vector_factor,
-            "fastest_execution_duration": execution_stats.get(kernel_name, {}).get("fastest_execution_duration", None),
-            "slowest_execution_duration": execution_stats.get(kernel_name, {}).get("slowest_execution_duration", None),
-            "Average_Execution_duration": execution_stats.get(kernel_name, {}).get("average_execution_duration", None),
-            "fastest_waiting_duration": waiting_stats.get(kernel_name, {}).get("fastest_waiting_duration", None),
-            "slowest_waiting_duration": waiting_stats.get(kernel_name, {}).get("slowest_waiting_duration", None),
-            "Average_Waiting_duration": waiting_stats.get(kernel_name, {}).get("average_waiting_duration", None),
-            "Total_Execution_duration": execution_stats.get(kernel_name, {}).get("total_execution_duration", None),
-            "Total_Waiting_duration": waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None),
+            "fastest_execution_duration": execution_stats.get(kernel_name, {}).get("fastest_execution_duration", 0),
+            "slowest_execution_duration": execution_stats.get(kernel_name, {}).get("slowest_execution_duration", 0),
+            "Average_Execution_duration": execution_stats.get(kernel_name, {}).get("average_execution_duration", 0),
+            "fastest_waiting_duration": waiting_stats.get(kernel_name, {}).get("fastest_waiting_duration", 0),
+            "slowest_waiting_duration": waiting_stats.get(kernel_name, {}).get("slowest_waiting_duration", 0),
+            "Average_Waiting_duration": waiting_stats.get(kernel_name, {}).get("average_waiting_duration", 0),
+            "Total_Execution_duration": execution_stats.get(kernel_name, {}).get("total_execution_duration", 0),
+            "Total_Waiting_duration": waiting_stats.get(kernel_name, {}).get("total_waiting_duration", 0),
             "Execution_duration Ratio": kernel_execution_ratio[kernel_name],
             "Waiting_duration Ratio": kernel_waiting_ratio[kernel_name],
             "Overall_Case_Latency": overall_latency,
@@ -919,9 +921,9 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csv_name, priority_bo
             "CGRA_Utilization": cgra_utilization,
             "checked_num_kernel":checked_num_kernel,
             "waiting_time_nolap":waiting_time_nolap,
-            "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", None))/overall_latency,
-            "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency,
-            "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", None) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", None))/overall_latency
+            "Total_Execution_duration Ratio": (execution_stats.get(kernel_name, {}).get("total_execution_duration", 0))/overall_latency,
+            "Total_Waiting_duration Ratio": (waiting_stats.get(kernel_name, {}).get("total_waiting_duration", 0))/overall_latency,
+            "Total_Latency Ratio":  (execution_stats.get(kernel_name, {}).get("total_execution_duration", 0) + waiting_stats.get(kernel_name, {}).get("total_waiting_duration", 0))/overall_latency
         }
         all_results.append(result)
 

@@ -5,17 +5,18 @@
 # ----------------------------------------------------------------------------
 
 import argparse
-import tools.expandable.scheduler as scheduler
+import scheduler
 import visualization
 import json
 import os
 from pathlib import Path
+import time
 
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
-VISUALIZATION = False
-TEST_ME = True
+VISUALIZATION = True
+TEST_ME = False
 
 # Static kernel data (name: (sort_id, total_iterations, static_execution_time))
 KERNEL_DATA = {
@@ -174,8 +175,9 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     print(f"[Step 2] Loading tasks for task {task_id}...")
 
     if load_from_file:
-        # Load baseline tasks (12x12 CGRA)
-        baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
+        if file_name is '2x2':
+            # Load baseline tasks (12x12 CGRA)
+            baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
         # Load task tasks (4x4 CGRA)
         task_tasks = load_tasks_from_file(f"{file_name}task.json")
     else:
@@ -185,17 +187,19 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
         task_tasks = load_tasks(task_id, "task")
 
     if load_from_file:
-        case_id = file_name + str(task_id)
+        case_id = file_name + '_' + str(task_id)
     else:
         case_id = task_id
-    # Run baseline simulation
-    scheduler.run_multiple_simulations_and_save_to_csv(
-        baseline_tasks,
-        csv_name="Baseline",
-        priority_boosting=0,
-        kernel_case=case_id,
-        num_cgras=1  # one cgra is 12x12
-    )
+
+    if not load_from_file:
+        # Run baseline simulation
+        scheduler.run_multiple_simulations_and_save_to_csv(
+            baseline_tasks,
+            csv_name="Baseline",
+            priority_boosting=0,
+            kernel_case=case_id,
+            num_cgras=1  # one cgra is 12x12
+        )
 
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
@@ -253,23 +257,14 @@ def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL"
     else:
         case_id = task_id
     # Run baseline simulation
-    scheduler.run_multiple_simulations_and_save_to_csv(
-        baseline_tasks,
-        "Baseline",
-        priority_boosting=0,
-        kernel_case=case_id,
-        num_cgras=1  # one cgra is 12x12
-    )
-
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        "NoBoosting",
-        priority_boosting=0,
+        csv_name="BoostingScalar",
+        priority_boosting=1,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-
 
 
 def load_tasks_from_file(filename):
@@ -310,6 +305,7 @@ def load_tasks_from_file(filename):
 
 def main():
     """Main workflow control function"""
+    start = time.time()
     # 1. Load configuration (includes parsing arguments)
     print("=== Multi-CGRA Task Scheduling Tool ===")
     load_configuration()
@@ -325,34 +321,36 @@ def main():
     # 4. Execute scheduling
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
     if TEST_ME:
-        run_simulation_for_case_test(6)
+        pass
+        # run_simulation_for_case_test(6)
     else:
         for task_case_id in TASK_CONFIGS:
             run_simulation_for_case(task_case_id)
 
     # 4. Execute scheduling
     print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-    # run_simulation_for_case(task_case_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
-    # run_simulation_for_case(task_case_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
-    # run_simulation_for_case(task_case_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 2x2
-    # run_simulation_for_case(task_case_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 2x2
+    # run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+    # run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
+    # run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
+    # run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
 
-    # 5. Generate visualization
+    # 5. 所有 kernel 只来一次的 latency
+    print("[Step 4] Scheduling tasks on 4x4 Multi-CGRA and test throughput...")
+
+    # 6. Generate visualization
     if VISUALIZATION:  # Use global variable
         print(f"[Step 4] Generating visualization figures...")
 
         # Generate Fig9
         genFigs = visualization.SimulationDataAnalyzer()
+        genFigs.genFig9("./fig/Fig9.png")
+        genFigs.genFig10("./fig/Fig10.png")
 
-        # generate_gantt_chart(schedule_results, output_path=gantt_file)
-        # print(f"  Generated: {gantt_file}")
-
-        # # Generate resource utilization chart
-        # util_file = output_dir / f'resource_utilization.png'
-        # generate_schedule_figure(schedule_results, output_path=util_file)
-        # print(f"  Generated: {util_file}")
 
     print("\n=== Scheduling completed successfully! ===")
+    end = time.time()
+    execution_time = end - start
+    print(f"Time cost: {execution_time/60:.2f} min")
 
 
 if __name__ == '__main__':
