@@ -126,7 +126,7 @@ class SimulationDataAnalyzer:
             )
             self.waiting_cache[cache_key] = df['waiting_time_nolap']
 
-            return self.throughput_cache[cache_key]
+            return self.execution_cache[cache_key]
 
         except Exception as e:
             print(f"Failed to read file: {file_path}, Error: {str(e)}")
@@ -150,11 +150,12 @@ class SimulationDataAnalyzer:
             'BoostingScalarFuseVector'
         ]
         df = pd.read_csv("./result/simulation_1_Baseline.csv")
+        file_path = "./result/simulation_1_Baseline.csv"
         normalized_baseline = df['Overall_Execution'].iloc[0] #case1 的 Baseline 的 overall execution time
 
         for kernel_case in kernel_cases:
             for csv_name in csv_names:
-                self.load_scalability_data(kernel_case, csv_name, normalized_baseline)
+                self.load_throughput_data(kernel_case, csv_name)
 
         return
 
@@ -170,7 +171,7 @@ class SimulationDataAnalyzer:
             pd.DataFrame: DataFrame containing specified columns, or None if file doesn't exist
         """
         file_path = f'./result/simulation_{kernel_case}_{csv_name}.csv'
-
+        print(file_path)
         if not os.path.exists(file_path):
             print(f"File does not exist: {file_path}")
             return None
@@ -215,10 +216,10 @@ class SimulationDataAnalyzer:
         ]
         df = pd.read_csv("./result/simulation_2x2_6_Baseline.csv")
         normalized_baseline = df['Overall_Execution'].iloc[0]
-
+        latency_baseline = df['Overall_Case_Latency'].iloc[0]
         for kernel_case in kernel_cases:
             for csv_name in csv_names:
-                self.load_scalability_data(kernel_case, csv_name, normalized_baseline)
+                self.load_scalability_data(kernel_case, csv_name, normalized_baseline, latency_baseline)
 
         return
 
@@ -234,10 +235,10 @@ class SimulationDataAnalyzer:
         # Group structure
         groups: list = [
             'Baseline',
-            'NoBosting',
-            'BostingScalar',
-            'BostingScalarFuse',
-            'BostingScalarFuseVector'
+            'NoBoosting',
+            'BoostingScalar',
+            'BoostingScalarFuse',
+            'BoostingScalarFuseVector'
         ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_execution_data(cases)
@@ -257,7 +258,6 @@ class SimulationDataAnalyzer:
                 # Bar chart data - Resource utilization
                 if execution_series is not None:
                     bar_value = execution_series.sum()
-                    print(float(bar_value) * 100)
                     bar_data.append(float(bar_value) * 100)
                 else:
                     bar_data.append(0)
@@ -337,10 +337,10 @@ class SimulationDataAnalyzer:
         print(f"Generating fig f{fig_path}")
         groups: list = [
             'Baseline',
-            'NoBosting',
-            'BostingScalar',
-            'BostingScalarFuse',
-            'BostingScalarFuseVector'
+            'NoBoosting',
+            'BoostingScalar',
+            'BoostingScalarFuse',
+            'BoostingScalarFuseVector'
         ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_throughput_data(cases)
@@ -350,16 +350,32 @@ class SimulationDataAnalyzer:
         x_labels = []  # X-axis labels
         # Collect data
         for case in cases:
+            cache_key = f"{case}_Baseline"
+            execution_series = self.execution_cache.get(cache_key)
+            number_series = self.number_cache.get(cache_key)
+            waiting_series = self.waiting_cache.get(cache_key)
+            hw_waiting = waiting_series.iloc[0] / int(number_series.sum())
+            avg_execution = execution_series.sum() / int(number_series.sum())
+            hw_waiting_ratio = hw_waiting / (hw_waiting + avg_execution)
+            avg_execution_ratio = avg_execution / (hw_waiting + avg_execution)
+            hw_waiting_baseline = hw_waiting
+            avg_execution_baseline = avg_execution
+            throughput_baseline = (hw_waiting_ratio + avg_execution_ratio)
+            print("throughput_baseline", throughput_baseline)
             for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 number_series = self.number_cache.get(cache_key)
-                waiting_series = self.waiting_cache(cache_key)
+                waiting_series = self.waiting_cache.get(cache_key)
+                if (execution_series is None or number_series is None or
+                waiting_series is None):
+                    continue
                 hw_waiting = waiting_series.iloc[0] / int(number_series.sum())
                 avg_execution = execution_series.sum() / int(number_series.sum())
-                hw_waiting_ratio = hw_waiting / (hw_waiting + avg_execution)
-                avg_execution_ratio = avg_execution / (hw_waiting + avg_execution)
-                bar_data.append(hw_waiting_ratio + avg_execution_ratio) * 100
+                hw_waiting_ratio = hw_waiting / (hw_waiting_baseline + avg_execution_baseline)
+                avg_execution_ratio = avg_execution / (hw_waiting_baseline + avg_execution_baseline)
+                print(hw_waiting_ratio + avg_execution_ratio)
+                bar_data.append(throughput_baseline / (hw_waiting_ratio + avg_execution_ratio))
 
                 x_labels.append(f"{group}")
         # sum_throughput = throughput_speedup.sum()
@@ -376,13 +392,13 @@ class SimulationDataAnalyzer:
 
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='blue')
         ax1.tick_params(axis='y', labelcolor='blue')
-        ax1.set_ylim(0, 100)
+        ax1.set_ylim(0, 4)
 
         # Display values on bars
         for bar, value in zip(bars, bar_data):
             height = bar.get_height()
             ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
+                    f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Set X-axis labels and grouping
         ax1.set_xticks(x_positions)
@@ -404,19 +420,17 @@ class SimulationDataAnalyzer:
         # plt.legend()
         plt.savefig(fig_path)
 
-
     def genFig11(self, fig_path: str):
         """
         Generate Figure 11: Scalability -- Normalized execution time and improved utilization
         """
-        print(f"Generating fig f{fig_path}")
         # Group structure
         groups: list = [
             'Baseline',
-            'NoBosting',
-            'BostingScalar',
-            'BostingScalarFuse',
-            'BostingScalarFuseVector'
+            'NoBoosting',
+            'BoostingScalar',
+            'BoostingScalarFuse',
+            'BoostingScalarFuseVector'
         ]
         cases = ['2x2_6', '3x3_6', '4x4_6', '5x5_6']
         self.process_scalability_data(cases)
@@ -425,23 +439,31 @@ class SimulationDataAnalyzer:
         bar_data = []  # Bar chart data
         line_data = [] # Line chart data
         x_labels = []  # X-axis labels
-        throughput_speedup = []
         # Collect data
+        cache_key = "2x2_6_Baseline"
+        scalability_series = self.scalability_cache.get(cache_key)
+        latency_series = self.latency_cache.get(cache_key)
+        throughput_speedup = [0] * len(scalability_series)
+        for i in range(len(scalability_series)):
+            throughput_speedup[i] = (1 / (scalability_series[i] * latency_series[i] * 100))
+        throughput_baseline = sum(throughput_speedup)
         for case in cases:
             for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 scalability_series = self.scalability_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
                 latency_series = self.latency_cache.get(cache_key)
+                if (scalability_series is None or latency_series is None or
+                utilization_series is None):
+                    continue
+                for i in range(len(scalability_series)):
+                    if scalability_series[i] * latency_series[i] == 0:
+                        tmp = 0
+                    else:
+                        tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
+                    throughput_speedup[i] = tmp / throughput_baseline
                 # Bar chart data - Resource utilization
-                if scalability_series is not None:
-                    bar_value = scalability_series.sum()
-                    tmp_speedup = latency_series.iloc[0] * float(bar_value) * 100
-                    tmp_throughput = 1/tmp_speedup
-                    bar_data.append(tmp_throughput)
-                    throughput_speedup.append(tmp_throughput)
-                else:
-                    bar_data.append(0)
+                bar_data.append(sum(throughput_speedup))
 
                 # Line chart data - Execution duration or other metrics
                 if utilization_series is not None:
@@ -453,7 +475,7 @@ class SimulationDataAnalyzer:
                 x_labels.append(f"{group}")
         # sum_throughput = throughput_speedup.sum()
         # Create chart
-        fig, ax1 = plt.subplots(figsize=(20, 8))
+        fig, ax1 = plt.subplots(figsize=(20, 12))
 
         x_positions = np.arange(len(bar_data))
         bar_width = 0.6
@@ -465,13 +487,13 @@ class SimulationDataAnalyzer:
 
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='blue')
         ax1.tick_params(axis='y', labelcolor='blue')
-        ax1.set_ylim(0, 100)
+        ax1.set_ylim(0, 26)
 
         # Display values on bars
         for bar, value in zip(bars, bar_data):
             height = bar.get_height()
             ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
+                    f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
@@ -484,6 +506,8 @@ class SimulationDataAnalyzer:
 
         ax2.set_ylabel('Utilization (%)', fontsize=12, color='red')
         ax2.tick_params(axis='y', labelcolor='red')
+        ax2.set_ylim(0, 1)
+        ax2.set_yticks(np.arange(0, 1, 0.1))
 
         # Display values on line points
         for i, (x, y) in enumerate(zip(x_positions, line_data)):
@@ -500,7 +524,29 @@ class SimulationDataAnalyzer:
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=13, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+        # # 添加分组分隔线
+        # current_pos = 0
+        # for case in cases:
+        #     # 计算该case有多少个有效group
+        #     case_groups = 0
+        #     for group in groups:
+        #         cache_key = f"{case}_{group}"
+        #         if (self.scalability_cache.get(cache_key) is not None and
+        #             self.latency_cache.get(cache_key) is not None):
+        #             case_groups += 1
 
+        #     if case_groups > 0:
+        #         # 在case之间添加分隔线
+        #         if current_pos > 0:
+        #             ax1.axvline(x=current_pos - 0.5, color='gray', linestyle=':', alpha=0.7)
+
+        #         # 添加case标签在分组中间
+        #         middle_pos = current_pos + (case_groups - 1) / 2
+        #         ax1.text(middle_pos, -0.2, case, transform=ax1.get_xaxis_transform(),
+        #                 ha='center', va='top', fontsize=13, fontweight='bold',
+        #                 bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+
+        #         current_pos += case_groups
         # Legends
         ax1.legend(loc='upper left')
         ax2.legend(loc='upper right')
@@ -510,7 +556,10 @@ class SimulationDataAnalyzer:
         plt.tight_layout()
         # plt.legend()
         plt.savefig(fig_path)
+        print(f"Generated fig f{fig_path}")
 
 if __name__ == '__main__':
     genFigs = SimulationDataAnalyzer()
-    genFigs.genFig9("./fig/Fig9.png")
+    # genFigs.genFig9("./fig/Fig9.png")
+    genFigs.genFig10("./fig/Fig10.png")
+    # genFigs.genFig11("./fig/Fig11.png")
