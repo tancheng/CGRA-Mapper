@@ -113,7 +113,7 @@ class Kernel:
 
 
         if compile_err:
-            # print(f"Compile warning message for {self.kernel_name}: {compile_err}")
+            print(f"Compile warning message for {self.kernel_name}: {compile_err}")
         if disassemble_err:
             # print(f"Disassemble error message for {self.kernel_name}: {disassemble_err}")
             return
@@ -168,7 +168,7 @@ class Kernel:
                             self.utilization = min(float(output_line.split("avg overall utilization: ")[1].split("%")[0])/100,1)
                             dataS.append(self.utilization)
                         if "[Mapping Fail]" in output_line:
-                            # print(f"{self.kernel_name} mapping failed.")
+                            print(f"{self.kernel_name} mapping failed.")
         except eventlet.timeout.Timeout:
             dataS = [0]*(DICT_COLUMN)
             # print("Skipping a specific config for kernel: ", self.kernel_name, "Because it runs more than", TIME_OUT_SET/60 , "minute(s).")
@@ -643,7 +643,7 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         total_cgra_runtime += actual_runtime  # 添加实际已经运行时间
         total_cgra_runtime += new_allocation_runtime  # 添加新的分配运行时间
     else:
-        # print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
+        print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
     return available_cgras, total_cgra_runtime
 
 
@@ -743,7 +743,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     # print(f"\033[91mPriority Boosting Level: {priority_boosting}\033[0m")
 
     for kernel in kernels:
-        # print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, \
+        print(f"Kernel {kernel.kernel_name} base_ii={kernel.base_ii}, expandable_ii={kernel.expandable_ii}, \
               iterations={kernel.total_iterations}, utilization={kernel.utilization}, arrive_times, {arrive_times_list[kernel.kernel_id]}, isvalid, {kernel.is_valid}")
 
     # Schedule initial arrivals for all kernels
