@@ -3,5 +3,6 @@
 
 mkdir ./tmp
 mkdir ./result
+mkdir ./fig
 
 python main.py
