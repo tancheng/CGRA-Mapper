@@ -287,10 +287,10 @@ class SimulationDataAnalyzer:
         ax1.set_ylim(0, 100)
 
         # Display values on bars
-        for bar, value in zip(bars, bar_data):
-            height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
+        # for bar, value in zip(bars, bar_data):
+        #     height = bar.get_height()
+        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
+        #             f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
@@ -380,7 +380,7 @@ class SimulationDataAnalyzer:
                 x_labels.append(f"{group}")
         # sum_throughput = throughput_speedup.sum()
         # Create chart
-        fig, ax1 = plt.subplots(figsize=(20, 8))
+        fig, ax1 = plt.subplots(figsize=(10, 8))
 
         x_positions = np.arange(len(bar_data))
         bar_width = 0.6
@@ -395,10 +395,10 @@ class SimulationDataAnalyzer:
         ax1.set_ylim(0, 4)
 
         # Display values on bars
-        for bar, value in zip(bars, bar_data):
-            height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{value}', ha='center', va='bottom', fontsize=9)
+        # for bar, value in zip(bars, bar_data):
+        #     height = bar.get_height()
+        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
+        #             f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Set X-axis labels and grouping
         ax1.set_xticks(x_positions)
@@ -490,10 +490,10 @@ class SimulationDataAnalyzer:
         ax1.set_ylim(0, 26)
 
         # Display values on bars
-        for bar, value in zip(bars, bar_data):
-            height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{value}', ha='center', va='bottom', fontsize=9)
+        # for bar, value in zip(bars, bar_data):
+        #     height = bar.get_height()
+        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
+        #             f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
@@ -506,8 +506,8 @@ class SimulationDataAnalyzer:
 
         ax2.set_ylabel('Utilization (%)', fontsize=12, color='red')
         ax2.tick_params(axis='y', labelcolor='red')
-        ax2.set_ylim(0, 1)
-        ax2.set_yticks(np.arange(0, 1, 0.1))
+        ax2.set_ylim(0, 1.2)
+        ax2.set_yticks(np.arange(0, 1.3, 0.1))
 
         # Display values on line points
         for i, (x, y) in enumerate(zip(x_positions, line_data)):
@@ -519,34 +519,34 @@ class SimulationDataAnalyzer:
         ax1.set_xticklabels(x_labels, rotation=90)
 
         # Add group labels
-        group_positions = [1, 4, 7, 10, 13, 16]  # Middle position of each group
-        for case, pos in zip(cases, group_positions):
-            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
-                    ha='center', va='top', fontsize=13, fontweight='bold',
-                    bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+        # group_positions = [1, 4, 7, 10, 13, 16]  # Middle position of each group
+        # for case, pos in zip(cases, group_positions):
+        #     ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+        #             ha='center', va='top', fontsize=13, fontweight='bold',
+        #             bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
         # # 添加分组分隔线
-        # current_pos = 0
-        # for case in cases:
-        #     # 计算该case有多少个有效group
-        #     case_groups = 0
-        #     for group in groups:
-        #         cache_key = f"{case}_{group}"
-        #         if (self.scalability_cache.get(cache_key) is not None and
-        #             self.latency_cache.get(cache_key) is not None):
-        #             case_groups += 1
+        current_pos = 0
+        for case in cases:
+            # 计算该case有多少个有效group
+            case_groups = 0
+            for group in groups:
+                cache_key = f"{case}_{group}"
+                if (self.scalability_cache.get(cache_key) is not None and
+                    self.latency_cache.get(cache_key) is not None):
+                    case_groups += 1
 
-        #     if case_groups > 0:
-        #         # 在case之间添加分隔线
-        #         if current_pos > 0:
-        #             ax1.axvline(x=current_pos - 0.5, color='gray', linestyle=':', alpha=0.7)
+            if case_groups > 0:
+                # 在case之间添加分隔线
+                if current_pos > 0:
+                    ax1.axvline(x=current_pos - 0.5, color='gray', linestyle=':', alpha=0.7)
 
-        #         # 添加case标签在分组中间
-        #         middle_pos = current_pos + (case_groups - 1) / 2
-        #         ax1.text(middle_pos, -0.2, case, transform=ax1.get_xaxis_transform(),
-        #                 ha='center', va='top', fontsize=13, fontweight='bold',
-        #                 bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+                # 添加case标签在分组中间
+                middle_pos = current_pos + (case_groups - 1) / 2
+                ax1.text(middle_pos, -0.2, case, transform=ax1.get_xaxis_transform(),
+                        ha='center', va='top', fontsize=13, fontweight='bold',
+                        bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
 
-        #         current_pos += case_groups
+                current_pos += case_groups
         # Legends
         ax1.legend(loc='upper left')
         ax2.legend(loc='upper right')
