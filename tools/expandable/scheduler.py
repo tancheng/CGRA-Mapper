@@ -233,7 +233,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": ["default_heterogeneous"],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
+            "fusionStrategy": [],   # TODO: 有一些 kernel 删去 "default_heterogeneous"
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,

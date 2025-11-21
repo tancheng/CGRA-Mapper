@@ -1,17 +1,15 @@
 {
-    "kernel": "kernel",
+    "kernel": "_Z6kerneli",
     "targetFunction": false,
     "targetNested": false,
     "targetLoopsID": [
         0
     ],
     "doCGRAMapping": true,
-    "row": 12,
-    "column": 12,
+    "row": 4,
+    "column": 4,
     "precisionAware": false,
-    "fusionStrategy": [
-        "default_heterogeneous"
-    ],
+    "fusionStrategy": [],
     "isTrimmedDemo": true,
     "heuristicMapping": true,
     "parameterizableCGRA": false,

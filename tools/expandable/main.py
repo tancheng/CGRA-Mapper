@@ -322,7 +322,7 @@ def main():
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
     if TEST_ME:
         pass
-        # run_simulation_for_case_test(6)
+        run_simulation_for_case_test(1)
     else:
         for task_case_id in TASK_CONFIGS:
             run_simulation_for_case(task_case_id)
@@ -345,6 +345,7 @@ def main():
         genFigs = visualization.SimulationDataAnalyzer()
         genFigs.genFig9("./fig/Fig9.png")
         genFigs.genFig10("./fig/Fig10.png")
+        # genFigs.genFig11("./fig/Fig10.png")
 
 
     print("\n=== Scheduling completed successfully! ===")
