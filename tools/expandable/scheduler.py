@@ -155,6 +155,7 @@ class Kernel:
                     gen_map_proc.stdout.flush()
                     for line in iter(gen_map_proc.stdout.readline, b''):
                         output_line = line.decode("ISO-8859-1")
+                        print("gen_map_proc")
                         if "DFG node count: " in output_line:
                             dataS.append(int(output_line.split("DFG node count: ")[1].split(";")[0]))
                             dataS.append(int(output_line.split("DFG edge count: ")[1].split(";")[0]))

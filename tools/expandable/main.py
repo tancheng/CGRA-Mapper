@@ -241,16 +241,16 @@ def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL"
     """
     print(f"[Step 2] Loading tasks for task {task_id}...")
 
-    if load_from_file:
-        # Load baseline tasks (12x12 CGRA)
-        baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
-        # Load task tasks (4x4 CGRA)
-        task_tasks = load_tasks_from_file(f"{file_name}task.json")
-    else:
-        # Load baseline tasks (12x12 CGRA)
-        baseline_tasks = load_tasks(task_id, "baseline")
-        # Load task tasks (4x4 CGRA)
-        task_tasks = load_tasks(task_id, "task")
+    # if load_from_file:
+    #     # Load baseline tasks (12x12 CGRA)
+    #     baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
+    #     # Load task tasks (4x4 CGRA)
+    #     task_tasks = load_tasks_from_file(f"{file_name}task.json")
+    # else:
+    #     # Load baseline tasks (12x12 CGRA)
+    #     baseline_tasks = load_tasks(task_id, "baseline")
+    #     # Load task tasks (4x4 CGRA)
+    #     task_tasks = load_tasks(task_id, "task")
 
     if load_from_file:
         case_id = file_name + str(task_id)
