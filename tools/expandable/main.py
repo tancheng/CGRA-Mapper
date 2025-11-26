@@ -16,7 +16,7 @@ import time
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
 VISUALIZATION = True
-TEST_ME = False
+TEST_ME = True
 
 # Static kernel data (name: (sort_id, total_iterations, static_execution_time))
 KERNEL_DATA = {
@@ -322,7 +322,6 @@ def main():
     # 4. Execute scheduling
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
     if TEST_ME:
-        pass
         run_simulation_for_case_test(1)
     else:
         for task_case_id in TASK_CONFIGS:

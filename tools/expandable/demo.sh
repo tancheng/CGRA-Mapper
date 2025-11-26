@@ -6,5 +6,3 @@ mkdir ./result
 mkdir ./fig
 
 python main.py | tee trace.log
-
-cat trace.log
