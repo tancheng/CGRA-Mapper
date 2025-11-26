@@ -77,10 +77,8 @@ class Kernel:
         prefix = './tmp/t_'
         csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
         if os.path.exists(csv_name):
-            print("read_ii")
             self.read_ii(csv_name)
         else:
-            print("get_ii")
             self.get_ii(csv_name)
 
         self.is_valid = bool(self.base_ii)
@@ -155,7 +153,6 @@ class Kernel:
                     gen_map_proc.stdout.flush()
                     for line in iter(gen_map_proc.stdout.readline, b''):
                         output_line = line.decode("ISO-8859-1")
-                        print(output_line)
                         if "DFG node count: " in output_line:
                             dataS.append(int(output_line.split("DFG node count: ")[1].split(";")[0]))
                             dataS.append(int(output_line.split("DFG edge count: ")[1].split(";")[0]))

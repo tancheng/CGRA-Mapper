@@ -120,6 +120,3 @@ jobs:
       working-directory: ${{github.workspace}}/tools/expandable
       run: |
         ./demo.sh
-
-    - name: Display log content
-      run: cat trace.log
