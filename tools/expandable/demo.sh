@@ -5,4 +5,6 @@ mkdir ./tmp
 mkdir ./result
 mkdir ./fig
 
-python main.py
+python main.py | tee trace.log
+
+cat trace.log

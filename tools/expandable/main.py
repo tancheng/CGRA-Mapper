@@ -258,6 +258,7 @@ def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL"
         case_id = task_id
     # Run baseline simulation
     # Run task simulation
+    task_tasks = [scheduler.Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=1, vector_factor=1, total_iterations=300000, cgra_rows=4, cgra_columns=4)]
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
         csv_name="BoostingScalar",
