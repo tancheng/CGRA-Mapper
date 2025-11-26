@@ -175,7 +175,7 @@ class Kernel:
 
         if len(dataS) != DICT_COLUMN:
             dataS.extend([0]*(DICT_COLUMN-len(dataS)))
-
+        print(dataS)
         self.df.loc[len(self.df.index)] = dataS
 
 
