@@ -240,6 +240,7 @@ class Kernel:
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
+            "vectorizationMode": "all",
             "diagonalVectorization": False,
             "bypassConstraint": 4,
             "isStaticElasticCGRA": False,
