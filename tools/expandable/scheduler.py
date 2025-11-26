@@ -77,8 +77,10 @@ class Kernel:
         prefix = './tmp/t_'
         csv_name = f'{prefix}{self.kernel_name}_{self.rows}x{self.columns}_unroll{self.unroll_factor}_vector{self.vector_factor}.csv'
         if os.path.exists(csv_name):
+            print("read_ii")
             self.read_ii(csv_name)
         else:
+            print("get_ii")
             self.get_ii(csv_name)
 
         self.is_valid = bool(self.base_ii)
