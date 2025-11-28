@@ -8,6 +8,7 @@
 #  Date : July 16, 2019
 #
 
+find_package(OpenMP REQUIRED)
 add_library(mapperPass MODULE
     # List your source files here.
     mapperPass.cpp
@@ -26,6 +27,8 @@ add_library(mapperPass MODULE
     Mapper.h
     Mapper.cpp
 )
+
+target_link_libraries(mapperPass PRIVATE OpenMP::OpenMP_CXX)
 
 # Use C++11 to compile our pass (i.e., supply -std=c++11).
 #if (NOT CMAKE_VERSION VERSION_LESS 3.1)
