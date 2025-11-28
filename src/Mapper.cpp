@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <omp.h>
 
 //#include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -1538,19 +1539,27 @@ int Mapper::heuristicMap(CGRA* t_cgra, DFG* t_dfg, int t_II,
     fail = false;
     for (list<DFGNode*>::iterator dfgNode=t_dfg->nodes.begin();
         dfgNode!=t_dfg->nodes.end(); ++dfgNode) {
+      
       list<map<CGRANode*, int>*> paths;
-      for (int i=0; i<t_cgra->getRows(); ++i) {
-        for (int j=0; j<t_cgra->getColumns(); ++j) {
-          CGRANode* fu = t_cgra->nodes[i][j];
-          map<CGRANode*, int>* tempPath =
-              calculateCost(t_cgra, t_dfg, t_II, *dfgNode, fu);
-          if(tempPath != NULL and tempPath->size() != 0) {
-            paths.push_back(tempPath);
-          } else {
-            cout<<"[DEBUG] no available path for DFG node "<<(*dfgNode)->getID()
-                <<" on CGRA node "<<fu->getID()<<" within II "<<t_II<<"; path size: "<<paths.size()<<".\n";
+
+      #pragma omp parallel
+      {
+          list<map<CGRANode*, int>*> paths_private;
+          #pragma omp for collapse(2) nowait
+          for (int i=0; i<t_cgra->getRows(); ++i) {
+            for (int j=0; j<t_cgra->getColumns(); ++j) {
+              CGRANode* fu = t_cgra->nodes[i][j];
+              map<CGRANode*, int>* tempPath =
+                  calculateCost(t_cgra, t_dfg, t_II, *dfgNode, fu);
+              if(tempPath != NULL && tempPath->size() != 0) {
+                paths_private.push_back(tempPath);
+              }
+            }
           }
-        }
+          #pragma omp critical
+          {
+              paths.splice(paths.end(), paths_private);
+          }
       }
       // Found some potential mappings.
       if (paths.size() != 0) {
