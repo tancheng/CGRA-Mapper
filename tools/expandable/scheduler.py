@@ -145,7 +145,7 @@ class Kernel:
         dataS = []    # for get results from subprocess and output to pandas
         kernels_source = (self.kernel_name.split("."))[0]
         dataS.append(kernels_source)
-        print(dataS)
+
         try:
             eventlet.monkey_patch()
             with eventlet.Timeout(TIME_OUT_SET, True):
@@ -154,7 +154,6 @@ class Kernel:
 
                     for line in iter(gen_map_proc.stdout.readline, b''):
                         output_line = line.decode("ISO-8859-1")
-                        print(output_line)
                         if "DFG node count: " in output_line:
                             dataS.append(int(output_line.split("DFG node count: ")[1].split(";")[0]))
                             dataS.append(int(output_line.split("DFG edge count: ")[1].split(";")[0]))
@@ -162,7 +161,6 @@ class Kernel:
                             dataS.append(int(output_line.split("[RecMII: ")[1].split("]")[0]))
                         if "[Mapping II: " in output_line:
                             self.base_ii = int(output_line.split("[Mapping II: ")[1].split("]")[0])
-                            print(dataS)
                             dataS.append(self.base_ii)
                         if "[ExpandableII: " in output_line:
                             self.expandable_ii = int(output_line.split("[ExpandableII: ")[1].split("]")[0])
@@ -170,7 +168,6 @@ class Kernel:
                         if "tile avg fu utilization: " in output_line:
                             self.utilization = min(float(output_line.split("avg overall utilization: ")[1].split("%")[0])/100,1)
                             dataS.append(self.utilization)
-                            print(dataS)
                         if "[Mapping Fail]" in output_line:
                             print(f"{self.kernel_name} mapping failed.")
         except eventlet.timeout.Timeout:
@@ -179,7 +176,7 @@ class Kernel:
 
         if len(dataS) != DICT_COLUMN:
             dataS.extend([0]*(DICT_COLUMN-len(dataS)))
-        print(dataS)
+
         self.df.loc[len(self.df.index)] = dataS
 
 

@@ -232,42 +232,6 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     )
 
 
-def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL", load_from_file = False):
-    """
-    Complete simulation workflow for specified case
-
-    Args:
-        task_id: Configuration case ID to run simulation for
-    """
-    print(f"[Step 2] Loading tasks for task {task_id}...")
-
-    # if load_from_file:
-    #     # Load baseline tasks (12x12 CGRA)
-    #     baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
-    #     # Load task tasks (4x4 CGRA)
-    #     task_tasks = load_tasks_from_file(f"{file_name}task.json")
-    # else:
-    #     # Load baseline tasks (12x12 CGRA)
-    #     baseline_tasks = load_tasks(task_id, "baseline")
-    #     # Load task tasks (4x4 CGRA)
-    #     task_tasks = load_tasks(task_id, "task")
-
-    if load_from_file:
-        case_id = file_name + str(task_id)
-    else:
-        case_id = task_id
-    # Run baseline simulation
-    # Run task simulation
-    task_tasks = [scheduler.Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=1, vector_factor=1, total_iterations=300000, cgra_rows=4, cgra_columns=4)]
-    scheduler.run_multiple_simulations_and_save_to_csv(
-        task_tasks,
-        csv_name="Neura-L1",
-        priority_boosting=1,
-        kernel_case=case_id,
-        num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
-    )
-
-
 def load_tasks_from_file(filename):
     """
     Load task list from JSON file
@@ -321,18 +285,15 @@ def main():
 
     # 4. Execute scheduling
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
-    if TEST_ME:
-        run_simulation_for_case_test(1)
-    else:
-        for task_case_id in TASK_CONFIGS:
-            run_simulation_for_case(task_case_id)
+    for task_case_id in TASK_CONFIGS:
+        run_simulation_for_case(task_case_id)
 
     # 4. Execute scheduling
     print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-    # run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
-    # run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
-    # run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
-    # run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
+    run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+    run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
+    run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
+    run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
 
     # 5. 所有 kernel 只来一次的 latency
     print("[Step 4] Scheduling tasks on 4x4 Multi-CGRA and test throughput...")
@@ -343,9 +304,9 @@ def main():
 
         # Generate Fig9
         genFigs = visualization.SimulationDataAnalyzer()
-        # genFigs.genFig9("./fig/Fig9.png")
-        # genFigs.genFig10("./fig/Fig10.png")
-        # genFigs.genFig11("./fig/Fig10.png")
+        genFigs.genFig9("./fig/Fig9.png")
+        genFigs.genFig10("./fig/Fig10.png")
+        genFigs.genFig11("./fig/Fig10.png")
 
 
     print("\n=== Scheduling completed successfully! ===")
