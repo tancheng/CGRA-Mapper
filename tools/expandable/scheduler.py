@@ -145,7 +145,7 @@ class Kernel:
         dataS = []    # for get results from subprocess and output to pandas
         kernels_source = (self.kernel_name.split("."))[0]
         dataS.append(kernels_source)
-
+        print(dataS)
         try:
             eventlet.monkey_patch()
             with eventlet.Timeout(TIME_OUT_SET, True):
@@ -167,6 +167,7 @@ class Kernel:
                         if "tile avg fu utilization: " in output_line:
                             self.utilization = min(float(output_line.split("avg overall utilization: ")[1].split("%")[0])/100,1)
                             dataS.append(self.utilization)
+                            print(dataS)
                         if "[Mapping Fail]" in output_line:
                             print(f"{self.kernel_name} mapping failed.")
         except eventlet.timeout.Timeout:

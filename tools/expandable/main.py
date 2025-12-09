@@ -343,8 +343,8 @@ def main():
 
         # Generate Fig9
         genFigs = visualization.SimulationDataAnalyzer()
-        genFigs.genFig9("./fig/Fig9.png")
-        genFigs.genFig10("./fig/Fig10.png")
+        # genFigs.genFig9("./fig/Fig9.png")
+        # genFigs.genFig10("./fig/Fig10.png")
         # genFigs.genFig11("./fig/Fig10.png")
 
 
