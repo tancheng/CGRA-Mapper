@@ -282,8 +282,8 @@ class SimulationDataAnalyzer:
                     color='skyblue', alpha=0.8,
                     label='Total_Execution_duration')
 
-        ax1.set_ylabel('Execution time', fontsize=12, color='blue')
-        ax1.tick_params(axis='y', labelcolor='blue')
+        ax1.set_ylabel('Execution time', fontsize=12, color='black')
+        ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 100)
 
         # Display values on bars
@@ -295,14 +295,41 @@ class SimulationDataAnalyzer:
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
 
-        line = ax2.plot(x_positions, line_data,
-                    marker='o', markersize=8, linewidth=2.5,
-                    color='red', linestyle='--',
-                    markerfacecolor='white', markeredgewidth=2,
-                    label='Utilization')
+        # Calculate number of complete cases
+        num_complete_cases = len(x_positions) // len(groups)
 
-        ax2.set_ylabel('Utilization (%)', fontsize=12, color='red')
-        ax2.tick_params(axis='y', labelcolor='red')
+        # Insert NaN every 5 points
+        x_with_gaps = []
+        y_with_gaps = []
+
+        for case_idx in range(num_complete_cases):
+            # Start and end indices for this case
+            start_idx = case_idx * len(groups)
+            end_idx = start_idx + len(groups)
+
+            # Add 5 points for this case
+            x_with_gaps.extend(x_positions[start_idx:end_idx])
+            y_with_gaps.extend(line_data[start_idx:end_idx])
+
+            # Add NaN after each case (except the last complete case)
+            if case_idx < num_complete_cases - 1:
+                x_with_gaps.append(np.nan)
+                y_with_gaps.append(np.nan)
+
+
+        # Convert to numpy arrays
+        x_with_gaps = np.array(x_with_gaps)
+        y_with_gaps = np.array(y_with_gaps)
+
+        # Plot line with gaps between cases
+        line = ax2.plot(x_with_gaps, y_with_gaps,
+                        marker='o', markersize=8, linewidth=2.5,
+                        color='blue', linestyle='--',
+                        markerfacecolor='white', markeredgewidth=2,
+                        label='Utilization')
+
+        ax2.set_ylabel('Utilization (%)', fontsize=12, color='black')
+        ax2.tick_params(axis='y', labelcolor='black')
 
         # Display values on line points
         for i, (x, y) in enumerate(zip(x_positions, line_data)):
@@ -314,11 +341,12 @@ class SimulationDataAnalyzer:
         ax1.set_xticklabels(x_labels, rotation=90)
 
         # Add group labels
-        group_positions = [1, 4, 7, 10, 13, 16]  # Middle position of each group
+        group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=13, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+
 
         # Legends
         ax1.legend(loc='upper left')
@@ -341,6 +369,13 @@ class SimulationDataAnalyzer:
             'BoostingScalar',
             'BoostingScalarFuse',
             'BoostingScalarFuseVector'
+        ]
+        bar_colors = [
+            '#7F7F7F',  # Gray
+            '#EDEDED',  # White/Light gray
+            '#FFF2CC',  # Light yellow
+            '#FFD966',  # Orange-yellow
+            '#FFC000'   # Orange
         ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_throughput_data(cases)
@@ -385,13 +420,12 @@ class SimulationDataAnalyzer:
         x_positions = np.arange(len(bar_data))
         bar_width = 0.6
 
-        # Primary Y-axis - Bar chart
         bars = ax1.bar(x_positions, bar_data, bar_width,
-                    color='skyblue', alpha=0.8,
-                    label='Total_Execution_duration')
+                    color=bar_colors[:len(bar_data)],
+                    alpha=0.8)
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='blue')
-        ax1.tick_params(axis='y', labelcolor='blue')
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='black')
+        ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 4)
 
         # Display values on bars
@@ -405,7 +439,7 @@ class SimulationDataAnalyzer:
         ax1.set_xticklabels(x_labels, rotation=90)
 
         # Add group labels
-        group_positions = [1, 4, 7, 10, 13, 16]  # Middle position of each group
+        group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=13, fontweight='bold',
@@ -485,27 +519,48 @@ class SimulationDataAnalyzer:
                     color='skyblue', alpha=0.8,
                     label='Total_Execution_duration')
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='blue')
-        ax1.tick_params(axis='y', labelcolor='blue')
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='black')
+        ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 26)
-
-        # Display values on bars
-        # for bar, value in zip(bars, bar_data):
-        #     height = bar.get_height()
-        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-        #             f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
 
-        line = ax2.plot(x_positions, line_data,
-                    marker='o', markersize=8, linewidth=2.5,
-                    color='red', linestyle='--',
-                    markerfacecolor='white', markeredgewidth=2,
-                    label='Utilization')
+        # Define break pattern: first group 5 points, then 4 points for others
+        break_pattern = [5]  # First case: 5 points
+        remaining_cases = (len(x_positions) - 5) // 4  # Calculate how many 4-point cases
+        break_pattern.extend([4] * remaining_cases)  # Add 4 for each remaining case
 
-        ax2.set_ylabel('Utilization (%)', fontsize=12, color='red')
-        ax2.tick_params(axis='y', labelcolor='red')
+        # Insert NaN based on the break pattern
+        x_with_gaps = []
+        y_with_gaps = []
+
+        current_idx = 0
+        for i, num_points in enumerate(break_pattern):
+            # Add points for this case
+            end_idx = current_idx + num_points
+            x_with_gaps.extend(x_positions[current_idx:end_idx])
+            y_with_gaps.extend(line_data[current_idx:end_idx])
+
+            # Add NaN after this case (except the last one)
+            if i < len(break_pattern) - 1:
+                x_with_gaps.append(np.nan)
+                y_with_gaps.append(np.nan)
+
+            current_idx = end_idx
+
+        x_with_gaps = np.array(x_with_gaps)
+        y_with_gaps = np.array(y_with_gaps)
+
+        # Plot line with gaps between cases
+        line = ax2.plot(x_with_gaps, y_with_gaps,
+                        marker='o', markersize=8, linewidth=2.5,
+                        color='blue', linestyle='--',
+                        markerfacecolor='white', markeredgewidth=2,
+                        label='Utilization')
+
+        ax2.set_ylabel('Utilization (%)', fontsize=12, color='black')
+        ax2.tick_params(axis='y', labelcolor='black')
         ax2.set_ylim(0, 1.2)
         ax2.set_yticks(np.arange(0, 1.3, 0.1))
 
@@ -519,34 +574,11 @@ class SimulationDataAnalyzer:
         ax1.set_xticklabels(x_labels, rotation=90)
 
         # Add group labels
-        # group_positions = [1, 4, 7, 10, 13, 16]  # Middle position of each group
-        # for case, pos in zip(cases, group_positions):
-        #     ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
-        #             ha='center', va='top', fontsize=13, fontweight='bold',
-        #             bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
-        # # 添加分组分隔线
-        current_pos = 0
-        for case in cases:
-            # 计算该case有多少个有效group
-            case_groups = 0
-            for group in groups:
-                cache_key = f"{case}_{group}"
-                if (self.scalability_cache.get(cache_key) is not None and
-                    self.latency_cache.get(cache_key) is not None):
-                    case_groups += 1
-
-            if case_groups > 0:
-                # 在case之间添加分隔线
-                if current_pos > 0:
-                    ax1.axvline(x=current_pos - 0.5, color='gray', linestyle=':', alpha=0.7)
-
-                # 添加case标签在分组中间
-                middle_pos = current_pos + (case_groups - 1) / 2
-                ax1.text(middle_pos, -0.2, case, transform=ax1.get_xaxis_transform(),
-                        ha='center', va='top', fontsize=13, fontweight='bold',
-                        bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
-
-                current_pos += case_groups
+        group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
+        for case, pos in zip(cases, group_positions):
+            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+                    ha='center', va='top', fontsize=13, fontweight='bold',
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
         # Legends
         ax1.legend(loc='upper left')
         ax2.legend(loc='upper right')
@@ -560,6 +592,6 @@ class SimulationDataAnalyzer:
 
 if __name__ == '__main__':
     genFigs = SimulationDataAnalyzer()
-    # genFigs.genFig9("./fig/Fig9.png")
-    genFigs.genFig10("./fig/Fig10.png")
+    genFigs.genFig9("./fig/Fig9.png")
+    # genFigs.genFig10("./fig/Fig10.png")
     # genFigs.genFig11("./fig/Fig11.png")

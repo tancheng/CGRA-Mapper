@@ -204,28 +204,28 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        csv_name="NoBoosting",
+        csv_name="Neura-L0",
         priority_boosting=0,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        csv_name="BoostingScalar",
+        csv_name="Neura-L1",
         priority_boosting=1,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        csv_name="BoostingScalarFuse",
+        csv_name="Neura-L2",
         priority_boosting=2,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        csv_name="BoostingScalarFuseVector",
+        csv_name="Neura",
         priority_boosting=3,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
@@ -261,7 +261,7 @@ def run_simulation_for_case_test(task_id, num_task_cgras = 9, file_name = "NULL"
     task_tasks = [scheduler.Kernel(kernel_name="fir.cpp", kernel_id=8, arrive_period=600000, unroll_factor=1, vector_factor=1, total_iterations=300000, cgra_rows=4, cgra_columns=4)]
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
-        csv_name="BoostingScalar",
+        csv_name="Neura-L1",
         priority_boosting=1,
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
