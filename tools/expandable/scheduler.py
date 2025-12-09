@@ -151,8 +151,10 @@ class Kernel:
             with eventlet.Timeout(TIME_OUT_SET, True):
                 with gen_map_proc.stdout:
                     gen_map_proc.stdout.flush()
+
                     for line in iter(gen_map_proc.stdout.readline, b''):
                         output_line = line.decode("ISO-8859-1")
+                        print(output_line)
                         if "DFG node count: " in output_line:
                             dataS.append(int(output_line.split("DFG node count: ")[1].split(";")[0]))
                             dataS.append(int(output_line.split("DFG edge count: ")[1].split(";")[0]))
@@ -160,6 +162,7 @@ class Kernel:
                             dataS.append(int(output_line.split("[RecMII: ")[1].split("]")[0]))
                         if "[Mapping II: " in output_line:
                             self.base_ii = int(output_line.split("[Mapping II: ")[1].split("]")[0])
+                            print(dataS)
                             dataS.append(self.base_ii)
                         if "[ExpandableII: " in output_line:
                             self.expandable_ii = int(output_line.split("[ExpandableII: ")[1].split("]")[0])
