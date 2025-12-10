@@ -86,7 +86,7 @@ def parse_arguments():
     )
     # Core application arguments
     parser.add_argument('--test', type=str_to_bool, default=TESTME,
-                       help='Test main.py in CI/CD [y/n]')
+                       help='Run tests in CI/CD [y/n]')
     parser.add_argument('--cgra-config', type=int, default= 4,
                        help='Path to CGRA configuration file')
     parser.add_argument('--json-name', type=str, default= "./param.json",
@@ -107,10 +107,11 @@ def load_configuration():
     2. Default values (lowest priority)
     """
     # Update global configuration with command line arguments
-    global VISUALIZATION
+    global VISUALIZATION, TESTME
     # Parse command line arguments
     args = parse_arguments()
     VISUALIZATION = args.visualize
+    TESTME = args.test
     scheduler.init_args(args)
     print(f"Test in CI/CD: {args.test}")
     print(f"Timeout: {args.time_out_set}")
@@ -227,13 +228,13 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-    # scheduler.run_multiple_simulations_and_save_to_csv(
-    #     task_tasks,
-    #     csv_name="Neura",
-    #     priority_boosting=3,
-    #     kernel_case=case_id,
-    #     num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
-    # )
+    scheduler.run_multiple_simulations_and_save_to_csv(
+        task_tasks,
+        csv_name="Neura",
+        priority_boosting=3,
+        kernel_case=case_id,
+        num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
+    )
 
 
 def load_tasks_from_file(filename):
