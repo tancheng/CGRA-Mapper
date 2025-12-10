@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-#   Filename: SORAdemo.py                                                   /
+#   Filename: scheduler.py                                                  /
 #   Description: simulate multi-kernel running on multi-CGRA                /
 #   Author: Miaomiao Jiang, start from 2025-02-24                           /
 # ----------------------------------------------------------------------------
@@ -16,27 +16,25 @@ import math
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
 
-TEST_BENCHS = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c", "conv.c", "relu.c", "histogram.cpp", "mvt.c", "gemm.c", "spmv+conv.c", "relu+histogram.c"]
-TEST_BENCHS_NUM = len(TEST_BENCHS)
 DICT_CSV = {'kernels': "", 'DFG nodes': "", 'DFG edges': "", 'recMII': "", 'mappingII': "", 'expandableII': "", 'utilization': ""}  # column names of generated CSV
 DICT_COLUMN = len(DICT_CSV)
-JSON_NAME = "./param.json"   # name of generated json file
-TIME_OUT_SET = 180
-DO_MAPPING = True
-KERNEL_DIRECTORY = "../../test/kernels"
 VECTOR_LANE = 2
+JSON_NAME = "./param.json"
+TIME_OUT_SET = 180
+KERNEL_DIRECTORY = "../../test/kernels"
+
 
 def init_args(args):
     """init config"""
-    global JSON_NAME, TIME_OUT_SET, DO_MAPPING, KERNEL_DIRECTORY
+    global JSON_NAME, TIME_OUT_SET, KERNEL_DIRECTORY
     JSON_NAME = args.json_name
     KERNEL_DIRECTORY = args.kernel_directory
-    DO_MAPPING = args.do_mapping
     TIME_OUT_SET = args.time_out_set
 
 # ----------------------------------------------------------------------------
 #   class defination                                                         /
 # ----------------------------------------------------------------------------
+
 class Kernel:
     def __init__(self, kernel_name, kernel_id, arrive_period, unroll_factor, vector_factor, total_iterations, cgra_rows, cgra_columns):
         """

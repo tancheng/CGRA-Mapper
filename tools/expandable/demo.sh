@@ -5,4 +5,4 @@ mkdir ./tmp
 mkdir ./result
 mkdir ./fig
 
-python main.py
+python main.py --test=y

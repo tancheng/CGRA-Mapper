@@ -1,22 +1,22 @@
 # ----------------------------------------------------------------------------
-#   Filename: main.py                                                   /
-#   Description: simulate multi-kernel running on multi-CGRA                /
+#   Filename: main.py                                                       /
+#   Description: load multi-task and schedule them on multi-CGRA            /
 #   Author: Miaomiao Jiang, start from 2025-02-24                           /
 # ----------------------------------------------------------------------------
 
 import argparse
-import scheduler
-import visualization
 import json
 import os
 from pathlib import Path
 import time
+import scheduler
+import visualization
 
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
 # ----------------------------------------------------------------------------
 VISUALIZATION = True
-TEST_ME = True
+TESTME = False
 
 # Static kernel data (name: (sort_id, total_iterations, static_execution_time))
 KERNEL_DATA = {
@@ -65,6 +65,10 @@ TASK_CONFIGS = {
     }
 }
 
+# ----------------------------------------------------------------------------
+#   function defination                                                      /
+# ----------------------------------------------------------------------------
+
 def str_to_bool(value):
     if isinstance(value, bool):
         return value
@@ -81,14 +85,14 @@ def parse_arguments():
         description='Multi-CGRA Task Scheduling Tool'
     )
     # Core application arguments
+    parser.add_argument('--test', type=str_to_bool, default=TESTME,
+                       help='Test main.py in CI/CD [y/n]')
     parser.add_argument('--cgra-config', type=int, default= 4,
                        help='Path to CGRA configuration file')
     parser.add_argument('--json-name', type=str, default= "./param.json",
                        help='JSON configuration file name')
     parser.add_argument('--kernel-directory', type=str, default= "../../test/kernels",
                        help='Kernel directory path')
-    parser.add_argument('--do-mapping', type=str_to_bool, default= False,
-                       help='Enable/disable mapping phase [y/n]')
     parser.add_argument('--time-out-set', type=int, default= 180,
                        help='Timeout setting for operations')
     parser.add_argument('--visualize', type=str_to_bool, default=VISUALIZATION,
@@ -108,9 +112,9 @@ def load_configuration():
     args = parse_arguments()
     VISUALIZATION = args.visualize
     scheduler.init_args(args)
-    # print(f"CGRA Config: {CGRA_CONFIG}")
-    print(f"Do Mapping: {args.do_mapping}")
+    print(f"Test in CI/CD: {args.test}")
     print(f"Timeout: {args.time_out_set}")
+    print(f"Visualization: {args.visualize}")
 
 
 # ========== Task Loading Function ==========
@@ -285,28 +289,29 @@ def main():
 
     # 4. Execute scheduling
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
-    for task_case_id in TASK_CONFIGS:
-        run_simulation_for_case(task_case_id)
+    if TESTME:
+        run_simulation_for_case(1)
+        run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+    else:
+        for task_case_id in TASK_CONFIGS:
+            run_simulation_for_case(task_case_id)
 
-    # 4. Execute scheduling
-    print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-    run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
-    run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
-    run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
-    run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
+        # 4. Execute scheduling
+        print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
+        run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+        run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
+        run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
+        run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
 
-    # 5. 所有 kernel 只来一次的 latency
-    print("[Step 4] Scheduling tasks on 4x4 Multi-CGRA and test throughput...")
+        # 5. Generate visualization
+        if VISUALIZATION:  # Use global variable
+            print(f"[Step 4] Generating visualization figures...")
 
-    # 6. Generate visualization
-    if VISUALIZATION:  # Use global variable
-        print(f"[Step 4] Generating visualization figures...")
-
-        # Generate Fig9
-        genFigs = visualization.SimulationDataAnalyzer()
-        genFigs.genFig9("./fig/Fig9.png")
-        genFigs.genFig10("./fig/Fig10.png")
-        genFigs.genFig11("./fig/Fig10.png")
+            # Generate Fig9
+            genFigs = visualization.SimulationDataAnalyzer()
+            genFigs.genFig9("./fig/Fig9.png")
+            genFigs.genFig10("./fig/Fig10.png")
+            genFigs.genFig11("./fig/Fig10.png")
 
 
     print("\n=== Scheduling completed successfully! ===")

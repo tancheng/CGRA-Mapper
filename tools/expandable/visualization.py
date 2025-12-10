@@ -1,10 +1,18 @@
+# ----------------------------------------------------------------------------
+#   Filename: main.py                                                       /
+#   Description: load multi-task and schedule them on multi-CGRA            /
+#   Author: Miaomiao Jiang, start from 2025-10-28                           /
+# ----------------------------------------------------------------------------
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from typing import List, Dict, Any, Optional
-import glob
-import re
+from typing import List, Dict
+
+# ----------------------------------------------------------------------------
+#   class defination                                                         /
+# ----------------------------------------------------------------------------
 
 class SimulationDataAnalyzer:
     """Simulation data visualization analysis tool"""
@@ -589,8 +597,8 @@ class SimulationDataAnalyzer:
         plt.savefig(fig_path)
         print(f"Generated fig f{fig_path}")
 
-if __name__ == '__main__':
-    genFigs = SimulationDataAnalyzer()
-    genFigs.genFig9("./fig/Fig9.png")
-    # genFigs.genFig10("./fig/Fig10.png")
-    # genFigs.genFig11("./fig/Fig11.png")
+# if __name__ == '__main__':
+#     genFigs = SimulationDataAnalyzer()
+#     genFigs.genFig9("./fig/Fig9.png")
+#     # genFigs.genFig10("./fig/Fig10.png")
+#     # genFigs.genFig11("./fig/Fig11.png")
