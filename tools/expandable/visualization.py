@@ -75,10 +75,10 @@ class SimulationDataAnalyzer:
         """
         csv_names: List[str] = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         df = pd.read_csv("./result/simulation_1_Baseline.csv")
         normalized_baseline = df['Overall_Execution'].iloc[0] #case1 的 Baseline 的 overall execution time
@@ -144,10 +144,10 @@ class SimulationDataAnalyzer:
         """
         csv_names: List[str] = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         df = pd.read_csv("./result/simulation_1_Baseline.csv")
         file_path = "./result/simulation_1_Baseline.csv"
@@ -209,10 +209,10 @@ class SimulationDataAnalyzer:
         """
         csv_names: List[str] = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         df = pd.read_csv("./result/simulation_2x2_6_Baseline.csv")
         normalized_baseline = df['Overall_Execution'].iloc[0]
@@ -235,10 +235,10 @@ class SimulationDataAnalyzer:
         # Group structure
         groups: list = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_execution_data(cases)
@@ -365,10 +365,10 @@ class SimulationDataAnalyzer:
         print(f"Generating fig f{fig_path}")
         groups: list = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         bar_colors = [
             '#7F7F7F',  # Gray
@@ -460,10 +460,10 @@ class SimulationDataAnalyzer:
         # Group structure
         groups: list = [
             'Baseline',
-            'NoBoosting',
-            'BoostingScalar',
-            'BoostingScalarFuse',
-            'BoostingScalarFuseVector'
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
         ]
         cases = ['2x2_6', '3x3_6', '4x4_6', '5x5_6']
         self.process_scalability_data(cases)
