@@ -396,7 +396,7 @@ class SimulationDataAnalyzer:
             hw_waiting_baseline = hw_waiting
             avg_execution_baseline = avg_execution
             throughput_baseline = (hw_waiting_ratio + avg_execution_ratio)
-            print("throughput_baseline", throughput_baseline)
+
             for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
@@ -409,7 +409,6 @@ class SimulationDataAnalyzer:
                 avg_execution = execution_series.sum() / int(number_series.sum())
                 hw_waiting_ratio = hw_waiting / (hw_waiting_baseline + avg_execution_baseline)
                 avg_execution_ratio = avg_execution / (hw_waiting_baseline + avg_execution_baseline)
-                print(hw_waiting_ratio + avg_execution_ratio)
                 bar_data.append(throughput_baseline / (hw_waiting_ratio + avg_execution_ratio))
 
                 x_labels.append(f"{group}")

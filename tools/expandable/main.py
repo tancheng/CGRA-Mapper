@@ -223,13 +223,13 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
         kernel_case=case_id,
         num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
     )
-    scheduler.run_multiple_simulations_and_save_to_csv(
-        task_tasks,
-        csv_name="Neura",
-        priority_boosting=3,
-        kernel_case=case_id,
-        num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
-    )
+    # scheduler.run_multiple_simulations_and_save_to_csv(
+    #     task_tasks,
+    #     csv_name="Neura",
+    #     priority_boosting=3,
+    #     kernel_case=case_id,
+    #     num_cgras=num_task_cgras  # 9 of 4x4 CGRAs
+    # )
 
 
 def load_tasks_from_file(filename):
@@ -285,15 +285,16 @@ def main():
 
     # 4. Execute scheduling
     print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
-    for task_case_id in TASK_CONFIGS:
-        run_simulation_for_case(task_case_id)
+    run_simulation_for_case(1)
+    # for task_case_id in TASK_CONFIGS:
+    #     run_simulation_for_case(task_case_id)
 
     # 4. Execute scheduling
     print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-    run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
-    run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
-    run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
-    run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
+    # run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+    # run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
+    # run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
+    # run_simulation_for_case(task_id = 6, num_task_cgras=25, file_name="5x5", load_from_file=True)  # 5x5
 
     # 5. 所有 kernel 只来一次的 latency
     print("[Step 4] Scheduling tasks on 4x4 Multi-CGRA and test throughput...")

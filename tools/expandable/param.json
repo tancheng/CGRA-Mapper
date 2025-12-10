@@ -1,13 +1,13 @@
 {
-    "kernel": "_Z6kernelPfS_S_",
+    "kernel": "kernel",
     "targetFunction": false,
     "targetNested": false,
     "targetLoopsID": [
         0
     ],
     "doCGRAMapping": true,
-    "row": 4,
-    "column": 4,
+    "row": 8,
+    "column": 8,
     "precisionAware": false,
     "fusionStrategy": [],
     "isTrimmedDemo": true,

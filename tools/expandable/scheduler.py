@@ -647,7 +647,8 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         total_cgra_runtime += actual_runtime  # 添加实际已经运行时间
         total_cgra_runtime += new_allocation_runtime  # 添加新的分配运行时间
     else:
-        print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
+        # print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
+        pass
     return available_cgras, total_cgra_runtime
 
 
@@ -935,3 +936,4 @@ def run_multiple_simulations_and_save_to_csv(kernels_list, csv_name, priority_bo
     df = pd.DataFrame(all_results)
     file_name = f'./result/simulation_{kernel_case}_{csv_name}.csv'
     df.to_csv(file_name, index=False)
+    print(f"reslut {file_name} saved")
