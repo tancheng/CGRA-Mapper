@@ -222,9 +222,9 @@ class Kernel:
         """
         # print("Generating", csv_name)
         target_kernel = self.comp_kernel()
-        target_strategy = []
+        target_strategy = ["default_heterogeneous"]
         if self.rows is 12 and self.columns is 12:
-            target_strategy.append("default_heterogeneous")
+            target_strategy = []
         neura_json = {
             "kernel": target_kernel,
             "targetFunction": False,
@@ -234,7 +234,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": ["default_heterogeneous"],
+            "fusionStrategy": target_strategy,
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
