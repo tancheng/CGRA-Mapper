@@ -119,4 +119,4 @@ jobs:
     - name: Test expandable automatic script
       working-directory: ${{github.workspace}}/tools/expandable
       run: |
-        ./demo.sh
+        ./demo.sh --test y
