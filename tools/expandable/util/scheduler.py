@@ -283,7 +283,6 @@ class Kernel:
             df = pd.read_csv(csv_name)
             self.base_ii = int(df['mappingII'].iloc[1])
             self.expandable_ii = int(df['expandableII'].iloc[1])
-            # 检查是否存在utilization列
             if 'utilization' in df.columns:
                 self.utilization = min(float(df['utilization'].iloc[1]),1.0)
             else:
@@ -506,15 +505,12 @@ def allocate(priority_boosting, instance, current_time, available_cgras, events,
         float: The updated total runtime of all CGRAs.
     """
     runned_kernel_names.append(instance.kernel.kernel_name)
-    # HACK：再检查一下 cgra 利用率的问题，已经通过 invalid 查看解决
-    # 如果kernel名称中包含"+"，则将分配的CGRAs数量限制为1
 
     if priority_boosting == 0:
-        # Noboosting 还是给点限制吧
         if '+' in instance.kernel.kernel_name:
             allocate_cgras = min(1, available_cgras)
             # print(f"Kernel {instance.kernel.kernel_name} contains '+', limiting allocation to 1 CGRA")
-        elif instance.kernel.vector_factor != 1:    # vector 的一定要限制
+        elif instance.kernel.vector_factor != 1:    # limit allocated cgra of vector
             allocate_cgras = min(1, available_cgras)
             # print(f"Kernel {instance.kernel.kernel_name} is vectorized, limiting allocation to 1 CGRA")
         elif available_cgras < 6: # 6 if num_cgras = 9, 3 if num_cgras = 4, 12 if num_cgras = 16, 20 if num_cgras = 25
@@ -587,8 +583,7 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         float: Updated total runtime of all CGRAs.
     """
     if not instance.is_valid:
-        # TODO: 把 Invalid 去除在 running_instance 以外
-        ## print(f"Instance {instance.kernel.kernel_name} is already invalid, skipping re-allocation.")
+        # print(f"Instance {instance.kernel.kernel_name} is already invalid, skipping re-allocation.")
         return available_cgras, total_cgra_runtime
     if instance.allocated_cgras < instance.max_allocate_cgra and available_cgras > 0:
         possible_alloc = min(instance.max_allocate_cgra - instance.allocated_cgras, available_cgras)
@@ -598,13 +593,12 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         available_cgras -= possible_alloc
         # Recalculate remaining iterations
         elapsed_duration = current_time - instance.start_time
-        # 计算等效标量迭代次数（考虑向量化和CGRAs）
-        # 使用原始分配的CGRAs和II计算已完成的等效标量迭代
+        # Calculate equivalent scalar iteration count (considering vectorization and CGRAs)
         if instance.kernel.vector_factor == 1:
-            # 标量情况
+            # scalar
             completed_iters = elapsed_duration // instance.ii
         else:
-            # 向量情况 - 考虑向量化效率
+            # vector
             effective_ii = instance.ii * math.ceil(instance.kernel.vector_factor / (VECTOR_LANE * original_allocated_cgras))
             completed_iters = int(elapsed_duration // effective_ii)
         remaining_iters = instance.kernel.total_iterations - completed_iters
@@ -636,14 +630,14 @@ def re_allocate(instance, current_time, available_cgras, events, total_cgra_runt
         kernel = instance.kernel
         is_12x12 = (kernel.rows == 12 and kernel.columns == 12)
         utilization_factor = kernel.utilization if is_12x12 else 1.0
-        # 统一应用利用率因子
+        # Apply utilization factor uniformly
         old_estimate = original_allocated_cgras * (instance.end_time - instance.start_time) * utilization_factor
         actual_runtime = original_allocated_cgras * elapsed_duration * utilization_factor
         new_allocation_runtime = instance.allocated_cgras * remaining_execution_duration * utilization_factor
-        # 更新总运行时间
-        total_cgra_runtime -= old_estimate  # 移除旧的估计值
-        total_cgra_runtime += actual_runtime  # 添加实际已经运行时间
-        total_cgra_runtime += new_allocation_runtime  # 添加新的分配运行时间
+        # Update total runtime
+        total_cgra_runtime -= old_estimate  # Remove old estimate
+        total_cgra_runtime += actual_runtime  # Add actual runtime completed
+        total_cgra_runtime += new_allocation_runtime  # Add new allocation runtime
     else:
         # print(f"Re-allocated Failed. ({instance.kernel.kernel_name} at time {current_time})")
         pass
@@ -708,11 +702,10 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     Returns:
         dict: A dictionary that maps kernel names to their total latencies.
     """
-    # 添加目标检查时间
+    # Add target check time
     CHECK_TIME = 3276800
-    # 标记是否已输出结果，避免重复输出
+    # Flag to mark whether result has been output, avoiding duplicate output
     checked = False
-    checked_num_kernel = None
 
     available_cgras = num_cgras
     events = []  # when a kernel arrives or ends, it is an event
@@ -735,9 +728,8 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
     kernel_waiting_ratio = {kernel.kernel_name: 0 for kernel in kernels}
     total_cgra_runtime = 0
     idle_tracker = SystemIdleTracker(num_cgras=num_cgras)
-    # TODO：从函数名换成函数ID
     arrive_times_list = {
-        kernel.kernel_id: ((lcm_time // kernel.arrive_period))  # TODO: +1 (lcm_time // kernel.arrive_period)
+        kernel.kernel_id: ((lcm_time // kernel.arrive_period))
         for kernel in kernels
     }
     # print(arrive_times_list)
@@ -812,16 +804,15 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
                     priority_boosting, running, current_time, available_cgras, events, total_cgra_runtime
                 )
 
-        # 检查是否达到目标时间，未输出过结果，且当前时间 >= 目标时间
-        # TODO: 人工修正差的一两个，因为它显示的是这个数字以后的最近的
+        # Check if the target time has been reached, results haven't been output yet, and current time >= target time
         if not checked and current_time >= CHECK_TIME:
             # print(f"\n=== At time {CHECK_TIME}, number of completed functions: {len(completed_instances)} ===")
             checked_num_kernel = len(completed_instances)
-            checked = True  # 标记已输出，避免重复
+            checked = True
 
-        # print("="*20)
+        print("="*20)
 
-    # 如果整个模拟结束都没达到目标时间，也输出结果
+    # If the simulation ends before reaching the target time, also output results
     if not checked:
         # print(f"\n=== Simulation ended before {CHECK_TIME}, number of completed functions: {len(completed_instances)}")
         checked_num_kernel = len(completed_instances)
