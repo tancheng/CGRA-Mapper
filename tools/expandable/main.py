@@ -9,8 +9,8 @@ import json
 import os
 from pathlib import Path
 import time
-import scheduler
-import visualization
+import util.scheduler as scheduler
+import util.visualizer as visualizer
 
 # ----------------------------------------------------------------------------
 #   global variables                                                        /
@@ -182,9 +182,9 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     if load_from_file:
         if file_name is '2x2':
             # Load baseline tasks (12x12 CGRA)
-            baseline_tasks = load_tasks_from_file(f"{file_name}baseline.json")
+            baseline_tasks = load_tasks_from_file(f"./designs/{file_name}baseline.json")
         # Load task tasks (4x4 CGRA)
-        task_tasks = load_tasks_from_file(f"{file_name}task.json")
+        task_tasks = load_tasks_from_file(f"./designs/{file_name}task.json")
     else:
         # Load baseline tasks (12x12 CGRA)
         baseline_tasks = load_tasks(task_id, "baseline")
@@ -196,7 +196,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     else:
         case_id = task_id
 
-    if not load_from_file:
+    if (not load_from_file) or (file_name is '2x2'):
         # Run baseline simulation
         scheduler.run_multiple_simulations_and_save_to_csv(
             baseline_tasks,
@@ -272,7 +272,6 @@ def load_tasks_from_file(filename):
     return task_list
 
 
-
 def main():
     """Main workflow control function"""
     start = time.time()
@@ -309,10 +308,10 @@ def main():
             print(f"[Step 4] Generating visualization figures...")
 
             # Generate Fig9
-            genFigs = visualization.SimulationDataAnalyzer()
+            genFigs = visualizer.SimulationDataAnalyzer()
             genFigs.genFig9("./fig/Fig9.png")
             genFigs.genFig10("./fig/Fig10.png")
-            genFigs.genFig11("./fig/Fig10.png")
+            genFigs.genFig11("./fig/Fig11.png")
 
 
     print("\n=== Scheduling completed successfully! ===")

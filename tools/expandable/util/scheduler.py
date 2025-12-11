@@ -234,7 +234,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": target_strategy,
+            "fusionStrategy": ["default_heterogeneous"],
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,

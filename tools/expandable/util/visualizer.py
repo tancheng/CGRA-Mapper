@@ -34,7 +34,7 @@ class SimulationDataAnalyzer:
         self.latency_cache = {}
         self.figsize=(20, 8)
 
-    def load_execution_data(self, kernel_case: str, csv_name: str, normalized_baseline: int) -> pd.DataFrame:
+    def load_execution_data(self, kernel_case: str, csv_name: str, normalized_baseline: int):
         """
         Load data from a single CSV file
 
@@ -71,7 +71,7 @@ class SimulationDataAnalyzer:
             print(f"Failed to read file: {file_path}, Error: {str(e)}")
             return None
 
-    def process_execution_data(self, kernel_cases: List[str]) -> Dict[str, pd.DataFrame]:
+    def process_execution_data(self, kernel_cases: List[str]):
         """
         Batch load data from multiple CSV files
 
@@ -97,7 +97,7 @@ class SimulationDataAnalyzer:
 
         return
 
-    def load_throughput_data(self, kernel_case: str, csv_name: str) -> pd.DataFrame:
+    def load_throughput_data(self, kernel_case: str, csv_name: str):
         """
         Load data from a single CSV file
 
@@ -140,7 +140,7 @@ class SimulationDataAnalyzer:
             print(f"Failed to read file: {file_path}, Error: {str(e)}")
             return None
 
-    def process_throughput_data(self, kernel_cases: List[str]) -> Dict[str, pd.DataFrame]:
+    def process_throughput_data(self, kernel_cases: List[str]):
         """
         Batch load data from multiple CSV files
 
@@ -167,7 +167,7 @@ class SimulationDataAnalyzer:
 
         return
 
-    def load_scalability_data(self, kernel_case: str, csv_name: str, execution_baseline: int, latency_baseline: int) -> pd.DataFrame:
+    def load_scalability_data(self, kernel_case: str, csv_name: str, execution_baseline: int, latency_baseline: int):
         """
         Load data from a single CSV file
 
@@ -205,7 +205,7 @@ class SimulationDataAnalyzer:
             print(f"Failed to read file: {file_path}, Error: {str(e)}")
             return None
 
-    def process_scalability_data(self, kernel_cases: List[str]) -> Dict[str, pd.DataFrame]:
+    def process_scalability_data(self, kernel_cases: List[str]):
         """
         Batch load data from multiple CSV files
 
@@ -230,12 +230,6 @@ class SimulationDataAnalyzer:
                 self.load_scalability_data(kernel_case, csv_name, normalized_baseline, latency_baseline)
 
         return
-
-
-
-
-    def update_config(self) -> None:
-        pass
 
     def genFig9(self, fig_path: str):
         """Create correct combined chart - one bar and one line point per X position"""
@@ -288,17 +282,22 @@ class SimulationDataAnalyzer:
         # Primary Y-axis - Bar chart
         bars = ax1.bar(x_positions, bar_data, bar_width,
                     color='skyblue', alpha=0.8,
-                    label='Total_Execution_duration')
+                    label='Total_Execution_duration',
+                    edgecolor='black',
+                    linewidth=0.5)
 
-        ax1.set_ylabel('Execution time', fontsize=12, color='black')
+        # Add black dashed separator lines every group
+        for i in range(4, len(bar_data)-1, 5):
+            line_pos = i + 0.5
+            ax1.axvline(x=line_pos,
+                    color='black',
+                    linestyle='--',
+                    linewidth=0.5,
+                    alpha=0.8)
+
+        ax1.set_ylabel('Execution time', fontsize=24, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
-        ax1.set_ylim(0, 100)
-
-        # Display values on bars
-        # for bar, value in zip(bars, bar_data):
-        #     height = bar.get_height()
-        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-        #             f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
+        ax1.set_ylim(0, 120)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
@@ -336,7 +335,7 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=12, color='black')
+        ax2.set_ylabel('Utilization (%)', fontsize=24, color='black')
         ax2.tick_params(axis='y', labelcolor='black')
 
         # Display values on line points
@@ -352,7 +351,7 @@ class SimulationDataAnalyzer:
         group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
-                    ha='center', va='top', fontsize=13, fontweight='bold',
+                    ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
 
 
@@ -423,23 +422,36 @@ class SimulationDataAnalyzer:
         # sum_throughput = throughput_speedup.sum()
         # Create chart
         fig, ax1 = plt.subplots(figsize=(10, 8))
+        plt.style.use({
+            'font.size': 20,
+            'axes.labelsize': 18,
+            'axes.titlesize': 18,
+            'xtick.labelsize': 18,
+            'ytick.labelsize': 18
+        })
 
         x_positions = np.arange(len(bar_data))
         bar_width = 0.6
 
         bars = ax1.bar(x_positions, bar_data, bar_width,
-                    color=bar_colors[:len(bar_data)],
+               color=bar_colors[:len(bar_data)],
+               alpha=0.8,
+               edgecolor='black',
+               linewidth=0.5)
+
+        # Add black dashed separator lines every group
+        for i in range(4, len(bar_data)-1, 5):
+            line_pos = i + 0.5
+            ax1.axvline(x=line_pos,
+                    color='black',
+                    linestyle='--',
+                    linewidth=0.5,
                     alpha=0.8)
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='black')
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=24, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 4)
 
-        # Display values on bars
-        # for bar, value in zip(bars, bar_data):
-        #     height = bar.get_height()
-        #     ax1.text(bar.get_x() + bar.get_width()/2., height + 1,
-        #             f'{value}', ha='center', va='bottom', fontsize=9)
 
         # Set X-axis labels and grouping
         ax1.set_xticks(x_positions)
@@ -449,7 +461,7 @@ class SimulationDataAnalyzer:
         group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
-                    ha='center', va='top', fontsize=13, fontweight='bold',
+                    ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
 
         # Legends
@@ -517,6 +529,13 @@ class SimulationDataAnalyzer:
         # sum_throughput = throughput_speedup.sum()
         # Create chart
         fig, ax1 = plt.subplots(figsize=(20, 12))
+        plt.style.use({
+            'font.size': 20,
+            'axes.labelsize': 18,
+            'axes.titlesize': 18,
+            'xtick.labelsize': 18,
+            'ytick.labelsize': 18
+        })
 
         x_positions = np.arange(len(bar_data))
         bar_width = 0.6
@@ -524,9 +543,26 @@ class SimulationDataAnalyzer:
         # Primary Y-axis - Bar chart
         bars = ax1.bar(x_positions, bar_data, bar_width,
                     color='skyblue', alpha=0.8,
-                    label='Total_Execution_duration')
+                    label='Total_Execution_duration',
+                    edgecolor='black',
+                    linewidth=0.5)
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=12, color='black')
+        # Add black dashed separator lines every group
+        group_pattern = [5, 4, 4, 4]
+        current_position = 0
+        line_positions = []
+        for group_size in group_pattern:
+            current_position += group_size
+            if current_position < len(bar_data):
+                line_positions.append(current_position - 0.5)
+        for pos in line_positions:
+            ax1.axvline(x=pos,
+                        color='black',
+                        linestyle='--',
+                        linewidth=0.5,
+                        alpha=0.8)
+
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=24, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 26)
 
@@ -566,7 +602,7 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=12, color='black')
+        ax2.set_ylabel('Utilization (%)', fontsize=24, color='black')
         ax2.tick_params(axis='y', labelcolor='black')
         ax2.set_ylim(0, 1.2)
         ax2.set_yticks(np.arange(0, 1.3, 0.1))
@@ -581,10 +617,10 @@ class SimulationDataAnalyzer:
         ax1.set_xticklabels(x_labels, rotation=90)
 
         # Add group labels
-        group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
+        group_positions = [3, 7, 11, 15]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
             ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
-                    ha='center', va='top', fontsize=13, fontweight='bold',
+                    ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
         # Legends
         ax1.legend(loc='upper left')
@@ -597,8 +633,8 @@ class SimulationDataAnalyzer:
         plt.savefig(fig_path)
         print(f"Generated fig f{fig_path}")
 
-# if __name__ == '__main__':
-#     genFigs = SimulationDataAnalyzer()
-#     genFigs.genFig9("./fig/Fig9.png")
-#     # genFigs.genFig10("./fig/Fig10.png")
-#     # genFigs.genFig11("./fig/Fig11.png")
+if __name__ == '__main__':
+    genFigs = SimulationDataAnalyzer()
+    genFigs.genFig9("./fig/Fig9.png")
+    genFigs.genFig10("./fig/Fig10.png")
+    genFigs.genFig11("./fig/Fig11.png")

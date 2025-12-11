@@ -9,7 +9,9 @@
     "row": 8,
     "column": 8,
     "precisionAware": false,
-    "fusionStrategy": [],
+    "fusionStrategy": [
+        "default_heterogeneous"
+    ],
     "isTrimmedDemo": true,
     "heuristicMapping": true,
     "parameterizableCGRA": false,
