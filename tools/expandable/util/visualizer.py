@@ -232,8 +232,9 @@ class SimulationDataAnalyzer:
         return
 
     def genFig9(self, fig_path: str):
-        """Create correct combined chart - one bar and one line point per X position"""
-        print(f"Generating fig f{fig_path}")
+        """
+        Generate Figure 9: Normalized execution time and improved utilization
+        """
         # Group structure
         groups: list = [
             'Baseline',
@@ -364,12 +365,13 @@ class SimulationDataAnalyzer:
         plt.tight_layout()
         # plt.legend()
         plt.savefig(fig_path)
+        print(f"Generated fig f{fig_path}")
 
     def genFig10(self, fig_path: str):
         """
         Generate Figure 10: Normalized throughput speedup
         """
-        print(f"Generating fig f{fig_path}")
+
         groups: list = [
             'Baseline',
             'Neura-L0',
@@ -472,6 +474,7 @@ class SimulationDataAnalyzer:
         plt.tight_layout()
         # plt.legend()
         plt.savefig(fig_path)
+        print(f"Generated fig {fig_path}")
 
     def genFig11(self, fig_path: str):
         """
@@ -631,7 +634,7 @@ class SimulationDataAnalyzer:
         plt.tight_layout()
         # plt.legend()
         plt.savefig(fig_path)
-        print(f"Generated fig f{fig_path}")
+        print(f"Generated fig {fig_path}")
 
 if __name__ == '__main__':
     genFigs = SimulationDataAnalyzer()

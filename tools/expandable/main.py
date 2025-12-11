@@ -284,20 +284,17 @@ def main():
     output_dir = Path("./tmp")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 3. Load tasks and configuration
-    print("[Step 1] Printing tasks...")
-
-    # 4. Execute scheduling
-    print("[Step 2] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
+    # 3. Execute scheduling
+    print("[Step 1] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
     if TESTME:
         run_simulation_for_case(1)
-        run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+        # run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
     else:
         for task_case_id in TASK_CONFIGS:
             run_simulation_for_case(task_case_id)
 
         # 4. Execute scheduling
-        print("[Step 3] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
+        print("[Step 2] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
         run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
         run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
         run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
@@ -305,7 +302,7 @@ def main():
 
         # 5. Generate visualization
         if VISUALIZATION:  # Use global variable
-            print(f"[Step 4] Generating visualization figures...")
+            print(f"[Step 3] Generating visualization figures...")
 
             # Generate Fig9
             genFigs = visualizer.SimulationDataAnalyzer()
