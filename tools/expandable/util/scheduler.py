@@ -810,7 +810,7 @@ def simulate(num_cgras, kernels, priority_boosting, lcm_time=26214400):
             checked_num_kernel = len(completed_instances)
             checked = True
 
-        print("="*20)
+        # print("="*20)
 
     # If the simulation ends before reaching the target time, also output results
     if not checked:
