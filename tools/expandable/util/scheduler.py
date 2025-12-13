@@ -89,6 +89,15 @@ class Kernel:
         Returns: function name of kernel.
         """
         file_source = (self.kernel_name.split("."))[0]
+        # corner case
+        if self.kernel_name is "conv.c" and self.unroll_factor == 4:
+            self.unroll_factor = 2
+        if self.kernel_name is "fft.c" and self.unroll_factor == 2:
+            self.unroll_factor = 1
+        if self.kernel_name is "relu+histogram.c" and self.unroll_factor == 4 and self.rows is 12:
+            self.unroll_factor = 2
+        if self.kernel_name is "spmv.c" and self.unroll_factor == 2 and self.rows is 4:
+            self.unroll_factor = 1
 
         if self.unroll_factor == 1 and self.vector_factor == 1:
             compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
@@ -222,9 +231,7 @@ class Kernel:
         """
         # print("Generating", csv_name)
         target_kernel = self.comp_kernel()
-        target_strategy = ["default_heterogeneous"]
-        if self.rows is 12 and self.columns is 12:
-            target_strategy = []
+
         neura_json = {
             "kernel": target_kernel,
             "targetFunction": False,
@@ -234,7 +241,7 @@ class Kernel:
             "row": self.rows,
             "column": self.columns,
             "precisionAware": False,
-            "fusionStrategy": target_strategy,
+            "fusionStrategy": ["default_heterogeneous"],
             "isTrimmedDemo": True,
             "heuristicMapping": True,
             "parameterizableCGRA": False,
