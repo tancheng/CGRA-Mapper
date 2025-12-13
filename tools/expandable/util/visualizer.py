@@ -296,7 +296,7 @@ class SimulationDataAnalyzer:
                     linewidth=0.5,
                     alpha=0.8)
 
-        ax1.set_ylabel('Execution time', fontsize=24, color='black')
+        ax1.set_ylabel('Execution time', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 120)
 
@@ -336,7 +336,7 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=24, color='black')
+        ax2.set_ylabel('Utilization (%)', fontsize=20, color='black')
         ax2.tick_params(axis='y', labelcolor='black')
 
         # Display values on line points
@@ -450,7 +450,7 @@ class SimulationDataAnalyzer:
                     linewidth=0.5,
                     alpha=0.8)
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=24, color='black')
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 4)
 
@@ -565,7 +565,7 @@ class SimulationDataAnalyzer:
                         linewidth=0.5,
                         alpha=0.8)
 
-        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=24, color='black')
+        ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 26)
 
@@ -605,7 +605,7 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=24, color='black')
+        ax2.set_ylabel('Utilization (%)', fontsize=20, color='black')
         ax2.tick_params(axis='y', labelcolor='black')
         ax2.set_ylim(0, 1.2)
         ax2.set_yticks(np.arange(0, 1.3, 0.1))
@@ -630,7 +630,7 @@ class SimulationDataAnalyzer:
         ax2.legend(loc='upper right')
 
         ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
-        plt.title('ExampleFig9')
+        plt.title('ExampleFig11')
         plt.tight_layout()
         # plt.legend()
         plt.savefig(fig_path)

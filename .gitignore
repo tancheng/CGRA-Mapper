@@ -11,3 +11,10 @@ build*/
 *.bc
 .vscode/
 .venv/
+tmp/
+fig/
+result/
+__pycache__/
+dfg.json
+increMapInput.json
+config.json
