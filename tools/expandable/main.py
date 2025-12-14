@@ -1,7 +1,6 @@
 # ----------------------------------------------------------------------------
 #   Filename: main.py                                                       /
 #   Description: load multi-task and schedule them on multi-CGRA            /
-#   Author: Miaomiao Jiang, start from 2025-02-24                           /
 # ----------------------------------------------------------------------------
 
 import argparse

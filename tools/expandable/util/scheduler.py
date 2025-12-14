@@ -1,7 +1,6 @@
 # ----------------------------------------------------------------------------
 #   Filename: scheduler.py                                                  /
 #   Description: simulate multi-kernel running on multi-CGRA                /
-#   Author: Miaomiao Jiang, start from 2025-02-24                           /
 # ----------------------------------------------------------------------------
 
 import heapq

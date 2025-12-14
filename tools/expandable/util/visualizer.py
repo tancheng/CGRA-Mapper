@@ -1,7 +1,6 @@
 # ----------------------------------------------------------------------------
 #   Filename: main.py                                                       /
 #   Description: load multi-task and schedule them on multi-CGRA            /
-#   Author: Miaomiao Jiang, start from 2025-10-28                           /
 # ----------------------------------------------------------------------------
 
 import pandas as pd
@@ -249,7 +248,7 @@ class SimulationDataAnalyzer:
                 # Line chart data - Execution duration or other metrics
                 if utilization_series is not None:
                     line_value = utilization_series.iloc[0]
-                    line_data.append(float(line_value))
+                    line_data.append(float(line_value) * 100)
                 else:
                     line_data.append(0)
 
@@ -298,10 +297,10 @@ class SimulationDataAnalyzer:
                 ax1.text(x, y + max(total_heights)*0.02, f'{y:.1f}',
                         ha='center', va='bottom', fontsize=10)
 
-        ax1.set_ylabel('Execution time', fontsize=20, color='black')
+        ax1.set_ylabel('Normalized execution time (%)', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black', labelsize=18)
         ax1.set_ylim(0, 120)
-        ax1.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.,
+        ax1.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.,
                 fontsize=12, title="Kernels", title_fontsize=13)
 
         # Secondary Y-axis - Line chart
@@ -340,7 +339,7 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=20, color='black')
+        ax2.set_ylabel('Resource Utilization (%)', fontsize=20, color='black')
         ax2.tick_params(axis='y', labelcolor='black', labelsize=18)
 
         # Display values on line points
@@ -356,13 +355,9 @@ class SimulationDataAnalyzer:
         # Add group labels
         group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
-            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+            ax1.text(pos, -0.15, 'case ' + case, transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
-
-
-        # Legends
-        ax2.legend(loc='upper right')
 
         ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
         plt.title('ExampleFig9')
@@ -455,7 +450,7 @@ class SimulationDataAnalyzer:
         # Add group labels
         group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
-            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+            ax1.text(pos, -0.15, 'case ' + case, transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
 
@@ -510,7 +505,7 @@ class SimulationDataAnalyzer:
                 # Line chart data
                 if utilization_series is not None:
                     line_value = utilization_series.iloc[0]
-                    line_data.append(float(line_value))
+                    line_data.append(float(line_value) * 100)
                 else:
                     line_data.append(0)
 
@@ -525,10 +520,6 @@ class SimulationDataAnalyzer:
             'xtick.labelsize': 18,
             'ytick.labelsize': 18
         })
-
-        print(f"bar_data 类型: {type(bar_data)}")
-        print(f"bar_data 长度: {len(bar_data)}")
-        print(f"bar_data 内容: {bar_data}")
 
 
         total_bars = (len(cases) * (len(self.NEURA_CONFIGS) - 1)) + 1
@@ -576,6 +567,8 @@ class SimulationDataAnalyzer:
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
         ax1.set_ylim(0, 26)
+        ax1.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.,
+                fontsize=12, title="Kernels", title_fontsize=13)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
@@ -613,10 +606,10 @@ class SimulationDataAnalyzer:
                         markerfacecolor='white', markeredgewidth=2,
                         label='Utilization')
 
-        ax2.set_ylabel('Utilization (%)', fontsize=20, color='black')
+        ax2.set_ylabel('Resource Utilization (%)', fontsize=20, color='black')
         ax2.tick_params(axis='y', labelcolor='black')
-        ax2.set_ylim(0, 1.2)
-        ax2.set_yticks(np.arange(0, 1.3, 0.1))
+        ax2.set_ylim(0, 100)
+        ax2.set_yticks(np.arange(0, 120, 30))
 
         # Display values on line points
         for i, (x, y) in enumerate(zip(x_positions, line_data)):
@@ -630,11 +623,9 @@ class SimulationDataAnalyzer:
         # Add group labels
         group_positions = [3, 7, 11, 15]  # Middle position of each group
         for case, pos in zip(cases, group_positions):
-            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+            ax1.text(pos, -0.15, (case.split('_'))[0] + 'Neura', transform=ax1.get_xaxis_transform(),
                     ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
-        # Legends
-        ax2.legend(loc='upper right')
 
         ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
         plt.title('ExampleFig11')
@@ -642,3 +633,20 @@ class SimulationDataAnalyzer:
         # plt.legend()
         plt.savefig(fig_path)
         print(f"Generated fig {fig_path}")
+
+if __name__ == '__main__':
+    KERNEL_DATA = {
+    "fir.cpp": (7, 2048, 4096),
+    "latnrm.c": (8, 1280, 2560),
+    "fft.c": (2, 112640, 450560),
+    "dtw.cpp": (4, 16384, 49152),
+    "spmv.c": (3, 65536, 262144),
+    "conv.c": (1, 655360, 1310720),
+    "mvt.c": (5, 16384, 49152),
+    "gemm.c": (0, 2097152, 8388608),
+    "relu+histogram.c": (6, 262144, 2097152)
+    }
+    genFigs = SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
+    genFigs.genFig9("./fig/Fig9Test.png")
+    #genFigs.genFig10("./fig/Fig10.png")
+    genFigs.genFig11("./fig/Fig11Test.png")
