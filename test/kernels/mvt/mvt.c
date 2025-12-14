@@ -78,8 +78,8 @@ void kernel(int n,
 {
   int i, j;
 
-#pragma scop
-  #pragma clang loop unroll_count(1)
+// #pragma scop
+  // #pragma clang loop unroll_count(1)
   for (j = 0; j < N; j++) {
     // #pragma clang loop unroll_count(1) vectorize(disable)
     //#pragma clang loop unroll_count(1) vectorize_width(4)
@@ -88,7 +88,7 @@ void kernel(int n,
       x2[i] = x2[i] + A[j][i] * y_2[j];
     }
   }
-#pragma endscop
+// #pragma endscop
 }
 
 

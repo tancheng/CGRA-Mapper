@@ -31,6 +31,16 @@ jobs:
         sudo apt-get -y install llvm-12 llvm-12-dev llvm-12-tools clang-12
         sudo apt-get -y install build-essential
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.7.16'
+
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install eventlet pandas matplotlib
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -105,3 +115,8 @@ jobs:
         sh compile.sh
         sh run.sh
         sh verify.sh
+
+    - name: Test expandable automatic script
+      working-directory: ${{github.workspace}}/tools/expandable
+      run: |
+        ./demo.sh --test y

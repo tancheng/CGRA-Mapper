@@ -1,0 +1,100 @@
+{
+    "kernel": "kernel",
+    "targetFunction": false,
+    "targetNested": false,
+    "targetLoopsID": [
+        0
+    ],
+    "doCGRAMapping": true,
+    "row": 12,
+    "column": 12,
+    "precisionAware": false,
+    "fusionStrategy": [
+        "default_heterogeneous"
+    ],
+    "isTrimmedDemo": true,
+    "heuristicMapping": true,
+    "parameterizableCGRA": false,
+    "vectorizationMode": "all",
+    "diagonalVectorization": false,
+    "bypassConstraint": 4,
+    "isStaticElasticCGRA": false,
+    "ctrlMemConstraint": 10,
+    "regConstraint": 8,
+    "incrementalMapping": false,
+    "vectorFactorForIdiv ": 1,
+    "testingOpcodeOffset": 0,
+    "additionalFunc": {
+        "complex-Ctrl": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+        ],
+        "fptosi": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+        ],
+        "div": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+        ],
+        "complex-BrT": [
+            4,
+            5,
+            6,
+            7
+        ],
+        "complex-CoT": [
+            8,
+            9,
+            10,
+            11
+        ]
+    },
+    "supportDVFS": false,
+    "DVFSIslandDim": 1,
+    "DVFSAwareMapping": false,
+    "enablePowerGating": false,
+    "expandableMapping": true
+}

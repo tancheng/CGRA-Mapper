@@ -3,21 +3,25 @@
 #include <string.h>
 #include <math.h>
 #include "polybench.h"
-#include "conv.h"
+#include "relu.h"
+// histogram
+#define DATA_LEN 20
+#define BUCKET_LEN 5
+#define MIN 1.0
+#define MAX 19.0
+
+float input_data[DATA_LEN] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,14,14,14,14,14,19};
+int histogram[BUCKET_LEN] = {0};
 
 /* Array initialization. */
 static
 void init_array(int ni, int nj, int nk,
-		DATA_TYPE *alpha,
-		DATA_TYPE *beta,
 		DATA_TYPE POLYBENCH_2D(C,NI,NJ,ni,nj),
 		DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj),
 		DATA_TYPE POLYBENCH_2D(B,NK,NJ,nk,nj))
 {
   int i, j;
 
-  *alpha = 2;
-  *beta = 3;
   for (i = 0; i < ni; i++)
     for (j = 0; j < nj; j++)
       C[i][j] = (DATA_TYPE) (i*j % ni) / ni;
@@ -52,43 +56,29 @@ void print_array(int ni, int nj,
 
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
-int kernel(int ni, int nj, int nk,
-	   DATA_TYPE alpha,
-	   DATA_TYPE beta,
+void kernel(int ni, int nj, int nk,
 	   DATA_TYPE POLYBENCH_2D(C,NI,NJ,ni,nj),
 	   DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj),
-	   DATA_TYPE POLYBENCH_2D(B,NI,NJ,ni,nj))
+	   DATA_TYPE POLYBENCH_2D(B,NI,NJ,ni,nj),float input[], int histogram[])
 {
   int x = 0, i = 0, j = 0, k = 0;
-
-//BLAS PARAMS
-//TRANSA = 'N'
-//TRANSB = 'N'
-//A is NIxNK
-//B is NKxNJ
-//C is NIxNJ
-
   int total = NI * NJ;
-  int out = 0;
-  // #pragma clang loop unroll_count(4) vectorize(disable)
-  //#pragma clang loop unroll_count(1) vectorize_width(4)
-  //#pragma clang loop vectorize_width(4)
+  float dmin = (float)MIN;
+  float delt = (float)(MAX - dmin);
+  //#pragma clang loop vectorize(disable) unroll_count(4)
+  // #pragma clang loop vectorize(enable) vectorize_width(4) unroll_count(4)
   for (x = 0; x < total; x++) {
     i = x / NJ;
     j = x % NJ;
-    out += A  [i][j] * B[i][j];
-  }
+    if (A[i][j] < 0)
+      C[i][j] = 0;
+    else
+      C[i][j] = A[i][j];
 
-  /*
-  for (i = 0; i < NI; i++) {
-    // #pragma clang loop unroll_count(2) vectorize(disable)
-    #pragma clang loop unroll_count(1) vectorize_width(4)
-    for (j = 0; j < NJ; j++) {
-      out += A[i][j] * B[i][j];
-    }
+    float r = BUCKET_LEN * (input[x] - dmin) / delt;
+    int b = (int)(r);
+    histogram[b]++;
   }
-  */
-  return out;
 }
 
 
@@ -100,14 +90,12 @@ int main(int argc, char** argv)
   int nk = NK;
 
   /* Variable declaration/allocation. */
-  DATA_TYPE alpha;
-  DATA_TYPE beta;
   POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,NI,NJ,ni,nj);
   POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NI,NJ,ni,nj);
   POLYBENCH_2D_ARRAY_DECL(B,DATA_TYPE,NI,NJ,ni,nj);
 
   /* Initialize array(s). */
-  init_array (ni, nj, nk, &alpha, &beta,
+  init_array (ni, nj, nk,
 	      POLYBENCH_ARRAY(C),
 	      POLYBENCH_ARRAY(A),
 	      POLYBENCH_ARRAY(B));
@@ -116,11 +104,10 @@ int main(int argc, char** argv)
   polybench_start_instruments;
 
   /* Run kernel. */
-  int out = kernel(ni, nj, nk,
-	           alpha, beta,
-	           POLYBENCH_ARRAY(C),
-	           POLYBENCH_ARRAY(A),
-	           POLYBENCH_ARRAY(B));
+  kernel(ni, nj, nk,
+	 POLYBENCH_ARRAY(C),
+	 POLYBENCH_ARRAY(A),
+	 POLYBENCH_ARRAY(B),input_data, histogram);
 
   /* Stop and print timer. */
   polybench_stop_instruments;

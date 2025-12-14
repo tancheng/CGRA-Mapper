@@ -1,0 +1,372 @@
+[
+  {
+    "kernel_name": "fir.cpp",
+    "kernel_id": 7,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2048,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "latnrm.c",
+    "kernel_id": 8,
+    "arrive_period": 327680,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 1280,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 2,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 4,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "spmv.c",
+    "kernel_id": 3,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 1,
+    "total_iterations": 65536,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "conv.c",
+    "kernel_id": 1,
+    "arrive_period": 6553600,
+    "unroll_factor": 1,
+    "vector_factor": 1,
+    "total_iterations": 655360,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "mvt.c",
+    "kernel_id": 5,
+    "arrive_period": 204800,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 0,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "relu+histogram.c",
+    "kernel_id": 6,
+    "arrive_period": 204800,
+    "unroll_factor": 2,
+    "vector_factor": 1,
+    "total_iterations": 262144,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 12,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 9,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 10,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 11,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 13,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 14,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 29,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 30,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 31,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 32,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 15,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 16,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 17,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 18,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 19,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "gemm.c",
+    "kernel_id": 20,
+    "arrive_period": 5242880,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 2097152,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 29,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 30,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "fft.c",
+    "kernel_id": 31,
+    "arrive_period": 327680,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 112640,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "dtw.cpp",
+    "kernel_id": 32,
+    "arrive_period": 819200,
+    "unroll_factor": 1,
+    "vector_factor": 16,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "relu+histogram.c",
+    "kernel_id": 21,
+    "arrive_period": 204800,
+    "unroll_factor": 2,
+    "vector_factor": 1,
+    "total_iterations": 262144,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "relu+histogram.c",
+    "kernel_id": 22,
+    "arrive_period": 204800,
+    "unroll_factor": 2,
+    "vector_factor": 1,
+    "total_iterations": 262144,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "relu+histogram.c",
+    "kernel_id": 23,
+    "arrive_period": 204800,
+    "unroll_factor": 2,
+    "vector_factor": 1,
+    "total_iterations": 262144,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "relu+histogram.c",
+    "kernel_id": 24,
+    "arrive_period": 204800,
+    "unroll_factor": 2,
+    "vector_factor": 1,
+    "total_iterations": 262144,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "mvt.c",
+    "kernel_id": 25,
+    "arrive_period": 204800,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "mvt.c",
+    "kernel_id": 26,
+    "arrive_period": 204800,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "mvt.c",
+    "kernel_id": 27,
+    "arrive_period": 204800,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  },
+  {
+    "kernel_name": "mvt.c",
+    "kernel_id": 28,
+    "arrive_period": 204800,
+    "unroll_factor": 4,
+    "vector_factor": 1,
+    "total_iterations": 16384,
+    "cgra_rows": 8,
+    "cgra_columns": 8
+  }
+]

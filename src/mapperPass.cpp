@@ -189,7 +189,7 @@ namespace {
           // Exclusive: Multi-cyce operations occupy tiles exclusively. Other operations can be mapped onto this tile only if the multi-cycle operation finishs its computation.
           // Distributed: Multi-cycle operations are splitted into multiple single-cycle operations and each of which can be mapped onto a tile.
           // Inclusive: Multi-cycle operations' execution can overlap with other operations on the same tile.
-          // Note that 
+          // Note that
           assert(multiCycleStrategy.compare("exclusive") == 0 or
                  multiCycleStrategy.compare("distributed") == 0 or
                  multiCycleStrategy.compare("inclusive") == 0);
@@ -339,8 +339,8 @@ namespace {
       else {
         mapper->showSchedule(cgra, dfg, II, isStaticElasticCGRA, parameterizableCGRA);
         // cout << "==================================\n";
-        cout << "[show opcode count]\n";
-        dfg->showOpcodeDistribution();
+        // cout << "[show opcode count]\n";
+        // dfg->showOpcodeDistribution();
         cout << "[Mapping Success]\n";
         cout << "==================================\n";
         if (enableExpandableMapping) {
@@ -409,11 +409,11 @@ namespace {
      */
      bool canMap(CGRA* t_cgra, DFG* t_dfg) {
       std::set<std::string> missing_fus;
-    
+
       for (auto it = t_dfg->nodes.begin(); it != t_dfg->nodes.end(); ++it) {
         DFGNode* node = *it;
         bool nodeSupported = false;
-    
+
         for (int i = 0; i < t_cgra->getRows() && !nodeSupported; ++i) {
           for (int j = 0; j < t_cgra->getColumns(); ++j) {
             CGRANode* fu = t_cgra->nodes[i][j];
@@ -423,12 +423,12 @@ namespace {
             }
           }
         }
-    
+
         if (!nodeSupported) {
           missing_fus.insert(node->getOpcodeName());
         }
       }
-    
+
       if (!missing_fus.empty()) {
         std::cout << "[canMap] Missing functional units: ";
         for (const auto& op : missing_fus) {
@@ -437,10 +437,10 @@ namespace {
         std::cout << std::endl;
         return false;
       }
-    
+
       return true;
     }
-    
+
   };
 }
 
