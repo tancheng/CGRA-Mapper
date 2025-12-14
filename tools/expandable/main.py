@@ -305,7 +305,7 @@ def main():
             print(f"[Step 3] Generating visualization figures...")
 
             # Generate Fig9
-            genFigs = visualizer.SimulationDataAnalyzer()
+            genFigs = visualizer.SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
             genFigs.genFig9("./fig/Fig9.png")
             genFigs.genFig10("./fig/Fig10.png")
             genFigs.genFig11("./fig/Fig11.png")

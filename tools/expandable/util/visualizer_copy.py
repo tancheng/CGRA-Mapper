@@ -17,7 +17,7 @@ from typing import List, Dict
 class SimulationDataAnalyzer:
     """Simulation data visualization analysis tool"""
 
-    def __init__(self, kernel_data):
+    def __init__(self):
         """
         Initialize the analyzer
 
@@ -32,11 +32,7 @@ class SimulationDataAnalyzer:
         self.waiting_cache = {}
         self.scalability_cache = {}
         self.latency_cache = {}
-        self.KERNEL_NAMES = list(kernel_data.keys())
-        self.NEURA_CONFIGS = ['Baseline', 'Neura-L0', 'Neura-L1', 'Neura-L2', 'Neura']
-        self.KERNEL_COLORS = ['#A4A3A4','#B0C4E6','#8DA9DC','#FEEDB9','#002060',
-                            '#F3B082','#F7CAAB','#C7FAA8','#FFD865']
-        self.NEURA_COLORS = ['#7F7F7F','#EDEDED','#FFF2CC','#FFD966','#FFC000']
+        self.figsize=(20, 8)
 
     def load_execution_data(self, task_case: str, csv_name: str, normalized_baseline: int):
         """
@@ -85,11 +81,18 @@ class SimulationDataAnalyzer:
         Returns:
             Dict[str, pd.DataFrame]: Mapping from cache keys to DataFrames
         """
+        csv_names: List[str] = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
         df = pd.read_csv("./result/simulation_1_Baseline.csv")
         normalized_baseline = df['Overall_Execution'].iloc[0] #case1 的 Baseline 的 overall execution time
 
         for task_case in task_cases:
-            for csv_name in self.NEURA_CONFIGS:
+            for csv_name in csv_names:
                 self.load_execution_data(task_case, csv_name, normalized_baseline)
 
         return
@@ -147,12 +150,19 @@ class SimulationDataAnalyzer:
         Returns:
             Dict[str, pd.DataFrame]: Mapping from cache keys to DataFrames
         """
+        csv_names: List[str] = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
         df = pd.read_csv("./result/simulation_1_Baseline.csv")
         file_path = "./result/simulation_1_Baseline.csv"
         normalized_baseline = df['Overall_Execution'].iloc[0] #case1 的 Baseline 的 overall execution time
 
         for task_case in task_cases:
-            for csv_name in self.NEURA_CONFIGS:
+            for csv_name in csv_names:
                 self.load_throughput_data(task_case, csv_name)
 
         return
@@ -205,11 +215,18 @@ class SimulationDataAnalyzer:
         Returns:
             Dict[str, pd.DataFrame]: Mapping from cache keys to DataFrames
         """
+        csv_names: List[str] = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
         df = pd.read_csv("./result/simulation_2x2_6_Baseline.csv")
         normalized_baseline = df['Overall_Execution'].iloc[0]
         latency_baseline = df['Overall_Case_Latency'].iloc[0]
         for task_case in task_cases:
-            for csv_name in self.NEURA_CONFIGS:
+            for csv_name in csv_names:
                 self.load_scalability_data(task_case, csv_name, normalized_baseline, latency_baseline)
 
         return
@@ -218,33 +235,35 @@ class SimulationDataAnalyzer:
         """
         Generate Figure 9: Normalized execution time and improved utilization
         """
+        # Group structure
+        groups: list = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_execution_data(cases)
 
         # Correct data structure - one value per X position
-        bar_data = {kernel: [] for kernel in self.KERNEL_NAMES}  # Bar chart data
+        bar_data = []  # Bar chart data
         line_data = [] # Line chart data
         x_labels = []  # X-axis labels
 
         # Collect data
         for case in cases:
-            for group in self.NEURA_CONFIGS:
+            for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
 
                 # Bar chart data - Resource utilization
                 if execution_series is not None:
-                    if hasattr(execution_series, 'to_dict'):
-                        exec_dict = execution_series.to_dict()
-                    else:
-                        exec_dict = dict(execution_series)
-                    for i, kernel in enumerate(self.KERNEL_NAMES):
-                        kernel_value = float(exec_dict[i]) * 100
-                        bar_data[kernel].append(kernel_value)
+                    bar_value = execution_series.sum()
+                    bar_data.append(float(bar_value) * 100)
                 else:
-                    for kernel in self.KERNEL_NAMES:
-                        bar_data[kernel].append(0)
+                    bar_data.append(0)
 
                 # Line chart data - Execution duration or other metrics
                 if utilization_series is not None:
@@ -265,24 +284,18 @@ class SimulationDataAnalyzer:
             'ytick.labelsize': 18
         })
 
-        total_bars = len(cases) * len(self.NEURA_CONFIGS)
-        x_positions = np.arange(total_bars)
+        x_positions = np.arange(len(bar_data))
         bar_width = 0.6
-        # Primary Y-axis - Bar chart
-        color_dict = {kernel: color for kernel, color in zip(self.KERNEL_NAMES, self.KERNEL_COLORS)}
-        bottom = np.zeros(total_bars)
-        bars_by_kernel = {}
-        for kernel in self.KERNEL_NAMES:
-            data = bar_data[kernel]
-            bars = ax1.bar(x_positions, data, bar_width, bottom=bottom,
-                        color=color_dict[kernel], alpha=0.8,
-                        edgecolor='black', linewidth=0.5, label=kernel)
-            bars_by_kernel[kernel] = bars
-            bottom += np.array(data)
 
+        # Primary Y-axis - Bar chart
+        bars = ax1.bar(x_positions, bar_data, bar_width,
+                    color='skyblue', alpha=0.8,
+                    label='Total_Execution_duration',
+                    edgecolor='black',
+                    linewidth=0.5)
 
         # Add black dashed separator lines every group
-        for i in range(4, len(x_positions)-1, 5):
+        for i in range(4, len(bar_data)-1, 5):
             line_pos = i + 0.5
             ax1.axvline(x=line_pos,
                     color='black',
@@ -290,25 +303,20 @@ class SimulationDataAnalyzer:
                     linewidth=0.8,
                     alpha=0.8)
 
-        # Display values on Neura
-        arrays = [np.array(heights) for heights in bar_data.values()]
-        total_heights = np.sum(arrays, axis=0)
-        for i, (x, y) in enumerate(zip(x_positions, total_heights)):
+        for i, (x, y) in enumerate(zip(x_positions, bar_data)):
             if (i + 1) % 5 == 0:
-                ax1.text(x, y + max(total_heights)*0.02, f'{y:.1f}',
+                ax1.text(x, y + max(bar_data)*0.02, f'{y:.1f}',
                         ha='center', va='bottom', fontsize=10)
 
         ax1.set_ylabel('Execution time', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black', labelsize=18)
         ax1.set_ylim(0, 120)
-        ax1.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.,
-                fontsize=12, title="Kernels", title_fontsize=13)
 
         # Secondary Y-axis - Line chart
         ax2 = ax1.twinx()
 
         # Calculate number of complete cases
-        num_complete_cases = len(x_positions) // len(self.NEURA_CONFIGS)
+        num_complete_cases = len(x_positions) // len(groups)
 
         # Insert NaN every 5 points
         x_with_gaps = []
@@ -316,8 +324,8 @@ class SimulationDataAnalyzer:
 
         for case_idx in range(num_complete_cases):
             # Start and end indices for this case
-            start_idx = case_idx * len(self.NEURA_CONFIGS)
-            end_idx = start_idx + len(self.NEURA_CONFIGS)
+            start_idx = case_idx * len(groups)
+            end_idx = start_idx + len(groups)
 
             # Add 5 points for this case
             x_with_gaps.extend(x_positions[start_idx:end_idx])
@@ -362,18 +370,214 @@ class SimulationDataAnalyzer:
 
 
         # Legends
+        ax1.legend(loc='upper left')
         ax2.legend(loc='upper right')
 
         ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
         plt.title('ExampleFig9')
         plt.tight_layout()
+        # plt.legend()
         plt.savefig(fig_path)
         print(f"Generated fig f{fig_path}")
+
+    def genFig9Test(self, fig_path: str):
+        """
+        Generate Figure 9: Normalized execution time and improved utilization
+        """
+        # Group structure
+        groups: list = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
+        cases = ['1', '2', '3', '4', '5', '6']
+        self.process_execution_data(cases)
+
+
+        # 预定义的kernel名称顺序
+        kernel_names = ["fir.cpp", "latnrm.c", "fft.c", "dtw.cpp", "spmv.c",
+                    "conv.c", "mvt.c", "gemm.c","relu+histogram.c"]
+        colors = ['#A4A3A4','#B0C4E6','#8DA9DC','#FEEDB9','#002060',
+                        '#F3B082','#F7CAAB','#C7FAA8','#FFD865']
+
+
+        # 初始化数据结构 - 每个kernel一个数据列表
+        kernel_data = {kernel: [] for kernel in kernel_names}
+        line_data = []     # Line chart data
+        x_labels = []      # X-axis labels
+
+        # 收集数据
+        for case in cases:
+            for group in groups:
+                cache_key = f"{case}_{group}"
+                execution_series = self.execution_cache.get(cache_key)
+                utilization_series = self.utilization_cache.get(cache_key)
+                # execution_series 是一个包含所有kernel数据的Series
+                if execution_series is not None:
+                    # 确保execution_series是一个Series
+                    if hasattr(execution_series, 'to_dict'):
+                        exec_dict = execution_series.to_dict()
+                    else:
+                        exec_dict = dict(execution_series)
+                    print("exec_dict", exec_dict)
+                    for i, kernel in enumerate(kernel_names):
+                        # 数据已经归一化过，直接使用
+                        kernel_value = float(exec_dict[i]) * 100
+                        kernel_data[kernel].append(kernel_value)
+                        print(f"kernel: {kernel}, kernel_value: {kernel_value}")
+                else:
+                    # 如果没有数据，所有kernel都填0
+                    for kernel in kernel_names:
+                        kernel_data[kernel].append(0)
+
+                # Line chart data - Utilization
+                if utilization_series is not None:
+                    if hasattr(utilization_series, 'iloc'):
+                        line_value = utilization_series.iloc[0]
+                    elif hasattr(utilization_series, '__getitem__'):
+                        line_value = utilization_series[0] if len(utilization_series) > 0 else 0
+                    else:
+                        line_value = float(utilization_series)
+                    line_data.append(float(line_value))
+                else:
+                    line_data.append(0)
+
+                x_labels.append(f"{group}")
+
+        # 创建图表
+        fig, ax1 = plt.subplots(figsize=(24, 10))
+
+        total_bars = len(cases) * len(groups)
+        x_positions = np.arange(total_bars)
+        bar_width = 0.6
+
+
+        color_dict = {kernel: color for kernel, color in zip(kernel_names, colors)}
+
+        # 绘制堆叠条形图
+        bottom = np.zeros(total_bars)
+        bars_by_kernel = {}  # 存储每个kernel的bar对象，用于图例
+
+        # 绘制堆叠条形图
+        bottom = np.zeros(total_bars)
+        bars_by_kernel = {}  # 存储每个kernel的bar对象，用于图例
+
+        for kernel in kernel_names:
+            data = kernel_data[kernel]
+            bars = ax1.bar(x_positions, data, bar_width, bottom=bottom,
+                        color=color_dict[kernel], alpha=0.8,
+                        edgecolor='black', linewidth=0.5, label=kernel)
+            bars_by_kernel[kernel] = bars
+            bottom += np.array(data)
+
+        # Add black dashed separator lines every group
+        for i in range(4, len(x_positions)-1, 5):
+            line_pos = i + 0.5
+            ax1.axvline(x=line_pos,
+                    color='black',
+                    linestyle='--',
+                    linewidth=0.8,
+                    alpha=0.8)
+
+        ax1.set_ylabel('Execution time (%)', fontsize=20, color='black')
+        ax1.tick_params(axis='y', labelcolor='black')
+        ax1.set_ylim(0, 120)
+
+        ax1.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.,
+                fontsize=12, title="Kernels", title_fontsize=13)
+        # Secondary Y-axis - Line chart
+        ax2 = ax1.twinx()
+
+        # Calculate number of complete cases
+        num_complete_cases = len(x_positions) // len(groups)
+
+        # Insert NaN every 5 points
+        x_with_gaps = []
+        y_with_gaps = []
+
+        for case_idx in range(num_complete_cases):
+            # Start and end indices for this case
+            start_idx = case_idx * len(groups)
+            end_idx = start_idx + len(groups)
+
+            # Add 5 points for this case
+            x_with_gaps.extend(x_positions[start_idx:end_idx])
+            y_with_gaps.extend(line_data[start_idx:end_idx])
+
+            # Add NaN after each case (except the last complete case)
+            if case_idx < num_complete_cases - 1:
+                x_with_gaps.append(np.nan)
+                y_with_gaps.append(np.nan)
+
+        # Convert to numpy arrays
+        x_with_gaps = np.array(x_with_gaps)
+        y_with_gaps = np.array(y_with_gaps)
+
+        # Plot line with gaps between cases
+        line = ax2.plot(x_with_gaps, y_with_gaps,
+                    marker='o', markersize=8, linewidth=2.5,
+                    color='blue', linestyle='--',
+                    markerfacecolor='white', markeredgewidth=2,
+                    label='Utilization')
+
+        ax2.set_ylabel('Utilization (%)', fontsize=20, color='black')
+        ax2.tick_params(axis='y', labelcolor='black')
+
+        # Display values on line points
+        for i, (x, y) in enumerate(zip(x_positions, line_data)):
+            ax2.text(x, y + max(line_data)*0.02, f'{y:.1f}',
+                    ha='center', va='bottom', fontsize=10)
+
+        # Set X-axis labels and grouping
+        ax1.set_xticks(x_positions)
+        ax1.set_xticklabels(x_labels, rotation=90)
+
+        # Add group labels
+        group_positions = [3, 8, 13, 17, 22, 27]  # Middle position of each group
+        for case, pos in zip(cases, group_positions):
+            ax1.text(pos, -0.15, case, transform=ax1.get_xaxis_transform(),
+                    ha='center', va='top', fontsize=20, fontweight='bold',
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
+
+        # 调整图例位置和显示
+        # 如果kernel太多，可以将图例放在外部
+        # if len(kernel_data) <= 10:
+        #     ax1.legend(loc='upper left', fontsize=10, title='Kernels')
+        # else:
+        #     # 对于大量kernel，创建简化图例或放在图表外部
+        #     fig.legend(bars_list, kernel_data.keys(),
+        #             loc='center left', bbox_to_anchor=(1.0, 0.5),
+        #             fontsize=10, title='Kernels')
+
+        ax2.legend(loc='upper right')
+
+        ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
+        plt.title('ExampleFig9 - Stacked Execution Time by Kernel')
+        plt.tight_layout()
+        plt.savefig(fig_path)
+        print(f"Generated fig {fig_path}")
 
     def genFig10(self, fig_path: str):
         """
         Generate Figure 10: Normalized throughput speedup
         """
+
+        groups: list = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
+        bar_colors = [
+            '#7F7F7F',  # Gray
+            '#EDEDED',  # White/Light gray
+            '#FFF2CC',  # Light yellow
+            '#FFD966',  # Orange-yellow
+            '#FFC000'   # Orange
+        ]
         cases = ['1', '2', '3', '4', '5', '6']
         self.process_throughput_data(cases)
 
@@ -394,7 +598,7 @@ class SimulationDataAnalyzer:
             avg_execution_baseline = avg_execution
             throughput_baseline = (hw_waiting_ratio + avg_execution_ratio)
 
-            for group in self.NEURA_CONFIGS:
+            for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 number_series = self.number_cache.get(cache_key)
@@ -424,7 +628,7 @@ class SimulationDataAnalyzer:
         bar_width = 0.6
 
         bars = ax1.bar(x_positions, bar_data, bar_width,
-               color=self.NEURA_COLORS[:len(bar_data)],
+               color=bar_colors[:len(bar_data)],
                alpha=0.8,
                edgecolor='black',
                linewidth=0.5)
@@ -473,11 +677,19 @@ class SimulationDataAnalyzer:
         """
         Generate Figure 11: Scalability -- Normalized execution time and improved utilization
         """
+        # Group structure
+        groups: list = [
+            'Baseline',
+            'Neura-L0',
+            'Neura-L1',
+            'Neura-L2',
+            'Neura'
+        ]
         cases = ['2x2_6', '3x3_6', '4x4_6', '5x5_6']
         self.process_scalability_data(cases)
 
         # Correct data structure - one value per X position
-        bar_data = {kernel: [] for kernel in self.KERNEL_NAMES}  # Bar chart data
+        bar_data = []  # Bar chart data
         line_data = [] # Line chart data
         x_labels = []  # X-axis labels
         # Collect data
@@ -489,7 +701,7 @@ class SimulationDataAnalyzer:
             throughput_speedup[i] = (1 / (scalability_series[i] * latency_series[i] * 100))
         throughput_baseline = sum(throughput_speedup)
         for case in cases:
-            for group in self.NEURA_CONFIGS:
+            for group in groups:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 scalability_series = self.scalability_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
@@ -503,11 +715,10 @@ class SimulationDataAnalyzer:
                     else:
                         tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
                     throughput_speedup[i] = tmp / throughput_baseline
-                # Bar chart data
-                for i, kernel in enumerate(self.KERNEL_NAMES):
-                    bar_data[kernel].append(throughput_speedup[i])
+                # Bar chart data - Resource utilization
+                bar_data.append(sum(throughput_speedup))
 
-                # Line chart data
+                # Line chart data - Execution duration or other metrics
                 if utilization_series is not None:
                     line_value = utilization_series.iloc[0]
                     line_data.append(float(line_value))
@@ -515,7 +726,7 @@ class SimulationDataAnalyzer:
                     line_data.append(0)
 
                 x_labels.append(f"{group}")
-
+        # sum_throughput = throughput_speedup.sum()
         # Create chart
         fig, ax1 = plt.subplots(figsize=(20, 8))
         plt.style.use({
@@ -526,25 +737,15 @@ class SimulationDataAnalyzer:
             'ytick.labelsize': 18
         })
 
-        print(f"bar_data 类型: {type(bar_data)}")
-        print(f"bar_data 长度: {len(bar_data)}")
-        print(f"bar_data 内容: {bar_data}")
-
-
-        total_bars = (len(cases) * (len(self.NEURA_CONFIGS) - 1)) + 1
-        x_positions = np.arange(total_bars)
+        x_positions = np.arange(len(bar_data))
         bar_width = 0.6
+
         # Primary Y-axis - Bar chart
-        color_dict = {kernel: color for kernel, color in zip(self.KERNEL_NAMES, self.KERNEL_COLORS)}
-        bottom = np.zeros(total_bars)
-        bars_by_kernel = {}
-        for kernel in self.KERNEL_NAMES:
-            data = bar_data[kernel]
-            bars = ax1.bar(x_positions, data, bar_width, bottom=bottom,
-                        color=color_dict[kernel], alpha=0.8,
-                        edgecolor='black', linewidth=0.5, label=kernel)
-            bars_by_kernel[kernel] = bars
-            bottom += np.array(data)
+        bars = ax1.bar(x_positions, bar_data, bar_width,
+                    color='skyblue', alpha=0.8,
+                    label='Total_Execution_duration',
+                    edgecolor='black',
+                    linewidth=0.5)
 
         # Add black dashed separator lines every group
         group_pattern = [5, 4, 4, 4]
@@ -552,7 +753,7 @@ class SimulationDataAnalyzer:
         line_positions = []
         for group_size in group_pattern:
             current_position += group_size
-            if current_position < len(x_positions):
+            if current_position < len(bar_data):
                 line_positions.append(current_position - 0.5)
         for pos in line_positions:
             ax1.axvline(x=pos,
@@ -561,16 +762,14 @@ class SimulationDataAnalyzer:
                         linewidth=0.8,
                         alpha=0.8)
 
-        # Display values on Neura
         display_indices = []
-        for i in range(len(x_positions)):
+        for i in range(len(bar_data)):
             if i >= 4 and (i - 4) % 4 == 0:
                 display_indices.append(i)
-        arrays = [np.array(heights) for heights in bar_data.values()]
-        total_heights = np.sum(arrays, axis=0)
-        for i, (x, y) in enumerate(zip(x_positions, total_heights)):
+
+        for i, (x, y) in enumerate(zip(x_positions, bar_data)):
             if i in display_indices:
-                ax1.text(x, y + max(total_heights)*0.02, f'{y:.1f}',
+                ax1.text(x, y + max(bar_data)*0.02, f'{y:.1f}',
                         ha='center', va='bottom', fontsize=10)
 
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
@@ -634,6 +833,7 @@ class SimulationDataAnalyzer:
                     ha='center', va='top', fontsize=20, fontweight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.8))
         # Legends
+        ax1.legend(loc='upper left')
         ax2.legend(loc='upper right')
 
         ax1.grid(True, linestyle='--', alpha=0.3, axis='y')
@@ -642,3 +842,9 @@ class SimulationDataAnalyzer:
         # plt.legend()
         plt.savefig(fig_path)
         print(f"Generated fig {fig_path}")
+
+if __name__ == '__main__':
+    genFigs = SimulationDataAnalyzer()
+    genFigs.genFig9Test("./fig/Fig9Test1.png")
+    # genFigs.genFig10("./fig/Fig10.png")
+    # genFigs.genFig11("./fig/Fig11.png")

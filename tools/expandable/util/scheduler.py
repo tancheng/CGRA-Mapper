@@ -90,21 +90,19 @@ class Kernel:
         """
         file_source = (self.kernel_name.split("."))[0]
         # corner case
-        if self.kernel_name is "conv.c" and self.unroll_factor == 4:
+        if self.kernel_name == "conv.c" and self.unroll_factor == 4:
             self.unroll_factor = 2
-        if self.kernel_name is "fft.c" and self.unroll_factor == 2:
+        if self.kernel_name == "fft.c" and self.unroll_factor == 2:
             self.unroll_factor = 1
-        if self.kernel_name is "relu+histogram.c" and self.unroll_factor == 4 and self.rows is 12:
+        if self.kernel_name == "relu+histogram.c" and self.unroll_factor == 4 and self.rows == 12:
             self.unroll_factor = 2
-        if self.kernel_name is "spmv.c" and self.unroll_factor == 2 and self.rows is 4:
+        if self.kernel_name == "spmv.c" and self.unroll_factor == 2 and self.rows == 4:
             self.unroll_factor = 1
 
         if self.unroll_factor == 1 and self.vector_factor == 1:
             compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor == 1 and self.vector_factor != 1:
             compile_command = f"clang-12 -emit-llvm -fno-unroll-loops -O3 -mllvm -force-vector-width={self.vector_factor} -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
-        elif self.kernel_name == "conv.c" and self.unroll_factor == 4:
-            compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-slp-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         elif self.unroll_factor != 1 and self.vector_factor == 1:
             compile_command = f"clang-12 -emit-llvm -funroll-loops -mllvm -unroll-count={self.unroll_factor} -fno-vectorize -O3 -o kernel.bc -c {KERNEL_DIRECTORY}/{file_source}/{self.kernel_name}"
         else:
@@ -158,9 +156,9 @@ class Kernel:
             with eventlet.Timeout(TIME_OUT_SET, True):
                 with gen_map_proc.stdout:
                     gen_map_proc.stdout.flush()
-
                     for line in iter(gen_map_proc.stdout.readline, b''):
                         output_line = line.decode("ISO-8859-1")
+                        #print(output_line)
                         if "DFG node count: " in output_line:
                             dataS.append(int(output_line.split("DFG node count: ")[1].split(";")[0]))
                             dataS.append(int(output_line.split("DFG edge count: ")[1].split(";")[0]))
