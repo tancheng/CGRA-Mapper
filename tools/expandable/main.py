@@ -179,7 +179,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     print(f"[Step 2] Loading tasks for task {task_id}...")
 
     if load_from_file:
-        if file_name is '2x2':
+        if file_name == '2x2':
             # Load baseline tasks (12x12 CGRA)
             baseline_tasks = load_tasks_from_file(f"./designs/{file_name}baseline.json")
         # Load task tasks (4x4 CGRA)
@@ -195,7 +195,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     else:
         case_id = task_id
 
-    if (not load_from_file) or (file_name is '2x2'):
+    if (not load_from_file) or (file_name == '2x2'):
         # Run baseline simulation
         scheduler.run_multiple_simulations_and_save_to_csv(
             baseline_tasks,

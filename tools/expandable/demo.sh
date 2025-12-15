@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# source /WORK_REPO/venv/bin/activate
+python -m pip install --upgrade pip
+pip install eventlet pandas matplotlib
 
 while [[ $# -gt 0 ]]; do
     case $1 in
