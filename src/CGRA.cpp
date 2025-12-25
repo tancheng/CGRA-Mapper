@@ -98,29 +98,31 @@ CGRA::CGRA(int t_rows, int t_columns, std::string t_vectorizationMode,
           cout << "Node " << nodeID << " supports: ";
           for (const auto& fu : supportedFUs) {
             cout << fu << " ";
-            if (fu == "Add") {
+            std::string fuLower = fu;
+            std::transform(fuLower.begin(), fuLower.end(), fuLower.begin(), [](unsigned char c){ return std::tolower(c); });
+            if (fu == "add") {
               id2Node[nodeID]->enableAdd();
-            } else if (fu == "Br") {
+            } else if (fu == "br") {
               id2Node[nodeID]->enableBr();
-            } else if (fu == "Cmp") {
+            } else if (fu == "cmp") {
               id2Node[nodeID]->enableCmp();
-            } else if (fu == "Ld") {
+            } else if (fu == "ld") {
               id2Node[nodeID]->enableLoad();
-            } else if (fu == "Logic") {
+            } else if (fu == "logic") {
               id2Node[nodeID]->enableLogic();
-            } else if (fu == "MAC") {
+            } else if (fu == "mac") {
               id2Node[nodeID]->enableMAC();
-            } else if (fu == "Mul") {
+            } else if (fu == "mul") {
               id2Node[nodeID]->enableMul();
-            } else if (fu == "Phi") {
+            } else if (fu == "phi") {
               id2Node[nodeID]->enablePhi();
-            } else if (fu == "Ret") {
+            } else if (fu == "ret") {
               id2Node[nodeID]->enableReturn();
-            } else if (fu == "Sel") {
+            } else if (fu == "sel") {
               id2Node[nodeID]->enableSel();
-            } else if (fu == "Shift") {
+            } else if (fu == "shift") {
               id2Node[nodeID]->enableShift();
-            } else if (fu == "St") {
+            } else if (fu == "st") {
               id2Node[nodeID]->enableStore();
             }
           }
