@@ -231,7 +231,6 @@ class SimulationDataAnalyzer:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
-                print(cache_key)
                 # Bar chart data - Resource utilization
                 if execution_series is not None:
                     if hasattr(execution_series, 'to_dict'):
@@ -240,7 +239,6 @@ class SimulationDataAnalyzer:
                         exec_dict = dict(execution_series)
                     for i, kernel in enumerate(self.KERNEL_NAMES):
                         kernel_value = float(exec_dict[i]) * 100
-                        print("exec", kernel, kernel_value)
                         bar_data[kernel].append(kernel_value)
                 else:
                     for kernel in self.KERNEL_NAMES:
