@@ -181,7 +181,6 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     Args:
         task_id: Configuration case ID to run simulation for
     """
-    global FUSION
     print(f"[Step 2] Loading tasks for task {task_id}...")
 
     if load_from_file:
@@ -203,8 +202,6 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
 
     if (not load_from_file) or (file_name == '2x2'):
         # Run baseline simulation
-        FUSION = True
-        scheduler.update_args(FUSION)
         scheduler.run_multiple_simulations_and_save_to_csv(
             baseline_tasks,
             csv_name="Baseline",
@@ -212,8 +209,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
             kernel_case=case_id,
             num_cgras=1  # one cgra is 12x12
         )
-    FUSION = False
-    scheduler.update_args(FUSION)
+
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,

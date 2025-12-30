@@ -657,5 +657,5 @@ if __name__ == '__main__':
     }
     genFigs = SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
     genFigs.genFig9("./fig/Fig9Test.png")
-    #genFigs.genFig10("./fig/Fig10.png")
-    genFigs.genFig11("./fig/Fig11Test.png")
+    genFigs.genFig10("./fig/Fig10.png")
+    # genFigs.genFig11("./fig/Fig11Test.png")
