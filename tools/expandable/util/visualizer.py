@@ -489,7 +489,6 @@ class SimulationDataAnalyzer:
         for case in cases:
             for group in self.NEURA_CONFIGS:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
-                print(cache_key)
                 scalability_series = self.scalability_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
                 latency_series = self.latency_cache.get(cache_key)
@@ -575,7 +574,7 @@ class SimulationDataAnalyzer:
 
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
-        ax1.set_ylim(0, 25)
+        ax1.set_ylim(0, 26)
         ax1.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.,
                 fontsize=12, title="Kernels", title_fontsize=13)
 
@@ -642,20 +641,3 @@ class SimulationDataAnalyzer:
         # plt.legend()
         plt.savefig(fig_path)
         print(f"Generated fig {fig_path}")
-
-if __name__ == '__main__':
-    KERNEL_DATA = {
-    "fir.cpp": (7, 2048, 4096),
-    "latnrm.c": (8, 1280, 2560),
-    "fft.c": (2, 112640, 450560),
-    "dtw.cpp": (4, 16384, 49152),
-    "spmv.c": (3, 65536, 262144),
-    "conv.c": (1, 655360, 1310720),
-    "mvt.c": (5, 16384, 49152),
-    "gemm.c": (0, 2097152, 8388608),
-    "relu+histogram.c": (6, 262144, 2097152)
-    }
-    genFigs = SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
-    genFigs.genFig9("./fig/Fig9Test.png")
-    genFigs.genFig10("./fig/Fig10.png")
-    # genFigs.genFig11("./fig/Fig11Test.png")
