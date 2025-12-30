@@ -185,7 +185,7 @@ class SimulationDataAnalyzer:
 
             # Cache the data
             cache_key = f"{task_case}_{csv_name}"
-            self.scalability_cache[cache_key] = df['Total_Execution_duration'] / execution_baseline
+            self.scalability_cache[cache_key] = df['Total_Execution_duration'].head(9) / execution_baseline
             self.latency_cache[cache_key] = df['Overall_Case_Latency'] / latency_baseline
             self.utilization_cache[cache_key] = df['CGRA_Utilization']
             return self.scalability_cache[cache_key]
@@ -231,7 +231,7 @@ class SimulationDataAnalyzer:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
-
+                print(cache_key)
                 # Bar chart data - Resource utilization
                 if execution_series is not None:
                     if hasattr(execution_series, 'to_dict'):
@@ -240,6 +240,7 @@ class SimulationDataAnalyzer:
                         exec_dict = dict(execution_series)
                     for i, kernel in enumerate(self.KERNEL_NAMES):
                         kernel_value = float(exec_dict[i]) * 100
+                        print("exec", kernel, kernel_value)
                         bar_data[kernel].append(kernel_value)
                 else:
                     for kernel in self.KERNEL_NAMES:
@@ -480,12 +481,15 @@ class SimulationDataAnalyzer:
         scalability_series = self.scalability_cache.get(cache_key)
         latency_series = self.latency_cache.get(cache_key)
         throughput_speedup = [0] * len(scalability_series)
+        tmp = [0] * len(scalability_series)
+        throughput_speedup_percentage = [0] * len(scalability_series)
         for i in range(len(scalability_series)):
             throughput_speedup[i] = (1 / (scalability_series[i] * latency_series[i] * 100))
         throughput_baseline = sum(throughput_speedup)
         for case in cases:
             for group in self.NEURA_CONFIGS:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
+                print(cache_key)
                 scalability_series = self.scalability_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
                 latency_series = self.latency_cache.get(cache_key)
@@ -493,14 +497,19 @@ class SimulationDataAnalyzer:
                 utilization_series is None):
                     continue
                 for i in range(len(scalability_series)):
+                    tmp[i] = scalability_series[i] * latency_series[i]
                     if scalability_series[i] * latency_series[i] == 0:
-                        tmp = 0
+                        throughput_tmp = 0
                     else:
-                        tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
-                    throughput_speedup[i] = tmp / throughput_baseline
+                        throughput_tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
+                    throughput_speedup[i] = throughput_tmp / throughput_baseline
+                sum_tmp = sum(tmp)
+                sum_throughput = sum(throughput_speedup)
+                for i in range(len(scalability_series)):
+                    throughput_speedup_percentage[i] = (tmp[i] / sum_tmp) * sum_throughput
                 # Bar chart data
                 for i, kernel in enumerate(self.KERNEL_NAMES):
-                    bar_data[kernel].append(throughput_speedup[i])
+                    bar_data[kernel].append(throughput_speedup_percentage[i])
 
                 # Line chart data
                 if utilization_series is not None:
@@ -566,7 +575,7 @@ class SimulationDataAnalyzer:
 
         ax1.set_ylabel('Normalized Throughput Speedup', fontsize=20, color='black')
         ax1.tick_params(axis='y', labelcolor='black')
-        ax1.set_ylim(0, 26)
+        ax1.set_ylim(0, 25)
         ax1.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.,
                 fontsize=12, title="Kernels", title_fontsize=13)
 

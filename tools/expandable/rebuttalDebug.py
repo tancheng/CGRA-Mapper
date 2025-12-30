@@ -16,7 +16,6 @@ import util.visualizer as visualizer
 # ----------------------------------------------------------------------------
 VISUALIZATION = True
 TESTME = False
-FUSION = False
 
 # Static kernel data (name: (sort_id, total_iterations, static_execution_time))
 KERNEL_DATA = {
@@ -97,8 +96,6 @@ def parse_arguments():
                        help='Timeout setting for operations')
     parser.add_argument('--visualize', type=str_to_bool, default=VISUALIZATION,
                        help='Generate visualization figures [y/n]')
-    parser.add_argument('--fusion', type=str_to_bool, default=FUSION,
-                       help='Default fusion strategy for kernels [y/n]')
 
     return parser.parse_args()
 
@@ -109,17 +106,15 @@ def load_configuration():
     2. Default values (lowest priority)
     """
     # Update global configuration with command line arguments
-    global VISUALIZATION, TESTME, FUSION
+    global VISUALIZATION, TESTME
     # Parse command line arguments
     args = parse_arguments()
     VISUALIZATION = args.visualize
     TESTME = args.test
-    FUSION = args.fusion
     scheduler.init_args(args)
     print(f"Test in CI/CD: {args.test}")
     print(f"Timeout: {args.time_out_set}")
     print(f"Visualization: {args.visualize}")
-    print(f"FUSION: {args.fusion}")
 
 
 # ========== Task Loading Function ==========
@@ -181,7 +176,6 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
     Args:
         task_id: Configuration case ID to run simulation for
     """
-    global FUSION
     print(f"[Step 2] Loading tasks for task {task_id}...")
 
     if load_from_file:
@@ -203,8 +197,6 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
 
     if (not load_from_file) or (file_name == '2x2'):
         # Run baseline simulation
-        FUSION = True
-        scheduler.update_args(FUSION)
         scheduler.run_multiple_simulations_and_save_to_csv(
             baseline_tasks,
             csv_name="Baseline",
@@ -212,8 +204,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
             kernel_case=case_id,
             num_cgras=1  # one cgra is 12x12
         )
-    FUSION = False
-    scheduler.update_args(FUSION)
+
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
@@ -296,17 +287,13 @@ def main():
     print("[Step 1] Loading tasks and Scheduling tasks on 4x4 Multi-CGRA...")
     if TESTME:
         run_simulation_for_case(1)
-        run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
+        # run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
     else:
         for task_case_id in TASK_CONFIGS:
             run_simulation_for_case(task_case_id)
 
-        # TODO Fig11 用 hete
         # 4. Execute scheduling
         print("[Step 2] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
-        global FUSION
-        FUSION = True
-        scheduler.update_args(FUSION)
         run_simulation_for_case(task_id = 6, num_task_cgras=4, file_name="2x2", load_from_file=True)  # 2x2
         run_simulation_for_case(task_id = 6, num_task_cgras=9, file_name="3x3", load_from_file=True)  # 3x3
         run_simulation_for_case(task_id = 6, num_task_cgras=16, file_name="4x4", load_from_file=True)  # 4x4
@@ -330,4 +317,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    scheduler.Kernel(kernel_name="gemm.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=12, cgra_columns=12),
+    # scheduler.Kernel(kernel_name="fft.c", kernel_id=3, arrive_period=3600000, unroll_factor=1, vector_factor=1, total_iterations=1200000, cgra_rows=4, cgra_columns=4),
