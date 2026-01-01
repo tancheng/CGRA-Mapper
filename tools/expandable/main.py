@@ -297,7 +297,6 @@ def main():
         for task_case_id in TASK_CONFIGS:
             run_simulation_for_case(task_case_id)
 
-        # TODO Fig11 用 hete
         # 4. Execute scheduling
         print("[Step 2] Loading tasks and Scheduling tasks on 2x2, 3x3, 5x5 Multi-CGRA...")
         global FUSION
