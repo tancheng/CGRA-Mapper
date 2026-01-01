@@ -182,6 +182,7 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
         task_id: Configuration case ID to run simulation for
     """
     print(f"[Step 2] Loading tasks for task {task_id}...")
+    global FUSION
 
     if load_from_file:
         if file_name == '2x2':
@@ -202,6 +203,8 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
 
     if (not load_from_file) or (file_name == '2x2'):
         # Run baseline simulation
+        FUSION = True
+        scheduler.update_args(FUSION)
         scheduler.run_multiple_simulations_and_save_to_csv(
             baseline_tasks,
             csv_name="Baseline",
@@ -210,6 +213,9 @@ def run_simulation_for_case(task_id, num_task_cgras = 9, file_name = "NULL", loa
             num_cgras=1  # one cgra is 12x12
         )
 
+    if not load_from_file:
+        FUSION = False
+        scheduler.update_args(FUSION)
     # Run task simulation
     scheduler.run_multiple_simulations_and_save_to_csv(
         task_tasks,
@@ -310,7 +316,6 @@ def main():
         # 5. Generate visualization
         if VISUALIZATION:  # Use global variable
             print(f"[Step 3] Generating visualization figures...")
-
             # Generate Fig9
             genFigs = visualizer.SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
             genFigs.genFig9("./fig/Fig9.png")
