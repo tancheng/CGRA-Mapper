@@ -6,8 +6,8 @@
         0
     ],
     "doCGRAMapping": true,
-    "row": 12,
-    "column": 12,
+    "row": 4,
+    "column": 4,
     "precisionAware": false,
     "fusionStrategy": [
         "default_heterogeneous"

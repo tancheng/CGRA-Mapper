@@ -185,7 +185,7 @@ class SimulationDataAnalyzer:
 
             # Cache the data
             cache_key = f"{task_case}_{csv_name}"
-            self.scalability_cache[cache_key] = df['Total_Execution_duration'] / execution_baseline
+            self.scalability_cache[cache_key] = df['Total_Execution_duration'].head(9) / execution_baseline
             self.latency_cache[cache_key] = df['Overall_Case_Latency'] / latency_baseline
             self.utilization_cache[cache_key] = df['CGRA_Utilization']
             return self.scalability_cache[cache_key]
@@ -231,7 +231,6 @@ class SimulationDataAnalyzer:
                 cache_key = f"{case}_{group}"  # Adjust based on your actual naming convention
                 execution_series = self.execution_cache.get(cache_key)
                 utilization_series = self.utilization_cache.get(cache_key)
-
                 # Bar chart data - Resource utilization
                 if execution_series is not None:
                     if hasattr(execution_series, 'to_dict'):
@@ -480,6 +479,8 @@ class SimulationDataAnalyzer:
         scalability_series = self.scalability_cache.get(cache_key)
         latency_series = self.latency_cache.get(cache_key)
         throughput_speedup = [0] * len(scalability_series)
+        tmp = [0] * len(scalability_series)
+        throughput_speedup_percentage = [0] * len(scalability_series)
         for i in range(len(scalability_series)):
             throughput_speedup[i] = (1 / (scalability_series[i] * latency_series[i] * 100))
         throughput_baseline = sum(throughput_speedup)
@@ -493,14 +494,19 @@ class SimulationDataAnalyzer:
                 utilization_series is None):
                     continue
                 for i in range(len(scalability_series)):
+                    tmp[i] = scalability_series[i] * latency_series[i]
                     if scalability_series[i] * latency_series[i] == 0:
-                        tmp = 0
+                        throughput_tmp = 0
                     else:
-                        tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
-                    throughput_speedup[i] = tmp / throughput_baseline
+                        throughput_tmp = (1 / (scalability_series[i] * latency_series[i] * 100))
+                    throughput_speedup[i] = throughput_tmp / throughput_baseline
+                sum_tmp = sum(tmp)
+                sum_throughput = sum(throughput_speedup)
+                for i in range(len(scalability_series)):
+                    throughput_speedup_percentage[i] = (tmp[i] / sum_tmp) * sum_throughput
                 # Bar chart data
                 for i, kernel in enumerate(self.KERNEL_NAMES):
-                    bar_data[kernel].append(throughput_speedup[i])
+                    bar_data[kernel].append(throughput_speedup_percentage[i])
 
                 # Line chart data
                 if utilization_series is not None:
@@ -633,20 +639,3 @@ class SimulationDataAnalyzer:
         # plt.legend()
         plt.savefig(fig_path)
         print(f"Generated fig {fig_path}")
-
-if __name__ == '__main__':
-    KERNEL_DATA = {
-    "fir.cpp": (7, 2048, 4096),
-    "latnrm.c": (8, 1280, 2560),
-    "fft.c": (2, 112640, 450560),
-    "dtw.cpp": (4, 16384, 49152),
-    "spmv.c": (3, 65536, 262144),
-    "conv.c": (1, 655360, 1310720),
-    "mvt.c": (5, 16384, 49152),
-    "gemm.c": (0, 2097152, 8388608),
-    "relu+histogram.c": (6, 262144, 2097152)
-    }
-    genFigs = SimulationDataAnalyzer(kernel_data=KERNEL_DATA)
-    genFigs.genFig9("./fig/Fig9Test.png")
-    #genFigs.genFig10("./fig/Fig10.png")
-    genFigs.genFig11("./fig/Fig11Test.png")
