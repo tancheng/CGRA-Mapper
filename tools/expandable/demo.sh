@@ -8,6 +8,10 @@ while [[ $# -gt 0 ]]; do
             TEST_FLAG="$2"
             shift 2
             ;;
+        -t|--timeout)
+            TIME_OUT="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown parameter: $1"
             exit 1
@@ -16,6 +20,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 TEST_FLAG=${TEST_FLAG:-n}
+TIME_OUT=${TIME_OUT:-180}
 
 rm -r ./tmp
 rm -r ./result
@@ -24,4 +29,4 @@ mkdir ./tmp
 mkdir ./result
 mkdir ./fig
 
-python main.py --test=$TEST_FLAG
+python main.py --test=$TEST_FLAG --time-out-set=$TIME_OUT
