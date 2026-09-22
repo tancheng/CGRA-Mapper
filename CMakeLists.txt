@@ -7,7 +7,9 @@ cmake_minimum_required(VERSION 3.1)
 find_package(LLVM REQUIRED CONFIG)
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(AddLLVM)
-set(CMAKE_CXX_STANDARD 14)
+# LLVM 19's headers require C++17 (std::is_class_v, std::optional, std::size,
+# ...); upstream pinned 14 for LLVM 12.  See PORT.md.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_definitions(${LLVM_DEFINITIONS})
