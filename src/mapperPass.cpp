@@ -9,9 +9,17 @@
  */
 
 #include <llvm/IR/Function.h>
-#include <llvm/Pass.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/LoopIterator.h>
+// New pass manager (LLVM 17+).  The legacy `FunctionPass` API still COMPILES
+// against LLVM 19 -- llvm/Pass.h is still shipped -- but `opt` no longer
+// accepts the legacy invocation: running `opt -load x.so -mapperPass` fails
+// with "The `opt -passname` syntax for the new pass manager is not
+// supported, please use `opt -passes=<pipeline>`".  So the pass has to be
+// REGISTERED as a plugin even though the old headers would still build.
+// See PORT.md.
+#include <llvm/Passes/PassBuilder.h>
+#include <llvm/Passes/PassPlugin.h>
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
@@ -25,27 +33,23 @@ extern int testing_opcode_offset;
 
 using namespace llvm;
 using namespace std;
-using json = nlohmann::json;
+// NOTE: upstream had `using json = nlohmann::json;` here.  Including
+// llvm/Passes/PassBuilder.h (needed for the new-PM plugin registration)
+// transitively pulls in llvm/Support/JSON.h, which declares `llvm::json`;
+// under `using namespace llvm` a bare `json` then becomes ambiguous.  The
+// four uses below are spelled `nlohmann::json` instead.  See PORT.md.
 using namespace chrono;
 
 void addDefaultKernels(map<string, list<int>*>*);
 
 namespace {
 
-  struct mapperPass : public FunctionPass {
+  struct mapperPass : public PassInfoMixin<mapperPass> {
 
   public:
-    static char ID;
     Mapper* mapper;
-    mapperPass() : FunctionPass(ID) {}
 
-    void getAnalysisUsage(AnalysisUsage &AU) const override {
-      AU.addRequired<LoopInfoWrapperPass>();
-      AU.addPreserved<LoopInfoWrapperPass>();
-      AU.setPreservesAll();
-    }
-
-    bool runOnFunction(Function &t_F) override {
+    PreservedAnalyses run(Function &t_F, FunctionAnalysisManager &t_FAM) {
 
       // Initializes input parameters.
       int rows                      = 4;
@@ -98,7 +102,7 @@ namespace {
         cout<<"A set of default parameters is leveraged.\033[0m"<<endl;
         cout<< "=============================================================\n";
       } else {
-        json param;
+        nlohmann::json param;
         i >> param;
 
 	// Check param exist or not.
@@ -129,14 +133,14 @@ namespace {
             param.at(itr);
           }
         }
-        catch (json::out_of_range& e)
+        catch (nlohmann::json::out_of_range& e)
         {
           cout<<"Please include related parameter in param.json: "<<e.what()<<endl;
 	        exit(0);
         }
 
         (*functionWithLoop)[param["kernel"]] = new list<int>();
-        json loops = param["targetLoopsID"];
+        nlohmann::json loops = param["targetLoopsID"];
         for (int i=0; i<loops.size(); ++i) {
           // cout<<"add index "<<loops[i]<<endl;
           (*functionWithLoop)[param["kernel"]]->push_back(loops[i]);
@@ -199,7 +203,7 @@ namespace {
           cout<<opt.key()<<" : "<<opt.value()<<endl;
           (*execLatency)[opt.key()] = opt.value();
         }
-        json pipeOpt = param["optPipelined"];
+        nlohmann::json pipeOpt = param["optPipelined"];
         for (int i=0; i<pipeOpt.size(); ++i) {
           pipelinedOpt->push_back(pipeOpt[i]);
         }
@@ -232,14 +236,14 @@ namespace {
       // Check existance.
       if (functionWithLoop->find(t_F.getName().str()) == functionWithLoop->end()) {
         cout<<"[function \'"<<t_F.getName().str()<<"\' is not in our target list]\n";
-        return false;
+        return PreservedAnalyses::all();
       }
       cout << "==================================\n";
       cout<<"[function \'"<<t_F.getName().str()<<"\' is one of our targets]\n";
       const bool enableDistributed = multiCycleStrategy.compare("distributed") == 0;
       const bool enableMultipleOps = multiCycleStrategy.compare("inclusive") == 0;
 
-      list<Loop*>* targetLoops = getTargetLoops(t_F, functionWithLoop, targetNested);
+      list<Loop*>* targetLoops = getTargetLoops(t_F, t_FAM.getResult<LoopAnalysis>(t_F), functionWithLoop, targetNested);
       // TODO: will make a list of patterns/tiles to illustrate how the
       //       heterogeneity is
       DFG* dfg = new DFG(t_F, targetLoops, targetEntireFunction, precisionAware,
@@ -288,12 +292,12 @@ namespace {
 
       if (!doCGRAMapping) {
         cout << "==================================\n";
-        return false;
+        return PreservedAnalyses::all();
       }
       if (!canMap(cgra, dfg)) {
         cout << "==================================\n";
         cout << "[Mapping Fail]\n";
-        return false;
+        return PreservedAnalyses::all();
       }
 
 
@@ -361,20 +365,23 @@ namespace {
       }
       cout << "=================================="<<endl;
 
-      return false;
+      // New-PM spelling of the legacy `return false;` / `setPreservesAll()`:
+      // the pass only READS the IR (it builds its own DFG/CGRA model and
+      // writes JSON), so nothing is invalidated.
+      return PreservedAnalyses::all();
     }
 
     /*
      * Add the loops of each kernel. Target nested-loops if it is indicated.
      */
-    list<Loop*>* getTargetLoops(Function& t_F, map<string, list<int>*>* t_functionWithLoop, bool t_targetNested) {
+    list<Loop*>* getTargetLoops(Function& t_F, LoopInfo& t_LI, map<string, list<int>*>* t_functionWithLoop, bool t_targetNested) {
       int targetLoopID = 0;
       list<Loop*>* targetLoops = new list<Loop*>();
       // Since the ordering of the target loop id could be random, I use O(n^2) to search the target loop.
       while((*t_functionWithLoop).at(t_F.getName().str())->size() > 0) {
         targetLoopID = (*t_functionWithLoop).at(t_F.getName().str())->front();
         (*t_functionWithLoop).at(t_F.getName().str())->pop_front();
-        LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+        LoopInfo &LI = t_LI;
         int tempLoopID = 0;
         Loop* current_loop = NULL;
         for(LoopInfo::iterator loopItr=LI.begin();
@@ -444,8 +451,30 @@ namespace {
   };
 }
 
-char mapperPass::ID = 0;
-static RegisterPass<mapperPass> X("mapperPass", "DFG Pass Analyse", false, false);
+//-----------------------------------------------------------------------------
+// New pass manager plugin registration
+//-----------------------------------------------------------------------------
+// Invoked as:
+//   opt-19 -load-pass-plugin=<this .so> -passes=mapperPass kernel.bc
+// The name string is what `-passes=` matches on, so it stays "mapperPass".
+
+extern "C" ::llvm::PassPluginLibraryInfo LLVM_ATTRIBUTE_WEAK
+llvmGetPassPluginInfo() {
+  return {
+    LLVM_PLUGIN_API_VERSION, "mapperPass", LLVM_VERSION_STRING,
+    []( PassBuilder &PB ) {
+      PB.registerPipelineParsingCallback(
+        []( StringRef Name, FunctionPassManager &FPM,
+            ArrayRef<PassBuilder::PipelineElement> ) {
+          if ( Name == "mapperPass" ) {
+            FPM.addPass( mapperPass() );
+            return true;
+          }
+          return false;
+        } );
+    }
+  };
+}
 
 /*
  * Add the kernel names of some popular applications.
